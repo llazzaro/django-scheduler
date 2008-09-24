@@ -284,7 +284,7 @@ class Event(models.Model):
         """
         Creates a EventRelation between self and obj.
         """
-        EventRelation.create_relation(self, obj, distinction)
+        EventRelation.objects.create_relation(self, obj, distinction)
 
 class CalendarManager(models.Manager):
     """
@@ -402,7 +402,7 @@ class Calendar(models.Model):
         if Inheritable is set to true this relation will cascade to all events 
         related to this calendar.
         """
-        CalendarRelation.create_relation(self, obj, distinction, inheritable)
+        CalendarRelation.objects.create_relation(self, obj, distinction, inheritable)
         
     def get_recent_events(self, amount=5, in_datetime = datetime.datetime.now):
         """
@@ -417,7 +417,7 @@ class Calendar(models.Model):
         """
         return self.events.order_by('-start').filter(start__lt=datetime.datetime.now())[:amount]
 
-    def get_upcoming_event(self, amount=5, in_datetime = datetime.datetime.now):
+    def get_upcoming_events(self, amount=5, in_datetime = datetime.datetime.now):
         """
         This shortcut function allows you to get events that will start soon.
         
@@ -427,7 +427,7 @@ class Calendar(models.Model):
         in_datetime is the datetime you want to check against.  It defaults to 
         datetime.datetime.now
         """
-        return self.event.order_by('start').filter(start_gt=datetime.datetime.now())[:amount]
+        return self.events.order_by('start').filter(start__gt=datetime.datetime.now())[:amount]
     
     def get_absolute_url(self):
         return reverse('s_calendar', args=[self.id])
@@ -435,6 +435,24 @@ class Calendar(models.Model):
     def add_event_url(self):
         return reverse('s_cal_create_event', args=[self.id])
     
+
+class CalendarRelationManager(models.Manager):
+    def create_relation(self, calendar, content_object, distinction=None, inheritable=True):
+        """
+        Creates a relation between calendar and content_object.
+        See CalendarRelation for help on distinction and inheritable
+        """
+        ct = ContentType.objects.get_for_model(type(content_object))
+        object_id = content_object.id
+        cr = CalendarRelation(
+            content_type = ct, 
+            object_id = object_id, 
+            calendar = calendar,
+            distinction = distinction,
+            content_object = content_object
+        )
+        cr.save()
+        return cr
         
 class CalendarRelation(models.Model):
     '''
@@ -466,19 +484,7 @@ class CalendarRelation(models.Model):
     distinction = models.CharField(max_length = 20, null=True)
     inheritable = models.BooleanField(default=True)
     
-    @classmethod
-    def create_relation(cls, calendar, content_object, distinction=None, inheritable=True):
-        ct = ContentType.objects.get_for_model(type(content_object))
-        object_id = content_object.id
-        cr = CalendarRelation(
-            content_type = ct, 
-            object_id = object_id, 
-            calendar = calendar,
-            distinction = distinction,
-            content_object = content_object
-        )
-        cr.save()
-        return cr
+    objects = CalendarRelationManager()
 
 class EventRelationManager(models.Manager):
     '''
@@ -559,7 +565,7 @@ class EventRelationManager(models.Manager):
         If we relate this calendar to some object with inheritable set to true, 
         that relation will be inherited
         >>> user = User.objects.get(username='bob')
-        >>> cr = CalendarRelation.create_relation(calendar, user, 'viewer', True)
+        >>> cr = calendar.create_relation(user, 'viewer', True)
         >>> EventRelation.objects.get_events_for_object(user, 'viewer')
         [<Event: Test1: Tuesday Jan 01, 2008-Friday Jan 11, 2008>, <Event: Test2: Tuesday Jan 01, 2008-Friday Jan 11, 2008>]
         '''
@@ -592,6 +598,23 @@ class EventRelationManager(models.Manager):
             relation.distinction = new_distinction
             relation.save()
     
+    def create_relation(self, event, content_object, distinction=None):
+        """
+        Creates a relation between event and content_object.
+        See EventRelation for help on distinction.
+        """
+        ct = ContentType.objects.get_for_model(type(content_object))
+        object_id = content_object.id
+        er = EventRelation(
+            content_type = ct, 
+            object_id = object_id, 
+            event = event,
+            distinction = distinction,
+            content_object = content_object
+        )
+        er.save()
+        return er    
+    
 
 class EventRelation(models.Model):
     '''
@@ -622,21 +645,7 @@ class EventRelation(models.Model):
     
     def __unicode__(self):
         return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
-    
-    @classmethod
-    def create_relation(cls, event, content_object, distinction=None):
-        if content_object is None or event is None or distinction is None:
-            raise TypeError('create_event_relation requires 3 keyword arguments')
-        ct = ContentType.objects.get_for_model(type(content_object))
-        object_id = content_object.id
-        er = EventRelation(
-            content_type = ct, 
-            object_id = object_id, 
-            event = event,
-            distinction = distinction,
-            content_object = content_object
-        )
-        er.save()
-        return er
+
+
     
     
