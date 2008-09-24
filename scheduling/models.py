@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 import datetime
 
 
@@ -214,7 +215,7 @@ class Event(models.Model):
     title = models.CharField(max_length = 255)
     description = models.TextField(null = True, blank = True)
     creator = models.ForeignKey(User, null = True)
-    datetime_of_creation = models.DateTimeField(default = datetime.datetime.now)
+    created_on = models.DateTimeField(default = datetime.datetime.now)
     
     objects = EventManager()
     
@@ -279,7 +280,78 @@ class Event(models.Model):
             return 0
         return None
     
+    def create_relation(self, obj, distinction = None):
+        """
+        Creates a EventRelation between self and obj.
+        """
+        EventRelation.create_relation(self, obj, distinction)
 
+class CalendarManager(models.Manager):
+    """
+    >>> user1 = User(username='tony')
+    >>> user1.save()
+    """
+    def get_calendar_for_object(self, obj, distinction=None):
+        """
+        This function gets a calendar for an object.  It should only return one
+        calendar.  If the object has more than one calendar related to it (or 
+        more than one related to it under a distinction if a distinction is 
+        defined) an AssertionError will be raised.  If none are returned it will
+        raise a DoesNotExistError.
+        
+        >>> user = User.objects.get(username='tony')
+        >>> try:
+        ...     Calendar.objects.get_calendar_for_object(user)
+        ... except Calendar.DoesNotExist:
+        ...     print "failed"
+        ...
+        failed
+        
+        Now if we add a calendar it should return the calendar
+        
+        >>> calendar = Calendar(name='My Cal')
+        >>> calendar.save()
+        >>> calendar.create_relation(user)
+        >>> Calendar.objects.get_calendar_for_object(user)
+        <Calendar: My Cal>
+        
+        Now if we add one more calendar it should raise an AssertionError 
+        because there is more than one related to it.
+        
+        If you would like to get more than one calendar for an object you should
+        use get_calendars_for_object (see below).
+        >>> calendar = Calendar(name='My 2nd Cal')
+        >>> calendar.save()
+        >>> calendar.create_relation(user)
+        >>> try:
+        ...     Calendar.objects.get_calendar_for_object(user)
+        ... except AssertionError:
+        ...     print "failed"
+        ...
+        failed
+        """
+        calendar_list = self.get_calendars_for_object(obj, distinction)
+        if len(calendar_list) == 0:
+            raise Calendar.DoesNotExist
+        elif len(calendar_list) > 1:
+            raise AssertionError
+        else:
+            return calendar_list[0]
+        
+    def get_calendars_for_object(self, obj, distinction = None):
+        """
+        This function allows you to get calendars for a specific object
+        
+        If distinction is set it will filter out any relation that doesnt have 
+        that distinction.
+        """
+        ct = ContentType.objects.get_for_model(type(obj))
+        if distinction:
+            dist_q = Q(calendarrelation__distinction=distinction)
+        else:
+            dist_q = Q()
+        return self.filter(dist_q, Q(calendarrelation__object_id=obj.id, calendarrelation__content_type=ct))
+    
 class Calendar(models.Model):
     '''
     This is for grouping events so that batch relations can be made to all
@@ -287,14 +359,83 @@ class Calendar(models.Model):
     
     name: the name of the calendar
     events: all the events contained within the calendar.
+    >>> calendar = Calendar(name = 'Test Calendar')
+    >>> calendar.save()
+    >>> data = {    
+    ...         'title': 'Recent Event', 
+    ...         'start': datetime.datetime(2008, 1, 5, 0, 0),
+    ...         'end': datetime.datetime(2008, 1, 10, 0, 0)
+    ...        }
+    >>> event = Event(**data)
+    >>> event.save()
+    >>> calendar.events.add(event)
+    >>> data = {    
+    ...         'title': 'Upcoming Event', 
+    ...         'start': datetime.datetime(2008, 1, 1, 0, 0),
+    ...         'end': datetime.datetime(2008, 1, 4, 0, 0)
+    ...        }
+    >>> event = Event(**data)
+    >>> event.save()
+    >>> calendar.events.add(event)
+    >>> data = {    
+    ...         'title': 'Current Event', 
+    ...         'start': datetime.datetime(2008, 1, 3),
+    ...         'end': datetime.datetime(2008, 1, 6)
+    ...        }
+    >>> event = Event(**data)
+    >>> event.save()
+    >>> calendar.events.add(event)    
     '''
     
     name = models.CharField(max_length = 200)
     events = models.ManyToManyField(Event)
     
+    objects = CalendarManager()
+    
     def __unicode__(self):
         return self.name
+        
+    def create_relation(self, obj, distinction = None, inheritable = True):
+        """
+        Creates a CalendarRelation between self and obj.
+        
+        if Inheritable is set to true this relation will cascade to all events 
+        related to this calendar.
+        """
+        CalendarRelation.create_relation(self, obj, distinction, inheritable)
+        
+    def get_recent_events(self, amount=5, in_datetime = datetime.datetime.now):
+        """
+        This shortcut function allows you to get events that have started 
+        recently.
+        
+        amount is the amount of events you want in the queryset. The default is 
+        5.
+        
+        in_datetime is the datetime you want to check against.  It defaults to 
+        datetime.datetime.now
+        """
+        return self.events.order_by('-start').filter(start__lt=datetime.datetime.now())[:amount]
 
+    def get_upcoming_event(self, amount=5, in_datetime = datetime.datetime.now):
+        """
+        This shortcut function allows you to get events that will start soon.
+        
+        amount is the amount of events you want in the queryset. The default is 
+        5.
+        
+        in_datetime is the datetime you want to check against.  It defaults to 
+        datetime.datetime.now
+        """
+        return self.event.order_by('start').filter(start_gt=datetime.datetime.now())[:amount]
+    
+    def get_absolute_url(self):
+        return reverse('s_calendar', args=[self.id])
+    
+    def add_event_url(self):
+        return reverse('s_cal_create_event', args=[self.id])
+    
+        
 class CalendarRelation(models.Model):
     '''
     This is for relating data to a Calendar, and possible all of the events for 
@@ -322,13 +463,11 @@ class CalendarRelation(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
-    distinction = models.CharField(max_length = 20)
+    distinction = models.CharField(max_length = 20, null=True)
     inheritable = models.BooleanField(default=True)
     
     @classmethod
-    def create_relation(cls, calendar=None, content_object=None, distinction=None, inheritable=True):
-        if content_object is None or calendar is None or distinction is None:
-            raise TypeError('create_event_relation requires 3 keyword arguments')
+    def create_relation(cls, calendar, content_object, distinction=None, inheritable=True):
         ct = ContentType.objects.get_for_model(type(content_object))
         object_id = content_object.id
         cr = CalendarRelation(
@@ -343,6 +482,8 @@ class CalendarRelation(models.Model):
 
 class EventRelationManager(models.Manager):
     '''
+    >>> EventRelation.objects.all().delete()
+    >>> CalendarRelation.objects.all().delete()
     >>> data = {    
     ...         'title': 'Test1', 
     ...         'start': datetime.datetime(2008, 1, 1),
@@ -358,9 +499,9 @@ class EventRelationManager(models.Manager):
     >>> user1.save()
     >>> user2 = User(username='bob')
     >>> user2.save()
-    >>> er = EventRelation.create_relation(user1, event1, 'owner')
-    >>> er = EventRelation.create_relation(user2, event1, 'viewer')
-    >>> er = EventRelation.create_relation(user1, event2, 'viewer')
+    >>> event1.create_relation(user1, 'owner')
+    >>> event1.create_relation(user2, 'viewer')
+    >>> event2.create_relation(user1, 'viewer')
     '''
     # Currently not supported because of Django short comings.
     # Multiple level reverse lookups of generic relations appears to be 
@@ -438,9 +579,7 @@ class EventRelationManager(models.Manager):
             )
         else:
             inherit_q = Q()
-        event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id),Q(eventrelation__content_type=ct))
-        print Event.objects.filter(inherit_q)
-        print Event.objects.filter(event_q)
+        event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id),Q(eventrelation__content_type=ct))    
         return Event.objects.filter(inherit_q|event_q)
     
     def change_distinction(self, distinction, new_distinction):
@@ -477,7 +616,7 @@ class EventRelation(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
-    distinction = models.CharField(max_length = 20)
+    distinction = models.CharField(max_length = 20, null=True)
     
     objects = EventRelationManager()
     
@@ -485,7 +624,7 @@ class EventRelation(models.Model):
         return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
     
     @classmethod
-    def create_relation(cls, content_object=None, event=None, distinction=None):
+    def create_relation(cls, event, content_object, distinction=None):
         if content_object is None or event is None or distinction is None:
             raise TypeError('create_event_relation requires 3 keyword arguments')
         ct = ContentType.objects.get_for_model(type(content_object))
@@ -499,30 +638,5 @@ class EventRelation(models.Model):
         )
         er.save()
         return er
-
-    
-"""
-import datetime
-from scheduling.models import EventManager
-test = True
-
-#testing utility functions on manager event
-
-
-
-em = EventManager()
-em._minimize_time(datetime.datetime(2008,1,1,3,4))
-test = test and _==datetime.datetime(2008,1,1,0,0)
-
-print test
-
-dt1 = datetime.datetime(2008,1,1,0,0)
-dt2 = datetime.datetime(2008,2,1,0,0)
-dt3 = datetime.datetime(2008,1,2,0,0)
-dt4 = datetime.datetime(2007,12,31,0,0)
-
-"""
-
-
     
     
