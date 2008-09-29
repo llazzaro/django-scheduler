@@ -22,7 +22,7 @@ def event(request, event_id):
     }, context_instance=RequestContext(request))
 
 @login_required
-def create_or_edit_event(request, calendar_id = None, event_id = None redirect=None):
+def create_or_edit_event(request, calendar_id = None, event_id = None, redirect = None):
     """
     This function, if it recieves a GET request or if given an invalid form in a
     POST request it will generate the following response
@@ -49,7 +49,7 @@ def create_or_edit_event(request, calendar_id = None, event_id = None redirect=N
     calendar = None
     if calendar_id is not None:
         calendar = get_object_or_404(Calendar, id=calendar_id)
-    form = EventForm(data = request.POST, instance=instance)
+    form = EventForm(data=request.POST, instance=instance, hour24=True)
     if form.is_valid():
         event = form.save(commit=False)
         if instance is None:

@@ -204,7 +204,10 @@ class EventManager(models.Manager):
         '''
         returnset = self.filter(start__lt = end)
         return returnset.filter(end__gte = start)
-
+    
+    def get_events_for_object(self, content_object, distinction=None, inherit=True):
+        pass
+    
 class Event(models.Model):
     '''
     This model stores meta data for a date.  You can relate this data to many
@@ -225,7 +228,9 @@ class Event(models.Model):
                                 self.start.strftime('%A %b %d, %Y'),
                                 self.end.strftime('%A %b %d, %Y'),
                              )
-    
+    def hour(self, in_date):
+        pass
+        
     def day(self, in_date):
         '''
         Takes in a date or datetime object and tells how this event relates to 
