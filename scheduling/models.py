@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from schedule.utils import Month
 import datetime
 
 
@@ -228,62 +229,9 @@ class Event(models.Model):
                                 self.start.strftime('%A %b %d, %Y'),
                                 self.end.strftime('%A %b %d, %Y'),
                              )
-    def hour(self, in_date):
-        pass
-        
-    def day(self, in_date):
-        '''
-        Takes in a date or datetime object and tells how this event relates to 
-        that date.
     
-        It returns None if the event does not occur on that day at all. It 
-        returns -1 if it is the first day this event occurs, it returns 1 if it 
-        is the last day this event occurs, and it returns 0 if it occurs on the
-        date but is not the first or last day it occurs. It returns 2 if it is 
-        both the day this event begins and ends, and it returns None if this
-        event does not occur on this day
-        
-        >>> data = {    
-        ...         'title': 'Test', 
-        ...         'start': datetime.datetime(2008, 1, 5),
-        ...         'end': datetime.datetime(2008, 1, 10)
-        ...        }
-        >>> Event.objects.all().delete()
-        >>> event = Event(**data)
-        
-        >>> dt = datetime.date(2008,1,5)
-        >>> event.day(dt)
-        -1
-        
-        >>> dt = datetime.date(2008,1,7)
-        >>> event.day(dt)
-        0
-        
-        >>> dt = datetime.date(2008,1,10)
-        >>> event.day(dt)
-        1
-        
-        >>> dt = datetime.date(2008,1,1)
-        >>> event.day(dt)
-        
-        >>> data['end'] = datetime.datetime(2008, 1, 5)
-        >>> event = Event(**data)
-        >>> dt = datetime.date(2008,1,5)
-        >>> event.day(dt)
-        2
-        '''
-        if isinstance(in_date, datetime.datetime):
-            in_date = in_date.date()
-        
-        if self.start.date() == in_date and self.end.date() == in_date:
-            return 2
-        elif self.start.date() == in_date:
-            return -1
-        elif self.end.date() == in_date:
-            return 1
-        elif in_date > self.start.date() and in_date < self.end.date():
-            return 0
-        return None
+    def get_absolute_url(self):
+        return reverse('s_event', args=[self.id])
     
     def create_relation(self, obj, distinction = None):
         """
@@ -439,6 +387,9 @@ class Calendar(models.Model):
     
     def add_event_url(self):
         return reverse('s_cal_create_event', args=[self.id])
+    
+    def get_month(self, date=datetime.datetime.now()):
+        return Month(self.events.all(), date)
     
 
 class CalendarRelationManager(models.Manager):

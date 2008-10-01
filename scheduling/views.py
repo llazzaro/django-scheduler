@@ -7,12 +7,15 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from schedule.forms import EventForm
 from schedule.models import *
+from schedule.utils import Month
 
 
 def calendar(request, calendar_id):
     calendar = get_object_or_404(Calendar, id = calendar_id)
+    month = calendar.get_month()
     return render_to_response('schedule/calendar.html', {
         "calendar": calendar,
+        "month": month,
     }, context_instance=RequestContext(request))
 
 def event(request, event_id):
