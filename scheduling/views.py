@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from schedule.forms import EventForm
 from schedule.models import *
-from schedule.utils import Month
+from schedule.periods import Month
 
 
 def calendar(request, calendar_id):

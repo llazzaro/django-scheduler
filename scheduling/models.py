@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from schedule.utils import Month
+from schedule.periods import Month
 import datetime
 
 
@@ -206,8 +206,8 @@ class EventManager(models.Manager):
         returnset = self.filter(start__lt = end)
         return returnset.filter(end__gte = start)
     
-    def get_events_for_object(self, content_object, distinction=None, inherit=True):
-        pass
+    def get_for_object(self, content_object, distinction=None, inherit=True):
+        return EventRelation.objects.get_events_for_object(content_object, distinction, inherit)
     
 class Event(models.Model):
     '''

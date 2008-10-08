@@ -163,23 +163,4 @@ class Day(Period):
         
     def week(self):
         return Week(self.events, self.start)
-"""
-from schedule.utils import Month
-m = Month(Event.objects.all())
-for w in m.get_weeks():
-    print w
 
-
-items = m.items()
-items.sort
-mv = [value for key,value in items]
-from schedule.utils import by_day
-import datetime
-d = by_day(Event.objects.all(), day=datetime.date(2008,9,22))
-items = d.items()
-items.sort
-for item in items:
-    print '%s: %s' % (item[0], item[1])
-
-
-"""
