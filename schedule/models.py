@@ -465,9 +465,9 @@ class EventRelationManager(models.Manager):
     >>> event1.create_relation(user2, 'viewer')
     >>> event2.create_relation(user1, 'viewer')
     '''
-    # Currently not supported because of Django short comings.
+    # Currently not supported
     # Multiple level reverse lookups of generic relations appears to be 
-    # unsupported.
+    # unsupported in Django.
     #
     # def get_objects_for_event(self, event, model, distinction=None):
     #     '''
