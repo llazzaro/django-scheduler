@@ -52,7 +52,7 @@ def create_or_edit_event(request, calendar_id = None, event_id = None, redirect 
     calendar = None
     if calendar_id is not None:
         calendar = get_object_or_404(Calendar, id=calendar_id)
-    form = EventForm(data=request.POST, instance=instance, hour24=True)
+    form = EventForm(data=request.POST or None, instance=instance, hour24=True)
     if form.is_valid():
         event = form.save(commit=False)
         if instance is None:
