@@ -1,7 +1,5 @@
-from django.contrib.admin import site
+from django.contrib import admin
 
-from models import Calendar
-from models import Event
+from schedule.models import Calendar, Event, CalendarRelation
 
-site.register(Calendar)
-site.register(Event)
+admin.site.register([Event, Calendar, CalendarRelation])

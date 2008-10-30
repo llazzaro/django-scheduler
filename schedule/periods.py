@@ -55,7 +55,7 @@ class Month(Period):
     and day periods within the date.
     """
     def __init__(self, events, date=datetime.datetime.now()):
-        start, end = _get_month_range(date)
+        start, end = self._get_month_range(date)
         super(Month, self).__init__(events, start, end)
     
     def get_weeks(self):
@@ -84,7 +84,7 @@ class Month(Period):
     def next_month(self):
         return self.end
         
-    def _get_month_range(month):
+    def _get_month_range(self, month):
         if isinstance(month, datetime.date) or isinstance(month, datetime.datetime):
             year = month.year
             month = month.month

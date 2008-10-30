@@ -441,6 +441,9 @@ class CalendarRelation(models.Model):
     inheritable = models.BooleanField(default=True)
     
     objects = CalendarRelationManager()
+    
+    def __unicode__(self):
+        return '%s - %s' %(self.calendar, self.content_object)
 
 class EventRelationManager(models.Manager):
     '''

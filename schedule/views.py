@@ -93,4 +93,3 @@ def _check_next_url(next):
     if '://' in next:
         return None
     return next
-    
