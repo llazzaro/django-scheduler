@@ -1,4 +1,5 @@
 from django.shortcuts import render_to_response, get_object_or_404
+from django.views.generic.create_update import delete_object
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -69,7 +70,7 @@ def create_or_edit_event(request, calendar_id = None, event_id = None, redirect 
         "calendar": calendar
     }, context_instance=RequestContext(request))
 
-def event_delete(request, event_id, redirect=None, login_required=True):
+def delete_event(request, event_id, redirect=None, login_required=True):
     """
     After the event is deleted there are three options for redirect, tried in
     this order:
@@ -78,11 +79,9 @@ def event_delete(request, event_id, redirect=None, login_required=True):
     # If the key word argument redirect is set
     # Lastly redirect to the event detail of the recently create event
     """
-    next = redirect or reverse('s_event_create')
+    next = redirect or reverse('s_create_event')
     if 'next' in request.GET:
         next = _check_next_url(request.GET['next']) or next
-    event = get_object_or_404(Event, id=event_id)
-    event.delete()
     return delete_object(request,
                          model = Event,
                          object_id = event_id,
