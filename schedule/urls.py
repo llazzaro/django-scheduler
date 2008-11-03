@@ -6,5 +6,5 @@ urlpatterns = patterns('',
     url(r'^event/create/$', 'schedule.views.create_or_edit_event', name='s_create_event'),
     url(r'^event/edit/(?P<event_id>\d+)/$', 'schedule.views.create_or_edit_event', name='s_edit_event'),
     url(r'^event/(\d+)/$', 'schedule.views.event', name="s_event"),
-    url(r'^event/delete/(\d+)/$', 'schedule.views.event', name="s_delete_event"),
+    url(r'^event/delete/(\d+)/$', 'schedule.views.delete_event', name="s_delete_event"),
     )

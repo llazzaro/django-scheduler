@@ -285,11 +285,30 @@ class CalendarManager(models.Manager):
         """
         calendar_list = self.get_calendars_for_object(obj, distinction)
         if len(calendar_list) == 0:
-            raise Calendar.DoesNotExist
+            raise Calendar.DoesNotExist, "Calendar does not exist."
         elif len(calendar_list) > 1:
-            raise AssertionError
+            raise AssertionError, "More than one calendars were found."
         else:
             return calendar_list[0]
+    
+    def get_or_create_calendar_for_object(self, obj, distinction = None, name = None):
+        """
+        >>> user = User(username="jeremy")
+        >>> user.save()
+        >>> calendar = Calendar.objects.get_or_create_calendar_for_object(user, name = "Jeremy's Calendar")
+        >>> calendar.name
+        "Jeremy's Calendar"
+        """
+        try:
+            return self.get_calendar_for_object(obj, distinction)
+        except Calendar.DoesNotExist:
+            if name is None:
+                calendar = Calendar(name = unicode(obj))
+            else:
+                calendar = Calendar(name = name)
+            calendar.save()
+            calendar.create_relation(obj, distinction)
+            return calendar
         
     def get_calendars_for_object(self, obj, distinction = None):
         """

@@ -29,9 +29,9 @@ def create_or_edit_event(request, calendar_id = None, event_id = None, redirect 
     """
     This function, if it recieves a GET request or if given an invalid form in a
     POST request it will generate the following response
-
+    
     * Template: schedule/create_event.html
-    * Context: 
+    * Context:
         * form: an instance of EventForm
         * calendar: a Calendar with id=calendar_id
     
@@ -48,7 +48,7 @@ def create_or_edit_event(request, calendar_id = None, event_id = None, redirect 
     """
     instance = None
     if event_id:
-        instance = get_object_or_404(Event, id=Event_id)
+        instance = get_object_or_404(Event, id=event_id)
     calendar = None
     if calendar_id is not None:
         calendar = get_object_or_404(Calendar, id=calendar_id)
@@ -69,9 +69,9 @@ def create_or_edit_event(request, calendar_id = None, event_id = None, redirect 
         "calendar": calendar
     }, context_instance=RequestContext(request))
 
-def event_delete(request, event_id, redirect=None):
+def event_delete(request, event_id, redirect=None, login_required=True):
     """
-    After the event is deleted there are three options for redirect, tried in 
+    After the event is deleted there are three options for redirect, tried in
     this order:
     
     # Try to find a 'next' GET variable
@@ -83,7 +83,13 @@ def event_delete(request, event_id, redirect=None):
         next = _check_next_url(request.GET['next']) or next
     event = get_object_or_404(Event, id=event_id)
     event.delete()
-    return HttpResponseRedirect(next)
+    return delete_object(request,
+                         model = Event,
+                         object_id = event_id,
+                         post_delete_redirect = next,
+                         template_name = "schedule/delete_event.html",
+                         login_required = login_required
+                        )
 
 def _check_next_url(next):
     """
