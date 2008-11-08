@@ -1,54 +1,56 @@
 import datetime
 from django.db.models.query import QuerySet
 
+from schedule.occurrence import Occurrence
+
 class Period(object):
     '''
-    This class represents a period of time. It has functions for retrieving 
-    events within the time period.
+    This class represents a period of time. It can return a set of occurrences
+    based on its events, and its time period (start and end).s
     '''
     def __init__(self, events, start, end):
         self.start = start
         self.end = end
-        self.events = self._get_sorted_events(events)
-        
+        self.events = events
+        self.occurrences = self._get_sorted_occurrences()
+
     def __eq__(self, period):
         return self.start==period.start and self.end==period.end and self.events==period.events
-    
-    def _get_sorted_events(self, events):
-        if isinstance(events, QuerySet):
-            return list(events.order_by('start'))
-        else:
-            events.sort(lambda a,b: cmp(a.start, b.start))
-            return events
-            
-    def classify_event(self, event):
+
+    def _get_sorted_occurrences(self):
+        occurrences = []
+        for event in self.events:
+            occurrences += event.get_occurrences(self.start, self.end)
+        return sorted(occurrences)
+
+    def classify_occurrence(self, occurrence):
         started = False
         ended = False
-        if event.start >= self.end or event.end < self.start:
-            return None
-        if event.start >= self.start and event.start < self.end:
+        if occurrence.occurrence_start_date >= self.start and occurrence.occurrence_start_date < self.end:
             started = True
-        if event.end >=self.start and event.end < self.end:
+        if occurrence.occurrence_end_date >=self.start and occurrence.occurrence_end_date< self.end:
             ended = True
         if started and ended:
-            return {'event': event, 'class': 1}
+            return {'occurrence': occurrence, 'class': 1}
         elif started:
-            return {'event': event, 'class': 0}
+            return {'occurrence': occurrence, 'class': 0}
         elif ended:
-            return {'event': event, 'class': 3}
-        # it existed during this period but it didnt begin or end within it 
+            return {'occurrence': occurrence, 'class': 3}
+        # it existed during this period but it didnt begin or end within it
         # so it must have just continued
-        return {'event': event, 'class': 2}
+        return {'occurrence': occurrence, 'class': 2}
+
+    def get_occurrences(self):
+        occurrence_dicts = []
+        for occurrence in self.occurrences:
+            occurrence = self.classify_occurrence(occurrence)
+            if occurrence:
+                occurrence_dicts.append(occurrence)
+        return occurrence_dicts
     
-    
-    def get_events(self):
-        event_dicts = []
-        for event in self.events:
-            event = self.classify_event(event)
-            if event:
-                event_dicts.append(event)
-        return event_dicts
-        
+    def get_unclassified_occurrences(self):
+        return self.occurrences
+
 class Month(Period):
     """
     The month period has functions for retrieving the week periods within this period
@@ -57,7 +59,7 @@ class Month(Period):
     def __init__(self, events, date=datetime.datetime.now()):
         start, end = self._get_month_range(date)
         super(Month, self).__init__(events, start, end)
-    
+
     def get_weeks(self):
         date = self.start
         weeks = []
@@ -67,7 +69,7 @@ class Month(Period):
             weeks.append(week)
             date = week.next_week()
         return weeks
-            
+
     def get_days(self):
         date = self.start
         days = []
@@ -77,13 +79,11 @@ class Month(Period):
             days.append(day)
             date = day.next_day()
         return days
-    
-    def get_events(self, period_range=datetime.timedelta(days=1)):
-        return self._get_events(self.start, self.end, period_range=period_range)
-    
+
+
     def next_month(self):
         return self.end
-        
+
     def _get_month_range(self, month):
         if isinstance(month, datetime.date) or isinstance(month, datetime.datetime):
             year = month.year
@@ -96,15 +96,15 @@ class Month(Period):
         else:
             raise ValueError('`month` must be a datetime.date or datetime.datetime object')
         return start, end
-    
+
     def __str__(self):
         return 'Month: %s-%s' % (
             self.start.strftime('%A %b %d, %Y'),
             self.end.strftime('%A %b %d, %Y'),)
-    
+
     def name(self):
         return self.start.strftime('%B')
-        
+
     def year(self):
         return self.start.strftime('%Y')
 
@@ -115,10 +115,10 @@ class Week(Period):
     def __init__(self, events, date=datetime.datetime.now()):
         start, end = self._get_week_range(date)
         super(Week, self).__init__(events, start, end)
-        
+
     def next_week(self):
         return self.end
-    
+
     def get_days(self):
         days = []
         date = self.start
@@ -127,7 +127,7 @@ class Week(Period):
             days.append(day)
             date = day.next_day()
         return days
-    
+
     def _get_week_range(self, week):
         if isinstance(week, datetime.datetime):
             week = week.date()
@@ -136,7 +136,7 @@ class Week(Period):
             start = start - datetime.timedelta(days=week.isoweekday())
         end = start + datetime.timedelta(days=7)
         return start, end
-    
+
     def __str__(self):
         return 'Week: %s-%s' % (
             self.start.strftime('%A %b %d, %Y'),
@@ -145,22 +145,23 @@ class Week(Period):
 class Day(Period):
     def __init__(self, events, date=datetime.date.today()):
         self.events = self._get_sorted_events(events)
+        self.occurrences = self._get_sorted_occurrences(events)
         if isinstance(date, datetime.datetime):
             date = date.date()
         self.start = datetime.datetime.combine(date, datetime.time.min)
         self.end = self.start + datetime.timedelta(days=1)
 
+
     def __str__(self):
         return 'Day: %s-%s' % (
             self.start.strftime('%A %b %d, %Y'),
             self.end.strftime('%A %b %d, %Y'),)
-        
+
     def next_day(self):
         return self.end
-        
+
     def month(self):
         return Month(self.events, self.start)
-        
+
     def week(self):
         return Week(self.events, self.start)
-

@@ -5,7 +5,9 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.generic.create_update import delete_object
 from django.conf import settings
+
 from schedule.forms import EventForm
 from schedule.models import *
 from schedule.periods import Month
