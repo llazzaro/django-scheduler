@@ -314,7 +314,6 @@ class Event(models.Model):
         >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
         >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
         ['2008-02-01 00:00:00 to 2008-02-02 00:00:00', '2008-03-01 00:00:00 to 2008-03-02 00:00:00']
-        
         """
         if self.rule:
             params = self.rule.get_params()
@@ -336,7 +335,7 @@ class Event(models.Model):
             except StopIteration:
                 pass
             return occurrences
-        return [Occurrence(self, start, end)]
+        return [Occurrence(self, self.start, self.end)]
 
 class CalendarManager(models.Manager):
     """

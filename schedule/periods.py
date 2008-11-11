@@ -20,7 +20,7 @@ class Period(object):
     def _get_sorted_occurrences(self):
         occurrences = []
         for event in self.events:
-            occurrences.append(event.get_occurrences(self.start, self.end))
+            occurrences += event.get_occurrences(self.start, self.end)
         return sorted(occurrences)
 
     def classify_occurrence(self, occurrence):
@@ -40,7 +40,7 @@ class Period(object):
         # so it must have just continued
         return {'occurrence': occurrence, 'class': 2}
 
-    def get_occurrences(self):
+    def get_occurrence_partials(self):
         occurrence_dicts = []
         for occurrence in self.occurrences:
             occurrence = self.classify_occurrence(occurrence)
@@ -48,7 +48,7 @@ class Period(object):
                 occurrence_dicts.append(occurrence)
         return occurrence_dicts
 
-    def get_unclassified_occurrences(self):
+    def get_occurrences(self):
         return self.occurrences
 
 class Month(Period):

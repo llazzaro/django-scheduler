@@ -49,6 +49,7 @@ class TestPeriod(TestCase):
 
     def setUp(self):
         rule = Rule(frequency = "WEEKLY")
+        rule.save()
         data = {
                 'title': 'Recent Event',
                 'start': datetime.datetime(2008, 1, 5, 8, 0),
@@ -64,7 +65,7 @@ class TestPeriod(TestCase):
     def test_get_occurences(self):
         occurrence_list = self.period.occurrences
         import ipdb; ipdb.set_trace()
-        print ["%s to %s" %(o.start, o.end) for o in occurrences]
+        print ["%s to %s" %(o.start, o.end) for o in occurrence_list]
 
         print self.period.occurrences
         print self.period.start
