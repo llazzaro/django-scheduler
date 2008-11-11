@@ -313,11 +313,11 @@ class Event(models.Model):
 
     def get_occurrences(self, start, end):
         """
-        >>> rule = Rule(frequency = "MONTHLY")
+        >>> rule = Rule(frequency = "MONTHLY", name = "Monthly")
         >>> rule.save()
         >>> event = Event(rule=rule, start=datetime.datetime(2008,1,1), end=datetime.datetime(2008,1,2))
         >>> event.rule
-        <Rule: Rule object>
+        <Rule: Monthly>
         >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
         >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
         ['2008-02-01 00:00:00 to 2008-02-02 00:00:00', '2008-03-01 00:00:00 to 2008-03-02 00:00:00']
