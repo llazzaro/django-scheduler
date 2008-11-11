@@ -8,40 +8,68 @@ from django.conf import settings
 from schedule.forms import GlobalSplitDateTimeWidget
 from schedule.models import Event, Rule
 from schedule.occurrence import Occurrence
+from schedule.periods import Period
 
-class GlobalSplitDateTimeWidgetTest(object):
-    """
-    >>> widget = GlobalSplitDateTimeWidget()
-    >>> value = datetime.datetime(2008, 1, 1, 5, 5)
-    >>> widget.decompress(value)
-    [datetime.date(2008, 1, 1), '05:05', 'AM']
-    >>> data = {'datetime_0':'2008-1-1', 'datetime_1':'5:05', 'datetime_2': 'PM'}
-    >>> widget.value_from_datadict(data, None, 'datetime')
-    datetime.datetime(2008, 1, 1, 17, 5)
-    >>> widget = GlobalSplitDateTimeWidget(hour24 = True)
-    >>> widget.value_from_datadict(data, None, 'datetime')
-    ['2008-1-1', '5:05']
-    """
-    pass
 
-class OccurrenceTest(object):
-    """
-    >>> rule = Rule(frequency = "WEEKLY")
-    >>> data = {
-    ...         'title': 'Recent Event',
-    ...         'start': datetime.datetime(2008, 1, 5, 8, 0),
-    ...         'end': datetime.datetime(2008, 1, 5, 9, 0),
-    ...         'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
-    ...         'rule': rule,
-    ...        }
-    >>> recurring_event = Event(**data)
-    >>> recurring_event.save()
-    >>> occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 12, 0, 0),
-    ...                             end=datetime.datetime(2008, 1, 20, 0, 0))
-    >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
-    ['2008-01-12 08:00:00 to 2008-01-12 09:00:00', '2008-01-19 08:00:00 to 2008-01-19 09:00:00']
+class TestSplitDateTimeWidget(TestCase):
+    def setUp(self):
+        self.widget = GlobalSplitDateTimeWidget()
+        self.value = datetime.datetime(2008, 1, 1, 5, 5)
+        self.data = {'datetime_0':'2008-1-1', 'datetime_1':'5:05', 'datetime_2': 'PM'}
+    def test_widget_decompress(self):
+        self.assertEquals(self.widget.decompress(self.value),
+                          [datetime.date(2008, 1, 1), '05:05', 'AM'])
 
-    """
+    def test_widget_value_from_datadict(self):
+        self.assertEquals(self.widget.value_from_datadict(self.data, None, 'datetime'),
+                          datetime.datetime(2008, 1, 1, 17, 5))
+        widget = GlobalSplitDateTimeWidget(hour24 = True)
+        self.assertEquals(widget.value_from_datadict(self.data, None, 'datetime'),
+                          ['2008-1-1', '5:05'])
+
+class TestOccurrence(TestCase):
+    def setUp(self):
+        rule = Rule(frequency = "WEEKLY")
+        self.data = {
+                'title': 'Recent Event',
+                'start': datetime.datetime(2008, 1, 5, 8, 0),
+                'end': datetime.datetime(2008, 1, 5, 9, 0),
+                'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
+                'rule': rule,
+               }
+    def test_occurrence(self):
+        recurring_event = Event(**self.data)
+        recurring_event.save()
+        occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 12, 0, 0),
+                                    end=datetime.datetime(2008, 1, 20, 0, 0))
+        self.assertEquals(["%s to %s" %(o.start, o.end) for o in occurrences],
+            ['2008-01-12 08:00:00 to 2008-01-12 09:00:00', '2008-01-19 08:00:00 to 2008-01-19 09:00:00'])
+
+class TestPeriod(TestCase):
+
+    def setUp(self):
+        rule = Rule(frequency = "WEEKLY")
+        data = {
+                'title': 'Recent Event',
+                'start': datetime.datetime(2008, 1, 5, 8, 0),
+                'end': datetime.datetime(2008, 1, 5, 9, 0),
+                'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
+                'rule': rule,
+               }
+        recurring_event = Event(**data)
+        recurring_event.save()
+        self.period = Period(events=Event.objects.all(),
+                            start = datetime.datetime(2008,1,4,7,0),
+                            end = datetime.datetime(2008,1,21,7,0))
+    def test_get_occurences(self):
+        occurrence_list = self.period.occurrences
+        import ipdb; ipdb.set_trace()
+        print ["%s to %s" %(o.start, o.end) for o in occurrences]
+
+        print self.period.occurrences
+        print self.period.start
+
+
 
 
 c = Client()

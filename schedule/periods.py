@@ -20,15 +20,15 @@ class Period(object):
     def _get_sorted_occurrences(self):
         occurrences = []
         for event in self.events:
-            occurrences += event.get_occurrences(self.start, self.end)
+            occurrences.append(event.get_occurrences(self.start, self.end))
         return sorted(occurrences)
 
     def classify_occurrence(self, occurrence):
         started = False
         ended = False
-        if occurrence.occurrence_start_date >= self.start and occurrence.occurrence_start_date < self.end:
+        if occurrence.start >= self.start and occurrence.start < self.end:
             started = True
-        if occurrence.occurrence_end_date >=self.start and occurrence.occurrence_end_date< self.end:
+        if occurrence.end >=self.start and occurrence.end< self.end:
             ended = True
         if started and ended:
             return {'occurrence': occurrence, 'class': 1}
@@ -47,7 +47,7 @@ class Period(object):
             if occurrence:
                 occurrence_dicts.append(occurrence)
         return occurrence_dicts
-    
+
     def get_unclassified_occurrences(self):
         return self.occurrences
 
@@ -144,7 +144,7 @@ class Week(Period):
 
 class Day(Period):
     def __init__(self, events, date=datetime.date.today()):
-        self.events = self._get_sorted_events(events)
+        #self.events = self._get_sorted_events(events)
         self.occurrences = self._get_sorted_occurrences(events)
         if isinstance(date, datetime.datetime):
             date = date.date()

@@ -26,18 +26,6 @@
                         </li>
                     {% endfor %}
                 </ul>
-                 occurrences
-                 <ul>
-                    {% for occurrence_partial in day.get_occurrences %}
-                        <li><a href="{{event_partial.event.get_absolute_url}}">
-                           {{ occurrence_partial.occurrence.event.title }}
-                            {{ occurrence_partial.event.title }}</a>
-                                {% ifequal occurrence_partial.class 0 %}(Starts){% endifequal %}
-                                {% ifequal occurrence_partial.class 2 %}(Contiues){% endifequal %}
-                                {% ifequal occurrence_partial.class 3 %}(Ends){% endifequal %}
-                        </li>
-                    {% endfor %}
-                </ul>
              </td>
         {% endfor %}
         </tr>
