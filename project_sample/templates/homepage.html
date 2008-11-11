@@ -1,0 +1,42 @@
+{% extends "site_base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Welcome" %}{% endblock %}
+
+{% block tab_id %}id="home_tab"{% endblock %}
+
+{% block body %}
+    {% blocktrans %}
+        <h1>django-schedule</h1>
+    {% endblocktrans %}
+    {% blocktrans %}
+        <p>This project is a scheduling app. At its core it is just an single date range (two datetime objects rather) with a bunch of meta data, such as Title, etc.
+
+To make it more user friendly there is the idea of EventRelation which links generic objects and an Event object.  The idea is that you will keep more information about the event in these relations. Like who is authorized to view them.
+
+It could be the case that User is linked to Event to represent who is authorized to view the event, and also User is linked to event to represent who is attending the event.  The EventRelation has another field called distinction.  So in the previous example we could add an EventRelation which links a User to an Event with the distinction "viewer" and another EventRelation which links a User to an Event with the distinction "attendee."</p>
+    {% endblocktrans %}
+    {% blocktrans %}
+        <h2>Want to see it in action</h2>
+    {% endblocktrans %}
+    {% blocktrans %}
+        <p>The sample project come with a management command that enable you to load some data.</p>
+        <p>./manage.py load_sample_data</div>
+    {% endblocktrans %}
+    {% blocktrans %}
+        <h3>Project Owner</h3>
+        <ul>
+            <li>Tony Hauber</li>
+        </ul>
+        <h3>Contributors</h3>
+        <ul>
+            <li>Yann Malet</li>
+            <li>Alex Gaynor</li>
+        </ul>
+    {% endtemplateblock %}
+
+
+
+
+{% endblock %}

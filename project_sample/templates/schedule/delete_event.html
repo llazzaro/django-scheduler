@@ -1,0 +1,11 @@
+{% extends "site_base.html" %}
+
+{% block body %}
+<h1>Delete</h1>
+Are you sure you really want to delete it ?
+
+<form action="." method="POST">
+    {{ object }} <br/>
+<input type="submit" value="Delete" />
+</form>
+{% endblock %}

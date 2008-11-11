@@ -1,5 +1,14 @@
-from schedule.forms import GlobalSplitDateTimeWidget
 import datetime
+import os
+
+from django.test import TestCase
+from django.test import Client
+from django.conf import settings
+
+from schedule.forms import GlobalSplitDateTimeWidget
+from schedule.models import Event, Rule
+from schedule.occurrence import Occurrence
+
 class GlobalSplitDateTimeWidgetTest(object):
     """
     >>> widget = GlobalSplitDateTimeWidget()
@@ -15,14 +24,32 @@ class GlobalSplitDateTimeWidgetTest(object):
     """
     pass
 
-from django.test import TestCase
-from django.test import Client
-from django.conf import settings 
+class OccurrenceTest(object):
+    """
+    >>> rule = Rule(frequency = "WEEKLY")
+    >>> data = {
+    ...         'title': 'Recent Event',
+    ...         'start': datetime.datetime(2008, 1, 5, 8, 0),
+    ...         'end': datetime.datetime(2008, 1, 5, 9, 0),
+    ...         'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
+    ...         'rule': rule,
+    ...        }
+    >>> recurring_event = Event(**data)
+    >>> recurring_event.save()
+    >>> occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 12, 0, 0),
+    ...                             end=datetime.datetime(2008, 1, 20, 0, 0))
+    >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
+    ['2008-01-12 08:00:00 to 2008-01-12 09:00:00', '2008-01-19 08:00:00 to 2008-01-19 09:00:00']
+
+    """
+
+
 c = Client()
 
 class TestUrls(TestCase):
-    schedule_fixture = getattr(settings, 'PROJECT_PATH', '/Users/tonyhauber/Projects/django-projects/schedtest/schedule/fixtures/schedule.json')
-    
+    schedule_fixture = os.path.join(getattr(settings, 'PROJECT_DIR'),
+                                    "fixtures/schedule.json")
+
     fixtures = [schedule_fixture]
     def test_calendar_view(self):
         self.response = c.get('/schedule/calendar/1/', {})
