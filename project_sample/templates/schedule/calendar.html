@@ -1,7 +1,10 @@
 {% extends "site_base.html" %}
 {% block body %}
     <a href={{calendar.add_event_url}}>Add event</a>
-    <h1>{{month.name}} {{month.year}}</h1>
+    <h1>
+        <a href="{% url s_calendar_date calendar.id,month.prev_month.year,month.prev_month.month %}"> &lt; </a>
+        {{month.name}} {{month.year}}
+        <a href="{% url s_calendar_date calendar.id,month.next_month.year,month.next_month.month %}"> &gt; </a></h1>
     <table style="border: black solid 1px">
     {% for week in month.get_weeks %}
         <tr>
