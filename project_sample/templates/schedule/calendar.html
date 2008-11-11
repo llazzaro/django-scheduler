@@ -17,12 +17,12 @@
                  <h2>{{day.start.day}}</h2>
                  events
                  <ul>
-                    {% for event_partial in day.get_events %}
-                        <li><a href="{{event_partial.event.get_absolute_url}}">
-                            {{ event_partial.event.title }}</a>
-                                {% ifequal event_partial.class 0 %}(Starts){% endifequal %}
-                                {% ifequal event_partial.class 2 %}(Contiues){% endifequal %}
-                                {% ifequal event_partial.class 3 %}(Ends){% endifequal %}
+                    {% for occurrence_partial in day.get_occurrence_partials %}
+                        <li><a href="{{occurrence_partial.event.get_absolute_url}}">
+                            {{ occurrence_partial.occurrence.event.title }}</a>
+                                {% ifequal occurrence_partial.class 0 %}(Starts){% endifequal %}
+                                {% ifequal occurrence_partial.class 2 %}(Contiues){% endifequal %}
+                                {% ifequal occurrence_partial.class 3 %}(Ends){% endifequal %}
                         </li>
                     {% endfor %}
                 </ul>

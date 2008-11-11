@@ -8,7 +8,7 @@ from django.conf import settings
 from schedule.forms import GlobalSplitDateTimeWidget
 from schedule.models import Event, Rule
 from schedule.occurrence import Occurrence
-from schedule.periods import Period
+from schedule.periods import Period, Month
 
 
 class TestSplitDateTimeWidget(TestCase):
@@ -30,6 +30,7 @@ class TestSplitDateTimeWidget(TestCase):
 class TestOccurrence(TestCase):
     def setUp(self):
         rule = Rule(frequency = "WEEKLY")
+        rule.save()
         self.data = {
                 'title': 'Recent Event',
                 'start': datetime.datetime(2008, 1, 5, 8, 0),
@@ -64,11 +65,85 @@ class TestPeriod(TestCase):
                             end = datetime.datetime(2008,1,21,7,0))
     def test_get_occurences(self):
         occurrence_list = self.period.occurrences
-        import ipdb; ipdb.set_trace()
-        print ["%s to %s" %(o.start, o.end) for o in occurrence_list]
+        self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrence_list],
+            ['2008-01-05 08:00:00 to 2008-01-05 09:00:00',
+             '2008-01-12 08:00:00 to 2008-01-12 09:00:00',
+             '2008-01-19 08:00:00 to 2008-01-19 09:00:00'])
 
-        print self.period.occurrences
-        print self.period.start
+    def test_get_occurrence_partials(self):
+        occurrence_dicts = self.period.get_occurrence_partials()
+        self.assertEqual(
+            [(occ_dict["class"],
+            occ_dict["occurrence"].start,
+            occ_dict["occurrence"].end)
+            for occ_dict in occurrence_dicts],
+            [
+                (1,
+                 datetime.datetime(2008, 1, 5, 8, 0),
+                 datetime.datetime(2008, 1, 5, 9, 0)),
+                (1,
+                 datetime.datetime(2008, 1, 12, 8, 0),
+                 datetime.datetime(2008, 1, 12, 9, 0)),
+                (1,
+                 datetime.datetime(2008, 1, 19, 8, 0),
+                 datetime.datetime(2008, 1, 19, 9, 0))
+            ])
+
+class TestMonth(TestCase):
+    def setUp(self):
+        rule = Rule(frequency = "WEEKLY")
+        rule.save()
+        data = {
+                'title': 'Recent Event',
+                'start': datetime.datetime(2008, 1, 5, 8, 0),
+                'end': datetime.datetime(2008, 1, 5, 9, 0),
+                'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
+                'rule': rule,
+               }
+        recurring_event = Event(**data)
+        recurring_event.save()
+        self.month = Month(events=Event.objects.all(),
+                           date=datetime.datetime(2008, 2, 7, 9, 0))
+    def test_get_weeks(self):
+        weeks = self.month.get_weeks()
+        self.assertEqual([(week.start,week.end) for week in weeks],
+            [
+                (datetime.datetime(2008, 1, 27, 0, 0),
+                datetime.datetime(2008, 2, 3, 0, 0)),
+                (datetime.datetime(2008, 2, 3, 0, 0),
+                datetime.datetime(2008, 2, 10, 0, 0)),
+                (datetime.datetime(2008, 2, 10, 0, 0),
+                 datetime.datetime(2008, 2, 17, 0, 0)),
+                (datetime.datetime(2008, 2, 17, 0, 0),
+                 datetime.datetime(2008, 2, 24, 0, 0)),
+                (datetime.datetime(2008, 2, 24, 0, 0),
+                 datetime.datetime(2008, 3, 2, 0, 0))
+            ])
+
+    def test_get_days(self):
+        weeks = self.month.get_weeks()
+        week = weeks[0]
+        days = week.get_days()
+        self.assertEqual(
+            [
+                (len(day.occurrences), day.start,day.end) for day in days
+            ],
+            [
+                (0, datetime.datetime(2008, 1, 27, 0, 0),
+                 datetime.datetime(2008, 1, 28, 0, 0)),
+                (0, datetime.datetime(2008, 1, 28, 0, 0),
+                 datetime.datetime(2008, 1, 29, 0, 0)),
+                (0, datetime.datetime(2008, 1, 29, 0, 0),
+                 datetime.datetime(2008, 1, 30, 0, 0)),
+                (0, datetime.datetime(2008, 1, 30, 0, 0),
+                 datetime.datetime(2008, 1, 31, 0, 0)),
+                (0, datetime.datetime(2008, 1, 31, 0, 0),
+                 datetime.datetime(2008, 2, 1, 0, 0)),
+                (0, datetime.datetime(2008, 2, 1, 0, 0),
+                 datetime.datetime(2008, 2, 2, 0, 0)),
+                (1, datetime.datetime(2008, 2, 2, 0, 0),
+                 datetime.datetime(2008, 2, 3, 0, 0))]
+            )
 
 
 

@@ -21,18 +21,18 @@ freqs = (   ("YEARLY","Yearly"),
 class Rule(models.Model):
     """
     This defines a rule by which an event will recur.  This is defined by the
-    rrule in the dateutil documentation.  
-    
+    rrule in the dateutil documentation.
+
     * name - the human friendly name of this kind of recursion.
     * description - a short description describing this type of recursion.
     * frequency - the base recurrence period
     * param - extra params required to define this type of recursion. The params
       should follow this format:
-      
+
         param = [rruleparam:value;]*
         rruleparam = see list below
-        value = int[,int]* 
-      
+        value = int[,int]*
+
       The options are: (documentation for these can be found at
       http://labix.org/python-dateutil#head-470fa22b2db72000d7abe698a5783a46b0731b57)
         ** count
@@ -51,7 +51,7 @@ class Rule(models.Model):
     description = models.TextField()
     frequency = models.CharField(choices=freqs, max_length=10)
     params = models.TextField()
-    
+
     def get_params(self):
         """
         >>> rule = Rule(params = "count:1,2,3;bysecond:1;byminute:1,2,4,5")
@@ -66,10 +66,10 @@ class Rule(models.Model):
                 param = (param[0], [int(p) for p in param[1].split(',')])
                 param_dict.append(param)
         return dict(param_dict)
-            
-            
-        
-    
+
+
+
+
 class EventManager(models.Manager):
 
     def get_sorted_events(self):
@@ -306,16 +306,19 @@ class Event(models.Model):
         Creates a EventRelation between self and obj.
         """
         EventRelation.objects.create_relation(self, obj, distinction)
-    
+
     def get_occurrences(self, start, end):
         """
         >>> rule = Rule(frequency = "MONTHLY")
+        >>> rule.save()
         >>> event = Event(rule=rule, start=datetime.datetime(2008,1,1), end=datetime.datetime(2008,1,2))
+        >>> event.rule
+        <Rule: Rule object>
         >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
         >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
         ['2008-02-01 00:00:00 to 2008-02-02 00:00:00', '2008-03-01 00:00:00 to 2008-03-02 00:00:00']
         """
-        if self.rule:
+        if self.rule is not None:
             params = self.rule.get_params()
             frequency = 'rrule.%s' % self.rule.frequency
             occurrences = []
@@ -388,7 +391,7 @@ class CalendarManager(models.Manager):
             raise AssertionError, "More than one calendars were found."
         else:
             return calendar_list[0]
-    
+
     def get_or_create_calendar_for_object(self, obj, distinction = None, name = None):
         """
         >>> user = User(username="jeremy")
@@ -407,12 +410,12 @@ class CalendarManager(models.Manager):
             calendar.save()
             calendar.create_relation(obj, distinction)
             return calendar
-        
+
     def get_calendars_for_object(self, obj, distinction = None):
         """
         This function allows you to get calendars for a specific object
-        
-        If distinction is set it will filter out any relation that doesnt have 
+
+        If distinction is set it will filter out any relation that doesnt have
         that distinction.
         """
         ct = ContentType.objects.get_for_model(type(obj))

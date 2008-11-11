@@ -144,13 +144,12 @@ class Week(Period):
 
 class Day(Period):
     def __init__(self, events, date=datetime.date.today()):
-        #self.events = self._get_sorted_events(events)
-        self.occurrences = self._get_sorted_occurrences(events)
+        self.events=events
         if isinstance(date, datetime.datetime):
             date = date.date()
         self.start = datetime.datetime.combine(date, datetime.time.min)
         self.end = self.start + datetime.timedelta(days=1)
-
+        self.occurrences = self._get_sorted_occurrences()
 
     def __str__(self):
         return 'Day: %s-%s' % (

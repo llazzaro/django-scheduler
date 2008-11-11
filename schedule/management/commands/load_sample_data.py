@@ -19,8 +19,9 @@ class Command(NoArgsCommand):
             import sys
             sys.exit(1)
         except Calendar.DoesNotExist:
-            import ipdb; ipdb.set_trace()
-            pass
+            print "Sample data not found in db."
+            print "Install it..."
+
 
         print "Create 2 calendars : tony_cal, yml_cal"
         yml_cal = Calendar(name="yml_cal")
@@ -30,12 +31,14 @@ class Command(NoArgsCommand):
         tony_cal.save()
         print "Second calendar is created"
         print "Create some events"
-        
+        rule = Rule(frequency = "WEEKLY")
+        rule.save()
         data = {
                 'title': 'Ping pong',
-                'start': datetime.datetime(2008, 11, 1, 0, 0),
-                'end': datetime.datetime(2010, 1, 10, 0, 0),
-                'rule': Rule(frequency = "WEEKLY")
+                'start': datetime.datetime(2008, 11, 1, 8, 0),
+                'end': datetime.datetime(2008, 11, 1, 9, 0),
+                'end_recurring_period' : datetime.datetime(2010, 5, 5, 0, 0),
+                'rule': rule
                }
         event = Event(**data)
         event.save()
