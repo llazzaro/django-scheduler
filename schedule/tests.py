@@ -31,20 +31,36 @@ class TestOccurrence(TestCase):
     def setUp(self):
         rule = Rule(frequency = "WEEKLY")
         rule.save()
-        self.data = {
+        self.recurring_data = {
                 'title': 'Recent Event',
                 'start': datetime.datetime(2008, 1, 5, 8, 0),
                 'end': datetime.datetime(2008, 1, 5, 9, 0),
                 'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
                 'rule': rule,
                }
-    def test_occurrence(self):
-        recurring_event = Event(**self.data)
+        self.data = {
+                'title': 'Recent Event',
+                'start': datetime.datetime(2008, 1, 5, 8, 0),
+                'end': datetime.datetime(2008, 1, 5, 9, 0),
+                'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
+               }
+    def test_recurring_event_get_occurrences(self):
+        recurring_event = Event(**self.recurring_data)
         recurring_event.save()
         occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 12, 0, 0),
                                     end=datetime.datetime(2008, 1, 20, 0, 0))
         self.assertEquals(["%s to %s" %(o.start, o.end) for o in occurrences],
             ['2008-01-12 08:00:00 to 2008-01-12 09:00:00', '2008-01-19 08:00:00 to 2008-01-19 09:00:00'])
+
+    def test_event_get_occurrences(self):
+        event= Event(**self.data)
+        event.save()
+        #import ipdb; ipdb.set_trace()
+        occurrences = event.get_occurrences(start=datetime.datetime(2008, 1, 12, 0, 0),
+                                    end=datetime.datetime(2008, 1, 20, 0, 0))
+
+        self.assertEquals(["%s to %s" %(o.start, o.end) for o in occurrences],
+            [])
 
 class TestPeriod(TestCase):
 

@@ -317,6 +317,14 @@ class Event(models.Model):
         >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
         >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
         ['2008-02-01 00:00:00 to 2008-02-02 00:00:00', '2008-03-01 00:00:00 to 2008-03-02 00:00:00']
+
+        Ensure that if an event has no rule and no end_recurring_period defined it appears only once.
+
+        >>> event = Event(start=datetime.datetime(2008,1,1,8,0), end=datetime.datetime(2008,1,1,9,0))
+        >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
+        >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
+        []
+
         """
         if self.rule is not None:
             params = self.rule.get_params()
@@ -338,7 +346,13 @@ class Event(models.Model):
             except StopIteration:
                 pass
             return occurrences
-        return [Occurrence(self, self.start, self.end)]
+        else:
+            #import ipdb; ipdb.set_trace()
+            #Check if the period given to get_occurences encompass the event
+            if start < self.start and end > self.end:
+                return [Occurrence(self, self.start, self.end)]
+            else:
+                return []
 
 class CalendarManager(models.Manager):
     """
