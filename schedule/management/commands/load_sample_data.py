@@ -30,13 +30,37 @@ class Command(NoArgsCommand):
         tony_cal = Calendar(name="tony_cal")
         tony_cal.save()
         print "Second calendar is created"
-        print "Create some events"
+        print "create the most common rules."
+        rule = Rule(frequency = "YEARLY")
+        rule.save()
+        print "YEARLY recurrence created"
+        rule = Rule(frequency = "MONTHLY")
+        rule.save()
+        print "Monthly recurrence created"
         rule = Rule(frequency = "WEEKLY")
         rule.save()
+        print "Weekly recurrence created"
+        rule = Rule(frequency = "DAILY")
+        rule.save()
+        print "Daily recurrence created"
+
+        print "Create some events"
+        rule = Rule.objects.get(frequency="WEEKLY")
         data = {
                 'title': 'Ping pong',
                 'start': datetime.datetime(2008, 11, 1, 8, 0),
                 'end': datetime.datetime(2008, 11, 1, 9, 0),
+                'end_recurring_period' : datetime.datetime(2010, 5, 5, 0, 0),
+                'rule': rule
+               }
+        event = Event(**data)
+        event.save()
+        tony_cal.events.add(event)
+        rule = Rule.objects.get(frequency="DAILY")
+        data = {
+                'title': 'Home work',
+                'start': datetime.datetime(2008, 11, 1, 18, 0),
+                'end': datetime.datetime(2008, 11, 1, 19, 0),
                 'end_recurring_period' : datetime.datetime(2010, 5, 5, 0, 0),
                 'rule': rule
                }

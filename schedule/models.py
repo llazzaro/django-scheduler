@@ -347,7 +347,6 @@ class Event(models.Model):
                 pass
             return occurrences
         else:
-            #import ipdb; ipdb.set_trace()
             #Check if the period given to get_occurences encompass the event
             if start < self.start and end > self.end:
                 return [Occurrence(self, self.start, self.end)]

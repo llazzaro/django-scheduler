@@ -15,10 +15,9 @@
                         padding-left: 10px
                         ">
                  <h2>{{day.start.day}}</h2>
-                 events
                  <ul>
                     {% for occurrence_partial in day.get_occurrence_partials %}
-                        <li><a href="{{occurrence_partial.event.get_absolute_url}}">
+                        <li>{{ occurrence_partial.occurrence.start.time }} - {{ occurrence_partial.occurrence.end.time }} : <a href="{{occurrence_partial.occurrence.event.get_absolute_url}}">
                             {{ occurrence_partial.occurrence.event.title }}</a>
                                 {% ifequal occurrence_partial.class 0 %}(Starts){% endifequal %}
                                 {% ifequal occurrence_partial.class 2 %}(Contiues){% endifequal %}

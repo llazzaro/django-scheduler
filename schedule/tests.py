@@ -55,7 +55,6 @@ class TestOccurrence(TestCase):
     def test_event_get_occurrences(self):
         event= Event(**self.data)
         event.save()
-        #import ipdb; ipdb.set_trace()
         occurrences = event.get_occurrences(start=datetime.datetime(2008, 1, 12, 0, 0),
                                     end=datetime.datetime(2008, 1, 20, 0, 0))
 
