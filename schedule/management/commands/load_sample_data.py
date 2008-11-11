@@ -31,16 +31,16 @@ class Command(NoArgsCommand):
         tony_cal.save()
         print "Second calendar is created"
         print "create the most common rules."
-        rule = Rule(frequency = "YEARLY")
+        rule = Rule(frequency = "YEARLY", name = "Yearly", description = "will recur once every Year")
         rule.save()
         print "YEARLY recurrence created"
-        rule = Rule(frequency = "MONTHLY")
+        rule = Rule(frequency = "MONTHLY", name = "Monthly", description = "will recur once every Month")
         rule.save()
         print "Monthly recurrence created"
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency = "WEEKLY", name = "Weekly", description = "will recur once every Week")
         rule.save()
         print "Weekly recurrence created"
-        rule = Rule(frequency = "DAILY")
+        rule = Rule(frequency = "DAILY", name = "Daily", description = "will recur once every Day")
         rule.save()
         print "Daily recurrence created"
 
