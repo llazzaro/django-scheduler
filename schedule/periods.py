@@ -83,6 +83,9 @@ class Month(Period):
 
     def next_month(self):
         return self.end
+    
+    def prev_month(self):
+        return self.start - datetime.timedelta(days=1)
 
     def _get_month_range(self, month):
         if isinstance(month, datetime.date) or isinstance(month, datetime.datetime):

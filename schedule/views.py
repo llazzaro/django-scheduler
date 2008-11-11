@@ -7,15 +7,19 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.generic.create_update import delete_object
 from django.conf import settings
+import datetime
 
 from schedule.forms import EventForm
 from schedule.models import *
 from schedule.periods import Month
 
 
-def calendar(request, calendar_id):
+def calendar(request, calendar_id, year=None, month=None):
     calendar = get_object_or_404(Calendar, id = calendar_id)
-    month = calendar.get_month()
+    if year and month:
+        month = calendar.get_month(datetime.date(int(year),int(month),1))
+    else:
+        month = calendar.get_month()
     return render_to_response('schedule/calendar.html', {
         "calendar": calendar,
         "month": month,
