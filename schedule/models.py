@@ -63,7 +63,7 @@ class Rule(models.Model):
         for param in params:
             param = param.split(':')
             if len(param) == 2:
-                param = (param[0], [int(p) for p in param[1].split(',')])
+                param = (str(param[0]), [int(p) for p in param[1].split(',')])
                 param_dict.append(param)
         return dict(param_dict)
 
