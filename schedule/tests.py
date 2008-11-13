@@ -175,6 +175,8 @@ class TestUrls(TestCase):
     def test_calendar_view(self):
         self.response = c.get(reverse("s_calendar", kwargs={"calendar_id":1}), {})
         self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.response.context[0]["calendar"].name,
+                         "work")
 
     def test_calendar_date_view(self):
         self.response = c.get(reverse("s_calendar_date",
@@ -185,6 +187,11 @@ class TestUrls(TestCase):
                                         }),
                               {})
         self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.response.context[0]["calendar"].name,
+                         "work")
+        month = self.response.context[0]["month"]
+        self.assertEqual((month.start,month.end),
+                         (datetime.datetime(2008, 11, 1, 0, 0), datetime.datetime(2008, 12, 1, 0, 0)))
 
     def test_event_creation_annonymous_user(self):
         self.response = c.get(reverse("s_create_event_in_calendar",
