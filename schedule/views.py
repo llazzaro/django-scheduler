@@ -14,7 +14,7 @@ from schedule.models import *
 from schedule.periods import Month
 
 
-def calendar(request, calendar_id, year=None, month=None):
+def calendar(request, calendar_id=None, year=None, month=None):
     calendar = get_object_or_404(Calendar, id = calendar_id)
     if year and month:
         month = calendar.get_month(datetime.date(int(year),int(month),1))
@@ -25,30 +25,30 @@ def calendar(request, calendar_id, year=None, month=None):
         "month": month,
     }, context_instance=RequestContext(request))
 
-def event(request, event_id):
+def event(request, event_id=None):
     event = get_object_or_404(Event, id=event_id)
     return render_to_response('schedule/event.html', {
         "event": event,
     }, context_instance=RequestContext(request))
 
 @login_required
-def create_or_edit_event(request, calendar_id = None, event_id = None, redirect = None):
+def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None):
     """
     This function, if it recieves a GET request or if given an invalid form in a
     POST request it will generate the following response
-    
+
     * Template: schedule/create_event.html
     * Context:
         * form: an instance of EventForm
         * calendar: a Calendar with id=calendar_id
-    
+
     If this form recieves an event_id it will edit the event with that id, if it
     recieves a calendar_id and it is creating a new event it will add that event
     to the calendar with the id calendar_id
-    
-    If it is given a valid form in a POST request it will redirect with one of 
+
+    If it is given a valid form in a POST request it will redirect with one of
     three options, in this order
-    
+
     # Try to find a 'next' GET variable
     # If the key word argument redirect is set
     # Lastly redirect to the event detail of the recently create event
@@ -76,11 +76,11 @@ def create_or_edit_event(request, calendar_id = None, event_id = None, redirect 
         "calendar": calendar
     }, context_instance=RequestContext(request))
 
-def delete_event(request, event_id, redirect=None, login_required=True):
+def delete_event(request, event_id=None, redirect=None, login_required=True):
     """
     After the event is deleted there are three options for redirect, tried in
     this order:
-    
+
     # Try to find a 'next' GET variable
     # If the key word argument redirect is set
     # Lastly redirect to the event detail of the recently create event
