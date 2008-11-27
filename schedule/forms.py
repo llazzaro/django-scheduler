@@ -17,7 +17,7 @@ class GlobalSplitDateTimeWidget(forms.SplitDateTimeWidget):
                 forms.Select(attrs=attrs, choices=[('AM','AM'),('PM','PM')]),
             ]
         self.hour24 = hour24
-        
+
     def decompress(self, value):
         if value:
             if self.hour24:
@@ -25,7 +25,7 @@ class GlobalSplitDateTimeWidget(forms.SplitDateTimeWidget):
             else:
                 return [value.date(), value.strftime("%I:%M"), value.strftime("%p")]
         return ""
-    
+
     def value_from_datadict(self, data, files, name):
         if self.hour24:
             return super(GlobalSplitDateTimeWidget,self).value_from_datadict(data, files, name)
@@ -38,23 +38,21 @@ class GlobalSplitDateTimeWidget(forms.SplitDateTimeWidget):
                 except ValueError:
                     continue
             # raise ValueError('the data given isn\'t properly formatted.')
-            
-        
-    
+
+
+
 
 
 class EventForm(forms.ModelForm):
-    def __init__(self, hour24=False, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """hour24 decides how the datetime widget will be displayed"""
         super(EventForm, self).__init__(*args, **kwargs)
-        if hour24:
-            self.fields['start'].widget = GlobalSplitDateTimeWidget(hour24=True)
-            self.fields['end'].widget = GlobalSplitDateTimeWidget(hour24=True)
-    
+        self.fields['start'].widget = GlobalSplitDateTimeWidget(hour24=True)
+        self.fields['end'].widget = GlobalSplitDateTimeWidget(hour24=True)
+
     start = forms.DateTimeField(widget=GlobalSplitDateTimeWidget)
     end = forms.DateTimeField(widget=GlobalSplitDateTimeWidget)
-    
+
     class Meta:
         model = Event
         exclude = ('creator', 'created_on')
-        
