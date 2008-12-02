@@ -90,17 +90,17 @@ class EventManager(models.Manager):
         the Event is less than (or earlier) than the last day of the month, and
         the end is greater than (or later) than the first day of the month.
 
-        see get_event_by_time_period for more information
+        see get_event_by_datetime_period for more information
 
         '''
         try:
             event_datetime = _make_date_time(event_date)
         except TypeError:
             raise TypeError("get_events_by_month only takes datetime or date for its argument")
-        event_datetime = _minimize_time(event_datetime)
+        event_datetime = self._minimize_time(event_datetime)
         period_start = event_datetime.replace(day=1)
         period_end = period_start.replace(month=period_start.month)
-        return self.get_event_by_time_period(period_start, period_end)
+        return self.get_event_by_datetime_period(period_start, period_end)
 
     def get_events_by_date(self, event_date):
         '''
@@ -110,12 +110,12 @@ class EventManager(models.Manager):
         date =
         '''
         try:
-            event_datetime = _make_date_time(event_date)
+            event_datetime = self._make_date_time(event_date)
         except TypeError:
             raise TypeError("get_events_by_month only takes datetime or date for its argument")
-        period_start = _minimize_time(event_datetime)
+        period_start = self._minimize_time(event_datetime)
         period_end = period_start + datetime.timedelta(days=1)
-        return self.get_event_by_time_period(period_start, period_end)
+        return self.get_event_by_datetime_period(period_start, period_end)
 
     def _minimize_time(self, in_datetime):
         """
@@ -322,7 +322,7 @@ class Event(models.Model):
         >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
         ['2008-02-01 00:00:00 to 2008-02-02 00:00:00', '2008-03-01 00:00:00 to 2008-03-02 00:00:00']
 
-        Ensure that if an event has no rule and no end_recurring_period defined it appears only once.
+        Ensure that if an event has no rule, that it appears only once.
 
         >>> event = Event(start=datetime.datetime(2008,1,1,8,0), end=datetime.datetime(2008,1,1,9,0))
         >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
@@ -351,8 +351,8 @@ class Event(models.Model):
                 pass
             return occurrences
         else:
-            #Check if the period given to get_occurences encompass the event
-            if start < self.start and end > self.end:
+            # check if event is in the period
+            if self.start < end and self.end >= start:
                 return [Occurrence(self, self.start, self.end)]
             else:
                 return []
