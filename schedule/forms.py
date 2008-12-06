@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 from schedule.models import Event
 import datetime
 import time
@@ -14,7 +15,7 @@ class GlobalSplitDateTimeWidget(forms.SplitDateTimeWidget):
             self.widgets = [
                 forms.TextInput(attrs=attrs),
                 forms.TextInput(attrs=attrs),
-                forms.Select(attrs=attrs, choices=[('AM','AM'),('PM','PM')]),
+                forms.Select(attrs=attrs, choices=[('AM',_('AM')),('PM',_('PM'))]),
             ]
         self.hour24 = hour24
         

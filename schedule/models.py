@@ -4,19 +4,21 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import date
+from django.utils.translation import ugettext, ugettext_lazy as _
 from schedule.periods import Month
 from schedule.occurrence import Occurrence
 import datetime
 from dateutil import rrule
 
 
-freqs = (   ("YEARLY","Yearly"),
-            ("MONTHLY", "Monthly"),
-            ("WEEKLY", "Weekly"),
-            ("DAILY", "Daily"),
-            ("HOURLY", "Hourly"),
-            ("MINUTELY", "Minutely"),
-            ("SECONDLY", "Secondly"))
+freqs = (   ("YEARLY", _("Yearly")),
+            ("MONTHLY", _("Monthly")),
+            ("WEEKLY", _("Weekly")),
+            ("DAILY", _("Daily")),
+            ("HOURLY", _("Hourly")),
+            ("MINUTELY", _("Minutely")),
+            ("SECONDLY", _("Secondly")))
 
 class Rule(models.Model):
     """
@@ -47,10 +49,14 @@ class Rule(models.Model):
         ** bysecond
         ** byeaster
     """
-    name = models.CharField(max_length=32)
-    description = models.TextField()
-    frequency = models.CharField(choices=freqs, max_length=10)
-    params = models.TextField()
+    name = models.CharField(_("name"), max_length=32)
+    description = models.TextField(_("description"))
+    frequency = models.CharField(_("frequency"), choices=freqs, max_length=10)
+    params = models.TextField(_("params"))
+
+    class Meta:
+        verbose_name = _('rule')
+        verbose_name_plural = _('rules')
 
     def get_params(self):
         """
@@ -182,7 +188,7 @@ class EventManager(models.Manager):
         >>> begin = datetime.datetime(2008, 1, 4)
         >>> end = datetime.datetime(2008, 1, 11)
         >>> Event.objects.get_event_by_datetime_period(begin, end)
-        [<Event: Test: Saturday Jan 05, 2008-Thursday Jan 10, 2008>]
+        [<Event: Test: Saturday, Jan. 5, 2008-Thursday, Jan. 10, 2008>]
 
         Surrounds the time period:
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -193,7 +199,7 @@ class EventManager(models.Manager):
         >>> begin = datetime.datetime(2008, 1, 6)
         >>> end = datetime.datetime(2008, 1, 9)
         >>> Event.objects.get_event_by_datetime_period(begin, end)
-        [<Event: Test: Saturday Jan 05, 2008-Thursday Jan 10, 2008>]
+        [<Event: Test: Saturday, Jan. 5, 2008-Thursday, Jan. 10, 2008>]
 
         The start date is within the time period:
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -204,7 +210,7 @@ class EventManager(models.Manager):
         >>> begin = datetime.datetime(2008, 1, 5)
         >>> end = datetime.datetime(2008, 1, 11)
         >>> Event.objects.get_event_by_datetime_period(begin, end)
-        [<Event: Test: Saturday Jan 05, 2008-Thursday Jan 10, 2008>]
+        [<Event: Test: Saturday, Jan. 5, 2008-Thursday, Jan. 10, 2008>]
 
         The end date is within the time period:
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -215,7 +221,7 @@ class EventManager(models.Manager):
         >>> begin = datetime.datetime(2008, 1, 4)
         >>> end = datetime.datetime(2008, 1, 9)
         >>> Event.objects.get_event_by_datetime_period(begin, end)
-        [<Event: Test: Saturday Jan 05, 2008-Thursday Jan 10, 2008>]
+        [<Event: Test: Saturday, Jan. 5, 2008-Thursday, Jan. 10, 2008>]
 
 
 
@@ -269,7 +275,7 @@ class EventManager(models.Manager):
         >>> begin = datetime.datetime(2008, 1, 10)
         >>> end = datetime.datetime(2008, 1, 15)
         >>> Event.objects.get_event_by_datetime_period(begin, end)
-        [<Event: Test: Saturday Jan 05, 2008-Thursday Jan 10, 2008>]
+        [<Event: Test: Saturday, Jan. 5, 2008-Thursday, Jan. 10, 2008>]
 
         >>> event.delete()
         '''
@@ -284,23 +290,28 @@ class Event(models.Model):
     This model stores meta data for a date.  You can relate this data to many
     other models.
     '''
-    start = models.DateTimeField()
-    end = models.DateTimeField()
-    title = models.CharField(max_length = 255)
-    description = models.TextField(null = True, blank = True)
-    creator = models.ForeignKey(User, null = True)
-    created_on = models.DateTimeField(default = datetime.datetime.now)
-    end_recurring_period = models.DateTimeField(null = True, blank = True)
-    rule = models.ForeignKey(Rule, null = True, blank = True)
+    start = models.DateTimeField(_("start"))
+    end = models.DateTimeField(_("end"))
+    title = models.CharField(_("title"), max_length = 255)
+    description = models.TextField(_("description"), null = True, blank = True)
+    creator = models.ForeignKey(User, null = True, verbose_name=_("creator"))
+    created_on = models.DateTimeField(_("created on"), default = datetime.datetime.now)
+    end_recurring_period = models.DateTimeField(_("end recurring period"), null = True, blank = True)
+    rule = models.ForeignKey(Rule, null = True, blank = True, verbose_name=_("rule"))
 
     objects = EventManager()
 
+    class Meta:
+        verbose_name = _('event')
+        verbose_name_plural = _('events')
+
     def __unicode__(self):
-        return '%s: %s-%s' % (
-                                self.title,
-                                self.start.strftime('%A %b %d, %Y'),
-                                self.end.strftime('%A %b %d, %Y'),
-                             )
+        date_format = u'l, %s' % ugettext("DATE_FORMAT")
+        return ugettext('%(title)s: %(start)s-%(end)s') % {
+            'title': self.title,
+            'start': date(self.start, date_format),
+            'end': date(self.end, date_format),
+        }
 
     def get_absolute_url(self):
         return reverse('s_event', args=[self.id])
@@ -477,10 +488,14 @@ class Calendar(models.Model):
     >>> calendar.events.add(event)
     '''
 
-    name = models.CharField(max_length = 200)
-    events = models.ManyToManyField(Event)
+    name = models.CharField(_("name"), max_length = 200)
+    events = models.ManyToManyField(Event, verbose_name=_("events"))
 
     objects = CalendarManager()
+
+    class Meta:
+        verbose_name = _('calendar')
+        verbose_name_plural = _('calendar')
 
     def __unicode__(self):
         return self.name
@@ -570,14 +585,18 @@ class CalendarRelation(models.Model):
     may not scale well.  If you use this, keep that in mind.
     '''
 
-    calendar = models.ForeignKey(Calendar)
+    calendar = models.ForeignKey(Calendar, verbose_name=_("calendar"))
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
-    distinction = models.CharField(max_length = 20, null=True)
-    inheritable = models.BooleanField(default=True)
+    distinction = models.CharField(_("distinction"), max_length = 20, null=True)
+    inheritable = models.BooleanField(_("inheritable"), default=True)
 
     objects = CalendarRelationManager()
+
+    class Meta:
+        verbose_name = _('calendar relation')
+        verbose_name_plural = _('calendar relations')
 
     def __unicode__(self):
         return '%s - %s' %(self.calendar, self.content_object)
@@ -643,12 +662,12 @@ class EventRelationManager(models.Manager):
         >>> event = Event.objects.get(title='Test1')
         >>> user = User.objects.get(username = 'alice')
         >>> EventRelation.objects.get_events_for_object(user, 'owner', inherit=False)
-        [<Event: Test1: Tuesday Jan 01, 2008-Friday Jan 11, 2008>]
+        [<Event: Test1: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>]
 
         If a distinction is not declared it will not vet the relations based on
         distinction.
         >>> EventRelation.objects.get_events_for_object(user, inherit=False)
-        [<Event: Test1: Tuesday Jan 01, 2008-Friday Jan 11, 2008>, <Event: Test2: Tuesday Jan 01, 2008-Friday Jan 11, 2008>]
+        [<Event: Test1: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>, <Event: Test2: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>]
 
         Now if there is a Calendar
         >>> calendar = Calendar(name = 'MyProject')
@@ -663,7 +682,7 @@ class EventRelationManager(models.Manager):
         >>> user = User.objects.get(username='bob')
         >>> cr = calendar.create_relation(user, 'viewer', True)
         >>> EventRelation.objects.get_events_for_object(user, 'viewer')
-        [<Event: Test1: Tuesday Jan 01, 2008-Friday Jan 11, 2008>, <Event: Test2: Tuesday Jan 01, 2008-Friday Jan 11, 2008>]
+        [<Event: Test1: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>, <Event: Test2: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>]
         '''
         ct = ContentType.objects.get_for_model(type(content_object))
         if distinction:
@@ -731,13 +750,17 @@ class EventRelation(models.Model):
     may not scale well.  If you use this keep that in mind.
 
     '''
-    event = models.ForeignKey(Event)
+    event = models.ForeignKey(Event, verbose_name=_("event"))
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
-    distinction = models.CharField(max_length = 20, null=True)
+    distinction = models.CharField(_("distinction"), max_length = 20, null=True)
 
     objects = EventRelationManager()
+
+    class Meta:
+        verbose_name = _("event relation")
+        verbose_name_plural = _("event relations")
 
     def __unicode__(self):
         return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)

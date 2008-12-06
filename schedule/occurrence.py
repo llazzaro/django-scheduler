@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext
+
 class Occurrence(object):
     """
     An Occurrence is an incarnation of a recurring event for a given date.
@@ -9,7 +11,10 @@ class Occurrence(object):
         self.end = end
 
     def __unicode__(self):
-        return "%s to %s" %(self.start, self.end)
+        return ugettext("%(start)s to %(end)s") % {
+            'start': self.start,
+            'end': self.end,
+        }
 
     def __cmp__(self, other):
         rank = cmp(self.start, other.start)

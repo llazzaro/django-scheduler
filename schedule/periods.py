@@ -1,5 +1,7 @@
 import datetime
 from django.db.models.query import QuerySet
+from django.template.defaultfilters import date
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 from schedule.occurrence import Occurrence
 
@@ -100,10 +102,12 @@ class Month(Period):
             raise ValueError('`month` must be a datetime.date or datetime.datetime object')
         return start, end
 
-    def __str__(self):
-        return 'Month: %s-%s' % (
-            self.start.strftime('%A %b %d, %Y'),
-            self.end.strftime('%A %b %d, %Y'),)
+    def __unicode__(self):
+        date_format = u'l, %s' % ugettext("DATE_FORMAT")
+        return ugettext('Month: %(start)s-%(end)s') % {
+            'start': date(self.start, date_format),
+            'end': date(self.end, date_format),
+        }
 
     def name(self):
         return self.start.strftime('%B')
@@ -140,10 +144,12 @@ class Week(Period):
         end = start + datetime.timedelta(days=7)
         return start, end
 
-    def __str__(self):
-        return 'Week: %s-%s' % (
-            self.start.strftime('%A %b %d, %Y'),
-            self.end.strftime('%A %b %d, %Y'),)
+    def __unicode__(self):
+        date_format = u'l, %s' % ugettext("DATE_FORMAT")
+        return ugettext('Week: %(start)s-%(end)s') % {
+            'start': date(self.start, date_format),
+            'end': date(self.end, date_format),
+        }
 
 class Day(Period):
     def __init__(self, events, date=datetime.date.today()):
@@ -154,10 +160,12 @@ class Day(Period):
         self.end = self.start + datetime.timedelta(days=1)
         self.occurrences = self._get_sorted_occurrences()
 
-    def __str__(self):
-        return 'Day: %s-%s' % (
-            self.start.strftime('%A %b %d, %Y'),
-            self.end.strftime('%A %b %d, %Y'),)
+    def __unicode__(self):
+        date_format = u'l, %s' % ugettext("DATE_FORMAT")
+        return ugettext('Day: %(start)s-%(end)s') % {
+            'start': date(self.start, date_format),
+            'end': date(self.end, date_format),
+        }
 
     def next_day(self):
         return self.end
