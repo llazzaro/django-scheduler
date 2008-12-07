@@ -1,16 +1,16 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# This file is distributed under the same license as the django-schedule package.
+# Jannis Leidel <jannis@leidel.info>, 2008.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: django-schedule\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-06 00:09-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2008-12-06 19:47-0400\n"
+"PO-Revision-Date: 2008-12-04 10:25+0100\n"
+"Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,95 +18,95 @@ msgstr ""
 
 #: forms.py:18
 msgid "AM"
-msgstr ""
+msgstr "vorm."
 
 #: forms.py:18
 msgid "PM"
-msgstr ""
+msgstr "nachm."
 
 #: models.py:15
 msgid "Yearly"
-msgstr ""
+msgstr "jährlich"
 
 #: models.py:16
 msgid "Monthly"
-msgstr ""
+msgstr "monatlich"
 
 #: models.py:17
 msgid "Weekly"
-msgstr ""
+msgstr "wöchentlich"
 
 #: models.py:18
 msgid "Daily"
-msgstr ""
+msgstr "täglich"
 
 #: models.py:19
 msgid "Hourly"
-msgstr ""
+msgstr "stündlich"
 
 #: models.py:20
 msgid "Minutely"
-msgstr ""
+msgstr "minütlich"
 
 #: models.py:21
 msgid "Secondly"
-msgstr ""
+msgstr "sekündlich"
 
 #: models.py:52 models.py:491
 msgid "name"
-msgstr ""
+msgstr "Name"
 
 #: models.py:53 models.py:296
 msgid "description"
-msgstr ""
+msgstr "Beschreibung"
 
 #: models.py:54
 msgid "frequency"
-msgstr ""
+msgstr "Wiederholen"
 
 #: models.py:55
 msgid "params"
-msgstr ""
+msgstr "Parameter"
 
 #: models.py:58 models.py:300
 msgid "rule"
-msgstr ""
+msgstr "Regel"
 
 #: models.py:59
 msgid "rules"
-msgstr ""
+msgstr "Regeln"
 
 #: models.py:293
 msgid "start"
-msgstr ""
+msgstr "Beginn"
 
 #: models.py:294
 msgid "end"
-msgstr ""
+msgstr "Ende"
 
 #: models.py:295
 msgid "title"
-msgstr ""
+msgstr "Titel"
 
 #: models.py:297
 msgid "creator"
-msgstr ""
+msgstr "Urheber"
 
 #: models.py:298
 msgid "created on"
-msgstr ""
+msgstr "Erstellt"
 
 #: models.py:299
 msgid "end recurring period"
-msgstr ""
+msgstr "Ende der Wiederholung"
 
 #: models.py:305 models.py:753
 msgid "event"
-msgstr ""
+msgstr "Termin"
 
 #: models.py:306 models.py:492
 msgid "events"
-msgstr ""
+msgstr "Termine"
 
 #: models.py:309 periods.py:106 periods.py:148 periods.py:164
 msgid "DATE_FORMAT"
@@ -115,52 +115,52 @@ msgstr ""
 #: models.py:310
 #, python-format
 msgid "%(title)s: %(start)s-%(end)s"
-msgstr ""
+msgstr "%(title)s: %(start)s - %(end)s"
 
 #: models.py:497 models.py:498 models.py:588
 msgid "calendar"
-msgstr ""
+msgstr "Kalender"
 
 #: models.py:592 models.py:757
 msgid "distinction"
-msgstr ""
+msgstr "Unterscheidungsmerkmal"
 
 #: models.py:593
 msgid "inheritable"
-msgstr ""
+msgstr "vererbbar"
 
 #: models.py:598
 msgid "calendar relation"
-msgstr ""
+msgstr "Kalenderzuordnung"
 
 #: models.py:599
 msgid "calendar relations"
-msgstr ""
+msgstr "Kalenderzuordnungen"
 
 #: models.py:762
 msgid "event relation"
-msgstr ""
+msgstr "Terminzuordnung"
 
 #: models.py:763
 msgid "event relations"
-msgstr ""
+msgstr "Terminzuordnungen"
 
 #: occurrence.py:14
 #, python-format
 msgid "%(start)s to %(end)s"
-msgstr ""
+msgstr "%(start)s bis %(end)s"
 
 #: periods.py:107
 #, python-format
 msgid "Month: %(start)s-%(end)s"
-msgstr ""
+msgstr "Monat: %(start)s - %(end)s"
 
 #: periods.py:149
 #, python-format
 msgid "Week: %(start)s-%(end)s"
-msgstr ""
+msgstr "Woche: %(start)s-%(end)s"
 
 #: periods.py:165
 #, python-format
 msgid "Day: %(start)s-%(end)s"
-msgstr ""
+msgstr "Tag: %(start)s-%(end)s"
