@@ -538,7 +538,7 @@ class Calendar(models.Model):
         return reverse('s_calendar', args=[self.id])
 
     def add_event_url(self):
-        return reverse('s_cal_create_event', args=[self.id])
+        return reverse('s_create_event_in_calendar', args=[self.id])
 
     def get_month(self, date=datetime.datetime.now()):
         return Month(self.events.all(), date)
