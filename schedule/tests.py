@@ -79,7 +79,7 @@ class TestPeriod(TestCase):
         self.period = Period(events=Event.objects.all(),
                             start = datetime.datetime(2008,1,4,7,0),
                             end = datetime.datetime(2008,1,21,7,0))
-    def test_get_occurences(self):
+    def test_get_occurrences(self):
         occurrence_list = self.period.occurrences
         self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrence_list],
             ['2008-01-05 08:00:00 to 2008-01-05 09:00:00',
@@ -193,13 +193,13 @@ class TestUrls(TestCase):
         self.assertEqual((month.start,month.end),
                          (datetime.datetime(2008, 11, 1, 0, 0), datetime.datetime(2008, 12, 1, 0, 0)))
 
-    def test_event_creation_annonymous_user(self):
+    def test_event_creation_anonymous_user(self):
         self.response = c.get(reverse("s_create_event_in_calendar",
                                       kwargs={"calendar_id":1}),
                               {})
         self.assertEqual(self.response.status_code, 302)
 
-    def test_event_creation_autheticated_user(self):
+    def test_event_creation_authenticated_user(self):
         c.login(username="admin", password="admin")
         self.response = c.get(reverse("s_create_event_in_calendar",
                                       kwargs={"calendar_id":1}),
@@ -220,11 +220,11 @@ class TestUrls(TestCase):
         self.response = c.get(reverse("s_event",kwargs={"event_id":1}), {})
         self.assertEqual(self.response.status_code, 200)
 
-    def test_delete_event_annonymous_user(self):
+    def test_delete_event_anonymous_user(self):
         self.response = c.get(reverse("s_delete_event",kwargs={"event_id":1}), {})
         self.assertEqual(self.response.status_code, 302)
 
-    def test_delete_event_autheticated_user(self):
+    def test_delete_event_authenticated_user(self):
         c.login(username="admin", password="admin")
         self.response = c.get(reverse("s_delete_event",kwargs={"event_id":1}), {})
         self.assertEqual(self.response.status_code, 200)
