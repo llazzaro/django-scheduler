@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from schedule.forms import GlobalSplitDateTimeWidget
 from schedule.models import Event, Rule
 from schedule.occurrence import Occurrence
-from schedule.periods import Period, Month
+from schedule.periods import Period, Month, Day
 
 
 class TestSplitDateTimeWidget(TestCase):
@@ -105,6 +105,12 @@ class TestPeriod(TestCase):
                  datetime.datetime(2008, 1, 19, 9, 0))
             ])
 
+    def test_has_occurrence(self):
+        self.assert_( self.period.has_occurrences() )
+        slot = self.period.get_time_slot( datetime.datetime(2008,1,4,7,0),
+                                          datetime.datetime(2008,1,4,7,12) )
+        self.failIf( slot.has_occurrences() )
+
 class TestMonth(TestCase):
     def setUp(self):
         rule = Rule(frequency = "WEEKLY")
@@ -161,8 +167,32 @@ class TestMonth(TestCase):
                  datetime.datetime(2008, 2, 3, 0, 0))]
             )
 
+    def test_month_convenience_functions(self):
+        self.assertEqual( self.month.prev_month(), datetime.datetime(2008, 1, 1, 0, 0))
+        self.assertEqual( self.month.next_month(), datetime.datetime(2008, 3, 1, 0, 0))
+        self.assertEqual( self.month.current_year(), datetime.datetime(2008, 1, 1, 0, 0))
+        self.assertEqual( self.month.prev_year(), datetime.datetime(2007, 1, 1, 0, 0))
+        self.assertEqual( self.month.next_year(), datetime.datetime(2009, 1, 1, 0, 0))
 
+class TestDay(TestCase):
+    def setUp(self):
+        self.day = Day(events=Event.objects.all(),
+                           date=datetime.datetime(2008, 2, 7, 9, 0))
 
+    def test_day_setup(self):
+        self.assertEqual( self.day.start, datetime.datetime(2008, 2, 7, 0, 0))
+        self.assertEqual( self.day.end, datetime.datetime(2008, 2, 8, 0, 0))
+
+    def test_day_convenience_functions(self):
+        self.assertEqual( self.day.prev_day(), datetime.datetime(2008, 2, 6, 0, 0))
+        self.assertEqual( self.day.next_day(), datetime.datetime(2008, 2, 8, 0, 0))
+
+    def test_time_slot(self):
+        slot_start = datetime.datetime(2008, 2, 7, 13, 30)
+        slot_end = datetime.datetime(2008, 2, 7, 15, 0)
+        period = self.day.get_time_slot( slot_start, slot_end )
+        self.assertEqual( period.start, slot_start )
+        self.assertEqual( period.end, slot_end )
 
 c = Client()
 

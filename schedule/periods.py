@@ -8,7 +8,7 @@ from schedule.occurrence import Occurrence
 class Period(object):
     '''
     This class represents a period of time. It can return a set of occurrences
-    based on its events, and its time period (start and end).s
+    based on its events, and its time period (start and end).
     '''
     def __init__(self, events, start, end):
         self.start = start
@@ -26,6 +26,8 @@ class Period(object):
         return sorted(occurrences)
 
     def classify_occurrence(self, occurrence):
+        if occurrence.start > self.end or occurrence.end < self.start:
+            return None
         started = False
         ended = False
         if occurrence.start >= self.start and occurrence.start < self.end:
@@ -52,6 +54,19 @@ class Period(object):
 
     def get_occurrences(self):
         return self.occurrences
+
+    def has_occurrences(self):
+        for occurrence in self.occurrences:
+            occurrence = self.classify_occurrence(occurrence)
+            if occurrence:
+                return True
+        return False
+
+    def get_time_slot(self, start, end ):
+        if start >= self.start and end <= self.end:
+            return Period( self.events, start, end )
+        return None
+
 
 class Month(Period):
     """
@@ -87,7 +102,16 @@ class Month(Period):
         return self.end
     
     def prev_month(self):
-        return self.start - datetime.timedelta(days=1)
+        return (self.start - datetime.timedelta(days=1)).replace(day=1)
+
+    def current_year(self):
+        return datetime.datetime.min.replace(year=self.start.year)
+
+    def prev_year(self):
+        return datetime.datetime.min.replace(year=self.start.year-1)
+
+    def next_year(self):
+        return datetime.datetime.min.replace(year=self.start.year+1)
 
     def _get_month_range(self, month):
         if isinstance(month, datetime.date) or isinstance(month, datetime.datetime):
@@ -166,6 +190,9 @@ class Day(Period):
             'start': date(self.start, date_format),
             'end': date(self.end, date_format),
         }
+
+    def prev_day(self):
+        return self.start - datetime.timedelta(days=1)
 
     def next_day(self):
         return self.end
