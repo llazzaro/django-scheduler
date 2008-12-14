@@ -1,11 +1,28 @@
 {% extends "site_base.html" %}
 {% block body %}
 <div class="event_actions">
-    <a href="{% url s_edit_event event.id %}"> Edit</a>
-    <a href="{% url s_delete_event event.id %}"> Delete</a>
+	<a href="{% url s_edit_event event.id %}"> Edit</a>
+	<a href="{% url s_delete_event event.id %}"> Delete</a>
 </div>
-
-<h1>{{event.title}}</h1>
-<p>from {{event.start|date:"D M, Y"}} {{event.start|time:"h:i a"}} to {{event.end|date:"D M, Y"}} {{event.end|time:"h:i a"}}</p>
+<h2 align="center">{{event.title}}</h2>
+<table align="center">
+<tr>
+<td>Starts</td>
+<td>{{event.start|time:"f a"}}</td><td>{{event.start|date:"l, F j, Y"}}.</td></tr>
+<tr>
+<td>Ends</td>
+<td>{{event.end|time:"f a"}}</td><td>{{event.start|date:"l, F j, Y"}}.</td></tr>
+<tr>
+<td>Reoccurs</td>
+{% if event.rule %}
+<td>{{ event.rule }}</td><td>until {{ event.end_recurring_period }}</td>
+{% else %}
+<td>&nbsp;</td>
+<td>This is a "one time only" event.</td>
+{% endif %}
+</tr></table>
+{% if event.description %}
+<h3>Description</h3>
 <p>{{event.description}}</p>
+{% endif %}
 {% endblock %}

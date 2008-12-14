@@ -1,10 +1,13 @@
 {% extends "site_base.html" %}
 
 {% block body %}
+Create or edit event. All fields are required.<br/><br/>
+<br/><br/>
 <form action="" method="post">
-    <ul>
-        {{ form.as_ul }}
-    </ul>
-    <input type="submit">
+<table>
+{{ form.as_table }}
+</table>
+<br/>
+<input type="submit" value="Submit Event">
 </form>
 {% endblock %}

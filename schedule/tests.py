@@ -239,8 +239,10 @@ class TestUrls(TestCase):
                                       kwargs={"calendar_id":1}),
                                {'description': 'description',
                                 'title': 'title',
-                                'end_1': '10:22:00','end_0': '2008-10-30',
-                                'start_0': '2008-10-30','start_1': '09:21:57'})
+                                'end_recurring_period_1': '10:22:00','end_recurring_period_0': '2008-10-30', 'end_recurring_period_2': 'AM',
+                                'end_1': '10:22:00','end_0': '2008-10-30', 'end_2': 'AM',
+                                'start_0': '2008-10-30','start_1': '09:21:57', 'start_2': 'AM'
+                               })
         self.assertEqual(self.response.status_code, 302)
         self.response = c.get(reverse("s_event",kwargs={"event_id":2}), {})
         self.assertEqual(self.response.status_code, 200)

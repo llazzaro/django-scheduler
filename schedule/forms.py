@@ -51,9 +51,11 @@ class EventForm(forms.ModelForm):
         if hour24:
             self.fields['start'].widget = GlobalSplitDateTimeWidget(hour24=True)
             self.fields['end'].widget = GlobalSplitDateTimeWidget(hour24=True)
+            self.fields['end_recurring_period'].widget = GlobalSplitDateTimeWidget(hour24=True)
     
     start = forms.DateTimeField(widget=GlobalSplitDateTimeWidget)
-    end = forms.DateTimeField(widget=GlobalSplitDateTimeWidget)
+    end = forms.DateTimeField(widget=GlobalSplitDateTimeWidget, help_text = _("The end time must be later than start time."))
+    end_recurring_period = forms.DateTimeField(widget=GlobalSplitDateTimeWidget, help_text = _("This date is ignored for one time only events."))
     
     class Meta:
         model = Event

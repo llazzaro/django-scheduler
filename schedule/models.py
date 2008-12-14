@@ -291,13 +291,13 @@ class Event(models.Model):
     other models.
     '''
     start = models.DateTimeField(_("start"))
-    end = models.DateTimeField(_("end"))
+    end = models.DateTimeField(_("end"),help_text=_("The end time must be later than the start time."))
     title = models.CharField(_("title"), max_length = 255)
     description = models.TextField(_("description"), null = True, blank = True)
     creator = models.ForeignKey(User, null = True, verbose_name=_("creator"))
     created_on = models.DateTimeField(_("created on"), default = datetime.datetime.now)
-    end_recurring_period = models.DateTimeField(_("end recurring period"), null = True, blank = True)
-    rule = models.ForeignKey(Rule, null = True, blank = True, verbose_name=_("rule"))
+    rule = models.ForeignKey(Rule, null = True, blank = True, verbose_name=_("rule"), help_text=_("Select '----' for a one time only event."))
+    end_recurring_period = models.DateTimeField(_("end recurring period"), null = True, blank = True, help_text=_("This date is ignored for one time only events."))
 
     objects = EventManager()
 
