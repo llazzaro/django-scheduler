@@ -11,18 +11,17 @@
         <h1>django-schedule</h1>
     {% endblocktrans %}
     {% blocktrans %}
-        <p>This project is a scheduling app. At its core it is just an single date range (two datetime objects rather) with a bunch of meta data, such as Title, etc.
-
-To make it more user friendly there is the idea of EventRelation which links generic objects and an Event object.  The idea is that you will keep more information about the event in these relations. Like who is authorized to view them.
-
-It could be the case that User is linked to Event to represent who is authorized to view the event, and also User is linked to event to represent who is attending the event.  The EventRelation has another field called distinction.  So in the previous example we could add an EventRelation which links a User to an Event with the distinction "viewer" and another EventRelation which links a User to an Event with the distinction "attendee."</p>
+    <p>This project is a scheduling app. At its core are events that constitute a start and end date implemented via two DateTimeFields together with a some meta datax such as title, description, etc.</p>
+    <p>To make it more user friendly there is the idea of EventRelation which links generic objects and an Event object.  The idea is that you will keep more information about the event in these relations such as who is authorized to view them. It could be the case that User is linked to Event to represent who is authorized to view the event, and also User is linked to event to represent who is attending the event.</p>
+    <p>The EventRelation has another field called distinction.  So in the previous example we could add an EventRelation which links a User to an Event with the distinction "viewer" and another EventRelation which links a User to an Event with the distinction "attendee."</p>
     {% endblocktrans %}
     {% blocktrans %}
-        <h2>Want to see it in action</h2>
+        <h2>Want to see it in action?</h2>
     {% endblocktrans %}
     {% blocktrans %}
-        <p>The sample project come with a management command that enable you to load some data.</p>
-        <p>./manage.py load_sample_data</div>
+        <p>The sample project come with two management commands that enable you to load some data:</p>
+        <p>./manage.py load_sample_data</p>
+        <p>./manage.py load_example_data</p>
     {% endblocktrans %}
     {% blocktrans %}
         <h3>Project Owner</h3>
@@ -32,7 +31,9 @@ It could be the case that User is linked to Event to represent who is authorized
         <h3>Contributors</h3>
         <ul>
             <li>Yann Malet</li>
+            <li>Rock Howard</li>
             <li>Alex Gaynor</li>
+            <li>Jannis Leidel</li>
         </ul>
     {% endblocktrans %}
 
