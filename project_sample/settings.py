@@ -84,4 +84,5 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'schedule',
+    'schedule_tests',
 )
