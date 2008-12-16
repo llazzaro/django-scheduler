@@ -2,8 +2,36 @@ import datetime
 from django.db.models.query import QuerySet
 from django.template.defaultfilters import date
 from django.utils.translation import ugettext, ugettext_lazy as _
-
+from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
+from django.conf import settings
 from schedule.occurrence import Occurrence
+
+# Look for FIRST_DAY_OF_WEEK as a locale setting
+first_day_of_week = ugettext('FIRST_DAY_OF_WEEK')
+if first_day_of_week == 'FIRST_DAY_OF_WEEK':
+    # FIRST_DAY_OF_WEEK was not set in the locale, try the settings
+    first_day_of_week = getattr(settings, 'FIRST_DAY_OF_WEEK', "0")
+
+try:
+    first_day_of_week = int(first_day_of_week)
+except:
+    # default to Sunday
+    first_day_of_week = 0
+
+weekday_names = []
+weekday_abbrs = []
+if first_day_of_week == 1:
+    # The calendar week starts on Monday
+    for i in range(7):
+        weekday_names.append( WEEKDAYS[i] )
+        weekday_abbrs.append( WEEKDAYS_ABBR[i] )
+else:
+    # The calendar week starts on Sunday, not Monday
+    weekday_names.append( WEEKDAYS[6] )
+    weekday_abbrs.append( WEEKDAYS_ABBR[6] )
+    for i in range(6):
+        weekday_names.append( WEEKDAYS[i] )
+        weekday_abbrs.append( WEEKDAYS_ABBR[i] )
 
 class Period(object):
     '''
@@ -162,9 +190,20 @@ class Week(Period):
     def _get_week_range(self, week):
         if isinstance(week, datetime.datetime):
             week = week.date()
+        # Adjust the start datetime to midnight of the week datetime
         start = datetime.datetime.combine(week, datetime.time.min)
-        if week.isoweekday() < 7:
-            start = start - datetime.timedelta(days=week.isoweekday())
+        # Adjust the start datetime to Monday or Sunday of the current week
+        sub_days = 0
+        if first_day_of_week == 1:
+            # The week begins on Monday
+            sub_days = start.isoweekday() - 1
+        else:
+            # The week begins on Sunday
+            sub_days = start.isoweekday()
+            if sub_days == 7:
+                sub_days = 0
+        if sub_days > 0:
+            start = start - datetime.timedelta(days=sub_days)
         end = start + datetime.timedelta(days=7)
         return start, end
 

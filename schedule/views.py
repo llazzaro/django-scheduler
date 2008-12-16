@@ -11,7 +11,7 @@ import datetime
 
 from schedule.forms import EventForm
 from schedule.models import *
-from schedule.periods import Month
+from schedule.periods import weekday_names
 
 
 def calendar(request, calendar_id=None, year=None, month=None):
@@ -23,6 +23,7 @@ def calendar(request, calendar_id=None, year=None, month=None):
     return render_to_response('schedule/calendar.html', {
         "calendar": calendar,
         "month": month,
+        "day_names": weekday_names,
     }, context_instance=RequestContext(request))
 
 def event(request, event_id=None):
