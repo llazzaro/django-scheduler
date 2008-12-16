@@ -1,24 +1,27 @@
 {% extends "site_base.html" %}
+{% load i18n %}
+
 {% block body %}
 <div class="event_actions">
-	<a href="{% url s_edit_event event.id %}"> Edit</a>
-	<a href="{% url s_delete_event event.id %}"> Delete</a>
+	<a href="{% url s_edit_event event.id %}">{% trans "Change" %}</a>
+	<a href="{% url s_delete_event event.id %}">{% trans "Delete" %}</a>
 </div>
 <h2 align="center">{{event.title}}</h2>
 <table align="center">
 <tr>
 <td>Starts</td>
-<td>{{event.start|time:"f a"}}</td><td>{{event.start|date:"l, F j, Y"}}.</td></tr>
+<td>{% blocktrans with event.start|date:_("DATETIME_FORMAT") as start_date %}{{ start_date }}{% endblocktrans %}</td>
+</tr>
 <tr>
 <td>Ends</td>
-<td>{{event.end|time:"f a"}}</td><td>{{event.start|date:"l, F j, Y"}}.</td></tr>
+<td>{% blocktrans with event.end|date:_("DATETIME_FORMAT") as end_date %}{{ end_date }}{% endblocktrans %}</td>
+</tr>
 <tr>
 <td>Reoccurs</td>
 {% if event.rule %}
-<td>{{ event.rule }}</td><td>until {{ event.end_recurring_period }}</td>
+<td>{{ event.rule }} until {% blocktrans with event.end_recurring_period|date:_("DATETIME_FORMAT") as end_recurring_date %}{{ end_recurring_date }}{% endblocktrans %}</td>
 {% else %}
-<td>&nbsp;</td>
-<td>This is a "one time only" event.</td>
+<td>{% trans "Never. This is a 'one time only' event." %}</td>
 {% endif %}
 </tr></table>
 {% if event.description %}
