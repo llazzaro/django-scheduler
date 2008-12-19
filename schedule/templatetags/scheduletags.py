@@ -1,4 +1,5 @@
 import datetime
+from django.conf import settings
 from django import template
 from django.core.urlresolvers import reverse
 from schedule.models import Calendar
@@ -55,7 +56,8 @@ def daily_table( calendar, day ):
     context = {
         'calendar' : calendar,
         'day' : day,
-        'day_slots' : day_slots
+        'day_slots' : day_slots,
+        'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
     }
     prev_day = day.prev_day()
     prev_url_context = { 'calendar_id': calendar.id,
