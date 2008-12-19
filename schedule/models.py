@@ -536,10 +536,10 @@ class Calendar(models.Model):
         return self.events.order_by('start').filter(start__gt=datetime.datetime.now())[:amount]
 
     def get_absolute_url(self):
-        return reverse('s_calendar', args=[self.id])
+        return reverse('s_calendar', args=[self.slug])
 
     def add_event_url(self):
-        return reverse('s_create_event_in_calendar', args=[self.id])
+        return reverse('s_create_event_in_calendar', args=[self.slug])
 
     def get_month(self, date=datetime.datetime.now()):
         return Month(self.events.all(), date)
