@@ -125,6 +125,11 @@ class Month(Period):
             date = day.next_day()
         return days
 
+    def get_day(self, daynumber ):
+        date = self.start
+        if daynumber > 1:
+            date += datetime.timedelta(days=daynumber-1)
+        return Day(self.events, date)
 
     def next_month(self):
         return self.end

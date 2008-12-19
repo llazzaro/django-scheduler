@@ -1,0 +1,10 @@
+{% extends "schedule/base.html" %}
+{% block head_title %}Available Calendars{% endblock %}
+{% block body %}
+<h2>Available Calendars</h2>
+<ul>
+{% for cal in object_list %}
+<li><b>{{ cal }}</b> : <a href="/schedule/calendar/{{ cal.id }}/">Classic Month</a> -- <a href="/schedule/calendar/compact_month/{{ cal.id }}/">Small Month</a> -- <a href="/schedule/calendar/month/{{ cal.id }}/">1 Month</a> -- <a href="/schedule/calendar/tri_month/{{ cal.id }}/">3 Months</a> -- <a href="/schedule/calendar/year/{{ cal.id }}/">This Year</a> -- <a href="/schedule/calendar/week/{{ cal.id }}/">Weekly</a> -- <a href="/schedule/calendar/daily/{{ cal.id }}/">Daily</a></li><br/>
+{% endfor %}
+</ul>
+{% endblock %}
