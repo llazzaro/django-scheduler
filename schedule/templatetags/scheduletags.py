@@ -91,7 +91,8 @@ def title_and_options( event ):
 @register.inclusion_tag("schedule/_create_event_options.html")
 def create_event_url( calendar, slot ):
     context = {
-        'calendar' : calendar
+        'calendar' : calendar,
+        'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
     }
     lookup_context = {
         'calendar_id': calendar.id,
