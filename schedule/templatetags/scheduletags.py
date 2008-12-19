@@ -78,7 +78,8 @@ def daily_table( calendar, day ):
 @register.inclusion_tag("schedule/_event_options.html")
 def title_and_options( event ):
     context = {
-        'event' : event
+        'event' : event,
+        'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
     }
     lookup_context = {
         'event_id': event.id
