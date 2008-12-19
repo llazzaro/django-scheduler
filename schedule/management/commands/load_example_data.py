@@ -24,7 +24,7 @@ class Command(NoArgsCommand):
 
 
         print "Create Example Calendar ..."
-        cal = Calendar(name="Example Calendar")
+        cal = Calendar(name="Example Calendar",slug="example")
         cal.save()
         print "The Example Calendar is created."
         print "Do we need to install the most common rules?"
