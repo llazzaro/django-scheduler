@@ -76,7 +76,7 @@ class Rule(models.Model):
     def __unicode__(self):
         """Human readable string for Rule"""
         return self.name
-    
+
 
 
 
@@ -489,6 +489,7 @@ class Calendar(models.Model):
     '''
 
     name = models.CharField(_("name"), max_length = 200)
+    slug = models.SlugField(_("slug"),max_length = 200)
     events = models.ManyToManyField(Event, verbose_name=_("events"), blank=True, null=True)
 
     objects = CalendarManager()

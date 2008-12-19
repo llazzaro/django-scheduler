@@ -13,9 +13,12 @@ from schedule.forms import EventForm
 from schedule.models import *
 from schedule.periods import weekday_names
 
-def calendar(request, calendar_id=None, year=None, month=None,
+def calendar(request, calendar_id=None,calendar_slug=None, year=None, month=None,
              template='schedule/calendar.html'):
-    calendar = get_object_or_404(Calendar, id = calendar_id)
+    if calendar_id:
+        calendar = get_object_or_404(Calendar, id = calendar_id)
+    elif calendar_slug:
+        calendar = get_object_or_404(Calendar, slug = calendar_slug)
     if year and month:
         month = calendar.get_month(datetime.date(int(year),int(month),1))
     else:
@@ -85,8 +88,11 @@ def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None
     }, context_instance=RequestContext(request))
 
 @login_required
-def create_event(request, calendar_id, year, month, day, hour, minute, redirect=None):
-    calendar = get_object_or_404(Calendar, id=calendar_id)
+def create_event(request, calendar_id=None, calendar_slug=None, year=None, month=None, day=None, hour=None, minute=None, redirect=None):
+    if calendar_id:
+        calendar = get_object_or_404(Calendar, id=calendar_id)
+    elif calendar_slug:
+        calendar = get_object_or_404(Calendar, slug=calendar_slug)
     starttime = datetime.datetime(year=int(year),month=int(month),day=int(day),hour=int(hour),minute=int(minute))
     endtime = starttime + datetime.timedelta(minutes=30)
     end_recur = endtime + datetime.timedelta(days=8)
@@ -139,16 +145,19 @@ def _check_next_url(next):
         return None
     return next
 
-def calendar_compact_month( request, calendar_id=None, year=None, month=None ):
-    return calendar( request, calendar_id, year, month,
+def calendar_compact_month( request, calendar_id=None,calendar_slug=None, year=None, month=None ):
+    return calendar( request, calendar_id,calendar_slug, year, month,
                     template='schedule/calendar_compact_month.html' )
 
-def calendar_month( request, calendar_id=None, year=None, month=None ):
-    return calendar( request, calendar_id, year, month,
+def calendar_month( request, calendar_id=None,calendar_slug=None, year=None, month=None ):
+    return calendar( request, calendar_id, calendar_slug, year, month,
                     template='schedule/calendar_month.html' )
 
-def calendar_tri_month( request, calendar_id=None, year=None, month=None ):
-    cal = get_object_or_404(Calendar, id = calendar_id)
+def calendar_tri_month( request, calendar_id=None, calendar_slug=None, year=None, month=None ):
+    if calendar_id:
+        cal = get_object_or_404(Calendar, id = calendar_id)
+    elif calendar_slug:
+        cal = get_object_or_404(Calendar, slug = calendar_slug)
     if year and month:
         month = cal.get_month(datetime.date(int(year),int(month),1))
     else:
@@ -158,8 +167,11 @@ def calendar_tri_month( request, calendar_id=None, year=None, month=None ):
                 "month": month,
     }, context_instance=RequestContext(request))
 
-def calendar_year( request, calendar_id=None, year=None ):
-    cal = get_object_or_404(Calendar, id = calendar_id)
+def calendar_year( request, calendar_id=None,calendar_slug=None, year=None ):
+    if calendar_id:
+        cal = get_object_or_404(Calendar, id = calendar_id)
+    elif calendar_slug:
+        cal = get_object_or_404(Calendar, slug = calendar_slug)
     if year:
         year = int(year)
     else:
@@ -173,15 +185,18 @@ def calendar_year( request, calendar_id=None, year=None ):
                 "next_year": year + 1,
     }, context_instance=RequestContext(request))
 
-def calendar_week( request, calendar_id=None, year=None, month=None, day=None ):
+def calendar_week( request, calendar_id=None,calendar_slug=None, year=None, month=None, day=None ):
     days = []
     return render_to_response('schedule/calendar_week.html', {
                         "calendar": calendar,
                         "days": days,
     }, context_instance=RequestContext(request))
 
-def calendar_day( request, calendar_id=None, year=None, month=None, day=None ):
-    cal = get_object_or_404(Calendar, id = calendar_id)
+def calendar_day( request, calendar_id=None,calendar_slug=None, year=None, month=None, day=None ):
+    if calendar_id:
+        cal = get_object_or_404(Calendar, id = calendar_id)
+    if calendar_slug:
+        cal = get_object_or_404(Calendar, slug = calendar_slug)
     if year and month and day:
         dt = datetime.datetime(year=int(year),month=int(month),day=int(day))
         daynumber = int(day)
@@ -194,4 +209,3 @@ def calendar_day( request, calendar_id=None, year=None, month=None, day=None ):
                         "calendar": cal,
                         "day": day,
     }, context_instance=RequestContext(request))
-

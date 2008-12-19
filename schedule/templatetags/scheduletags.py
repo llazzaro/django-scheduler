@@ -15,12 +15,12 @@ def month_table( calendar, date, size="regular", uname=None ):
     else:
         context = {'day_names':weekday_names}
     if uname:
-        prev_url_context = { 'calendar_id': calendar.id,
+        prev_url_context = { 'calendar_slug': calendar.slug,
                              'year': month.prev_month().year,
                              'month': month.prev_month().month
                            }
         context['prev_url'] = reverse( uname, kwargs=prev_url_context )
-        next_url_context = { 'calendar_id': calendar.id,
+        next_url_context = { 'calendar_slug': calendar.slug,
                              'year': month.next_month().year,
                              'month': month.next_month().month
                            }
@@ -60,14 +60,14 @@ def daily_table( calendar, day ):
         'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
     }
     prev_day = day.prev_day()
-    prev_url_context = { 'calendar_id': calendar.id,
+    prev_url_context = { 'calendar_slug': calendar.slug,
                          'year': prev_day.year,
                          'month': prev_day.month,
                          'day': prev_day.day
                        }
     context['prev_url'] = reverse( "d_calendar_date", kwargs=prev_url_context )
     next_day = day.next_day()
-    next_url_context = { 'calendar_id': calendar.id,
+    next_url_context = { 'calendar_slug': calendar.slug,
                          'year': next_day.year,
                          'month': next_day.month,
                          'day': next_day.day
@@ -96,7 +96,7 @@ def create_event_url( calendar, slot ):
         'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
     }
     lookup_context = {
-        'calendar_id': calendar.id,
+        'calendar_slug': calendar.slug,
         'year' : slot.year,
         'month' : slot.month,
         'day' : slot.day,
@@ -111,9 +111,9 @@ class CalendarNode(template.Node):
         self.content_object = template.Variable(content_object)
         self.distinction = distinction
         self.context_var = context_var
-    
+
     def render(self, context):
-        calendar = Calendar.objects.get_calendar_for_object(self.content_object.resolve(context), self.distinction)                                 
+        calendar = Calendar.objects.get_calendar_for_object(self.content_object.resolve(context), self.distinction)
         context[self.context_var] = Calendar.objects.get_calendar_for_object(self.content_object.resolve(context), self.distinction)
         return ''
 
@@ -134,11 +134,11 @@ class CreateCalendarNode(template.Node):
         self.distinction = distinction
         self.context_var = context_var
         self.name = name
-    
+
     def render(self, context):
         context[self.context_var] = Calendar.objects.get_or_create_calendar_for_object(self.content_object.resolve(context), self.distinction, name = self.name)
         return ''
-    
+
 def do_get_or_create_calendar_for_object(parser, token):
     contents = token.split_contents()
     if len(contents) > 2:
@@ -165,7 +165,7 @@ def do_get_or_create_calendar_for_object(parser, token):
         raise template.TemplateSyntaxError, "%r tag follows form %r <content_object> [named <calendar name>] [by <distinction>] as <context_var>" % (token.split_contents()[0], token.split_contents()[0])
     return CreateCalendarNode(obj, distinction, context_var, name)
 
-    
+
 
 register.tag('get_calendar', do_get_calendar_for_object)
 register.tag('get_or_create_calendar', do_get_or_create_calendar_for_object)

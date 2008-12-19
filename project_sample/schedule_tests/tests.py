@@ -15,13 +15,13 @@ class TestUrls(TestCase):
     fixtures = [schedule_fixture]
 
     def test_calendar_view(self):
-        self.response = c.get(reverse("s_calendar", kwargs={"calendar_id":1}), {})
+        self.response = c.get(reverse("s_calendar_by_id", kwargs={"calendar_id":1}), {})
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context[0]["calendar"].name,
                          "work")
 
     def test_calendar_date_view(self):
-        self.response = c.get(reverse("s_calendar_date",
+        self.response = c.get(reverse("s_calendar_by_id_date",
                                       kwargs={
                                         "calendar_id":1,
                                         "year":2008,
