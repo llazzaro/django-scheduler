@@ -489,7 +489,7 @@ class Calendar(models.Model):
     '''
 
     name = models.CharField(_("name"), max_length = 200)
-    events = models.ManyToManyField(Event, verbose_name=_("events"))
+    events = models.ManyToManyField(Event, verbose_name=_("events"), blank=True, null=True)
 
     objects = CalendarManager()
 
