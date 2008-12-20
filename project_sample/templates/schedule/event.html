@@ -31,4 +31,9 @@
 <h3>Description</h3>
 <p>{{event.description}}</p>
 {% endif %}
+
+<h3>Calendar View</h3>
+<a href="{% url year_calendar_date calendar.slug,event.start.year %}">Yearly</a>
+<a href="{% url m_calendar_date calendar.slug,event.start.year,event.start.month %}">Monthly</a>
+<a href="{% url d_calendar_date calendar.slug,event.start.year,event.start.month,event.start.day %}">Daily</a>
 {% endblock %}
