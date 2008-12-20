@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     url(r'^calendar/month/(?P<calendar_slug>[-\w]+)/(?P<year>\d+)/(?P<month>\d+)/$', 'schedule.views.calendar_month', name = "m_calendar_date"),
     url(r'^calendar/week/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.calendar_week', name="w_calendar"),
     url(r'^calendar/week/(?P<calendar_slug>[-\w]+)/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/$', 'schedule.views.calendar_week', name = "w_calendar_date"),
-    url(r'^calendar/daily/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.calendar_day', name="d_calendar_by_id"),
+    url(r'^calendar/daily/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.calendar_day', name="d_calendar"),
     url(r'^calendar/daily/(?P<calendar_slug>[-\w]+)/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/$', 'schedule.views.calendar_day', name = "d_calendar_date"),
     url(r'^calendar/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.calendar', name="s_calendar"),
 

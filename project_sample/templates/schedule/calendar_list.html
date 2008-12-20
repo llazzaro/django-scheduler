@@ -4,7 +4,7 @@
 <h2>Available Calendars</h2>
 <ul>
 {% for cal in object_list %}
-<li><b>{{ cal }}</b> : <a href="/schedule/calendar/{{ cal.slug }}/">Classic Month</a> -- <a href="/schedule/calendar/compact_month/{{ cal.slug }}/">Small Month</a> -- <a href="/schedule/calendar/month/{{ cal.slug }}/">1 Month</a> -- <a href="/schedule/calendar/tri_month/{{ cal.slug }}/">3 Months</a> -- <a href="/schedule/calendar/year/{{ cal.slug }}/">This Year</a> -- <a href="/schedule/calendar/week/{{ cal.slug }}/">Weekly</a> -- <a href="/schedule/calendar/daily/{{ cal.slug }}/">Daily</a></li><br/>
+<li><b>{{ cal }}</b> : <a href="{% url s_calendar cal.slug %}">Classic Month</a> -- <a href="{% url c_calendar cal.slug %}">Small Month</a> -- <a href="{% url m_calendar cal.slug %}">1 Month</a> -- <a href="{% url tri_month_calendar cal.slug %}">3 Months</a> -- <a href="{% url year_calendar cal.slug %}">This Year</a> -- <a href="{% url w_calendar cal.slug %}">Weekly</a> -- <a href="{% url d_calendar cal.slug %}">Daily</a></li><br/>
 {% endfor %}
 </ul>
 {% endblock %}
