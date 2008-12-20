@@ -12,6 +12,6 @@
 	</tr>
 </table></p>
 <p align="center">
-<a href="{% url m_calendar_date calendar.id month.start.year month.start.month %}">Monthly Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar_date calendar.id month.start.year %}">Full Year Calendar</a>
+<a href="{% url m_calendar_date calendar.slug month.start.year month.start.month %}">Monthly Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar_date calendar.slug month.start.year %}">Full Year Calendar</a>
 </p>
 {% endblock %}

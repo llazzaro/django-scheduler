@@ -5,6 +5,6 @@
 {% month_table calendar month.start "regular" "m_calendar_date" %}
 </p>
 <p align="center">
-<a href="{% url tri_month_calendar_date calendar.id month.start.year month.start.month %}">Three Month Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar_date calendar.id month.start.year %}">Full Year Calendar</a>
+<a href="{% url tri_month_calendar_date calendar.slug month.start.year month.start.month %}">Three Month Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar_date calendar.slug month.start.year %}">Full Year Calendar</a>
 </p>
 {% endblock %}

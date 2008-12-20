@@ -1,4 +1,4 @@
-<td class="daynumber{% ifequal size "small" %} compact{% endifequal %}{% ifnotequal day.start.month month.start.month %} noday"></td>{% else %}{% if day.has_occurrences %} busy{% else %} free{% endif %}"><a href="/schedule/calendar/daily/{{ calendar.id }}/{{ day.start.year }}/{{ day.start.month }}/{{ day.start.day }}/"><b>{{day.start.day}}</b></a><br/>
+<td class="daynumber{% ifequal size "small" %} compact{% endifequal %}{% ifnotequal day.start.month month.start.month %} noday"></td>{% else %}{% if day.has_occurrences %} busy{% else %} free{% endif %}"><a href="/schedule/calendar/daily/{{ calendar.slug }}/{{ day.start.year }}/{{ day.start.month }}/{{ day.start.day }}/"><b>{{day.start.day}}</b></a><br/>
 {% if day.has_occurrences %}
 {% ifnotequal size "small" %}
 {% for o in day.get_occurrence_partials %}

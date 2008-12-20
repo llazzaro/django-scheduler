@@ -5,6 +5,6 @@
 {% daily_table calendar day %}
 </p>
 <p align="center">
-<a href="{% url m_calendar_date calendar.id day.start.year day.start.month %}">Current Month Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar_date calendar.id day.start.year %}">Current Year Calendar</a>
+<a href="{% url m_calendar_date calendar.slug day.start.year day.start.month %}">Current Month Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar_date calendar.slug day.start.year %}">Current Year Calendar</a>
 </p>
 {% endblock %}
