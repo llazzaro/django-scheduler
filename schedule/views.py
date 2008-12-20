@@ -13,8 +13,8 @@ from schedule.forms import EventForm
 from schedule.models import *
 from schedule.periods import weekday_names
 
-if hasattr(settings,"SCHEDULE_USER_TEST"):
-    test_user_function = getattr(settings,"SCHEDULE_USER_TEST") or (lambda u: u.is_authenticated())
+if hasattr(settings,"SCHEDULE_EVENT_EDITOR_TEST"):
+    test_user_function = getattr(settings,"SCHEDULE_EVENT_EDITOR_TEST") or (lambda u: u.is_authenticated())
 else:
     test_user_function = lambda u: u.is_authenticated()
 

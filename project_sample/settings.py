@@ -94,4 +94,4 @@ INSTALLED_APPS = (
 #        test_result = True
 #    return test_result
 #
-#SCHEDULE_USER_TEST = _test_user_fuction
+#SCHEDULE_EVENT_EDITOR_TEST = _test_user_fuction
