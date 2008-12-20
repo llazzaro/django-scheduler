@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.views.generic.create_update import delete_object
 from django.conf import settings
 import datetime
@@ -12,6 +12,11 @@ import datetime
 from schedule.forms import EventForm
 from schedule.models import *
 from schedule.periods import weekday_names
+
+if hasattr(settings,"SCHEDULE_USER_TEST"):
+    test_user_function = getattr(settings,"SCHEDULE_USER_TEST") or (lambda u: u.is_authenticated())
+else:
+    test_user_function = lambda u: u.is_authenticated()
 
 def calendar(request, calendar_id=None,calendar_slug=None, year=None, month=None,
              template='schedule/calendar.html'):
@@ -42,7 +47,7 @@ def event(request, event_id=None):
         "calendar" : cal,
     }, context_instance=RequestContext(request))
 
-@login_required
+@user_passes_test(test_func=test_user_function)
 def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None):
     """
     This function, if it receives a GET request or if given an invalid form in a
@@ -87,7 +92,7 @@ def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None
         "calendar": calendar
     }, context_instance=RequestContext(request))
 
-@login_required
+@user_passes_test(test_func=test_user_function)
 def create_event(request, calendar_id=None, calendar_slug=None, year=None, month=None, day=None, hour=None, minute=None, redirect=None):
     if calendar_id:
         calendar = get_object_or_404(Calendar, id=calendar_id)
@@ -116,6 +121,7 @@ def create_event(request, calendar_id=None, calendar_slug=None, year=None, month
         "calendar": calendar
     }, context_instance=RequestContext(request))
 
+@user_passes_test(test_func=test_user_function)
 def delete_event(request, event_id=None, redirect=None, login_required=True):
     """
     After the event is deleted there are three options for redirect, tried in

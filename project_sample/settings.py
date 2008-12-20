@@ -86,3 +86,12 @@ INSTALLED_APPS = (
     'schedule',
     'schedule_tests',
 )
+# Show how to change the user test allowing to edit content
+
+#def _test_user_fuction(user):
+#    test_result = False
+#    if user.is_staff:
+#        test_result = True
+#    return test_result
+#
+#SCHEDULE_USER_TEST = _test_user_fuction
