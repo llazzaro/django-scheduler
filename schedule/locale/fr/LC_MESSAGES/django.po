@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-scheduleN\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-06 19:47-0400\n"
+"POT-Creation-Date: 2009-01-06 10:15-0400\n"
 "PO-Revision-Date: 2008-12-05 23:59-0400\n"
 "Last-Translator: Yann Malet <yann.malet@gmail.com>\n"
 "Language-Team: Yann Malet <yann.malet@gmail.com>\n"
@@ -22,6 +22,14 @@ msgstr "AM"
 #: forms.py:18
 msgid "PM"
 msgstr "PM"
+
+#: forms.py:57
+msgid "The end time must be later than start time."
+msgstr ""
+
+#: forms.py:58 models.py:300
+msgid "This date is ignored for one time only events."
+msgstr ""
 
 #: models.py:15
 msgid "Yearly"
@@ -67,7 +75,7 @@ msgstr "fréquence"
 msgid "params"
 msgstr "params"
 
-#: models.py:58 models.py:300
+#: models.py:58 models.py:299
 msgid "rule"
 msgstr "régle"
 
@@ -83,6 +91,10 @@ msgstr "début"
 msgid "end"
 msgstr "fin"
 
+#: models.py:294
+msgid "The end time must be later than the start time."
+msgstr ""
+
 #: models.py:295
 msgid "title"
 msgstr "titre"
@@ -96,18 +108,22 @@ msgid "created on"
 msgstr ""
 
 #: models.py:299
+msgid "Select '----' for a one time only event."
+msgstr ""
+
+#: models.py:300
 msgid "end recurring period"
 msgstr "fin de la période de récurrence"
 
-#: models.py:305 models.py:753
+#: models.py:305 models.py:754
 msgid "event"
 msgstr "évènement"
 
-#: models.py:306 models.py:492
+#: models.py:306 models.py:493
 msgid "events"
 msgstr "évènements"
 
-#: models.py:309 periods.py:106 periods.py:148 periods.py:164
+#: models.py:309 periods.py:163 periods.py:216 periods.py:232
 msgid "DATE_FORMAT"
 msgstr ""
 
@@ -116,31 +132,35 @@ msgstr ""
 msgid "%(title)s: %(start)s-%(end)s"
 msgstr ""
 
-#: models.py:497 models.py:498 models.py:588
+#: models.py:492
+msgid "slug"
+msgstr ""
+
+#: models.py:498 models.py:499 models.py:589
 msgid "calendar"
 msgstr "calendrier"
 
-#: models.py:592 models.py:757
+#: models.py:593 models.py:758
 msgid "distinction"
 msgstr "distinction"
 
-#: models.py:593
+#: models.py:594
 msgid "inheritable"
 msgstr ""
 
-#: models.py:598
+#: models.py:599
 msgid "calendar relation"
 msgstr ""
 
-#: models.py:599
+#: models.py:600
 msgid "calendar relations"
 msgstr ""
 
-#: models.py:762
+#: models.py:763
 msgid "event relation"
 msgstr ""
 
-#: models.py:763
+#: models.py:764
 msgid "event relations"
 msgstr ""
 
@@ -149,17 +169,21 @@ msgstr ""
 msgid "%(start)s to %(end)s"
 msgstr "%(start)s à %(end)s"
 
-#: periods.py:107
+#: periods.py:10
+msgid "FIRST_DAY_OF_WEEK"
+msgstr ""
+
+#: periods.py:164
 #, python-format
 msgid "Month: %(start)s-%(end)s"
 msgstr "Mois : %(start)s-%(end)s"
 
-#: periods.py:149
+#: periods.py:217
 #, python-format
 msgid "Week: %(start)s-%(end)s"
 msgstr "Semaine : %(start)s-%(end)s"
 
-#: periods.py:165
+#: periods.py:233
 #, python-format
 msgid "Day: %(start)s-%(end)s"
 msgstr "Jour: %(start)s-%(end)s"

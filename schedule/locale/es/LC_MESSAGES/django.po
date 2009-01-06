@@ -1,16 +1,16 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the django-schedule package.
-# Jannis Leidel <jannis@leidel.info>, 2008.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: django-schedule\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-01-06 10:15-0400\n"
-"PO-Revision-Date: 2008-12-04 10:25+0100\n"
-"Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,157 +18,157 @@ msgstr ""
 
 #: forms.py:18
 msgid "AM"
-msgstr "vorm."
+msgstr "AM"
 
 #: forms.py:18
 msgid "PM"
-msgstr "nachm."
+msgstr "PM"
 
 #: forms.py:57
 msgid "The end time must be later than start time."
-msgstr ""
+msgstr "El tiempo de fin debe de ser mayor que el tiempo de inicio."
 
 #: forms.py:58 models.py:300
 msgid "This date is ignored for one time only events."
-msgstr ""
+msgstr "Esta fecha es ignorada para eventos de una sola ocurrencia."
 
 #: models.py:15
 msgid "Yearly"
-msgstr "jährlich"
+msgstr "Anual"
 
 #: models.py:16
 msgid "Monthly"
-msgstr "monatlich"
+msgstr "Mensual"
 
 #: models.py:17
 msgid "Weekly"
-msgstr "wöchentlich"
+msgstr "Semanal"
 
 #: models.py:18
 msgid "Daily"
-msgstr "täglich"
+msgstr "Diario"
 
 #: models.py:19
 msgid "Hourly"
-msgstr "stündlich"
+msgstr "Por Hora"
 
 #: models.py:20
 msgid "Minutely"
-msgstr "minütlich"
+msgstr "Por Minuto"
 
 #: models.py:21
 msgid "Secondly"
-msgstr "sekündlich"
+msgstr "Por Segundo"
 
 #: models.py:52 models.py:491
 msgid "name"
-msgstr "Name"
+msgstr "nombre"
 
 #: models.py:53 models.py:296
 msgid "description"
-msgstr "Beschreibung"
+msgstr "descripción"
 
 #: models.py:54
 msgid "frequency"
-msgstr "Wiederholen"
+msgstr "frecuencia"
 
 #: models.py:55
 msgid "params"
-msgstr "Parameter"
+msgstr "parametros"
 
 #: models.py:58 models.py:299
 msgid "rule"
-msgstr "Regel"
+msgstr "regla"
 
 #: models.py:59
 msgid "rules"
-msgstr "Regeln"
+msgstr "reglas"
 
 #: models.py:293
 msgid "start"
-msgstr "Beginn"
+msgstr "inicio"
 
 #: models.py:294
 msgid "end"
-msgstr "Ende"
+msgstr "final"
 
 #: models.py:294
 msgid "The end time must be later than the start time."
-msgstr ""
+msgstr "El tiempo final debe de ser después del tiempo de inicio"
 
 #: models.py:295
 msgid "title"
-msgstr "Titel"
+msgstr "título"
 
 #: models.py:297
 msgid "creator"
-msgstr "Urheber"
+msgstr "creador"
 
 #: models.py:298
 msgid "created on"
-msgstr "Erstellt"
+msgstr "creado el"
 
 #: models.py:299
 msgid "Select '----' for a one time only event."
-msgstr ""
+msgstr "Seleccione '----' para un evento de una sola ocurrencia."
 
 #: models.py:300
 msgid "end recurring period"
-msgstr "Ende der Wiederholung"
+msgstr "fin del período recurrente"
 
 #: models.py:305 models.py:754
 msgid "event"
-msgstr "Termin"
+msgstr "evento"
 
 #: models.py:306 models.py:493
 msgid "events"
-msgstr "Termine"
+msgstr "eventos"
 
 #: models.py:309 periods.py:163 periods.py:216 periods.py:232
 msgid "DATE_FORMAT"
-msgstr ""
+msgstr "DATE_FORMAT"
 
 #: models.py:310
 #, python-format
 msgid "%(title)s: %(start)s-%(end)s"
-msgstr "%(title)s: %(start)s - %(end)s"
+msgstr ""
 
 #: models.py:492
 msgid "slug"
-msgstr ""
+msgstr "slug"
 
 #: models.py:498 models.py:499 models.py:589
 msgid "calendar"
-msgstr "Kalender"
+msgstr "calendario"
 
 #: models.py:593 models.py:758
 msgid "distinction"
-msgstr "Unterscheidungsmerkmal"
+msgstr "distinción"
 
 #: models.py:594
 msgid "inheritable"
-msgstr "vererbbar"
+msgstr "heredable"
 
 #: models.py:599
 msgid "calendar relation"
-msgstr "Kalenderzuordnung"
+msgstr "relación de calendario"
 
 #: models.py:600
 msgid "calendar relations"
-msgstr "Kalenderzuordnungen"
+msgstr "relaciones de calendario"
 
 #: models.py:763
 msgid "event relation"
-msgstr "Terminzuordnung"
+msgstr "relación de evento"
 
 #: models.py:764
 msgid "event relations"
-msgstr "Terminzuordnungen"
+msgstr "relaciones de eventos"
 
 #: occurrence.py:14
 #, python-format
 msgid "%(start)s to %(end)s"
-msgstr "%(start)s bis %(end)s"
+msgstr ""
 
 #: periods.py:10
 msgid "FIRST_DAY_OF_WEEK"
@@ -177,14 +177,14 @@ msgstr ""
 #: periods.py:164
 #, python-format
 msgid "Month: %(start)s-%(end)s"
-msgstr "Monat: %(start)s - %(end)s"
+msgstr "Mes: %(start)s-%(end)s"
 
 #: periods.py:217
 #, python-format
 msgid "Week: %(start)s-%(end)s"
-msgstr "Woche: %(start)s-%(end)s"
+msgstr "Semana: %(start)s-%(end)s"
 
 #: periods.py:233
 #, python-format
 msgid "Day: %(start)s-%(end)s"
-msgstr "Tag: %(start)s-%(end)s"
+msgstr "Día: %(start)s-%(end)s"
