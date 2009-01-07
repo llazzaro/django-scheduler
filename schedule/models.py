@@ -52,7 +52,7 @@ class Rule(models.Model):
     name = models.CharField(_("name"), max_length=32)
     description = models.TextField(_("description"))
     frequency = models.CharField(_("frequency"), choices=freqs, max_length=10)
-    params = models.TextField(_("params"))
+    params = models.TextField(_("params"), null=True, blank=True)
 
     class Meta:
         verbose_name = _('rule')
@@ -60,16 +60,20 @@ class Rule(models.Model):
 
     def get_params(self):
         """
-        >>> rule = Rule(params = "count:1,2,3;bysecond:1;byminute:1,2,4,5")
+        >>> rule = Rule(params = "count:1;bysecond:1;byminute:1,2,4,5")
         >>> rule.get_params()
-        {'count': [1, 2, 3], 'byminute': [1, 2, 4, 5], 'bysecond': [1]}
+        {'count': 1, 'byminute': [1, 2, 4, 5], 'bysecond': 1}
         """
+        if self.params is None:
+            return {}
         params = self.params.split(';')
         param_dict = []
         for param in params:
             param = param.split(':')
             if len(param) == 2:
                 param = (str(param[0]), [int(p) for p in param[1].split(',')])
+                if len(param[1]) == 1:
+                    param = (param[0], param[1][0])
                 param_dict.append(param)
         return dict(param_dict)
 
