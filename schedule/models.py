@@ -6,8 +6,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import date
 from django.utils.translation import ugettext, ugettext_lazy as _
-from schedule.periods import Month
-from schedule.occurrence import Occurrence
 import datetime
 from dateutil import rrule
 
@@ -145,6 +143,19 @@ class Event(models.Model):
         []
 
         """
+        persisted_occurrences = self.occurrence_set.all()
+        occurrences = self._get_occurrence_list(start, end)
+        for index in range(len(occurrences)):
+            for p_occurrence in persisted_occurrences:
+                if occurrences[index] == p_occurrence:
+                    occurrences[index] = p_occurrence
+        return occurrences
+        
+        
+    def _get_occurrence_list(self, start, end):
+        """
+
+        """
         if self.rule is not None:
             params = self.rule.get_params()
             frequency = 'rrule.%s' % self.rule.frequency
@@ -158,7 +169,7 @@ class Event(models.Model):
                     o_end = o_start + (self.end - self.start)
                     if o_end >= start:
                         if o_start < end:
-                            occurrences.append(Occurrence(self,o_start,o_end))
+                            occurrences.append(Occurrence(event=self,start=o_start,end=o_end))
                         else:
                             break
                 return occurrences
@@ -168,7 +179,7 @@ class Event(models.Model):
         else:
             # check if event is in the period
             if self.start < end and self.end >= start:
-                return [Occurrence(self, self.start, self.end)]
+                return [Occurrence(event=self, start=self.start, end=self.end)]
             else:
                 return []
 
@@ -346,6 +357,7 @@ class Calendar(models.Model):
         return reverse('s_create_event_in_calendar', args=[self.slug])
 
     def get_month(self, date=datetime.datetime.now()):
+        from periods import Month
         return Month(self.events.all(), date)
 
 
@@ -569,3 +581,39 @@ class EventRelation(models.Model):
 
     def __unicode__(self):
         return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
+
+class Occurrence(models.Model):
+    event = models.ForeignKey(Event, verbose_name=_("event"))
+    description = models.TextField(_("description"), blank=True, null=True)
+    start = models.DateTimeField(_("start"))
+    end = models.DateTimeField(_("end"))
+    
+    def __unicode__(self):
+        # #TODO remove this if statement
+        # if self.pk is not None:
+        #     return ugettext("PERSISTED: %(start)s to %(end)s") % {
+        #         'start': self.start,
+        #         'end': self.end,
+        #     }
+        return ugettext("%(start)s to %(end)s") % {
+            'start': self.start,
+            'end': self.end,
+        }
+
+    def __cmp__(self, other):
+        rank = cmp(self.start, other.start)
+        if rank == 0:
+            return cmp(self.end, other.end)
+        return rank
+    
+    def __eq__(self, other):
+        return self.event == other.event and self.start== other.start and self.end == other.end
+"""
+from schedule import models
+from schedule import periods
+import datetime
+events = models.Event.objects.all()
+month = periods.Month(events, datetime.datetime.now())
+month._get_sorted_occurrences()
+"""
+    

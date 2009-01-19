@@ -4,7 +4,7 @@ from django.template.defaultfilters import date
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
 from django.conf import settings
-from schedule.occurrence import Occurrence
+from models import Occurrence
 
 # Look for FIRST_DAY_OF_WEEK as a locale setting
 first_day_of_week = ugettext('FIRST_DAY_OF_WEEK')
@@ -49,8 +49,15 @@ class Period(object):
 
     def _get_sorted_occurrences(self):
         occurrences = []
+        persisted_occurrences = Occurrence.objects.filter(event__in = self.events)
         for event in self.events:
-            occurrences += event.get_occurrences(self.start, self.end)
+            event_occurrences = event._get_occurrence_list(self.start, self.end)
+            #TODO I am sure the loop below can be done better
+            for index in range(len(event_occurrences)):
+                for p_occurrence in persisted_occurrences:
+                    if event_occurrences[index] == p_occurrence:
+                        event_occurrences[index] = p_occurrence
+            occurrences += event_occurrences
         return sorted(occurrences)
 
     def classify_occurrence(self, occurrence):
