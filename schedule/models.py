@@ -587,6 +587,17 @@ class Occurrence(models.Model):
     description = models.TextField(_("description"), blank=True, null=True)
     start = models.DateTimeField(_("start"))
     end = models.DateTimeField(_("end"))
+    cancelled = models.BooleanField(_("cancelled"), default=False)
+    original_start = models.DateTimeField(_("original start"))
+    original_end = models.DateTimeField(_("original end"))
+    
+    def __init__(self, *args, **kwargs):
+        super(Occurrence, self).__init__(*args, **kwargs)
+        if not hasattr(self, 'original_start'):
+            self.original_start = getattr(self, 'start', None)
+        if not hasattr(self, 'original_end'):
+            self.original_end = getattr(self, 'end', None)
+        
     
     def __unicode__(self):
         # #TODO remove this if statement
@@ -607,7 +618,8 @@ class Occurrence(models.Model):
         return rank
     
     def __eq__(self, other):
-        return self.event == other.event and self.start== other.start and self.end == other.end
+        return self.event == other.event and self.original_start == other.original_start and self.original_end == other.original_end
+    
 """
 from schedule import models
 from schedule import periods
