@@ -154,7 +154,7 @@ class Event(models.Model):
         
     def _get_occurrence_list(self, start, end):
         """
-
+        returns a list of occurrences for this event from start to end.
         """
         if self.rule is not None:
             params = self.rule.get_params()
@@ -169,7 +169,7 @@ class Event(models.Model):
                     o_end = o_start + (self.end - self.start)
                     if o_end >= start:
                         if o_start < end:
-                            occurrences.append(Occurrence(event=self,start=o_start,end=o_end))
+                            occurrences.append(Occurrence(event=self,start=o_start,end=o_end, original_start=o_start, original_end=o_end))
                         else:
                             break
                 return occurrences
@@ -443,7 +443,7 @@ class EventRelationManager(models.Manager):
     '''
     # Currently not supported
     # Multiple level reverse lookups of generic relations appears to be
-    # unsupported in Django.
+    # unsupported in Django, which makes sense.
     #
     # def get_objects_for_event(self, event, model, distinction=None):
     #     '''
@@ -465,35 +465,35 @@ class EventRelationManager(models.Manager):
     #         eventrelation__content_type = ct,
     #         eventrelation__event = event
     #     )
-
+    
     def get_events_for_object(self, content_object, distinction=None, inherit=True):
         '''
         returns a queryset full of events, that relate to the object through, the
         distinction
-
+        
         If inherit is false it will not consider the calendars that the events
         belong to. If inherit is true it will inherit all of the relations and
         distinctions that any calendar that it belongs to has, as long as the
         relation has inheritable set to True.  (See Calendar)
-
+        
         >>> event = Event.objects.get(title='Test1')
         >>> user = User.objects.get(username = 'alice')
         >>> EventRelation.objects.get_events_for_object(user, 'owner', inherit=False)
         [<Event: Test1: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>]
-
+        
         If a distinction is not declared it will not vet the relations based on
         distinction.
         >>> EventRelation.objects.get_events_for_object(user, inherit=False)
         [<Event: Test1: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>, <Event: Test2: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>]
-
+        
         Now if there is a Calendar
         >>> calendar = Calendar(name = 'MyProject')
         >>> calendar.save()
-
+        
         And an event that belongs to that calendar
         >>> event = Event.objects.get(title='Test2')
         >>> calendar.events.add(event)
-
+        
         If we relate this calendar to some object with inheritable set to true,
         that relation will be inherited
         >>> user = User.objects.get(username='bob')
@@ -519,7 +519,7 @@ class EventRelationManager(models.Manager):
             inherit_q = Q()
         event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id),Q(eventrelation__content_type=ct))
         return Event.objects.filter(inherit_q|event_q)
-
+    
     def change_distinction(self, distinction, new_distinction):
         '''
         This function is for change the a group of eventrelations from an old
@@ -529,7 +529,7 @@ class EventRelationManager(models.Manager):
         for relation in self.filter(distinction = distinction):
             relation.distinction = new_distinction
             relation.save()
-
+    
     def create_relation(self, event, content_object, distinction=None):
         """
         Creates a relation between event and content_object.
@@ -546,7 +546,7 @@ class EventRelationManager(models.Manager):
         )
         er.save()
         return er
-
+    
 
 class EventRelation(models.Model):
     '''
@@ -555,32 +555,32 @@ class EventRelation(models.Model):
     events that are only visible by certain users, you could create a relation
     between events and users, with the distinction of 'visibility', or
     'ownership'.
-
+    
     event: a foreign key relation to an Event model.
     content_type: a foreign key relation to ContentType of the generic object
     object_id: the id of the generic object
     content_object: the generic foreign key to the generic object
     distinction: a string representing a distinction of the relation, User could
     have a 'veiwer' relation and an 'owner' relation for example.
-
+    
     DISCLAIMER: while this model is a nice out of the box feature to have, it
-    may not scale well.  If you use this keep that in mind.
-
+    may not scale well.  If you use this keep that in mindself.
     '''
     event = models.ForeignKey(Event, verbose_name=_("event"))
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
     distinction = models.CharField(_("distinction"), max_length = 20, null=True)
-
+    
     objects = EventRelationManager()
-
+    
     class Meta:
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
-
+    
     def __unicode__(self):
         return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
+    
 
 class Occurrence(models.Model):
     event = models.ForeignKey(Event, verbose_name=_("event"))
@@ -599,18 +599,29 @@ class Occurrence(models.Model):
             self.original_end = getattr(self, 'end', None)
         
     
+    def moved(self):
+        return self.original_start != self.start or self.original_end != self.end
+    moved = property(moved)
+    
+    def move(self, new_start, new_end):
+        self.start = new_start
+        self.end = new_end
+        self.save()
+    
+    def cancel(self):
+        self.cancelled = True
+        self.save()
+    
+    def uncancel(self):
+        self.cancelled = False
+        self.save()
+    
     def __unicode__(self):
-        # #TODO remove this if statement
-        # if self.pk is not None:
-        #     return ugettext("PERSISTED: %(start)s to %(end)s") % {
-        #         'start': self.start,
-        #         'end': self.end,
-        #     }
         return ugettext("%(start)s to %(end)s") % {
             'start': self.start,
             'end': self.end,
         }
-
+    
     def __cmp__(self, other):
         rank = cmp(self.start, other.start)
         if rank == 0:
@@ -620,6 +631,7 @@ class Occurrence(models.Model):
     def __eq__(self, other):
         return self.event == other.event and self.original_start == other.original_start and self.original_end == other.original_end
     
+
 """
 from schedule import models
 from schedule import periods
