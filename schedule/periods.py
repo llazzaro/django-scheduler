@@ -108,7 +108,9 @@ class Month(Period):
     The month period has functions for retrieving the week periods within this period
     and day periods within the date.
     """
-    def __init__(self, events, date=datetime.datetime.now()):
+    def __init__(self, events, date=None):
+        if date is None:
+            date = datetime.datetime.now()
         start, end = self._get_month_range(date)
         super(Month, self).__init__(events, start, end)
 
@@ -183,7 +185,9 @@ class Week(Period):
     """
     The Week period that has functions for retrieving Day periods within it
     """
-    def __init__(self, events, date=datetime.datetime.now()):
+    def __init__(self, events, date=None):
+        if date is None:
+            date = datetime.datetime.now()
         start, end = self._get_week_range(date)
         super(Week, self).__init__(events, start, end)
 
@@ -227,7 +231,9 @@ class Week(Period):
         }
 
 class Day(Period):
-    def __init__(self, events, date=datetime.date.today()):
+    def __init__(self, events, date=None):
+        if date is None:
+            date = datetime.datetime.now()
         self.events=events
         if isinstance(date, datetime.datetime):
             date = date.date()
