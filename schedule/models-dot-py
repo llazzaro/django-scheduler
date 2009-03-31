@@ -55,6 +55,7 @@ class Rule(models.Model):
     class Meta:
         verbose_name = _('rule')
         verbose_name_plural = _('rules')
+        app_label = 'schedule'
 
     def get_params(self):
         """
@@ -106,6 +107,7 @@ class Event(models.Model):
     class Meta:
         verbose_name = _('event')
         verbose_name_plural = _('events')
+        app_label = 'schedule'
 
     def __unicode__(self):
         date_format = u'l, %s' % ugettext("DATE_FORMAT")
@@ -150,8 +152,32 @@ class Event(models.Model):
                 if occurrences[index] == p_occurrence:
                     occurrences[index] = p_occurrence
         return occurrences
-        
-        
+    
+        def get_recent(self, amount=10, start_date = datetime.datetime.now):
+            """
+            This shortcut function allows you to get events that have started
+            recently.
+
+            amount is the amount of events you want in the queryset. The default is
+            5.
+
+            start_date is the datetime you want to check against.  It defaults to
+            datetime.datetime.now
+            """
+            return self.events.order_by('-start').filter(start__lt=datetime.datetime.now())[:amount]
+
+        def get_upcoming(self, amount=10, start_date = datetime.datetime.now):
+            """
+            This shortcut function allows you to get events that will start soon.
+
+            amount is the amount of events you want in the queryset. The default is
+            5.
+
+            start_date is the datetime you want to check against.  It defaults to
+            datetime.datetime.now
+            """
+            return self.events.order_by('start').filter(start__gt=datetime.datetime.now())[:amount]
+
     def _get_occurrence_list(self, start, end):
         """
         returns a list of occurrences for this event from start to end.
@@ -162,19 +188,11 @@ class Event(models.Model):
             occurrences = []
             if self.end_recurring_period and self.end_recurring_period < end:
                 end = self.end_recurring_period
-            o_starts = iter(rrule.rrule(eval(frequency), dtstart=self.start, **params))
-            try:
-                while True:
-                    o_start = o_starts.next()
-                    o_end = o_start + (self.end - self.start)
-                    if o_end >= start:
-                        if o_start < end:
-                            occurrences.append(Occurrence(event=self,start=o_start,end=o_end, original_start=o_start, original_end=o_end))
-                        else:
-                            break
-                return occurrences
-            except StopIteration:
-                pass
+            rule = rrule.rrule(eval(frequency), dtstart=self.start, **params)
+            o_starts = rule.between(start, end, inc=True)
+            for o_start in o_starts:
+                o_end = o_start + (self.end - self.start)
+                occurrences.append(Occurrence(event=self,start=o_start,end=o_end, original_start=o_start, original_end=o_end))            
             return occurrences
         else:
             # check if event is in the period
@@ -182,6 +200,15 @@ class Event(models.Model):
                 return [Occurrence(event=self, start=self.start, end=self.end)]
             else:
                 return []
+    
+    def _get_next_occurrence(self, after=datetime.datetime.now(), igt=None):
+        """
+        returns the very next occurrence
+        """
+        dict([(occurrence,None) for occurrence in self.occurrence_set()] if occurrence.original_start >=)
+        date = after
+        for True:
+            
 
 class CalendarManager(models.Manager):
     """
@@ -312,6 +339,7 @@ class Calendar(models.Model):
     class Meta:
         verbose_name = _('calendar')
         verbose_name_plural = _('calendar')
+        app_label = 'schedule'
 
     def __unicode__(self):
         return self.name
@@ -325,7 +353,7 @@ class Calendar(models.Model):
         """
         CalendarRelation.objects.create_relation(self, obj, distinction, inheritable)
 
-    def get_recent_events(self, amount=5, in_datetime = datetime.datetime.now):
+    def get_recent(self, amount=5, in_datetime = datetime.datetime.now):
         """
         This shortcut function allows you to get events that have started
         recently.
@@ -338,7 +366,7 @@ class Calendar(models.Model):
         """
         return self.events.order_by('-start').filter(start__lt=datetime.datetime.now())[:amount]
 
-    def get_upcoming_events(self, amount=5, in_datetime = datetime.datetime.now):
+    def get_upcoming(self, amount=5, in_datetime = datetime.datetime.now):
         """
         This shortcut function allows you to get events that will start soon.
 
@@ -414,6 +442,7 @@ class CalendarRelation(models.Model):
     class Meta:
         verbose_name = _('calendar relation')
         verbose_name_plural = _('calendar relations')
+        app_label = 'schedule'
 
     def __unicode__(self):
         return '%s - %s' %(self.calendar, self.content_object)
@@ -577,6 +606,7 @@ class EventRelation(models.Model):
     class Meta:
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
+        app_label = 'schedule'
     
     def __unicode__(self):
         return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
@@ -590,6 +620,11 @@ class Occurrence(models.Model):
     cancelled = models.BooleanField(_("cancelled"), default=False)
     original_start = models.DateTimeField(_("original start"))
     original_end = models.DateTimeField(_("original end"))
+    
+    class Meta:
+        verbose_name = _("occurrence")
+        verbose_name_plural = _("occurrences")
+        app_label = 'schedule'
     
     def __init__(self, *args, **kwargs):
         super(Occurrence, self).__init__(*args, **kwargs)
@@ -631,13 +666,4 @@ class Occurrence(models.Model):
     def __eq__(self, other):
         return self.event == other.event and self.original_start == other.original_start and self.original_end == other.original_end
     
-
-"""
-from schedule import models
-from schedule import periods
-import datetime
-events = models.Event.objects.all()
-month = periods.Month(events, datetime.datetime.now())
-month._get_sorted_occurrences()
-"""
     
