@@ -165,17 +165,8 @@ class Calendar(models.Model):
         """
         return self.events.order_by('-start').filter(start__lt=datetime.datetime.now())[:amount]
 
-    def get_upcoming(self, amount=5, in_datetime = datetime.datetime.now):
-        """
-        This shortcut function allows you to get events that will start soon.
-
-        amount is the amount of events you want in the queryset. The default is
-        5.
-
-        in_datetime is the datetime you want to check against.  It defaults to
-        datetime.datetime.now
-        """
-        return None
+    def occurrences_after(self, date=None):
+        return EventListManager(self.events.all()).next_occurrence(date)
 
     def get_absolute_url(self):
         return reverse('s_calendar', args=[self.slug])
