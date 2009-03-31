@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import date
 from django.utils.translation import ugettext, ugettext_lazy as _
 import datetime
 from dateutil import rrule
@@ -79,10 +80,11 @@ class Event(models.Model):
                     occurrences[index] = p_occurrence
         return occurrences
     
-    def get_rrule_object(self):        
-        params = self.rule.get_params()
-        frequency = 'rrule.%s' % self.rule.frequency
-        return rrule.rrule(eval(frequency), dtstart=self.start, **params)
+    def get_rrule_object(self):
+        if hasattr(self, 'rule'):
+            params = self.rule.get_params()
+            frequency = 'rrule.%s' % self.rule.frequency
+            return rrule.rrule(eval(frequency), dtstart=self.start, **params)
     
     def _create_occurrence(self, start, end):
         return Occurrence(event=self,start=start,end=end, original_start=start, original_end=end)
@@ -91,15 +93,16 @@ class Event(models.Model):
         """
         returns a list of occurrences for this event from start to end.
         """
+        difference = (self.end - self.start)
         if self.rule is not None:
             occurrences = []
             if self.end_recurring_period and self.end_recurring_period < end:
                 end = self.end_recurring_period
-            rule = get_rrule_object()
-            o_starts = rule.between(start, end, inc=True)
+            rule = self.get_rrule_object()
+            o_starts = rule.between(start-difference, end, inc=True)
             for o_start in o_starts:
-                o_end = o_start + (self.end - self.start)
-                occurrences.append(_create_occurrence(o_start, o_end))
+                o_end = o_start + difference
+                occurrences.append(self._create_occurrence(o_start, o_end))
             return occurrences
         else:
             # check if event is in the period
@@ -108,36 +111,40 @@ class Event(models.Model):
             else:
                 return []
     
+    def _occurrences_after_generator(self, after=None):
+        """
+        returns a generator that produces unpresisted occurrences after the 
+        datetime ``after``.
+        """
+
+        if after is None:
+            after = datetime.datetime.now()
+        difference = self.end - self.start
+        date = after - difference
+        rule = self.get_rrule_object()
+        if rule is None:
+            if self.end > after:
+                occurrence = self._create_occurrence(self.start, self.end)
+                yield occurrence
+            raise StopIteration
+        while True:
+            o_start = rule.after(date, inc=False)
+            if o_start == None:
+                raise StopIteration
+            o_end = o_start + difference
+            occurrence = self._create_occurrence(o_start, o_end)
+            yield occurrence
+            date=o_start
+    
     def occurrences_after(self, after=None):
         """
         returns a generator that produces occurrences after the datetime
-        ``after``.
+        ``after``.  Includes all of the persisted Occurrences.
         """
-        if after is None:
-            after = datetime.datetime.now()
-        occurrences = dict([(occurrence,occurrence) for occurrence in self.occurrence_set()])
-        date = after
-        rule = get_rrule_object()
-        inc = True
-        while True:
-            occurrence = _next_occurrence(date, inc=inc)
-            if occurrence == None:
-                raise StopIteration
-            o_end = o_start + (self.end - self.start)
-            occurrence = _create_occurrence(o_start, o_end)
-            yield occurrences.get(occurrence, occurrence)
-            inc=False
-            date=o_start
-    
-    def _next_occurrence(self, date, inc=None):
-        if inc:
-            o_start = rule.after(date)
-        else:
-            o_start = rule.after(date, inc=inc)
-        if o_start == None:
-            return None
-        o_end = o_start + (self.end - self.start)
-        return _create_occurrence(o_start, o_end)
+        occurrences = dict([(occurrence, occurrence) for occurrence in self.occurrence_set.all()])
+        generator = self._occurrence_after_generator(after)
+        occurrence = generator.next()
+        yield occurrences.get(occurrence, occurrence)
 
 
 class EventRelationManager(models.Manager):
