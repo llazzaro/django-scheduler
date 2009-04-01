@@ -2,6 +2,7 @@ from django.conf.urls.defaults import *
 from django.views.generic.list_detail import object_list
 from schedule.models import Calendar
 from schedule.feeds import UpcomingEventsFeed
+from schedule.feeds import CalendarICalendar
 
 info_dict = {
     'queryset': Calendar.objects.all(),
@@ -53,6 +54,7 @@ urlpatterns = patterns('',
     url(r'^feed/calendar/(.*)/$', 'django.contrib.syndication.views.feed', {
         "feed_dict": { "upcoming": UpcomingEventsFeed }
     }),
+    (r'^ical/calendar/(.*)/$', CalendarICalendar()),
     
     url(r'$', object_list, info_dict, name='schedule'),
 )

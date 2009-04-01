@@ -3,6 +3,8 @@ from django.contrib.syndication.feeds import FeedDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from schedule.feeds.atom import Feed
+from schedule.feeds.icalendar import ICalendarFeed
+from django.http import HttpResponse
 import datetime, itertools
 
 class UpcomingEventsFeed(Feed):
@@ -39,3 +41,26 @@ class UpcomingEventsFeed(Feed):
     
     def item_content(self, item):
         return "%s \n %s" % (item.event.title, item.event.description)
+
+
+class CalendarICalendar(ICalendarFeed):
+    def items(self):
+        cal_id = self.args[1]
+        cal = Calendar.objects.get(pk=cal_id)
+        
+        return cal.events.all()
+
+    def item_uid(self, item):
+        return str(item.id)
+
+    def item_start(self, item):
+        return item.start
+
+    def item_end(self, item):
+        return item.end
+
+    def item_summary(self, item):
+        return item.title
+        
+    def item_created(self, item):
+        return item.created_on
