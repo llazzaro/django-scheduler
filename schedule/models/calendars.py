@@ -8,6 +8,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 import datetime
 from dateutil import rrule
 from schedule.models.events import Event
+from schedule.utils import EventListManager
 
 class CalendarManager(models.Manager):
     """

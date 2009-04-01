@@ -1,6 +1,6 @@
 import datetime
 import heapq
-from schedule.models import Occurrence
+from schedule.models.events import Occurrence
 
 
 class EventListManager(object):
