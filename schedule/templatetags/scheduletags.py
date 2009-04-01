@@ -1,4 +1,5 @@
 import datetime
+import re
 from django.conf import settings
 from django import template
 from django.core.urlresolvers import reverse
@@ -165,7 +166,22 @@ def do_get_or_create_calendar_for_object(parser, token):
         raise template.TemplateSyntaxError, "%r tag follows form %r <content_object> [named <calendar name>] [by <distinction>] as <context_var>" % (token.split_contents()[0], token.split_contents()[0])
     return CreateCalendarNode(obj, distinction, context_var, name)
 
+PeriodSubclassNode(template.Node)
 
+PERIOD_RE = re.compile(r'^\s*(((?P<mwd>month|week|day)\s+for\s+(?P<date>\S*))|'
+        r'((?P<period>period)\s+for (?P<begin>\S*)\s+(?P<end>\S*)))'
+        r'(?P<context>\s+as\s+(?P<context_var>\S*)){0,1}?\s*$')
+        
+def do_get_period(parser, token):
+    match = PERIOD_RE.match(token.contents)
+    
+    
+        
+
+        if contents[1] is "for" and contents[3] is "as"
+    if len(contents) == 4 or 
 
 register.tag('get_calendar', do_get_calendar_for_object)
 register.tag('get_or_create_calendar', do_get_or_create_calendar_for_object)
+register.tag('month', do_get_period)
+reigster.tag('day', do_get_period)

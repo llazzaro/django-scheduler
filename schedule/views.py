@@ -13,27 +13,55 @@ from schedule.forms import EventForm
 from schedule.models import *
 from schedule.periods import weekday_names
 
-if hasattr(settings,"SCHEDULE_EVENT_EDITOR_TEST"):
-    test_user_function = getattr(settings,"SCHEDULE_EVENT_EDITOR_TEST") or (lambda u: u.is_authenticated())
-else:
-    test_user_function = lambda u: u.is_authenticated()
-
-def calendar(request, calendar_id=None,calendar_slug=None, year=None, month=None,
-             template='schedule/calendar.html'):
-    if calendar_id:
-        calendar = get_object_or_404(Calendar, id = calendar_id)
-    elif calendar_slug:
-        calendar = get_object_or_404(Calendar, slug = calendar_slug)
-    if year and month:
-        month = calendar.get_month(datetime.date(int(year),int(month),1))
-    else:
-        month = calendar.get_month()
+def calendar_detail(request, calendar, template='schedule/calendar.html',
+    periods=None):
     return render_to_response(template, {
         "calendar": calendar,
-        "month": month,
         "day_names": weekday_names,
     }, context_instance=RequestContext(request))
 
+def calendar_by_periods(request, calendar, year=None, month=None, day=None, 
+    hour=None, minute=None, periods=None):
+    if year, month, day, hour, minute:
+        date = {}
+        date['year'] = year or 1
+        date['month'] = month or 1
+        date['day'] = day or 1
+        date['hour'] = hour or 0
+        date['minute'] = minute or 0
+        try:
+            date = datetime.datetime(**date)
+        except ValueError:
+            raise Http404
+    else:
+        date = datetime.datetime.now()
+    period_objects = dict([period.__name__, period(calendar.events.all(), date) for period in periods])
+    context = {
+        'year': date.year
+        'month': date.month
+        'day': date.day
+        'hour': date.hour
+        'minute': date.minute
+        'periods': period_objects
+        'calendar': calendar
+    }
+
+def calendar_by_id(request, calendar_id, *args, **kwargs):
+    calendar = get_object_or_404(Calendar, id=calendar_id)
+    return calendar_detail(request, calendar, *args, **kwargs)
+    
+def calendar_by_slug(request, calendar_slug, *args, **kwargs):
+    calendar = get_object_or_404(Calendar, slug=calendar_slug)
+    return calendar_detail(request, calendar, *args, **kwargs)
+
+def calendar_periods_by_id(request, calendar_id, *args, **kwargs):
+    calendar = get_object_or_404(Calendar, slug=calendar_slug)
+    return calendar_detail(request, calendar, *args, **kwargs)
+
+def calendar_periods_by_slug(request, calendar_slug, *args, **kwargs):
+    calendar = get_object_or_404(Calendar, id=calendar_id)
+    return calendar_detail(request, calendar, *args, **kwargs)
+    
 def event(request, event_id=None):
     event = get_object_or_404(Event, id=event_id)
     back_url = request.META.get('HTTP_REFERER', None)
@@ -47,7 +75,7 @@ def event(request, event_id=None):
         "calendar" : cal,
     }, context_instance=RequestContext(request))
 
-@user_passes_test(test_func=test_user_function)
+@login_required
 def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None):
     """
     This function, if it receives a GET request or if given an invalid form in a
@@ -92,7 +120,7 @@ def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None
         "calendar": calendar
     }, context_instance=RequestContext(request))
 
-@user_passes_test(test_func=test_user_function)
+@login_required
 def create_event(request, calendar_id=None, calendar_slug=None, year=None, month=None, day=None, hour=None, minute=None, redirect=None):
     if calendar_id:
         calendar = get_object_or_404(Calendar, id=calendar_id)
@@ -121,7 +149,6 @@ def create_event(request, calendar_id=None, calendar_slug=None, year=None, month
         "calendar": calendar
     }, context_instance=RequestContext(request))
 
-@user_passes_test(test_func=test_user_function)
 def delete_event(request, event_id=None, redirect=None, login_required=True):
     """
     After the event is deleted there are three options for redirect, tried in
@@ -185,17 +212,17 @@ def calendar_year( request, calendar_id=None,calendar_slug=None, year=None ):
     months = ["",]
     months.extend( [datetime.date(year=year,month=mn,day=1) for mn in range(1,13)] )
     return render_to_response('schedule/calendar_year.html', {
-                "calendar": cal,
-                "months": months,
-                "prev_year": year - 1,
-                "next_year": year + 1,
+        "calendar": cal,
+        "months": months,
+        "prev_year": year - 1,
+        "next_year": year + 1,
     }, context_instance=RequestContext(request))
 
 def calendar_week( request, calendar_id=None,calendar_slug=None, year=None, month=None, day=None ):
     days = []
     return render_to_response('schedule/calendar_week.html', {
-                        "calendar": calendar,
-                        "days": days,
+                              "calendar": calendar,
+                              "days": days,
     }, context_instance=RequestContext(request))
 
 def calendar_day( request, calendar_id=None,calendar_slug=None, year=None, month=None, day=None ):
