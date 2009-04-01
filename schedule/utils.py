@@ -19,6 +19,7 @@ class EventListManager(object):
         the most recent occurrence after the date ``after`` from any of the
         events in ``self.events``
         """
+        
         if after is None:
             after = datetime.datetime.now()
         persisted_occurrences = [(occurrence, occurrence) for occurrence in Occurrence.objects.filter(event__in = self.events)]
@@ -33,7 +34,10 @@ class EventListManager(object):
                 pass
         
         while True:
+            if len(occurrences) == 0: raise StopIteration
+            
             generator=occurrences[0][1]
+            
             try:
                 next = heapq.heapreplace(occurrences, (generator.next(), generator))[0]
             except StopIteration:

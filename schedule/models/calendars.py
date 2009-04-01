@@ -167,7 +167,7 @@ class Calendar(models.Model):
         return self.events.order_by('-start').filter(start__lt=datetime.datetime.now())[:amount]
 
     def occurrences_after(self, date=None):
-        return EventListManager(self.events.all()).next_occurrence(date)
+        return EventListManager(self.events.all()).occurrences_after(date)
 
     def get_absolute_url(self):
         return reverse('s_calendar', args=[self.slug])

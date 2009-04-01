@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import *
 from django.views.generic.list_detail import object_list
 from schedule.models import Calendar
+from schedule.feeds import UpcomingEventsFeed
 
 info_dict = {
     'queryset': Calendar.objects.all(),
@@ -47,5 +48,11 @@ urlpatterns = patterns('',
     url(r'^event/edit/(?P<event_id>\d+)/$', 'schedule.views.create_or_edit_event', name='s_edit_event'),
     url(r'^event/(?P<event_id>\d+)/$', 'schedule.views.event', name="s_event"),
     url(r'^event/delete/(?P<event_id>\d+)/$', 'schedule.views.delete_event', name="s_delete_event"),
+    
+    # feeds
+    url(r'^feed/calendar/(.*)/$', 'django.contrib.syndication.views.feed', { 
+        "feed_dict": { "upcoming": UpcomingEventsFeed }
+    }),
+    
     url(r'$', object_list, info_dict, name='schedule'),
 )
