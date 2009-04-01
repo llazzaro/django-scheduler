@@ -23,7 +23,7 @@ class UpcomingEventsFeed(Feed):
     
     def items(self, obj):
         return itertools.islice(obj.occurrences_after(datetime.datetime.now()), 
-            get_attr(settings, "FEED_LIST_LENGTH", 10))
+            getattr(settings, "FEED_LIST_LENGTH", 10))
     
     def item_id(self, item):
         return str(item.id)
@@ -38,4 +38,4 @@ class UpcomingEventsFeed(Feed):
         return item.event.created_on
     
     def item_content(self, item):
-        return item.event.title + "\n" + item.event.description
+        return "%s \n %s" % (item.event.title, item.event.description)

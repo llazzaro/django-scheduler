@@ -50,7 +50,7 @@ urlpatterns = patterns('',
     url(r'^event/delete/(?P<event_id>\d+)/$', 'schedule.views.delete_event', name="s_delete_event"),
     
     # feeds
-    url(r'^feed/calendar/(.*)/$', 'django.contrib.syndication.views.feed', { 
+    url(r'^feed/calendar/(.*)/$', 'django.contrib.syndication.views.feed', {
         "feed_dict": { "upcoming": UpcomingEventsFeed }
     }),
     
