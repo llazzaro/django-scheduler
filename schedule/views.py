@@ -13,26 +13,34 @@ from schedule.forms import EventForm
 from schedule.models import *
 from schedule.periods import weekday_names
 
-if hasattr(settings,"SCHEDULE_EVENT_EDITOR_TEST"):
-    test_user_function = getattr(settings,"SCHEDULE_EVENT_EDITOR_TEST") or (lambda u: u.is_authenticated())
-else:
-    test_user_function = lambda u: u.is_authenticated()
-
-def calendar(request, calendar_id=None,calendar_slug=None, year=None, month=None,
-             template='schedule/calendar.html'):
-    if calendar_id:
-        calendar = get_object_or_404(Calendar, id = calendar_id)
-    elif calendar_slug:
-        calendar = get_object_or_404(Calendar, slug = calendar_slug)
-    if year and month:
-        month = calendar.get_month(datetime.date(int(year),int(month),1))
-    else:
-        month = calendar.get_month()
+def calendar_detail(request, calendar_slug, template='schedule/calendar.html',
+    periods=None):
+    calendar = get_object_or_404(Calendar, slug=calendar_slug)
     return render_to_response(template, {
         "calendar": calendar,
-        "month": month,
         "day_names": weekday_names,
     }, context_instance=RequestContext(request))
+
+def calendar_by_periods(request, calendar, periods=None):
+    calendar = get_object_or_404(Calendar, slug=calendar_slug)
+    
+    date = get_date_info(request.GET)
+        try:
+            date = datetime.datetime(get_date_info(request.GET))
+        except ValueError:
+            raise Http404
+    else:
+        date = datetime.datetime.now()
+    period_objects = dict([period.__name__, period(calendar.events.all(), date) for period in periods])
+    context = {
+        'year': date.year
+        'month': date.month
+        'day': date.day
+        'hour': date.hour
+        'minute': date.minute
+        'periods': period_objects
+        'calendar': calendar
+    }
 
 def event(request, event_id=None):
     event = get_object_or_404(Event, id=event_id)
@@ -47,7 +55,21 @@ def event(request, event_id=None):
         "calendar" : cal,
     }, context_instance=RequestContext(request))
 
-@user_passes_test(test_func=test_user_function)
+def occurrence(request, event_id, occurrence_id=None):
+    if(occurrence_id):
+        occurrence = get_object_or_404(Occurrence, id=occurrence_id)
+        event = occurrence.event
+    elif(all(year, month, day, hour, minute, second)):
+        event = get_object_or_404(Event, id=event_id)
+        occurrence = event.get_occurrence(
+            datetime.datetime(year, month, day, hour, minute, second))
+    return render_to_response('schedule/event.html', {
+        'event': event
+        'occurrence': occurrence
+    }, context_instance=RequestContext(request))
+    
+
+@login_required
 def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None):
     """
     This function, if it receives a GET request or if given an invalid form in a
@@ -85,14 +107,14 @@ def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None
             calendar.events.add(event)
         next = redirect or reverse('s_event', args=[event.id])
         if 'next' in request.GET:
-            next = _check_next_url(request.GET['next']) or next
+            next = check_next_url(request.GET['next']) or next
         return HttpResponseRedirect(next)
     return render_to_response('schedule/create_event.html', {
         "form": form,
         "calendar": calendar
     }, context_instance=RequestContext(request))
 
-@user_passes_test(test_func=test_user_function)
+@login_required
 def create_event(request, calendar_id=None, calendar_slug=None, year=None, month=None, day=None, hour=None, minute=None, redirect=None):
     if calendar_id:
         calendar = get_object_or_404(Calendar, id=calendar_id)
@@ -114,14 +136,13 @@ def create_event(request, calendar_id=None, calendar_slug=None, year=None, month
         calendar.events.add(event)
         next = redirect or reverse('s_event', args=[event.id])
         if 'next' in request.GET:
-            next = _check_next_url(request.GET['next']) or next
+            next = check_next_url(request.GET['next']) or next
         return HttpResponseRedirect(next)
     return render_to_response('schedule/create_event.html', {
         "form": form,
         "calendar": calendar
     }, context_instance=RequestContext(request))
 
-@user_passes_test(test_func=test_user_function)
 def delete_event(request, event_id=None, redirect=None, login_required=True):
     """
     After the event is deleted there are three options for redirect, tried in
@@ -142,7 +163,7 @@ def delete_event(request, event_id=None, redirect=None, login_required=True):
                          login_required = login_required
                         )
 
-def _check_next_url(next):
+def check_next_url(next):
     """
     Checks to make sure the next url is not redirecting to another page.
     Basically it is a minimal security check.
@@ -150,68 +171,5 @@ def _check_next_url(next):
     if '://' in next:
         return None
     return next
-
-def calendar_compact_month( request, calendar_id=None,calendar_slug=None, year=None, month=None ):
-    return calendar( request, calendar_id,calendar_slug, year, month,
-                    template='schedule/calendar_compact_month.html' )
-
-def calendar_month( request, calendar_id=None,calendar_slug=None, year=None, month=None ):
-    return calendar( request, calendar_id, calendar_slug, year, month,
-                    template='schedule/calendar_month.html' )
-
-def calendar_tri_month( request, calendar_id=None, calendar_slug=None, year=None, month=None ):
-    if calendar_id:
-        cal = get_object_or_404(Calendar, id = calendar_id)
-    elif calendar_slug:
-        cal = get_object_or_404(Calendar, slug = calendar_slug)
-    if year and month:
-        month = cal.get_month(datetime.date(int(year),int(month),1))
-    else:
-        month = cal.get_month()
-    return render_to_response('schedule/calendar_tri_month.html', {
-                "calendar": cal,
-                "month": month,
-    }, context_instance=RequestContext(request))
-
-def calendar_year( request, calendar_id=None,calendar_slug=None, year=None ):
-    if calendar_id:
-        cal = get_object_or_404(Calendar, id = calendar_id)
-    elif calendar_slug:
-        cal = get_object_or_404(Calendar, slug = calendar_slug)
-    if year:
-        year = int(year)
-    else:
-        year = datetime.datetime.today().year
-    months = ["",]
-    months.extend( [datetime.date(year=year,month=mn,day=1) for mn in range(1,13)] )
-    return render_to_response('schedule/calendar_year.html', {
-                "calendar": cal,
-                "months": months,
-                "prev_year": year - 1,
-                "next_year": year + 1,
-    }, context_instance=RequestContext(request))
-
-def calendar_week( request, calendar_id=None,calendar_slug=None, year=None, month=None, day=None ):
-    days = []
-    return render_to_response('schedule/calendar_week.html', {
-                        "calendar": calendar,
-                        "days": days,
-    }, context_instance=RequestContext(request))
-
-def calendar_day( request, calendar_id=None,calendar_slug=None, year=None, month=None, day=None ):
-    if calendar_id:
-        cal = get_object_or_404(Calendar, id = calendar_id)
-    if calendar_slug:
-        cal = get_object_or_404(Calendar, slug = calendar_slug)
-    if year and month and day:
-        dt = datetime.datetime(year=int(year),month=int(month),day=int(day))
-        daynumber = int(day)
-    else:
-        dt = datetime.datetime.today()
-        daynumber = dt.day
-    month = cal.get_month(dt)
-    day = month.get_day( daynumber )
-    return render_to_response('schedule/calendar_day.html', {
-                        "calendar": cal,
-                        "day": day,
-    }, context_instance=RequestContext(request))
+    
+def get_date_information
