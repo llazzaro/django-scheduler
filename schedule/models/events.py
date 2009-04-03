@@ -86,8 +86,20 @@ class Event(models.Model):
             frequency = 'rrule.%s' % self.rule.frequency
             return rrule.rrule(eval(frequency), dtstart=self.start, **params)
     
-    def _create_occurrence(self, start, end):
+    def _create_occurrence(self, start, end=None):
+        if end is None:
+            end = start + (self.end - self.start)
         return Occurrence(event=self,start=start,end=end, original_start=start, original_end=end)
+
+    def get_occurrence(self, date):
+        rule = get_rrule_object()
+        next_occurrence = rule.after(date, inc=True)
+        if next_occurrence == date:
+            try
+                return Occurrence.objects.filter(event = self, original_start = date)[0]
+            except KeyError:
+                return _create_occurrence(next_occurrence)
+            
 
     def _get_occurrence_list(self, start, end):
         """
@@ -352,6 +364,10 @@ class Occurrence(models.Model):
     def uncancel(self):
         self.cancelled = False
         self.save()
+    
+    def get_absolute_url(self):
+        if self.pk is not None:
+            return reverse('')
     
     def __unicode__(self):
         return ugettext("%(start)s to %(end)s") % {

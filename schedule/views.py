@@ -65,7 +65,7 @@ def calendar_by_periods(request, calendar_slug, periods=None):
         
     """
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
-    date = get_date_info(request.GET)
+    date = coerce_date_dict(request.GET)
     if date:
         try:
             date = datetime.datetime(**date)
@@ -203,7 +203,7 @@ def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None
     # If the key word argument redirect is set
     # Lastly redirect to the event detail of the recently create event
     """
-    date = get_date_info(request.GET)
+    date = coerce_date_dict(request.GET)
     inital_data = None
     if date is not None:
         try:
