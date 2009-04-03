@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.views.generic.create_update import delete_object
 from django.conf import settings
 import datetime
@@ -25,20 +25,16 @@ def calendar_by_periods(request, calendar, periods=None):
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
     
     date = get_date_info(request.GET)
+    if date:
         try:
             date = datetime.datetime(get_date_info(request.GET))
         except ValueError:
             raise Http404
     else:
         date = datetime.datetime.now()
-    period_objects = dict([period.__name__, period(calendar.events.all(), date) for period in periods])
+    period_objects = dict([(period.__name__, period(calendar.events.all(), date)) for period in periods])
     context = {
-        'year': date.year
-        'month': date.month
-        'day': date.day
-        'hour': date.hour
-        'minute': date.minute
-        'periods': period_objects
+        'periods': period_objects,
         'calendar': calendar
     }
 
@@ -64,7 +60,7 @@ def occurrence(request, event_id, occurrence_id=None):
         occurrence = event.get_occurrence(
             datetime.datetime(year, month, day, hour, minute, second))
     return render_to_response('schedule/event.html', {
-        'event': event
+        'event': event,
         'occurrence': occurrence
     }, context_instance=RequestContext(request))
     
@@ -172,4 +168,27 @@ def check_next_url(next):
         return None
     return next
     
-def get_date_information
+def coerce_date_dict(date_dict):
+    """
+    given a dictionary (presumed to be from request.GET) it returns a tuple 
+    that represents a date. It will return from year down to seconds until one
+    is not found.  ie if year, month, and seconds are in the dictionary, only 
+    year and month will be returned, the rest will be returned as min. If none
+    of the parts are found return an empty tuple.
+    """
+    keys = ['year', 'month', 'day', 'hour', 'minute', 'second']
+    retVal = {
+                'year': 1,
+                'month': 1,
+                'day': 1,
+                'hour': 0,
+                'minute': 0,
+                'second': 0}
+    modified = False
+    for key in keys:
+        try:
+            retVal[key] = int(date_dict[key])
+            modified = True
+        except KeyError:
+            break
+    return modified and retVal or {}

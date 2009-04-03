@@ -165,7 +165,9 @@ def do_get_or_create_calendar_for_object(parser, token):
         raise template.TemplateSyntaxError, "%r tag follows form %r <content_object> [named <calendar name>] [by <distinction>] as <context_var>" % (token.split_contents()[0], token.split_contents()[0])
     return CreateCalendarNode(obj, distinction, context_var, name)
 
-
-
 register.tag('get_calendar', do_get_calendar_for_object)
 register.tag('get_or_create_calendar', do_get_or_create_calendar_for_object)
+
+def querystring_for_date(date):
+    return '?year=%d&month=%d&day=%d&hour=%d&minute=%d&second=%d' % (date.year, date.month, date.day, date.hour, date.minute, date.second)
+register.simple_tag
