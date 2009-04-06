@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 
 from schedule.forms import GlobalSplitDateTimeWidget
 from schedule.models import Event, Rule, Occurrence
-from schedule.periods import Period, Month, Day
+from schedule.periods import Period, Month, Day, Year
 from schedule.utils import EventListManager
 
 class TestPeriod(TestCase):
@@ -58,6 +58,16 @@ class TestPeriod(TestCase):
         slot = self.period.get_time_slot( datetime.datetime(2008,1,4,7,0),
                                           datetime.datetime(2008,1,4,7,12) )
         self.failIf( slot.has_occurrences() )
+
+class TestYear(TestCase):
+    def setUp(self):
+        self.year = Year(events=[], date=datetime.datetime(2008,4,1))
+    
+    def test_get_months(self):
+        months = self.year.get_months()
+        self.assertEqual([month.start for month in months],
+            [datetime.datetime(2008, i, 1) for i in range(1,13)])
+    
 
 class TestMonth(TestCase):
     def setUp(self):

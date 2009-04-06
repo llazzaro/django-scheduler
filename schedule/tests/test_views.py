@@ -1,5 +1,5 @@
 from django.test import TestCase
-from schedule.views import  calendar_detail, calendar_by_periods, check_next_url, coerce_date_dict
+from schedule.views import check_next_url, coerce_date_dict
 
 
 class TestViewUtils(TestCase):
@@ -33,12 +33,5 @@ class TestViewUtils(TestCase):
             coerce_date_dict({'year': '2008', 'month': '4', 'hours': '3'}),
             {'year': 2008, 'month': 4, 'day': 1, 'hour': 0, 'minute': 0, 'second': 0}           
             )
-    
-class TestCalendarView(TestCase):
-    
-    def setUp(self):
-        self.calendar = Calendar(name="Cal", slug=cal)
-        self.calendar.save()
-
     
     
