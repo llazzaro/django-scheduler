@@ -9,6 +9,8 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 import datetime
 from dateutil import rrule
 from schedule.models.rules import Rule
+from schedule.models.calendars import Calendar
+from schedule.utils import OccurrenceReplacer
 
 class EventManager(models.Manager):
 
@@ -28,7 +30,7 @@ class Event(models.Model):
     created_on = models.DateTimeField(_("created on"), default = datetime.datetime.now)
     rule = models.ForeignKey(Rule, null = True, blank = True, verbose_name=_("rule"), help_text=_("Select '----' for a one time only event."))
     end_recurring_period = models.DateTimeField(_("end recurring period"), null = True, blank = True, help_text=_("This date is ignored for one time only events."))
-
+    calendar = models.ForeignKey(Calendar)
     objects = EventManager()
 
     class Meta:
@@ -45,7 +47,7 @@ class Event(models.Model):
         }
 
     def get_absolute_url(self):
-        return reverse('s_event', args=[self.id])
+        return reverse('event', args=[self.id])
 
     def create_relation(self, obj, distinction = None):
         """
@@ -96,8 +98,8 @@ class Event(models.Model):
         next_occurrence = rule.after(date, inc=True)
         if next_occurrence == date:
             try:
-                return Occurrence.objects.filter(event = self, original_start = date)[0]
-            except IndexError:
+                return Occurrence.objects.get(event = self, original_start = date)
+            except Occurrence.DoesNotExist:
                 return self._create_occurrence(next_occurrence)
             
 
@@ -153,10 +155,11 @@ class Event(models.Model):
         returns a generator that produces occurrences after the datetime
         ``after``.  Includes all of the persisted Occurrences.
         """
-        occurrences = dict([(occurrence, occurrence) for occurrence in self.occurrence_set.all()])
-        generator = self._occurrence_after_generator(after)
-        occurrence = generator.next()
-        yield occurrences.get(occurrence, occurrence)
+        occ_replacer = OccurrenceReplacer(self.occurrence_set.all())
+        generator = self._occurrences_after_generator(after)
+        while True:
+            next = generator.next()
+            yield occ_replacer.get_occurrence(next)
 
 
 class EventRelationManager(models.Manager):
@@ -328,6 +331,7 @@ class EventRelation(models.Model):
 
 class Occurrence(models.Model):
     event = models.ForeignKey(Event, verbose_name=_("event"))
+    title = models.TextField(_("title"), blank=True, null=True)
     description = models.TextField(_("description"), blank=True, null=True)
     start = models.DateTimeField(_("start"))
     end = models.DateTimeField(_("end"))
@@ -342,6 +346,10 @@ class Occurrence(models.Model):
     
     def __init__(self, *args, **kwargs):
         super(Occurrence, self).__init__(*args, **kwargs)
+        if self.title is None:
+            self.title = self.event.title
+        if self.description is None:
+            self.description = self.event.description
         
     
     def moved(self):
@@ -363,7 +371,7 @@ class Occurrence(models.Model):
     
     def get_absolute_url(self):
         if self.pk is not None:
-            return reverse('occurrence', kwargs={'occurrence_id': selk.pk,
+            return reverse('occurrence', kwargs={'occurrence_id': self.pk,
                 'event_id': self.event.id})
         return reverse('occurrence_by_date', kwargs={
             'event_id': self.event.id,
@@ -377,7 +385,7 @@ class Occurrence(models.Model):
     
     def get_cancel_url(self):
         if self.pk is not None:
-            return reverse('cancel_occurrence', kwargs={'occurrence_id': selk.pk,
+            return reverse('cancel_occurrence', kwargs={'occurrence_id': self.pk,
                 'event_id': self.event.id})
         return reverse('cancel_occurrence_by_date', kwargs={
             'event_id': self.event.id,
@@ -390,10 +398,8 @@ class Occurrence(models.Model):
         })
     
     def get_edit_url(self):
-        #TODO add this url when edit functionality is done
-        return ''
         if self.pk is not None:
-            return reverse('edit_occurrence', kwargs={'occurrence_id': selk.pk,
+            return reverse('edit_occurrence', kwargs={'occurrence_id': self.pk,
                 'event_id': self.event.id})
         return reverse('edit_occurrence_by_date', kwargs={
             'event_id': self.event.id,

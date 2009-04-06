@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext, ugettext_lazy as _
 import datetime
 from dateutil import rrule
-from schedule.models.events import Event
 from schedule.utils import EventListManager
 
 class CalendarManager(models.Manager):
@@ -132,8 +131,6 @@ class Calendar(models.Model):
 
     name = models.CharField(_("name"), max_length = 200)
     slug = models.SlugField(_("slug"),max_length = 200)
-    events = models.ManyToManyField(Event, verbose_name=_("events"), blank=True, null=True)
-
     objects = CalendarManager()
 
     class Meta:
@@ -143,6 +140,10 @@ class Calendar(models.Model):
 
     def __unicode__(self):
         return self.name
+    
+    def events(self):
+        return self.event_set.all()
+    events = property(events)
 
     def create_relation(self, obj, distinction = None, inheritable = True):
         """
@@ -176,7 +177,7 @@ class Calendar(models.Model):
         return reverse('s_create_event_in_calendar', args=[self.slug])
 
     def get_month(self, date=None):
-        from periods import Month
+        from schedule.periods import Month
         return Month(self.events.all(), date)
 
 
