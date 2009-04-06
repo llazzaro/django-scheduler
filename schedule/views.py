@@ -13,7 +13,7 @@ from schedule.forms import EventForm
 from schedule.models import *
 from schedule.periods import weekday_names
 
-def calendar_detail(request, calendar_slug, template='schedule/calendar.html',
+def calendar(request, calendar_slug, template='schedule/calendar.html',
     periods=None):
     """
     This view returns a calendar.  This view should be used if you are
@@ -31,7 +31,8 @@ def calendar_detail(request, calendar_slug, template='schedule/calendar.html',
         "calendar": calendar,
     }, context_instance=RequestContext(request))
 
-def calendar_by_periods(request, calendar_slug, periods=None):
+def calendar_by_periods(request, calendar_slug, periods=None,
+    template_name="schedule/calendar"):
     """
     This view is for getting a calendar, but also getting periods with that
     calendar.  Which periods you get, is designated with the list periods. You
@@ -73,13 +74,13 @@ def calendar_by_periods(request, calendar_slug, periods=None):
             raise Http404
     else:
         date = datetime.datetime.now()
-    period_objects = dict([(period.__name__, period(calendar.events.all(), date)) for period in periods])
-    context = {
-        'date': date,
-        'periods': period_objects,
-        'calendar': calendar,
-        'weekday_names': weekday_names,
-    }
+    period_objects = dict([(period.__name__.lower(), period(calendar.events.all(), date)) for period in periods])
+    return render_to_response(template_name,{
+            'date': date,
+            'periods': period_objects,
+            'calendar': calendar,
+            'weekday_names': weekday_names,
+        },context_instance=RequestContext(request),)
 
 def event(request, event_id=None):
     """
@@ -105,13 +106,13 @@ def event(request, event_id=None):
         cal = event.calendar_set.get()
     except:
         cal = None
-    return render_to_response('schedule/event.html', {
+    return render_to_response(template_name, {
         "event": event,
         "back_url" : back_url,
         "calendar" : cal,
     }, context_instance=RequestContext(request))
 
-def occurrence(request, *args, **kwargs):
+def occurrence(request, event_id, *args, **kwargs):
     """
     This view is used to display an occurrence.
     
@@ -122,18 +123,18 @@ def occurrence(request, *args, **kwargs):
     
     ``occurrence`` the occurrence to be displayed
     """
-    event, occurrence = get_occurrence(*args, **kwargs)
-    return render_to_response('schedule/event.html', {
-        'event': event
+    event, occurrence = get_occurrence(event_id, *args, **kwargs)
+    return render_to_response('schedule/occurrence.html', {
+        'event': event,
         'occurrence': occurrence
-    }, context_instance=RequestContex(request))
+    }, context_instance=RequestContext(request))
 
 # Not implemented yet
-def edit_occurrence(request, *args, **kwargs):
-    event, occurrence = get_occurrence(*args, **kwargs)
+def edit_occurrence(request, event_id, *args, **kwargs):
+    event, occurrence = get_occurrence(event_id, *args, **kwargs)
     raise Http404, "Not implemented yet"
 
-def cancel_occurrence(request, *args, **kwargs):
+def cancel_occurrence(request, event_id, *args, **kwargs):
     """
     This view is used to cancel an occurrence. If it is called with a POST it
     will cancel the view. If it is called with a GET it will ask for
@@ -141,13 +142,13 @@ def cancel_occurrence(request, *args, **kwargs):
     """
     if request.GET:
         return render_to_response(template_name)
-    event, occurrence = get_occurrence(*args, **kwargs)
+    event, occurrence = get_occurrence(event_id, *args, **kwargs)
     occurrence.cancel()
     return HttpResponseRedirect(next)
     
     
 
-def get_occurrence(request, event_id, occurrence_id=None, year=None, month=None,
+def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
     day=None, hour=None, minute=None, second=None):
     """
     Because occurrences don't have to be persisted, there must be two ways to
@@ -159,10 +160,11 @@ def get_occurrence(request, event_id, occurrence_id=None, year=None, month=None,
     if(occurrence_id):
         occurrence = get_object_or_404(Occurrence, id=occurrence_id)
         event = occurrence.event
-    elif(all(year, month, day, hour, minute, second)):
+    elif(all((year, month, day, hour, minute, second))):
         event = get_object_or_404(Event, id=event_id)
         occurrence = event.get_occurrence(
-            datetime.datetime(year, month, day, hour, minute, second))
+            datetime.datetime(int(year), int(month), int(day), int(hour), 
+                int(minute), int(second)))
         if occurrence is None:
             raise 404
     else:
@@ -208,7 +210,7 @@ def create_or_edit_event(request, calendar_id=None, event_id=None, redirect=None
     if date is not None:
         try:
             initial_data = {
-                "start":datetime.datetime(**date)
+                "start":datetime.datetime(**date),
                 "end":datetime.timedelta(minutes=30)
             }
         except ValueError:
