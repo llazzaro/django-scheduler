@@ -92,13 +92,13 @@ class Event(models.Model):
         return Occurrence(event=self,start=start,end=end, original_start=start, original_end=end)
 
     def get_occurrence(self, date):
-        rule = get_rrule_object()
+        rule = self.get_rrule_object()
         next_occurrence = rule.after(date, inc=True)
         if next_occurrence == date:
-            try
+            try:
                 return Occurrence.objects.filter(event = self, original_start = date)[0]
-            except KeyError:
-                return _create_occurrence(next_occurrence)
+            except IndexError:
+                return self._create_occurrence(next_occurrence)
             
 
     def _get_occurrence_list(self, start, end):
@@ -342,10 +342,6 @@ class Occurrence(models.Model):
     
     def __init__(self, *args, **kwargs):
         super(Occurrence, self).__init__(*args, **kwargs)
-        if not hasattr(self, 'original_start'):
-            self.original_start = getattr(self, 'start', None)
-        if not hasattr(self, 'original_end'):
-            self.original_end = getattr(self, 'end', None)
         
     
     def moved(self):
@@ -367,7 +363,47 @@ class Occurrence(models.Model):
     
     def get_absolute_url(self):
         if self.pk is not None:
-            return reverse('')
+            return reverse('occurrence', kwargs={'occurrence_id': selk.pk,
+                'event_id': self.event.id})
+        return reverse('occurrence_by_date', kwargs={
+            'event_id': self.event.id,
+            'year': self.start.year,
+            'month': self.start.month,
+            'day': self.start.day,
+            'hour': self.start.hour,
+            'minute': self.start.minute,
+            'second': self.start.second,
+        })
+    
+    def get_cancel_url(self):
+        if self.pk is not None:
+            return reverse('cancel_occurrence', kwargs={'occurrence_id': selk.pk,
+                'event_id': self.event.id})
+        return reverse('cancel_occurrence_by_date', kwargs={
+            'event_id': self.event.id,
+            'year': self.start.year,
+            'month': self.start.month,
+            'day': self.start.day,
+            'hour': self.start.hour,
+            'minute': self.start.minute,
+            'second': self.start.second,
+        })
+    
+    def get_edit_url(self):
+        #TODO add this url when edit functionality is done
+        return ''
+        if self.pk is not None:
+            return reverse('edit_occurrence', kwargs={'occurrence_id': selk.pk,
+                'event_id': self.event.id})
+        return reverse('edit_occurrence_by_date', kwargs={
+            'event_id': self.event.id,
+            'year': self.start.year,
+            'month': self.start.month,
+            'day': self.start.day,
+            'hour': self.start.hour,
+            'minute': self.start.minute,
+            'second': self.start.second,
+        })
     
     def __unicode__(self):
         return ugettext("%(start)s to %(end)s") % {
