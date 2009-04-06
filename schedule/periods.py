@@ -38,27 +38,34 @@ class Period(object):
     This class represents a period of time. It can return a set of occurrences
     based on its events, and its time period (start and end).
     '''
-    def __init__(self, events, start, end):
+    def __init__(self, events, start, end, parent_persisted_occurrences = None):
         self.start = start
         self.end = end
         self.events = events
-        self.occurrences = self._get_sorted_occurrences()
+        if parent_persisted_occurrences is not None:
+            self._persisted_occurrences = parent_persisted_occurrences
 
     def __eq__(self, period):
         return self.start==period.start and self.end==period.end and self.events==period.events
 
     def _get_sorted_occurrences(self):
         occurrences = []
-        persisted_occurrences = Occurrence.objects.filter(event__in = self.events)
+        persisted_occurrences = dict([(occurrence,occurrence) for occurrence in self.get_persisted_occurrences()])
         for event in self.events:
             event_occurrences = event._get_occurrence_list(self.start, self.end)
-            #TODO I am sure the loop below can be done better
             for index in range(len(event_occurrences)):
-                for p_occurrence in persisted_occurrences:
-                    if event_occurrences[index] == p_occurrence:
-                        event_occurrences[index] = p_occurrence
+                if event_occurrences[index] in persisted_occurrences:
+                    event_occurrences[index] = persisted_occurrences
             occurrences += event_occurrences
         return sorted(occurrences)
+    occurrences = property(_get_sorted_occurrences)
+
+    def get_persisted_occurrences(self):
+        if hasattr(self, '_persisted_occurrenes'):
+            return self._persisted_occurrences
+        else:
+            self._persisted_occurrences = Occurrence.objects.filter(event__in = self.events)
+            return self._persisted_occurrences
 
     def classify_occurrence(self, occurrence):
         if occurrence.start > self.end or occurrence.end < self.start:
@@ -102,24 +109,58 @@ class Period(object):
             return Period( self.events, start, end )
         return None
 
+class Year(Period):
+    def __init__(self, events, date=None, parent_persisted_occurrences=None):
+        if date is None:
+            date = datetime.datetime.now()
+        start, end = self._get_year_range(date)
+        super(Year, self).__init__(events, start, end, parent_persisted_occurrences)
+    
+    def get_months(self):
+        months = []
+        month_start = self.start
+        for i in range(12):
+            month = Month(self.events, month_start, self.get_persisted_occurrences())
+            months.append(month)
+            month_start = month.next_month()
+        return months
+    
+    def next_year(self):
+        return self.end
+    
+    def prev_year(self):
+        return datetime.datetime(
+            self.start.year-1, self.start.month, self.start.day)
+        
+    def _get_year_range(self, year):
+        start = datetime.datetime(year.year, datetime.datetime.min.month,
+            datetime.datetime.min.day)
+        end = datetime.datetime(year.year+1, datetime.datetime.min.month,
+            datetime.datetime.min.day)
+        return start, end
+            
+    def __unicode__(self):
+        return self.start.strftime('%Y')
+    
+            
 
 class Month(Period):
     """
     The month period has functions for retrieving the week periods within this period
     and day periods within the date.
     """
-    def __init__(self, events, date=None):
+    def __init__(self, events, date=None, parent_persisted_occurrences=None):
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_month_range(date)
-        super(Month, self).__init__(events, start, end)
+        super(Month, self).__init__(events, start, end, parent_persisted_occurrences)
 
     def get_weeks(self):
         date = self.start
         weeks = []
         while date < self.end:
             #list events to make it only one query
-            week = Week(self.events, date)
+            week = Week(self.events, date, self.get_persisted_occurrences())
             weeks.append(week)
             date = week.next_week()
         return weeks
@@ -129,7 +170,7 @@ class Month(Period):
         days = []
         while date < self.end:
             #list events to make it only one query
-            day = Day(self.events, date)
+            day = Day(self.events, date, self.get_persisted_occurrences())
             days.append(day)
             date = day.next_day()
         return days
@@ -138,7 +179,7 @@ class Month(Period):
         date = self.start
         if daynumber > 1:
             date += datetime.timedelta(days=daynumber-1)
-        return Day(self.events, date)
+        return Day(self.events, date, self.get_persisted_occurrences())
 
     def next_month(self):
         return self.end
@@ -156,24 +197,17 @@ class Month(Period):
         return datetime.datetime.min.replace(year=self.start.year+1)
 
     def _get_month_range(self, month):
-        if isinstance(month, datetime.date) or isinstance(month, datetime.datetime):
-            year = month.year
-            month = month.month
-            start = datetime.datetime.min.replace(year=year, month=month)
-            if month == 12:
-                end = start.replace(month=1, year=year+1)
-            else:
-                end = start.replace(month=month+1)
+        year = month.year
+        month = month.month
+        start = datetime.datetime.min.replace(year=year, month=month)
+        if month == 12:
+            end = start.replace(month=1, year=year+1)
         else:
-            raise ValueError('`month` must be a datetime.date or datetime.datetime object')
+            end = start.replace(month=month+1)
         return start, end
 
     def __unicode__(self):
-        date_format = u'l, %s' % ugettext("DATE_FORMAT")
-        return ugettext('Month: %(start)s-%(end)s') % {
-            'start': date(self.start, date_format),
-            'end': date(self.end, date_format),
-        }
+        return self.name()
 
     def name(self):
         return self.start.strftime('%B')
@@ -185,11 +219,11 @@ class Week(Period):
     """
     The Week period that has functions for retrieving Day periods within it
     """
-    def __init__(self, events, date=None):
+    def __init__(self, events, date=None, parent_persisted_occurrences=None):
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_week_range(date)
-        super(Week, self).__init__(events, start, end)
+        super(Week, self).__init__(events, start, end, parent_persisted_occurrences)
 
     def next_week(self):
         return self.end
@@ -198,7 +232,7 @@ class Week(Period):
         days = []
         date = self.start
         while date < self.end:
-            day = Day(self.events, date)
+            day = Day(self.events, date, self.get_persisted_occurrences())
             days.append(day)
             date = day.next_day()
         return days
@@ -231,15 +265,19 @@ class Week(Period):
         }
 
 class Day(Period):
-    def __init__(self, events, date=None):
+    def __init__(self, events, date=None, parent_persisted_occurrences=None):
         if date is None:
             date = datetime.datetime.now()
-        self.events=events
+        start, end = self._get_day_range(date)
+        super(Day, self).__init__(events, start, end, parent_persisted_occurrences)
+            
+
+    def _get_day_range(self, date):
         if isinstance(date, datetime.datetime):
             date = date.date()
-        self.start = datetime.datetime.combine(date, datetime.time.min)
-        self.end = self.start + datetime.timedelta(days=1)
-        self.occurrences = self._get_sorted_occurrences()
+        start = datetime.datetime.combine(date, datetime.time.min)
+        end = start + datetime.timedelta(days=1)
+        return start, end
 
     def __unicode__(self):
         date_format = u'l, %s' % ugettext("DATE_FORMAT")
