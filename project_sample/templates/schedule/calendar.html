@@ -4,9 +4,9 @@
 {% block body %}
 <a href={% url s_create_event %}>{% trans "Add" %}</a>
     <h1>
-        <a href="{% url s_calendar_date calendar.slug month.prev_month.year month.prev_month.month %}"> &lt; </a>
-	{{month.start|date:_("YEAR_MONTH_FORMAT")}}
-        <a href="{% url s_calendar_date calendar.slug month.next_month.year month.next_month.month %}"> &gt; </a></h1>
+        <a href="{% url s_calendar_date calendar.slug periods.month.prev_month.year periods.month.prev_month.month %}"> &lt; </a>
+	{{periods.month.start|date:_("YEAR_MONTH_FORMAT")}}
+        <a href="{% url s_calendar_date calendar.slug periods.month.next_month.year periods.month.next_month.month %}"> &gt; </a></h1>
     <table style="border: black solid 1px">
     {% if day_names %}
         <tr>
@@ -15,7 +15,7 @@
         {% endfor %}
         </tr>
     {% endif %}
-    {% for week in month.get_weeks %}
+    {% for week in periods.month.get_weeks %}
         <tr>
         {% for day in week.get_days %}
              <td style="border: black solid 1px;

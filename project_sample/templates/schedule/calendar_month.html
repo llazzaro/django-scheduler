@@ -2,9 +2,9 @@
 {% load scheduletags %}
 {% block body %}
 <p align="center"><b>{{ calendar.name }}</b><br/><br/>
-{% month_table calendar month.start "regular" "m_calendar_date" %}
+{% month_table calendar periods.month.start "regular" "calendar" %}
 </p>
 <p align="center">
-<a href="{% url tri_month_calendar_date calendar.slug month.start.year month.start.month %}">Three Month Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar_date calendar.slug month.start.year %}">Full Year Calendar</a>
+<a href="{% url tri_month_calendar calendar.slug %}{% querystring_for_date periods.month.start 2 %}">Three Month Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar calendar.slug %}{% querystring_for_date periods.month.start 1%}">Full Year Calendar</a>
 </p>
 {% endblock %}

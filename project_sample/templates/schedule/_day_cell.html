@@ -1,4 +1,11 @@
-<td class="daynumber{% ifequal size "small" %} compact{% endifequal %}{% ifnotequal day.start.month month.start.month %} noday"></td>{% else %}{% if day.has_occurrences %} busy{% else %} free{% endif %}"><a href="{% url d_calendar_date calendar.slug,day.start.year,day.start.month,day.start.day %}"><b>{{day.start.day}}</b></a><br/>
+{% comment %}
+    TODO this has got to be made more readable
+{% endcomment %}
+{% load scheduletags %}
+<td class="daynumber{% ifequal size "small" %} compact{% endifequal %}{% ifnotequal day.start.month month.start.month %} noday"></td>{% else %}{% if day.has_occurrences %} busy{% else %} free{% endif %}">
+<a href="{% url day_calendar calendar.slug %}{% querystring_for_date day.start 3 %}">
+    <b>{{day.start.day}}</b>
+</a><br/>
 {% if day.has_occurrences %}
 {% ifnotequal size "small" %}
 {% for o in day.get_occurrence_partials %}
