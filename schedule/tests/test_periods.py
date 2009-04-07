@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from schedule.forms import GlobalSplitDateTimeWidget
-from schedule.models import Event, Rule, Occurrence
+from schedule.models import Event, Rule, Occurrence, Calendar
 from schedule.periods import Period, Month, Day, Year
 from schedule.utils import EventListManager
 
@@ -15,12 +15,15 @@ class TestPeriod(TestCase):
     def setUp(self):
         rule = Rule(frequency = "WEEKLY")
         rule.save()
+        cal = Calendar(name="MyCal")
+        cal.save()
         data = {
                 'title': 'Recent Event',
                 'start': datetime.datetime(2008, 1, 5, 8, 0),
                 'end': datetime.datetime(2008, 1, 5, 9, 0),
                 'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
                 'rule': rule,
+                'calendar': cal
                }
         recurring_event = Event(**data)
         recurring_event.save()
@@ -73,12 +76,15 @@ class TestMonth(TestCase):
     def setUp(self):
         rule = Rule(frequency = "WEEKLY")
         rule.save()
+        cal = Calendar(name="MyCal")
+        cal.save()
         data = {
                 'title': 'Recent Event',
                 'start': datetime.datetime(2008, 1, 5, 8, 0),
                 'end': datetime.datetime(2008, 1, 5, 9, 0),
                 'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
                 'rule': rule,
+                'calendar': cal
                }
         recurring_event = Event(**data)
         recurring_event.save()
