@@ -2,14 +2,15 @@
 {% load i18n %}
 
 {% block body %}
-<div class="event_actions">
+<div class="event_actions" align="center">
 	{% if back_url %}
 	<a href="{{ back_url }}"><img border="0" src="{{ MEDIA_URL }}left_mod.png" alt="{% trans "Back" %}"></a> &nbsp;
 	{% endif %}
-	<a href="{% url s_edit_event event.id %}"><img border="0" src="{{ MEDIA_URL }}pencil.png" alt="{% trans "Change" %}"></a> &nbsp;
-	<a href="{% url s_delete_event event.id %}"><img border="0" src="{{ MEDIA_URL }}delete.png" alt="{% trans "Delete" %}"></a>
+	<a href="{{occurrence.get_edit_url}}"><img border="0" src="{{ MEDIA_URL }}pencil.png" alt="{% trans "Change" %}"></a> &nbsp;
+	<a href="{{occurrence.get_cancel_url}}"><img border="0" src="{{ MEDIA_URL }}delete.png" alt="{% trans "Cancel" %}"></a>
 </div>
 <h2 align="center">{{occurrence.title}}</h2>
+<p align="center"><a href="{{occurrence.event.get_absolute_url}}">Go to the event</a></p>
 <table align="center">
 <tr>
 <td>Starts</td>
@@ -20,13 +21,9 @@
 <td>{% blocktrans with occurrence.end|date:_("DATETIME_FORMAT") as end_date %}{{ end_date }}{% endblocktrans %}</td>
 </tr>
 </table>
-{% if event.description %}
+{% if occurrence.description %}
 <h3>Description</h3>
-<p>{{event.description}}</p>
+<p>{{occurrence.description}}</p>
 {% endif %}
 
-<h3>Calendar View</h3>
-<a href="{% url year_calendar_date calendar.slug,event.start.year %}">Yearly</a>
-<a href="{% url m_calendar_date calendar.slug,event.start.year,event.start.month %}">Monthly</a>
-<a href="{% url d_calendar_date calendar.slug,event.start.year,event.start.month,event.start.day %}">Daily</a>
 {% endblock %}

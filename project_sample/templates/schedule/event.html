@@ -2,12 +2,12 @@
 {% load i18n %}
 
 {% block body %}
-<div class="event_actions">
+<div class="event_actions" align="center">
 	{% if back_url %}
 	<a href="{{ back_url }}"><img border="0" src="{{ MEDIA_URL }}left_mod.png" alt="{% trans "Back" %}"></a> &nbsp;
 	{% endif %}
-	<a href="{% url s_edit_event event.id %}"><img border="0" src="{{ MEDIA_URL }}pencil.png" alt="{% trans "Change" %}"></a> &nbsp;
-	<a href="{% url s_delete_event event.id %}"><img border="0" src="{{ MEDIA_URL }}delete.png" alt="{% trans "Delete" %}"></a>
+	<a href="{% url edit_event event.id %}"><img border="0" src="{{ MEDIA_URL }}pencil.png" alt="{% trans "Change" %}"></a> &nbsp;
+	<a href="{% url delete_event event.id %}"><img border="0" src="{{ MEDIA_URL }}delete.png" alt="{% trans "Delete" %}"></a>
 </div>
 <h2 align="center">{{event.title}}</h2>
 <table align="center">
@@ -32,8 +32,10 @@
 <p>{{event.description}}</p>
 {% endif %}
 
+{% if calendar %}
 <h3>Calendar View</h3>
-<a href="{% url year_calendar_date calendar.slug,event.start.year %}">Yearly</a>
-<a href="{% url m_calendar_date calendar.slug,event.start.year,event.start.month %}">Monthly</a>
-<a href="{% url d_calendar_date calendar.slug,event.start.year,event.start.month,event.start.day %}">Daily</a>
+<a href="{% url year_calendar calendar.slug %}">Year</a>
+<a href="{% url month_calendar calendar.slug %}">Month</a>
+<a href="{% url day_calendar calendar.slug %}">Day</a>
+{% endif %}
 {% endblock %}
