@@ -1,0 +1,47 @@
+================
+A Quick Overview
+================
+
+What is an Event?
+-----------------
+
+An event doesn't have any date or time associated with it just a rule for how it recurs. In a way it designates a set of occurrences.  A weekly staff meeting is a perfect example.  A weekly staff meeting is an event, it says what it is and how often it recurs.  Now if we were to say Tuesday's staff meeting, thats an occurrence. That is an a specific element in the set of occurrences designated by weekly staff meeting.  
+
+There is an exception, and that is the "one-time" event. If your boss calls and sets up an meeting today at 3. Thats a one-time event. Its only going to happen this one time. That doesn't mean its an occurrence. It just means that its an event which represents a set of occurrences that only has one occurrence in it.
+
+What is an Occurrence?
+----------------------
+
+An occurrence is an instance of an event.  If we have an event and it is Weekly staff meetings which occur every tuesday then next Tuesday's staff meeting is an occurrence.
+
+What does persisted Occurrences mean?
+-------------------------------------
+
+Occurrences are generated programatically. This is because we can not store all of the occurrences in the database, because there could be infinite occurrences. But we still want to be able to persist data about occurrences. Like, canceling an occurrence, moving an occurrence, storing a list of attendees with the occurrence.  This is done lazily. An occurrence is generated programatically until it needs to be saved to the database. When you use any function to get an occurrence, it will be completely transparent whether it was generated programatically or whether it is persisted (except that persisted ones will have a ``pk``).  Just treat them like they are persisted and you shouldn't run into any trouble.
+
+What is a Rule?
+---------------
+
+A rule defines how and event will recur.  As of right now, there are no rules
+included with the app, so you will have to create your own. Doing this is somewhat straight forward 
+
+Accessing Occurrences with an Event
+-----------------------------------
+
+Because some Event can recur indefinitely, you can not have a function like,
+``event.get_all_occurrences()``, because that would be an infinite list.  So, there are two ways of getting occurrences given an event.
+
+``get_occurrences(start, end)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This gives you a list of all occurrences that occur inclusively after start and exclusively before end.  When we say occur, that means that they exist at all between start and end. If occurrence ends 10 seconds after ``start`` then it will be in the list, and if an occurrence starts 10 seconds before ``end`` then it will also be in the list.
+
+``occurrences_after(after)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method produces a generator that generates events inclusively after the given datetime ``after``.  If no date is given then it uses now.
+
+Accessing Occurrences from lists of Events
+------------------------------------------
+
+You are often going to have a list of events and want to get occurrences from them.  To do this you can use Periods, and EventListManagers.

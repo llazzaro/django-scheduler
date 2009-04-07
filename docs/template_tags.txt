@@ -1,0 +1,35 @@
+====================
+Useful Template Tags
+====================
+
+All of the templatetags are located in templatetags/scheduletags.py. You can look at more of them there. I am only going to talk about a few here.
+
+To load the template tags this must be in your template
+
+``{% load scheduletags %}``
+
+``querystring_for_date``
+------------------------
+
+Usage
+    ``{% querystring_for_date <date>[ <num>] %}``
+
+This template tag produces a querystring that describes ``date``.  It turns date into a dictionary and then turns that dictionary into a querystring, in this fashion:
+
+>>> date = datetime.datetime(2009,4,1)
+>>> querystring_for_date(date)
+'?year=2009&month=4&day=1&hour=0&minute=0&second=0'
+
+This is useful when creating links as the calendar_by_period view uses this to display any date besides ``datetime.datetime.now()``.  The ``num`` argument can be used to say how specific you want to be about the date.  If you were displaying a yearly calendar you only care about the year so ``num`` would only have to be ``1``. See the examples below
+
+>>> querystring_for_date(date, num=1)
+'?year=2009'
+>>> # Now if we only need the month
+>>> querystring_for_date(date, num=2)
+'?year=2009&month=4'
+>>> # Now everything except the seconds
+>>> querystring_for_date(date, num=5)
+'?year=2009&month=4&day=1&hour=0&minute=0'
+
+
+    

@@ -1,0 +1,143 @@
+=======
+Periods
+=======
+
+One of the goals of DjangoSchedule is to make occurrence generation and persistence easy.  To do this it creates simple classes for accessing these
+occurrences.  These are Periods.  Period is an object that is initiated with an iterable object of events, a start datetime, and an end datetime.
+
+It is common to subclass Period for common periods of time.  Some of these already exist in the project.  Year, Month, Week, Day
+
+Expect more in the future: Hour, HalfHour
+
+Period Base Class
+-----------------
+
+This is the base class from which all other periods inherit.  It contains all
+of the base functionality for retrieving occurrences.  It is instantiated with
+a list of events, a start date, and an end date. *The start date is inclusive,
+the end date is exclusive.* ie [start, end)
+
+>>> p = Period(datetime.datetime(2008,4,1,0,0))
+
+``get_occurrences()``
+~~~~~~~~~~~~~~~~~~~~~
+
+This method is for getting the occurrences from the list of passed in events. It returns the occurrences that exist in the period for every event.  If I have a list of events ``my_events``, and I want to know all of the occurrences from today to next week I simply create a Period object and then call get_occurrences. It will return a sorted list of Occurrences.
+
+::
+
+    import datetime
+
+    today = datetime.datetime.now()
+    this_week = Period(my_events, today, today+datetime.timedelta(days=7))
+    this_week.get_occurrences()
+
+``classify_occurrence(occurrence)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You use this method to determine how the Occurrence ``occurrence`` relates to the period. This method returns a dictionary. The keys are ``"class"`` and ``"occurrence"``.  The class key returns a a number from 0 to 3 and the occurrence key returns the occurrence.
+
+Classes:
+
+0: Only started during this period.
+
+1: Started and ended during this period.
+
+2: Didn't start or end in this period, but does exist during this period.
+
+3: Only ended during this period.
+
+``get_occurrence_partials()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method is used for getting all the occurrences, but getting them as classified occurrences.  Simply it runs classify_occurrence on each occurrence in get_occurrence and returns that list.
+
+::
+
+    import datetime
+
+    today = datetime.datetime.now()
+    this_week = Period(my_events, today, today+datetime.timedelta(days=7))
+    this_week.get_occurrences() == [classified_occurrence['occurrence'] for classified_occurrence in this_week.get_occurrence_partials()]
+
+``has_occurrence()``
+~~~~~~~~~~~~~~~~~~~~
+
+This method returns whether there are any occurrences in this period
+
+Year
+----
+
+The year period is instaniated with a list of events and a date or datetime object. It will resemble the year in which that date exists. 
+
+>>> p = Year(events, datetime.datetime(2008,4,1))
+>>> p.start
+datetime.datetime(2008, 1, 1, 0, 0)
+>>> p.end
+datetime.datetime(2009, 1, 1, 0, 0)
+>>> -Remember start is inclusive and end is exclusive
+
+``get_months()``
+~~~~~~~~~~~~~~~~
+
+This function returns 12 Month objects which resemble the 12 months in the Year period.
+
+Month
+-----
+
+The Month period is instantiated with a list of events and a date or  datetime object.  It resembles the month that contains the date or datetime object that was passed in.
+
+>>> p = Month(events, datetime.datetime(2008,4,4))
+>>> p.start
+datetime.datetime(2008, 4, 1, 0, 0)
+>>> p.end
+datetime.datetime(2008, 5, 1, 0, 0)
+>>> -Remember start is inclusive and end is exclusive
+
+``get_weeks()``
+~~~~~~~~~~~~~~~
+
+This method returns a list of Week objects that occur at all during that month.  The week does not have to be fully encapsulated in the month just have
+exist in the month at all
+
+``get_days()``
+~~~~~~~~~~~~~~
+
+This method returns a list of Day objects that occur during the month.
+
+``get_day(day_number)``
+~~~~~~~~~~~~~~~~~~~~~~~
+
+This method returns a specific day in a year given its day number.
+
+Week
+----
+
+The Week period is instantiated with a list of events and a date or  datetime object.  It resembles the week that contains the date or datetime object that was passed in.
+
+>>> p = Week(events, datetime.datetime(2008,4,1))
+>>> p.start
+datetime.datetime(2008, 3, 30, 0, 0)
+>>> p.end
+datetime.datetime(2008, 4, 6, 0, 0)
+>>> -Remember start is inclusive and end is exclusive
+
+``get_days()``
+~~~~~~~~~~~~~~
+
+This method returns the 7 Day objects that represent the days in a Week period.
+
+Day
+---
+
+The Day period is instantiated with a list of events and a date or  datetime object.  It resembles the day that contains the date or datetime object that was passed in.
+
+>>> p = Day(events, datetime.datetime(2008,4,1))
+>>> p.start
+datetime.datetime(2008, 4, 1, 0, 0)
+>>> p.end
+datetime.datetime(2008, 4, 2, 0, 0)
+>>> -Remember start is inclusive and end is exclusive
+
+
+

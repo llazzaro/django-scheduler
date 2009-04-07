@@ -1,0 +1,26 @@
+.. DjangoSchedule documentation master file, created by sphinx-quickstart on Mon Mar 30 15:19:11 2009.
+
+Welcome to DjangoSchedule's documentation!
+==========================================
+
+DjangoSchedule is an open-source calendaring application. 
+
+.. toctree::
+    :maxdepth: 1
+
+    install
+    overview
+    periods
+    utils
+    template_tags
+    views
+    models
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

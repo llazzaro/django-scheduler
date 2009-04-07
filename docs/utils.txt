@@ -1,0 +1,57 @@
+=========
+Utilities
+=========
+
+There are some utility classes found in the utils module that help with certain tasks.
+
+EventListManager
+----------------
+
+EventListManager objects are instantiated with a list of events. That list of events dictates the following methods
+
+``occurrences_after(after)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Creates a generator that produces the next occurrence inclusively after the datetime ``after``.
+
+OccurrenceReplacer
+------------------
+
+If you get more into the internals of django-schedule, and decide to create your own method for producing occurrences, instead of using one of the public facing methods for this, you are going to want to replace the occurrence you produce with a persisted one, if a persisted one exists.  To facilitate this in a standardized way you have the OccurrenceReplacer class.
+
+To instantiate it you give it the pool of persisted occurrences you would like to check in.
+
+>>> persisted_occurrences = my_event.occurrence_set.all()
+>>> occ_replacer = OccurrenceReplacer(persisted_occurrences)
+
+Now you have two convenient methods
+
+``get_occurrence(occurrence)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method returns either the passed in occurrence or the equivalent persisted occurrences from the pool of persisted occurrences this OccurrenceReplacer was instantiated with.
+
+>>> # my_generated_occurrence is an occurrence that was programatically
+>>> # generated from an event
+>>> occurrence = occ_replacer.get_occurrence(my_generated_occurrence)
+
+``has_occurrence(occurrence)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method returns a boolean. It returns True of the OccurrenceReplacer has an occurrence it would like to replace with the give occurrence, and false if it does not
+
+>>> hasattr(my_generated_occurrence, 'pk')
+False
+>>> occ_replacer.has_occurrence(my_generated_occurrence)
+True
+>>> occurrence = occ_replacer.get_occurrence(my_generated_occurrence)
+>>> hasattr(occurrence, 'pk')
+True
+>>> # Now with my_other_occurrence which does not have a persisted counterpart
+>>> hasattr(my_other_occurrence, 'pk')
+False
+>>> occ_replacer.has_occurrence(my_other_occurrence)
+False
+>>> occurrence = occ_replacer.get_occurrence(my_other_occurrence)
+>>> hasattr(occurrence, 'pk')
+False

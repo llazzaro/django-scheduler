@@ -1,0 +1,6 @@
+.. _ref-install:
+=======
+Install
+=======
+
+Currently undocumented
