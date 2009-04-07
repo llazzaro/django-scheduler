@@ -9,7 +9,7 @@ from django.views.generic.create_update import delete_object
 from django.conf import settings
 import datetime
 
-from schedule.forms import EventForm
+from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import *
 from schedule.periods import weekday_names
 
@@ -82,7 +82,7 @@ def calendar_by_periods(request, calendar_slug, periods=None,
             'weekday_names': weekday_names,
         },context_instance=RequestContext(request),)
 
-def event(request, event_id=None):
+def event(request, event_id=None, template_name="schedule/event.html"):
     """
     This view is for showing an event. It is important to remember that an 
     event is not an occurrence.  Events define a set of reccurring occurrences.
@@ -130,21 +130,36 @@ def occurrence(request, event_id, *args, **kwargs):
     }, context_instance=RequestContext(request))
 
 # Not implemented yet
-def edit_occurrence(request, event_id, *args, **kwargs):
+def edit_occurrence(request, event_id, 
+    template_name="schedule/edit_occurrence.html", *args, **kwargs):
     event, occurrence = get_occurrence(event_id, *args, **kwargs)
-    raise Http404, "Not implemented yet"
+    form = OccurrenceForm(data=request.POST or None, instance=occurrence)
+    if form.is_valid():
+        occurrence = form.save(commit=False)
+        occurrence.event = event
+        occurrence.save()
+        next = kwargs.get('next', None) or occurrence.get_absolute_url()
+        return HttpResponseRedirect(get_next_url(request, next))
+    return render_to_response(template_name, {
+        'form': form
+    }, context_instance=RequestContext(request))
 
-def cancel_occurrence(request, event_id, *args, **kwargs):
+def cancel_occurrence(request, event_id, 
+    template_name='schedule/cancel_occurrence.html', *args, **kwargs):
     """
     This view is used to cancel an occurrence. If it is called with a POST it
     will cancel the view. If it is called with a GET it will ask for
     conformation to cancel.
     """
-    if request.GET:
-        return render_to_response(template_name)
     event, occurrence = get_occurrence(event_id, *args, **kwargs)
+    print request.method
+    if request.method != "POST":
+        return render_to_response(template_name, {
+            "occurrence": occurrence
+        }, context_instance=RequestContext(request))
     occurrence.cancel()
-    return HttpResponseRedirect(next)
+    next = kwargs.get('next',None) or occurrence.event.get_absolute_url()
+    return HttpResponseRedirect(get_next_url(request, next))
     
     
 
@@ -297,3 +312,11 @@ def coerce_date_dict(date_dict):
         except KeyError:
             break
     return modified and retVal or {}
+
+def get_next_url(request, default):
+    next = default
+    if hasattr(settings, 'OCCURRENCE_CANCEL_REDIRECT'):
+        next = settings.OCCURRENCE_CANCEL_REDIRECT
+    if 'next' in request.GET:
+        next = request.GET['next']
+    return next
