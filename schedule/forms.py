@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from schedule.models import Event
+from schedule.models import Event, Occurrence
 import datetime
 import time
 
@@ -61,3 +61,14 @@ class EventForm(forms.ModelForm):
         model = Event
         exclude = ('creator', 'created_on')
         
+class OccurrenceForm(forms.ModelForm):
+    def __init__(self, hour24=False, *args, **kwargs):
+        """hour24 decides how the datetime widget will be displayed"""
+        super(OccurrenceForm, self).__init__(*args, **kwargs)
+        if hour24:
+            self.fields['start'].widget = GlobalSplitDateTimeWidget(hour24=True)
+            self.fields['end'].widget = GlobalSplitDateTimeWidget(hour24=True)
+    
+    class Meta:
+        model = Occurrence
+        exclude = ('original_start', 'original_end', 'event')
