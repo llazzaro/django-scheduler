@@ -14,7 +14,6 @@ class Command(NoArgsCommand):
         print "checking for existing data ..."
         try:
             cal = Calendar.objects.get(name="yml_cal")
-            import ipdb; ipdb.set_trace()
             print "It looks like you already have loaded the sample data, quitting."
             import sys
             sys.exit(1)
@@ -55,19 +54,19 @@ class Command(NoArgsCommand):
                 'start': datetime.datetime(2008, 11, 1, 8, 0),
                 'end': datetime.datetime(2008, 11, 1, 9, 0),
                 'end_recurring_period' : datetime.datetime(2010, 5, 5, 0, 0),
-                'rule': rule
+                'rule': rule,
+                'calendar': tony_cal
                }
         event = Event(**data)
         event.save()
-        tony_cal.events.add(event)
         rule = Rule.objects.get(frequency="DAILY")
         data = {
                 'title': 'Home work',
                 'start': datetime.datetime(2008, 11, 1, 18, 0),
                 'end': datetime.datetime(2008, 11, 1, 19, 0),
                 'end_recurring_period' : datetime.datetime(2010, 5, 5, 0, 0),
-                'rule': rule
+                'rule': rule,
+                'calendar': tony_cal
                }
         event = Event(**data)
         event.save()
-        tony_cal.events.add(event)

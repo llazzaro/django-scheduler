@@ -14,7 +14,6 @@ class Command(NoArgsCommand):
         print "checking for existing data ..."
         try:
             cal = Calendar.objects.get(name="Example Calendar")
-            import ipdb; ipdb.set_trace()
             print "It looks like you already have loaded this sample data, quitting."
             import sys
             sys.exit(1)
@@ -54,10 +53,10 @@ class Command(NoArgsCommand):
                 'end': datetime.datetime(2008, 11, 3, 9, 0),
                 'end_recurring_period' : datetime.datetime(2009, 6, 1, 0, 0),
                 'rule': rule,
+                'calendar': cal
                }
         event = Event(**data)
         event.save()
-        cal.events.add(event)
 
         data = {
                 'title': 'Exercise',
@@ -65,10 +64,10 @@ class Command(NoArgsCommand):
                 'end': datetime.datetime(2008, 11, 5, 16, 30),
                 'end_recurring_period' : datetime.datetime(2009, 6, 1, 0, 0),
                 'rule': rule,
+                'calendar': cal
                }
         event = Event(**data)
         event.save()
-        cal.events.add(event)
 
         data = {
                 'title': 'Exercise',
@@ -76,10 +75,10 @@ class Command(NoArgsCommand):
                 'end': datetime.datetime(2008, 11, 7, 9, 30),
                 'end_recurring_period' : datetime.datetime(2009, 6, 1, 0, 0),
                 'rule': rule,
+                'calendar': cal
                }
         event = Event(**data)
         event.save()
-        cal.events.add(event)
 
         rule = Rule.objects.get(frequency="MONTHLY")
         data = {
@@ -88,10 +87,10 @@ class Command(NoArgsCommand):
                 'end': datetime.datetime(2008, 11, 1, 14, 30),
                 'end_recurring_period' : datetime.datetime(2009, 10, 2, 0, 0),
                 'rule': rule,
+                'calendar': cal
                }
         event = Event(**data)
         event.save()
-        cal.events.add(event)
 
         rule = Rule.objects.get(frequency="YEARLY")
         data = {
@@ -100,29 +99,29 @@ class Command(NoArgsCommand):
                 'end': datetime.datetime(2008, 12, 11, 23, 59),
                 'end_recurring_period' : datetime.datetime(2009, 12, 22, 0, 0),
                 'rule': rule,
+                'calendar': cal
                }
         event = Event(**data)
         event.save()
-        cal.events.add(event)
 
         data = {
                 'title': 'Christmas Party',
                 'start': datetime.datetime(2008, 12, 25, 19, 30),
                 'end': datetime.datetime(2008, 12, 25, 23, 59),
                 'end_recurring_period' : datetime.datetime(2010, 12, 31, 0, 0),
-                'rule': rule
+                'rule': rule,
+                'calendar': cal
                }
         event = Event(**data)
         event.save()
-        cal.events.add(event)
 
         data = {
                 'title': 'New Pinax site goes live',
                 'start': datetime.datetime(2009, 1, 6, 11, 0),
                 'end': datetime.datetime(2009, 1, 6, 12, 00),
                 'end_recurring_period' : datetime.datetime(2009, 1, 7, 0, 0),
+                'calendar': cal
                }
         event = Event(**data)
         event.save()
-        cal.events.add(event)
 
