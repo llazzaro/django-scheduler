@@ -15,16 +15,16 @@ def month_table( calendar, date, size="regular", uname=None ):
     else:
         context = {'day_names':weekday_names}
     if uname:
-        prev_url_context = { 'calendar_slug': calendar.slug,
-                             'year': month.prev_month().year,
-                             'month': month.prev_month().month
-                           }
-        context['prev_url'] = reverse( uname, kwargs=prev_url_context )
+        prev_url_context = { 'calendar_slug': calendar.slug,}
+        context['prev_url'] = '%s%s' % (
+            reverse(uname, kwargs=prev_url_context),
+            querystring_for_date(month.prev_month(), num=2))
+            
         next_url_context = { 'calendar_slug': calendar.slug,
-                             'year': month.next_month().year,
-                             'month': month.next_month().month
                            }
-        context['next_url'] = reverse( uname, kwargs=next_url_context )
+        context['next_url'] = '%s%s' % (
+            reverse(uname, kwargs=next_url_context),
+            querystring_for_date(month.next_month(), num=2))
     context['calendar'] = calendar
     context['month'] = month
     context['size'] = size
@@ -59,34 +59,25 @@ def daily_table( calendar, day ):
         'day_slots' : day_slots,
         'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
     }
-    prev_day = day.prev_day()
-    prev_url_context = { 'calendar_slug': calendar.slug,
-                         'year': prev_day.year,
-                         'month': prev_day.month,
-                         'day': prev_day.day
-                       }
-    context['prev_url'] = reverse( "d_calendar_date", kwargs=prev_url_context )
-    next_day = day.next_day()
-    next_url_context = { 'calendar_slug': calendar.slug,
-                         'year': next_day.year,
-                         'month': next_day.month,
-                         'day': next_day.day
-                        }
-    context['next_url'] = reverse( "d_calendar_date", kwargs=next_url_context )
+    prev_url_context = { 'calendar_slug': calendar.slug}
+    context['prev_url'] = "%s%s" % (
+        reverse( "day_calendar", kwargs=prev_url_context ),
+        querystring_for_date(day.prev_day(), num=3))
+    next_url_context = {'calendar_slug': calendar.slug}
+    context['next_url'] = "%s%s" % (
+        reverse( "day_calendar", kwargs=next_url_context ),
+        querystring_for_date(day.next_day(), num=3))
     return context
 
 @register.inclusion_tag("schedule/_event_options.html")
-def title_and_options( event ):
+def title_and_options( occurrence ):
     context = {
-        'event' : event,
+        'occurrence' : occurrence,
         'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
     }
-    lookup_context = {
-        'event_id': event.id
-    }
-    context['view_event'] = reverse( "s_event", kwargs=lookup_context )
-    context['edit_event'] = reverse( "s_edit_event", kwargs=lookup_context )
-    context['delete_event'] = reverse( "s_delete_event", kwargs=lookup_context )
+    context['view_occurrence'] = occurrence.get_absolute_url()
+    context['edit_occurrence'] = occurrence.get_edit_url()
+    context['cancel_occurrence'] = occurrence.get_cancel_url()
     return context
 
 @register.inclusion_tag("schedule/_create_event_options.html")
@@ -97,13 +88,10 @@ def create_event_url( calendar, slot ):
     }
     lookup_context = {
         'calendar_slug': calendar.slug,
-        'year' : slot.year,
-        'month' : slot.month,
-        'day' : slot.day,
-        'hour' : slot.hour,
-        'minute' : slot.minute
     }
-    context['create_event_url'] = reverse( "s_create_event_date", kwargs=lookup_context )
+    context['create_event_url'] ="%s%s" % (
+        reverse( "calendar_create_event", kwargs=lookup_context),
+        querystring_for_date(slot))
     return context
 
 class CalendarNode(template.Node):
@@ -168,6 +156,10 @@ def do_get_or_create_calendar_for_object(parser, token):
 register.tag('get_calendar', do_get_calendar_for_object)
 register.tag('get_or_create_calendar', do_get_or_create_calendar_for_object)
 
-def querystring_for_date(date):
-    return '?year=%d&month=%d&day=%d&hour=%d&minute=%d&second=%d' % (date.year, date.month, date.day, date.hour, date.minute, date.second)
-register.simple_tag
+@register.simple_tag
+def querystring_for_date(date, num=6):
+    query_string = '?'
+    qs_parts = ['year=%d', 'month=%d', 'day=%d', 'hour=%d', 'minute=%d', 'second=%d']
+    qs_vars = (date.year, date.month, date.day, date.hour, date.minute, date.second)
+    query_string += '&'.join(qs_parts[:num]) % qs_vars[:num]
+    return query_string
