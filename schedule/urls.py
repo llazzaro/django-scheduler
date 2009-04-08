@@ -12,8 +12,9 @@ info_dict = {
 urlpatterns = patterns('',
 # urls for Calendars
 url(r'^calendar/$',
-    'schedule.views.calendar',
-    name="schedule"),
+    object_list,
+    name="schedule",
+    kwargs={'queryset':Calendar.objects.all(), 'template_name':'schedule/calendar_list.html'}),
 url(r'^calendar/year/(?P<calendar_slug>[-\w]+)/$',
     'schedule.views.calendar_by_periods', 
     name="year_calendar",
