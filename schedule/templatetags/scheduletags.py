@@ -3,13 +3,13 @@ from django.conf import settings
 from django import template
 from django.core.urlresolvers import reverse
 from schedule.models import Calendar
-from schedule.periods import weekday_names, weekday_abbrs
+from schedule.periods import weekday_names, weekday_abbrs,  Month
 
 register = template.Library()
 
 @register.inclusion_tag("schedule/_month_table.html")
 def month_table( calendar, date, size="regular", uname=None ):
-    month = calendar.get_month( date=date )
+    month = Month(calendar.events.all(),  date)
     if size == "small":
         context = {'day_names':weekday_abbrs}
     else:
