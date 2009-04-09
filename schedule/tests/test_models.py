@@ -46,10 +46,8 @@ class TestEvent(TestCase):
         occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 5),
             end = datetime.datetime(2008, 1, 6))
         occurrence = occurrences[0]
-        occurrence.save()
         occurrence2 = recurring_event.occurrences_after(datetime.datetime(2008,1,5)).next()
         self.assertEqual(occurrence, occurrence2)
-        self.assertTrue(occurrence2.pk is not None)
     
     def test_get_occurrence(self):
         event = Event(**self.recurring_data)
