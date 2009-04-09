@@ -176,10 +176,6 @@ class Calendar(models.Model):
     def add_event_url(self):
         return reverse('s_create_event_in_calendar', args=[self.slug])
 
-    def get_month(self, date=None):
-        from schedule.periods import Month
-        return Month(self.events.all(), date)
-
 
 class CalendarRelationManager(models.Manager):
     def create_relation(self, calendar, content_object, distinction=None, inheritable=True):
