@@ -227,9 +227,10 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
     initial_data = None
     if date:
         try:
+            start = datetime.datetime(**date)
             initial_data = {
-                "start":datetime.datetime(**date),
-                "end":datetime.timedelta(minutes=30)
+                "start": start,
+                "end": start + datetime.timedelta(minutes=30)
             }
         except TypeError:
             raise Http404
