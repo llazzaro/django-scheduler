@@ -43,3 +43,10 @@ table.calendar td.compact {
 	text-align: center
 }
 
+div.navigation {
+  text-align:center;
+}
+
+div.navigation a {
+  padding:0 20px;
+}

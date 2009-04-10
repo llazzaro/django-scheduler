@@ -23,7 +23,12 @@
     {% endfor %}
     </tr>
 </table></p>
-<p align="center">
-<a href="{% url month_calendar calendar.slug %}">Current Month Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar calendar.slug %}">Current Year Calendar</a>
-</p>
+<div class="navigation">
+  <a href="{% url month_calendar calendar.slug %}">
+    Current Month Calendar
+  </a>
+  <a href="{% url year_calendar calendar.slug %}">
+    Current Year Calendar
+  </a>
+</div>
 {% endblock %}
