@@ -129,10 +129,12 @@ class Year(Period):
     
     def next_year(self):
         return self.end
+    next = next_year
     
     def prev_year(self):
         return datetime.datetime(
             self.start.year-1, self.start.month, self.start.day)
+    prev = prev_year
         
     def _get_year_range(self, year):
         start = datetime.datetime(year.year, datetime.datetime.min.month,
@@ -185,9 +187,11 @@ class Month(Period):
 
     def next_month(self):
         return self.end
+    next = next_month
     
     def prev_month(self):
         return (self.start - datetime.timedelta(days=1)).replace(day=1)
+    prev = prev_month
 
     def current_year(self):
         return datetime.datetime.min.replace(year=self.start.year)
@@ -290,9 +294,11 @@ class Day(Period):
 
     def prev_day(self):
         return self.start - datetime.timedelta(days=1)
+    prev = prev_day
 
     def next_day(self):
         return self.end
+    next = next_day
 
     def month(self):
         return Month(self.events, self.start)
