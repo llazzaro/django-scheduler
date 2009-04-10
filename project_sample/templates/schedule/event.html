@@ -1,7 +1,21 @@
-{% extends "site_base.html" %}
+{% extends "schedule/base.html" %}
 {% load i18n %}
+{% load scheduletags %}
 
 {% block body %}
+
+<div class="navigation">
+  <a href="{% url day_calendar event.calendar.slug %}{% querystring_for_date event.start 3 %}">
+    Day
+  </a>
+  <a href="{% url month_calendar event.calendar.slug %}{% querystring_for_date event.start 2 %}">
+    Month
+  </a>
+  <a href="{% url year_calendar event.calendar.slug %}{% querystring_for_date event.start 1%}">
+    Year
+  </a>
+</div>
+
 <div class="event_actions" align="center">
 	{% if back_url %}
 	<a href="{{ back_url }}"><img border="0" src="{{ MEDIA_URL }}left_mod.png" alt="{% trans "Back" %}"></a> &nbsp;
@@ -31,10 +45,5 @@
 <h3>Description</h3>
 <p>{{event.description}}</p>
 {% endif %}
-
-<h3>Calendar View</h3>
-<a href="{% url year_calendar event.calendar.slug %}">Year</a>
-<a href="{% url month_calendar event.calendar.slug %}">Month</a>
-<a href="{% url day_calendar event.calendar.slug %}">Day</a>
 
 {% endblock %}
