@@ -1,9 +1,16 @@
 {% extends "schedule/base.html" %}
 {% load scheduletags %}
 {% block body %}
-<p align="center"><b>{{ calendar.name }}</b><br/>
-{% daily_table calendar periods.day %}
-</p>
+<div class="tablewrapper">
+    <div class="calendarname">{{ calendar.name }}</div>
+    {% prevnext "day_calendar" calendar.slug periods.day "l, F d, Y" %}
+    <div class="now">
+      <a href="{% url day_calendar calendar.slug %}">
+        Today
+      </a>
+    </div>
+    {% daily_table calendar periods.day %}
+</div>
 <div class="navigation">
   <a href="{% url month_calendar calendar.slug %}{% querystring_for_date periods.day.start 2 %}">
     Month
