@@ -6,10 +6,10 @@
 </p>
 <div class="navigation">
   <a href="{% url month_calendar calendar.slug %}{% querystring_for_date periods.day.start 2 %}">
-    Current Month Calendar
+    Month
   </a>
   <a href="{% url year_calendar calendar.slug %}{% querystring_for_date periods.day.start 1%}">
-    Current Year Calendar
+    Year
   </a>
 </div>
 {% endblock %}

@@ -1,6 +1,14 @@
 {% load scheduletags %}
 <table align="center" class="calendar">
-    <caption><a href="{{ prev_url }}"><img align="top" border="0" src="{{MEDIA_URL}}left_mod.png"></a> &nbsp; <b>{{ day.start|date:"l, F d, Y" }}</b> &nbsp; <a href="{{ next_url }}"<img align="top" border="0" src="{{MEDIA_URL}}right_mod.png"></a></caption>
+  <caption>
+    <a href="{{ prev_url }}">
+      <img align="top" border="0" src="{{MEDIA_URL}}left_mod.png"/>
+    </a>
+    &nbsp; <b>{{ day.start|date:"l, F d, Y" }}</b> &nbsp; 
+    <a href="{{ next_url }}">
+      <img align="top" border="0" src="{{MEDIA_URL}}right_mod.png"/>
+    </a>
+  </caption>
     <tr><td width="68">&nbsp;</td><td width="325">Morning Events</td></td><td width="68">&nbsp;</td><td width="325">Afternoon and Evening Events</td></tr>
     {% for am_slot, pm_slot in day_slots %}
         <td class="compact"><small>{{ am_slot.start|time:"g:i a" }}</small></td>
