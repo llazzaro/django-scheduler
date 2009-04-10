@@ -1,3 +1,38 @@
+div.slot_column {
+  position:absolute;
+  top:0px;
+ left:0px;
+  border:1px solid black;
+  border-right:none;
+}
+
+div.slot {
+  position:absolute;
+  left:0px;
+  border-bottom:1px dotted grey;
+}
+
+div.occ_column {
+  position:absolute;
+  border:1px solid black;
+  top:0px;
+}
+
+div.occ {
+  position:absolute;
+  border:1px solid red;
+  background-color:#eee;
+  overflow:hidden;
+}
+
+div.event_options div.title {
+  float:left;
+}
+
+div.event_options div.buttons {
+  float:right;
+}
+
 table.calendar {
 	border-collapse: separate;
 	border-spacing: 2px

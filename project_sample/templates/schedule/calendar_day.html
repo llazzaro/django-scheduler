@@ -9,14 +9,14 @@
         Today
       </a>
     </div>
-    {% daily_table calendar periods.day %}
 </div>
-<div class="navigation">
-  <a href="{% url month_calendar calendar.slug %}{% querystring_for_date periods.day.start 2 %}">
-    Month
-  </a>
-  <a href="{% url year_calendar calendar.slug %}{% querystring_for_date periods.day.start 1%}">
-    Year
-  </a>
+<div style="position:absolute;">
+    <div style="position:absolute;left:100px;">
+      {% daily_table 420 120 600 0 12 %}
+    </div>
+
+    <div style="position:absolute;left:600px;">
+      {% daily_table 420 120 600 12 24 %}
+    </div>
 </div>
 {% endblock %}
