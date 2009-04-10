@@ -12,6 +12,11 @@
         <a href="{{ next_url }}">
           <img align="top" border="0" src="/site_media/right_mod.png"/>
         </a>
+        <div class="now">
+          <a href="{% url month_calendar calendar.slug %}">
+            This month
+          </a>
+        </div>
       {% endif %}
     </td>
   </tr>
