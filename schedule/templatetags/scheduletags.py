@@ -29,26 +29,32 @@ def day_cell( calendar, day, month, size="regular" ):
         'size' : size
     }
 
-@register.inclusion_tag("schedule/_daily_table.html")
-def daily_table( calendar, day ):
-    td30 = datetime.timedelta(minutes=30)
-    morning = day.start
-    afternoon = day.start  + datetime.timedelta(hours=12)
-    morning_period = day.get_time_slot( morning, morning + td30 )
-    afternoon_period = day.get_time_slot( afternoon, afternoon + td30 )
-    day_slots = [ (morning_period, afternoon_period) ]
-    for i in range(23):
-        morning += td30
-        afternoon += td30
-        morning_period = day.get_time_slot( morning, morning + td30 )
-        afternoon_period = day.get_time_slot( afternoon, afternoon + td30 )
-        day_slots.append( (morning_period, afternoon_period) )
-    context = {
-        'calendar' : calendar,
-        'day' : day,
-        'day_slots' : day_slots,
-        'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
-    }
+
+@register.inclusion_tag("schedule/_daily_table.html", takes_context=True)
+def daily_table( context, width, width_slot, height, start=8, end=20, increment=30):
+    """
+      Display a nice table with occurrences and action buttons.
+      Arguments:
+      width - width of the table (px)
+      width_slot - width of the slot column (px)
+      height - height of the table
+      start - hour at which the day starts
+      end - hour at which the day ends
+      increment - size of a time slot (in minutes)
+    """
+    day = context['periods']['day']
+    width_occ = width - width_slot
+    day_part = day.get_time_slot(day.start  + datetime.timedelta(hours=start), day.start  + datetime.timedelta(hours=end))
+    occurrences = day_part.get_occurrences()
+    occurrences = _cook_occurrences(day_part, occurrences, width_occ, height)
+    # get slots to display on the left
+    slots = _cook_slots(day_part, increment, width, height)
+    context['occurrences'] = occurrences
+    context['slots'] = slots
+    context['width'] = width
+    context['width_slot'] = width_slot
+    context['width_occ'] = width_occ
+    context['height'] = height
     return context
 
 @register.inclusion_tag("schedule/_event_options.html")
@@ -169,4 +175,73 @@ def prevnext( target, slug, period, fmt=None):
         'target':target,
     }
     return context
+
+def _cook_occurrences(period, occs, width, height):
+    """ Prepare occurrences to be displayed.
+        Calculate dimensions and position (in px) for each occurrence.
+        The algorithm tries to fit overlapping occurrences so that they require a minimum
+        number of "columns".
+        Arguments:
+        period - time period for the whole series
+        occs - occurrences to be displayed
+        increment - slot size in minutes
+        width - width of the occurrences column (px)
+        height - height of the table (px)
+    """
+    last = {}
+    # find out which occurrences overlap
+    for o in occs:
+        o.level = -1
+        o.max = 0
+        if not last:
+            last[0] = o
+            o.level = 0
+        else:
+            for k in sorted(last.keys()):
+                if last[k].end <= o.start:
+                    o.level = k
+                    last[k] = o
+                    break
+            if o.level == -1:
+                k = k + 1
+                last[k] = o
+                o.level = k
+    # calculate position and dimensions
+    for o in occs:
+        # number of overlapping occurrences
+        o.max = len([n for n in occs if not(n.end<=o.start or n.start>=o.end)]) 
+    for o in occs:
+        # number of "columns" is a minimum number of overlaps for each overlapping group
+        o.max = min([n.max for n in occs if not(n.end<=o.start or n.start>=o.end)]) 
+        w = int(width / (o.max))
+        o.width = w - 2
+        o.left = w * o.level
+        o.top = int(height * (float((o.start - period.start).seconds) / (period.end - period.start).seconds))
+        o.height = int(height * (float((o.end - o.start).seconds) / (period.end - period.start).seconds))
+        o_data = period.classify_occurrence(o)
+        o.cls = o_data['class']
+    return occs
+
+
+def _cook_slots(period, increment, width, height):
+    """
+        Prepare slots to be displayed on the left hand side
+        calculate dimensions (in px) for each slot.
+        Arguments:
+        period - time period for the whole series
+        increment - slot size in minutes
+        width - width of the slot column (px)
+        height - height of the table (px)
+    """
+    tdiff = datetime.timedelta(minutes=increment)
+    num = (period.end - period.start).seconds/tdiff.seconds
+    s = period.start
+    slots = []
+    for i in range(num):
+        sl = period.get_time_slot(s, s + tdiff)
+        sl.top = int(height / float(num)) * i
+        sl.height = int(height / float(num))
+        slots.append(sl)
+        s = s + tdiff
+    return slots
 
