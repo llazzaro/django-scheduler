@@ -4,7 +4,12 @@
 <p align="center"><b>{{ calendar.name }}</b><br/><br/>
 {% month_table calendar periods.month.start "regular" "month_calendar" %}
 </p>
-<p align="center">
-<a href="{% url tri_month_calendar calendar.slug %}{% querystring_for_date periods.month.start 2 %}">Three Month Calendar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url year_calendar calendar.slug %}{% querystring_for_date periods.month.start 1%}">Full Year Calendar</a>
-</p>
+<div class="navigation">
+  <a href="{% url tri_month_calendar calendar.slug %}{% querystring_for_date periods.month.start 2 %}">
+    Three Month Calendar
+  </a>
+  <a href="{% url year_calendar calendar.slug %}{% querystring_for_date periods.month.start 1%}">
+    Full Year Calendar
+  </a>
+</div>
 {% endblock %}
