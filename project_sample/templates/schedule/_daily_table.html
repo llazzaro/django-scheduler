@@ -8,6 +8,11 @@
     <a href="{{ next_url }}">
       <img align="top" border="0" src="{{MEDIA_URL}}right_mod.png"/>
     </a>
+    <div class="now">
+      <a href="{% url day_calendar calendar.slug %}">
+        Today
+      </a>
+    </div>
   </caption>
     <tr><td width="68">&nbsp;</td><td width="325">Morning Events</td></td><td width="68">&nbsp;</td><td width="325">Afternoon and Evening Events</td></tr>
     {% for am_slot, pm_slot in day_slots %}
