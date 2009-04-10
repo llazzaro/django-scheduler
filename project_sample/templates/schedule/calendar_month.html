@@ -1,9 +1,16 @@
 {% extends "schedule/base.html" %}
 {% load scheduletags %}
 {% block body %}
-<p align="center"><b>{{ calendar.name }}</b><br/><br/>
-{% month_table calendar periods.month.start "regular" "month_calendar" %}
-</p>
+<div class="tablewrapper">
+  <div class="calendarname">{{ calendar.name }}</div>
+  {% prevnext "month_calendar" calendar.slug periods.month "F Y"%}
+  <div class="now">
+    <a href="{% url month_calendar calendar.slug %}">
+      This month
+    </a>
+  </div>
+  {% month_table calendar periods.month.start "regular" "month_calendar" %}
+</div>
 <div class="navigation">
   <a href="{% url tri_month_calendar calendar.slug %}{% querystring_for_date periods.month.start 2 %}">
     Three Month Calendar

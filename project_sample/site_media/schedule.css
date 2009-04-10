@@ -14,10 +14,9 @@ table.calendar {
 }
 
 table.calendar td {
+  text-align:left;
 	margin: 2px;
-	padding: 1px
-	width: 120px;
-	height: 52px
+	padding: 1px;
 }
 
 table.calendar td.daynumber {
@@ -49,4 +48,12 @@ div.navigation {
 
 div.navigation a {
   padding:0 20px;
+}
+
+div.tablewrapper {
+    text-align:center;
+}
+
+div.calendarname {
+    font-weight:bold;
 }

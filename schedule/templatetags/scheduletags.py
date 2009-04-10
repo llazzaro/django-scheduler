@@ -2,6 +2,7 @@ import datetime
 from django.conf import settings
 from django import template
 from django.core.urlresolvers import reverse
+from django.utils.dateformat import format
 from schedule.models import Calendar
 from schedule.periods import weekday_names, weekday_abbrs,  Month
 
@@ -14,17 +15,6 @@ def month_table( calendar, date, size="regular", uname=None ):
         context = {'day_names':weekday_abbrs}
     else:
         context = {'day_names':weekday_names}
-    if uname:
-        prev_url_context = { 'calendar_slug': calendar.slug,}
-        context['prev_url'] = '%s%s' % (
-            reverse(uname, kwargs=prev_url_context),
-            querystring_for_date(month.prev_month(), num=2))
-            
-        next_url_context = { 'calendar_slug': calendar.slug,
-                           }
-        context['next_url'] = '%s%s' % (
-            reverse(uname, kwargs=next_url_context),
-            querystring_for_date(month.next_month(), num=2))
     context['calendar'] = calendar
     context['month'] = month
     context['size'] = size
@@ -59,14 +49,6 @@ def daily_table( calendar, day ):
         'day_slots' : day_slots,
         'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
     }
-    prev_url_context = { 'calendar_slug': calendar.slug}
-    context['prev_url'] = "%s%s" % (
-        reverse( "day_calendar", kwargs=prev_url_context ),
-        querystring_for_date(day.prev_day(), num=3))
-    next_url_context = {'calendar_slug': calendar.slug}
-    context['next_url'] = "%s%s" % (
-        reverse( "day_calendar", kwargs=next_url_context ),
-        querystring_for_date(day.next_day(), num=3))
     return context
 
 @register.inclusion_tag("schedule/_event_options.html")
@@ -163,3 +145,28 @@ def querystring_for_date(date, num=6):
     qs_vars = (date.year, date.month, date.day, date.hour, date.minute, date.second)
     query_string += '&'.join(qs_parts[:num]) % qs_vars[:num]
     return query_string
+
+@register.simple_tag
+def prev_url(target, slug, period):
+    return '%s%s' % (
+        reverse(target, kwargs=dict(calendar_slug=slug)),
+            querystring_for_date(period.prev()))
+
+@register.simple_tag
+def next_url(target, slug, period):
+    return '%s%s' % (
+        reverse(target, kwargs=dict(calendar_slug=slug)),
+            querystring_for_date(period.next()))
+
+@register.inclusion_tag("schedule/_prevnext.html")
+def prevnext( target, slug, period, fmt=None):
+    if fmt is None:
+        fmt = settings.DATE_FORMAT
+    context = {
+        'slug' : slug,
+        'period' : period,
+        'period_name': format(period.start, fmt),
+        'target':target,
+    }
+    return context
+
