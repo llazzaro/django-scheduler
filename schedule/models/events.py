@@ -130,25 +130,22 @@ class Event(models.Model):
         returns a generator that produces unpresisted occurrences after the 
         datetime ``after``.
         """
-
+        
         if after is None:
             after = datetime.datetime.now()
-        difference = self.end - self.start
-        date = after - difference
         rule = self.get_rrule_object()
         if rule is None:
             if self.end > after:
-                occurrence = self._create_occurrence(self.start, self.end)
-                yield occurrence
+                yield self._create_occurrence(self.start, self.end)
             raise StopIteration
+        date_iter = iter(rule)
+        difference = self.end - self.start
         while True:
-            o_start = rule.after(date, inc=False)
-            if o_start == None:
-                raise StopIteration
+            o_start = date_iter.next()
             o_end = o_start + difference
-            occurrence = self._create_occurrence(o_start, o_end)
-            yield occurrence
-            date=o_start
+            if o_end > after:
+                yield self._create_occurrence(o_start, o_end)
+
     
     def occurrences_after(self, after=None):
         """

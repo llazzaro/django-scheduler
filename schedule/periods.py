@@ -39,10 +39,12 @@ class Period(object):
     This class represents a period of time. It can return a set of occurrences
     based on its events, and its time period (start and end).
     '''
-    def __init__(self, events, start, end, parent_persisted_occurrences = None):
+    def __init__(self, events, start, end, parent_persisted_occurrences = None,
+        occurrence_pool=None):
         self.start = start
         self.end = end
         self.events = events
+        self.occurrence_pool = occurrence_pool
         if parent_persisted_occurrences is not None:
             self._persisted_occurrences = parent_persisted_occurrences
 
@@ -52,6 +54,11 @@ class Period(object):
     def _get_sorted_occurrences(self):
         occurrences = []
         occ_replacer = OccurrenceReplacer(self.get_persisted_occurrences())
+        if hasattr(self, "occurrence_pool") and self.occurrence_pool is not None:
+            for occurrence in self.occurrence_pool:
+                if occurrence.start < self.end and occurrence.end >self.start:
+                    occurrences.append(occurrence)
+            return occurrences
         for event in self.events:
             event_occurrences = event._get_occurrence_list(self.start, self.end)
             for index in range(len(event_occurrences)):
@@ -122,7 +129,8 @@ class Year(Period):
         months = []
         month_start = self.start
         for i in range(12):
-            month = Month(self.events, month_start, self.get_persisted_occurrences())
+            month = Month(self.events, month_start,
+            self.get_persisted_occurrences(), self.occurrences)
             months.append(month)
             month_start = month.next_month()
         return months
@@ -153,18 +161,21 @@ class Month(Period):
     The month period has functions for retrieving the week periods within this period
     and day periods within the date.
     """
-    def __init__(self, events, date=None, parent_persisted_occurrences=None):
+    def __init__(self, events, date=None, parent_persisted_occurrences=None,
+        occurrence_pool=None):
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_month_range(date)
-        super(Month, self).__init__(events, start, end, parent_persisted_occurrences)
+        super(Month, self).__init__(events, start, end, 
+            parent_persisted_occurrences, occurrence_pool)
 
     def get_weeks(self):
         date = self.start
         weeks = []
         while date < self.end:
             #list events to make it only one query
-            week = Week(self.events, date, self.get_persisted_occurrences())
+            week = Week(self.events, date, self.get_persisted_occurrences(),
+            self.occurrence_pool)
             weeks.append(week)
             date = week.next_week()
         return weeks
@@ -174,7 +185,8 @@ class Month(Period):
         days = []
         while date < self.end:
             #list events to make it only one query
-            day = Day(self.events, date, self.get_persisted_occurrences())
+            day = Day(self.events, date, self.get_persisted_occurrences(),
+            self.occurrence_pool)
             days.append(day)
             date = day.next_day()
         return days
@@ -225,12 +237,14 @@ class Week(Period):
     """
     The Week period that has functions for retrieving Day periods within it
     """
-    def __init__(self, events, date=None, parent_persisted_occurrences=None):
+    def __init__(self, events, date=None, parent_persisted_occurrences=None, 
+        occurrence_pool=None):
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_week_range(date)
-        super(Week, self).__init__(events, start, end, parent_persisted_occurrences)
-
+        super(Week, self).__init__(events, start, end, 
+            parent_persisted_occurrences, occurrence_pool)
+    
     def next_week(self):
         return self.end
 
@@ -238,7 +252,8 @@ class Week(Period):
         days = []
         date = self.start
         while date < self.end:
-            day = Day(self.events, date, self.get_persisted_occurrences())
+            day = Day(self.events, date, self.get_persisted_occurrences(),
+                self.occurrence_pool)
             days.append(day)
             date = day.next_day()
         return days
@@ -271,12 +286,13 @@ class Week(Period):
         }
 
 class Day(Period):
-    def __init__(self, events, date=None, parent_persisted_occurrences=None):
+    def __init__(self, events, date=None, parent_persisted_occurrences=None,
+        occurrence_pool=None):
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_day_range(date)
-        super(Day, self).__init__(events, start, end, parent_persisted_occurrences)
-            
+        super(Day, self).__init__(events, start, end, 
+            parent_persisted_occurrences, occurrence_pool)
 
     def _get_day_range(self, date):
         if isinstance(date, datetime.datetime):
