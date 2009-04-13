@@ -218,6 +218,7 @@ def _cook_occurrences(period, occs, width, height):
         o.left = w * o.level
         o.top = int(height * (float((o.start - period.start).seconds) / (period.end - period.start).seconds))
         o.height = int(height * (float((o.end - o.start).seconds) / (period.end - period.start).seconds))
+        o.height = min(o.height, height - o.top) # trim what extends beyond the area
         o_data = period.classify_occurrence(o)
         o.cls = o_data['class']
     return occs
