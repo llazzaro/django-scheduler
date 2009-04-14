@@ -25,6 +25,14 @@ div.occ {
   overflow:hidden;
 }
 
+div.type0 {
+  border-bottom:4px dotted gray;
+}
+
+div.type3 {
+  border-top:4px dotted gray;
+}
+
 div.event_options div.title {
   float:left;
 }
