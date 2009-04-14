@@ -183,7 +183,7 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
             datetime.datetime(int(year), int(month), int(day), int(hour), 
                 int(minute), int(second)))
         if occurrence is None:
-            raise 404
+            raise Http404
     else:
         raise Http404
     return event, occurrence
