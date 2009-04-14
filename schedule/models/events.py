@@ -83,7 +83,7 @@ class Event(models.Model):
         return occurrences
     
     def get_rrule_object(self):
-        if hasattr(self, 'rule'):
+        if self.rule is not None:
             params = self.rule.get_params()
             frequency = 'rrule.%s' % self.rule.frequency
             return rrule.rrule(eval(frequency), dtstart=self.start, **params)
@@ -95,7 +95,10 @@ class Event(models.Model):
 
     def get_occurrence(self, date):
         rule = self.get_rrule_object()
-        next_occurrence = rule.after(date, inc=True)
+        if rule:
+            next_occurrence = rule.after(date, inc=True)
+        else:
+            next_occurrence = self.start
         if next_occurrence == date:
             try:
                 return Occurrence.objects.get(event = self, original_start = date)
