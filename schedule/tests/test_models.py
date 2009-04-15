@@ -115,8 +115,6 @@ class TestOccurrence(TestCase):
         # check has_occurrence on both periods (the result should be reversed)
         period_pre = Period([self.recurring_event], span_pre[0], span_pre[1])
         period_post = Period([self.recurring_event], span_post[0], span_post[1])
-        #import pdb
-        #pdb.set_trace()
         self.assertFalse(period_pre.has_occurrences())
         self.assertTrue(period_post.has_occurrences())
     
