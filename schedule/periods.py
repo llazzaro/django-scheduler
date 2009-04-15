@@ -53,18 +53,13 @@ class Period(object):
 
     def _get_sorted_occurrences(self):
         occurrences = []
-        occ_replacer = OccurrenceReplacer(self.get_persisted_occurrences())
         if hasattr(self, "occurrence_pool") and self.occurrence_pool is not None:
             for occurrence in self.occurrence_pool:
                 if occurrence.start < self.end and occurrence.end >self.start:
                     occurrences.append(occurrence)
             return occurrences
         for event in self.events:
-            event_occurrences = event._get_occurrence_list(self.start, self.end)
-            for index in range(len(event_occurrences)):
-                if occ_replacer.has_occurrence(event_occurrences[index]):
-                    event_occurrences[index] = occ_replacer.get_occurrence(
-                        event_occurrences[index])
+            event_occurrences = event.get_occurrences(self.start, self.end)
             occurrences += event_occurrences
         return sorted(occurrences)
     occurrences = property(_get_sorted_occurrences)
