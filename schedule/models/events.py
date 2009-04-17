@@ -75,12 +75,23 @@ class Event(models.Model):
 
         """
         persisted_occurrences = self.occurrence_set.all()
+        occ_replacer = OccurrenceReplacer(persisted_occurrences)
         occurrences = self._get_occurrence_list(start, end)
-        for index in range(len(occurrences)):
-            for p_occurrence in persisted_occurrences:
-                if occurrences[index] == p_occurrence:
-                    occurrences[index] = p_occurrence
-        return occurrences
+        final_occurrences = []
+        for occ in occurrences:
+            # replace occurrences with their persisted counterparts
+            if occ_replacer.has_occurrence(occ):
+                p_occ = occ_replacer.get_occurrence(
+                        occ)
+                # ...but only if they are within this period
+                if p_occ.start < end and p_occ.end >= start:
+                    final_occurrences.append(p_occ)
+            else:
+              final_occurrences.append(occ)
+        # then add persisted occurrences which originated outside of this period but now
+        # fall within it
+        final_occurrences += occ_replacer.get_additional_occurrences(start, end)
+        return final_occurrences
     
     def get_rrule_object(self):
         if self.rule is not None:

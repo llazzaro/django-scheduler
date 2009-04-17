@@ -57,10 +57,20 @@ class OccurrenceReplacer(object):
         self.lookup = dict(lookup)
     
     def get_occurrence(self, occ):
-        return self.lookup.get(
+        """
+        Return a persisted occurrences matching the occ and remove it from lookup since it 
+        has already been matched
+        """
+        return self.lookup.pop(
             (occ.event, occ.original_start, occ.original_end),
             occ)
     
     def has_occurrence(self, occ):
         return (occ.event, occ.original_start, occ.original_end) in self.lookup
+
+    def get_additional_occurrences(self, start, end):
+        """
+        Return persisted occurrences which are now in the period
+        """
+        return [occ for key,occ in self.lookup.items() if (occ.start < end and occ.end >= start)]
         
