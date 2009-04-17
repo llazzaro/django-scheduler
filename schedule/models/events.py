@@ -135,7 +135,7 @@ class Event(models.Model):
         else:
             # check if event is in the period
             if self.start < end and self.end >= start:
-                return [Occurrence(event=self, start=self.start, end=self.end)]
+                return [self._create_occurrence(self.start)]
             else:
                 return []
     
