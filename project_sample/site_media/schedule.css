@@ -33,6 +33,11 @@ div.type3 {
   border-top:4px dotted gray;
 }
 
+div.type2 {
+  border-top:4px dotted gray;
+  border-bottom:4px dotted gray;
+}
+
 div.event_options div.title {
   float:left;
 }
