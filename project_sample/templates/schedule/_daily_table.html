@@ -9,8 +9,13 @@
   </div>
   <div class="occ_column" style="left:{{width_slot}}px;width:{{width_occ}}px;height:{{height}}px;">
   {% for occ in occurrences %}
-    <div class="occ type{{occ.cls}}" style="top:{{occ.top}}px;left:{{occ.left}}px;width:{{occ.width}}px;height:{{occ.height}}px;">
-      {% title_and_options occ %}
-    </div>
+    {% if not occ.cancelled %}
+      <div href="#{{occ.hash}}" class="occ type{{occ.cls}}" style="top:{{occ.top}}px;left:{{occ.left}}px;width:{{occ.width}}px;height:{{occ.height}}px;">
+        {% title_and_options occ %}
+      </div>
+      <div id="{{occ.hash}}" style="display:none;">
+        {% detail occ %}
+      </div>
+    {% endif %}
   {% endfor %}
   </div>
