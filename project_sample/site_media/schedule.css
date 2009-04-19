@@ -38,6 +38,20 @@ div.type2 {
   border-bottom:4px dotted gray;
 }
 
+#tooltip.detail {
+	font-family: Arial;
+	border: 1px solid grey;
+	width: 210px;
+	padding:10px;
+	opacity: 0.8;
+}
+#tooltip.pretty h3 {
+	margin-bottom: 0.75em;
+	font-size: 12pt;
+	width: 220px;
+	text-align: center;
+}
+#tooltip.pretty div { width: 220px; text-align: left; }
 div.event_options div.title {
   float:left;
 }

@@ -19,7 +19,6 @@
 	<a href="{{occurrence.get_cancel_url}}"><img border="0" src="{{ MEDIA_URL }}delete.png" alt="{% trans "Cancel" %}"></a>
 </div>
 <h2 align="center">{{occurrence.title}}</h2>
-<p align="center"><a href="{{occurrence.event.get_absolute_url}}">Go to the event</a></p>
 <table align="center">
 <tr>
 <td>Starts</td>
@@ -29,6 +28,11 @@
 <td>Ends</td>
 <td>{% blocktrans with occurrence.end|date:_("DATETIME_FORMAT") as end_date %}{{ end_date }}{% endblocktrans %}</td>
 </tr>
+{% if occurrence.event.rule %}
+<tr>
+<td>Reoccurs</td><td>{{event.rule}}</td>
+</tr>
+{% endif %}
 </table>
 {% if occurrence.description %}
 <h3>Description</h3>

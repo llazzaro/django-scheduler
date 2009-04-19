@@ -1,1 +1,19 @@
-{{ occurrence.event.title }} &nbsp; <a href="{{ view_occurrence }}"><img border="0" src="{{MEDIA_URL}}view.png" alt="View Event"></a> &nbsp; <a href="{{ edit_occurrence }}"><img border="0" src="{{MEDIA_URL}}pencil.png" alt="Edit Event"></a> &nbsp; <a href="{{ cancel_occurrence }}"><img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event"></a><br/>
+{{ occurrence.event.title }} &nbsp; 
+<a href="{{ view_occurrence }}">
+    <img border="0" src="{{MEDIA_URL}}view.png" alt="View Event">
+</a>
+&nbsp;
+<a href="{{ edit_occurrence }}">
+    <img border="0" src="{{MEDIA_URL}}pencil.png" alt="Edit Event">
+</a>
+&nbsp;
+{% if occurrence.event.rule %}
+<a href="#" onclick="openCancelDialog(this, '{{ cancel_occurrence }}', '{{delete_event}}');">
+    <img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event">
+</a>
+{% else %}
+<a href="{{delete_event}}">
+    <img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event">
+</a>
+{% endif %}
+<br/>

@@ -70,6 +70,7 @@ def title_and_options( occurrence ):
     context['view_occurrence'] = occurrence.get_absolute_url()
     context['edit_occurrence'] = occurrence.get_edit_url()
     context['cancel_occurrence'] = occurrence.get_cancel_url()
+    context['delete_event'] = reverse('delete_event', args=(occurrence.event.id,))
     return context
 
 @register.inclusion_tag("schedule/_create_event_options.html")
@@ -180,6 +181,13 @@ def prevnext( target, slug, period, fmt=None):
     }
     return context
 
+@register.inclusion_tag("schedule/_detail.html")
+def detail( occurrence ):
+    context = {
+        'occurrence' : occurrence,
+    }
+    return context
+
 def _cook_occurrences(period, occs, width, height):
     """ Prepare occurrences to be displayed.
         Calculate dimensions and position (in px) for each occurrence.
@@ -214,7 +222,11 @@ def _cook_occurrences(period, occs, width, height):
     for o in occs:
         # number of overlapping occurrences
         o.max = len([n for n in occs if not(n.end<=o.start or n.start>=o.end)]) 
+    hashid = 0
+    hashbase = period.start.strftime('%Y%m%d%H%M%S')
     for o in occs:
+        o.hash = 'occ%s%d' % (hashbase, hashid)
+        hashid += 1
         o.real_start = max(o.start, period.start)
         o.real_end = min(o.end, period.end)
         # number of "columns" is a minimum number of overlaps for each overlapping group

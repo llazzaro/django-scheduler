@@ -1,5 +1,30 @@
 {% extends "schedule/base.html" %}
 {% load scheduletags %}
+
+{% block extra_head %}
+{{block.super}}
+<script>
+function openCancelDialog(node, cancel_url, delete_url){
+  var btns = {"This":function(){window.location=cancel_url;}, "All":function(){window.location=delete_url}, "Do nothing":function(){$(this).dialog("destroy");}};
+  dia = $("#dialog").dialog({'buttons':btns, 'modal':true});
+  dia.dialog('open');
+  return false;
+}
+
+$(function() {
+$('div.occ').tooltip({
+  track: true,
+  delay: 0,
+  extraClass: "detail",
+  fixPNG: true,
+  left: 0,
+  bodyHandler:function(){return $($(this).attr("href")).html();},
+  showURL:false,
+});
+});
+</script>
+{% endblock %}
+
 {% block body %}
 <div class="tablewrapper">
     <div class="calendarname">{{ calendar.name }}</div>
@@ -19,4 +44,9 @@
       {% daily_table 420 120 600 12 24 %}
     </div>
 </div>
+
+<div style="display:none;" id="dialog" title="Question">
+  Do you want to cancel this occurrence or delete all occurrences of this event?
+</div>
+
 {% endblock %}
