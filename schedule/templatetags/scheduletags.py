@@ -57,12 +57,12 @@ def daily_table( context, width, width_slot, height, start=8, end=20, increment=
     context['height'] = height
     return context
 
-@register.inclusion_tag("schedule/_event_options.html")
-def title_and_options( occurrence ):
-    context = {
+@register.inclusion_tag("schedule/_event_options.html", takes_context=True)
+def title_and_options(context, occurrence ):
+    context.update({
         'occurrence' : occurrence,
         'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
-    }
+    })
     context['view_occurrence'] = occurrence.get_absolute_url()
     context['edit_occurrence'] = occurrence.get_edit_url()
     context['cancel_occurrence'] = occurrence.get_cancel_url()

@@ -3,7 +3,7 @@
     <img border="0" src="{{MEDIA_URL}}view.png" alt="View Event">
 </a>
 &nbsp;
-<a href="{{ edit_occurrence }}">
+<a href="{{ edit_occurrence }}?next={{here}}">
     <img border="0" src="{{MEDIA_URL}}pencil.png" alt="Edit Event">
 </a>
 &nbsp;
@@ -12,7 +12,7 @@
     <img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event">
 </a>
 {% else %}
-<a href="{{delete_event}}">
+<a href="{{delete_event}}?next={{here}}">
     <img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event">
 </a>
 {% endif %}

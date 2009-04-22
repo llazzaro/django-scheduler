@@ -1,3 +1,4 @@
+from urllib import quote
 from django.shortcuts import render_to_response, get_object_or_404
 from django.views.generic.create_update import delete_object
 from django.http import HttpResponseRedirect, Http404, HttpResponse
@@ -79,6 +80,7 @@ def calendar_by_periods(request, calendar_slug, periods=None,
             'periods': period_objects,
             'calendar': calendar,
             'weekday_names': weekday_names,
+            'here':quote(request.get_full_path()),
         },context_instance=RequestContext(request),)
 
 def event(request, event_id, template_name="schedule/event.html"):
