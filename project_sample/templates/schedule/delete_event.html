@@ -8,5 +8,6 @@
 <form action="." method="POST">
     {{ object }} <br/>
     <input type="submit" value="{% trans "Delete" %}" />
+    <input type="hidden" name="next" value="{{next|default:""}}"/>
 </form>
 {% endblock %}
