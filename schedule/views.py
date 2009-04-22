@@ -135,17 +135,21 @@ def occurrence(request, event_id,
 def edit_occurrence(request, event_id, 
     template_name="schedule/edit_occurrence.html", *args, **kwargs):
     event, occurrence = get_occurrence(event_id, *args, **kwargs)
+    next = kwargs.get('next', None)
     form = OccurrenceForm(data=request.POST or None, instance=occurrence)
     if form.is_valid():
         occurrence = form.save(commit=False)
         occurrence.event = event
         occurrence.save()
-        next = kwargs.get('next', None) or occurrence.get_absolute_url()
-        return HttpResponseRedirect(get_next_url(request, next))
+        next = next or get_next_url(request, occurrence.get_absolute_url()) 
+        return HttpResponseRedirect(next)
+    next = next or get_next_url(request, occurrence.get_absolute_url()) 
     return render_to_response(template_name, {
         'form': form,
         'occurrence': occurrence,
+        'next':next,
     }, context_instance=RequestContext(request))
+
 
 def cancel_occurrence(request, event_id, 
     template_name='schedule/cancel_occurrence.html', *args, **kwargs):
@@ -155,14 +159,14 @@ def cancel_occurrence(request, event_id,
     conformation to cancel.
     """
     event, occurrence = get_occurrence(event_id, *args, **kwargs)
+    next = kwargs.get('next',None) or get_next_url(request, event.get_absolute_url())
     if request.method != "POST":
         return render_to_response(template_name, {
-            "occurrence": occurrence
+            "occurrence": occurrence,
+            "next":next,
         }, context_instance=RequestContext(request))
     occurrence.cancel()
-    next = kwargs.get('next',None) or occurrence.event.get_absolute_url()
-    return HttpResponseRedirect(get_next_url(request, next))
-    
+    return HttpResponseRedirect(next)
     
 
 def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
@@ -253,13 +257,14 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
             event.calendar = calendar
         event.save()
         next = next or reverse('event', args=[event.id])
-        if 'next' in request.GET:
-            next = check_next_url(request.GET['next']) or next
+        next = get_next_url(request, next)
         return HttpResponseRedirect(next)
     
+    next = get_next_url(request, next)
     return render_to_response(template_name, {
         "form": form,
-        "calendar": calendar
+        "calendar": calendar,
+        "next":next
     }, context_instance=RequestContext(request))
 
 
@@ -274,8 +279,7 @@ def delete_event(request, event_id, next=None, login_required=True):
     """
     event = get_object_or_404(Event, id=event_id)
     next = next or reverse('day_calendar', args=[event.calendar.slug])
-    if 'next' in request.GET:
-        next = _check_next_url(request.GET['next']) or next
+    next = get_next_url(request, next)
     return delete_object(request,
                          model = Event,
                          object_id = event_id,
@@ -289,7 +293,7 @@ def check_next_url(next):
     Checks to make sure the next url is not redirecting to another page.
     Basically it is a minimal security check.
     """
-    if '://' in next:
+    if not next or '://' in next:
         return None
     return next
     
@@ -322,6 +326,6 @@ def get_next_url(request, default):
     next = default
     if hasattr(settings, 'OCCURRENCE_CANCEL_REDIRECT'):
         next = settings.OCCURRENCE_CANCEL_REDIRECT
-    if 'next' in request.GET and check_next_url(request.GET['next']) is not None:
-        next = request.GET['next']
+    if 'next' in request.REQUEST and check_next_url(request.REQUEST['next']) is not None:
+        next = request.REQUEST['next']
     return next

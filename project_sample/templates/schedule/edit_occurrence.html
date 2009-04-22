@@ -10,5 +10,6 @@
 </table>
 <br/>
 <input type="submit" value="{% trans "Save" %}">
+<input type="hidden" name="next" value="{{next|default:""}}"/>
 </form>
 {% endblock %}
