@@ -52,6 +52,10 @@ div.type2 {
 	text-align: center;
 }
 #tooltip.pretty div { width: 220px; text-align: left; }
+
+div.detail tr {vertical-align:top;}
+div.detail td.left {font-weight:bold;}
+
 div.event_options div.title {
   float:left;
 }

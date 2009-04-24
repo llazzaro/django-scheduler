@@ -287,6 +287,7 @@ def delete_event(request, event_id, next=None, login_required=True):
                          object_id = event_id,
                          post_delete_redirect = next,
                          template_name = "schedule/delete_event.html",
+                         extra_context = dict(next=next),
                          login_required = login_required
                         )
 
