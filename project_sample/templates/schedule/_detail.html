@@ -12,17 +12,15 @@
     </tr>
     {% if occurrence.event.rule %}
         {% if not occurrence.id %}
-        <tr>
-            <td class="left">Reoccurs</td><td>{{occurrence.event.rule}}</td>
-        </tr>
-        <tr>
-            <td class="left">From</td>
-            <td>{% blocktrans with occurrence.event.start|date:_("DATETIME_FORMAT") as start_date %}{{ start_date }}{% endblocktrans %}</td>
-        </tr>
-        <tr>
-            <td class="left">Until</td>
-            <td>{% blocktrans with occurrence.event.end_recurring_period|date:_("DATETIME_FORMAT") as end_date %}{{ end_date }}{% endblocktrans %}</td>
-        </tr>
+            <tr>
+                <td class="left">Reoccurs</td><td>{{occurrence.event.rule}}</td>
+            </tr>
+            {% if occurrence.event.end_recurring_period %}
+                <tr>
+                    <td class="left">Until</td>
+                    <td>{% blocktrans with occurrence.event.end_recurring_period|date:_("DATETIME_FORMAT") as end_date %}{{ end_date }}{% endblocktrans %}</td>
+                </tr>
+            {% endif %}
         {% endif %}
     {% endif %}
 </table>

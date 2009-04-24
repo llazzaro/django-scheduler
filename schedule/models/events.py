@@ -342,7 +342,7 @@ class EventRelation(models.Model):
 
 class Occurrence(models.Model):
     event = models.ForeignKey(Event, verbose_name=_("event"))
-    title = models.TextField(_("title"), blank=True, null=True)
+    title = models.CharField(_("title"), max_length=255, blank=True, null=True)
     description = models.TextField(_("description"), blank=True, null=True)
     start = models.DateTimeField(_("start"))
     end = models.DateTimeField(_("end"))
