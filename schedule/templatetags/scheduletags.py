@@ -74,12 +74,12 @@ def title_and_options(context, occurrence ):
     context['edit_event'] = reverse('edit_event', args=(occurrence.event.calendar.slug, occurrence.event.id,))
     return context
 
-@register.inclusion_tag("schedule/_create_event_options.html")
-def create_event_url( calendar, slot ):
-    context = {
+@register.inclusion_tag("schedule/_create_event_options.html", takes_context=True)
+def create_event_url(context, calendar, slot ):
+    context.update ( {
         'calendar' : calendar,
         'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
-    }
+    })
     lookup_context = {
         'calendar_slug': calendar.slug,
     }
