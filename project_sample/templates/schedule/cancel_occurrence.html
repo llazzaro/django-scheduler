@@ -10,6 +10,7 @@
     <strong>From</strong> {{ occurrence.start|date:_("DATETIME_FORMAT") }}
     <strong>to</strong> {{ occurrence.end|date:_("DATETIME_FORMAT") }} <br/>
     <input type="submit" value="{% trans "Delete" %}" name="submit" />
+    <input type="button" value="{% trans "Cancel" %}" onclick="window.location='{{next}}'"/>
     <input type="hidden" name="next" value="{{next|default:""}}"/>
 </form>
 {% endblock %}

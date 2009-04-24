@@ -1,16 +1,30 @@
 {{ occurrence.event.title }} &nbsp; 
-<a href="{{ view_occurrence }}">
-    <img border="0" src="{{MEDIA_URL}}view.png" alt="View Event">
-</a>
-&nbsp;
-<a href="{{ edit_occurrence }}?next={{here}}">
-    <img border="0" src="{{MEDIA_URL}}pencil.png" alt="Edit Event">
-</a>
+{% if occurrence.event.rule %}
+    {% if occurrence.id %}
+        <a href="{{ edit_occurrence }}?next={{here}}">
+            <img border="0" src="{{MEDIA_URL}}pencil.png" alt="Edit Event">
+        </a>
+    {% else %}
+        <a href="#" onclick="openEditDialog(this, '{{ edit_occurrence }}?next={{here}}', '{{edit_event}}?next={{here}}');">
+            <img border="0" src="{{MEDIA_URL}}pencil.png" alt="Edit Event">
+        </a>
+    {% endif %}
+{% else %}
+    <a href="{{ edit_event }}?next={{here}}">
+        <img border="0" src="{{MEDIA_URL}}pencil.png" alt="Edit Event">
+    </a>
+{% endif %}
 &nbsp;
 {% if occurrence.event.rule %}
-<a href="#" onclick="openCancelDialog(this, '{{ cancel_occurrence }}', '{{delete_event}}');">
-    <img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event">
-</a>
+    {% if occurrence.id %}
+        <a href="{{cancel_occurrence}}?next={{here}}">
+            <img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event">
+        </a>
+    {% else %}
+        <a href="#" onclick="openCancelDialog(this, '{{ cancel_occurrence }}?next={{here}}', '{{delete_event}}?next={{here}}');">
+            <img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event">
+        </a>
+    {% endif %}
 {% else %}
 <a href="{{delete_event}}?next={{here}}">
     <img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event">

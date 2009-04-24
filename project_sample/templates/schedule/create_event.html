@@ -10,6 +10,7 @@
 </table>
 <br/>
 <input type="submit" value="{% trans "Save" %}">
+<input type="button" value="{% trans "Cancel" %}" onclick="window.location='{{next}}'"/>
 <input type="hidden" name="next" value="{{next|default:""}}"/>
 </form>
 {% endblock %}
