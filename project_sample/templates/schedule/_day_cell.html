@@ -6,14 +6,15 @@
 <a href="{% url day_calendar calendar.slug %}{% querystring_for_date day.start 3 %}">
     <b>{{day.start.day}}</b>
 </a><br/>
-{% if day.has_occurrences %}
 {% ifnotequal size "small" %}
+{% if day.has_occurrences %}
 {% for o in day.get_occurrence_partials %}
 {% ifequal o.class 0 %}{{ o.occurrence.start|time:"P" }} -- {{ o.occurrence.event.title }}<br/>{% endifequal %}
 {% ifequal o.class 1 %}{{ o.occurrence.start|time:"P" }} -- {{ o.occurrence.event.title }}<br/>{% endifequal %}
 {% ifequal o.class 2 %}(All day)<br/>{{ o.occurrence.event.title }}<br/>{% endifequal %}
 {% ifequal o.class 3 %}Ends at {{ o.occurrence.end|time:"P" }} -- {{ o.occurrence.event.title }}<br/>{% endifequal %}
 {% endfor %}
+{% endif %}
 {% endifnotequal %}
-{% endif %}</td>
+</td>
 {% endifnotequal %}
