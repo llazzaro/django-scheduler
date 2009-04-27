@@ -62,7 +62,14 @@ class Period(object):
             event_occurrences = event.get_occurrences(self.start, self.end)
             occurrences += event_occurrences
         return sorted(occurrences)
-    occurrences = property(_get_sorted_occurrences)
+
+    def cached_get_sorted_occurrences(self):
+        if hasattr(self, '_occurrences'):
+             return self._occurrences
+        occs = self._get_sorted_occurrences()
+        self._occurrences = occs
+        return occs
+    occurrences = property(cached_get_sorted_occurrences)
 
     def get_persisted_occurrences(self):
         if hasattr(self, '_persisted_occurrenes'):
