@@ -170,7 +170,7 @@ class Month(Period):
         while date < self.end:
             #list events to make it only one query
             week = Week(self.events, date, self.get_persisted_occurrences(),
-            self.occurrence_pool)
+                self.occurrences)
             weeks.append(week)
             date = week.next_week()
         return weeks
@@ -181,7 +181,7 @@ class Month(Period):
         while date < self.end:
             #list events to make it only one query
             day = Day(self.events, date, self.get_persisted_occurrences(),
-            self.occurrence_pool)
+                self.occurrences)
             days.append(day)
             date = day.next_day()
         return days
@@ -190,7 +190,7 @@ class Month(Period):
         date = self.start
         if daynumber > 1:
             date += datetime.timedelta(days=daynumber-1)
-        return Day(self.events, date, self.get_persisted_occurrences())
+        return Day(self.events, date, self.get_persisted_occurrences(), self.occurrences)
 
     def next_month(self):
         return self.end
@@ -248,7 +248,7 @@ class Week(Period):
         date = self.start
         while date < self.end:
             day = Day(self.events, date, self.get_persisted_occurrences(),
-                self.occurrence_pool)
+                self.occurrences)
             days.append(day)
             date = day.next_day()
         return days
