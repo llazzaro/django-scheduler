@@ -7,7 +7,7 @@
     <table align="center">
     <tr>
     {% for month in periods.year.get_months %}
-        <td valign="top">{% month_table calendar month.start "small" %}</td>
+        <td valign="top">{% month_table calendar month "small" %}</td>
         <td width="12">&nbsp;</td>
         {% ifequal forloop.counter 3  %}
             </tr>
