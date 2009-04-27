@@ -11,11 +11,11 @@
   </div>
 <table align="center">
 	<tr>
-		<td valign="top">{% month_table calendar periods.month.prev_month "small" %}</td>
+		<td valign="top">{% month_table calendar periods.month "small" -1 %}</td>
 		<td width="12">&nbsp;</td>
-		<td valign="top">{% month_table calendar periods.month.start "small" "tri_month_calendar" %}</td>
+		<td valign="top">{% month_table calendar periods.month "small" %}</td>
 		<td width="12">&nbsp;</td>
-		<td valign="top">{% month_table calendar periods.month.next_month "small" %}</td>
+		<td valign="top">{% month_table calendar periods.month "small" +1 %}</td>
 	</tr>
 </table>
 </div>

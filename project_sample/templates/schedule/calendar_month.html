@@ -9,7 +9,7 @@
       This month
     </a>
   </div>
-  {% month_table calendar periods.month.start "regular" "month_calendar" %}
+  {% month_table calendar periods.month "regular" %}
 </div>
 <div class="navigation">
   <a href="{% url tri_month_calendar calendar.slug %}{% querystring_for_date periods.month.start 2 %}">

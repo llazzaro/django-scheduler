@@ -9,8 +9,12 @@ from schedule.periods import weekday_names, weekday_abbrs,  Month
 register = template.Library()
 
 @register.inclusion_tag("schedule/_month_table.html")
-def month_table( calendar, date, size="regular", uname=None ):
-    month = Month(calendar.events.all(),  date)
+def month_table( calendar, month, size="regular", shift=None):
+    if shift:
+        if shift == -1:
+            month = Month(calendar.events.all(), month.prev())
+        if shift == 1:
+            month = Month(calendar.events.all(), month.next())
     if size == "small":
         context = {'day_names':weekday_abbrs}
     else:
