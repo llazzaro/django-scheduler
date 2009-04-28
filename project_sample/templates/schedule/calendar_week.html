@@ -31,7 +31,7 @@ $('div.occ').tooltip({
 
 <div class="tablewrapper">
     <div class="calendarname">{{ calendar.name }}</div>
-    {% prevnext "week_calendar" calendar.slug periods.week "\Week W, Y" %}
+    {% prevnext "week_calendar" calendar.slug periods.week "\Week W, M Y" %}
     <div class="now">
       <a href="{% url week_calendar calendar.slug %}">
         This week
@@ -39,7 +39,6 @@ $('div.occ').tooltip({
     </div>
 </div>
 
-<h3>Week from {{periods.week.start|date:"Y-m-d"}} to {{periods.week.end|date:"Y-m-d"}}</h3>
 <div id="week">
   {% for day in periods.week.get_days %}
     <div class="weekday weekday{{forloop.counter}}">

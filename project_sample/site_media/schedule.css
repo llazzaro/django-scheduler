@@ -193,7 +193,10 @@ td.daynumber div.eventdesc {
     width:75px;
 }
 
-div#week {position:relative;}
+div#week {
+  margin-top:10px;
+  position:relative;
+}
 
 div#week div.weekdayheader {
   background:#D0D0D0 none repeat scroll 0 0;
