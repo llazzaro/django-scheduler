@@ -156,6 +156,8 @@ div.time-picker li.selected {
 
 #id_start_1, #id_end_1 { width:80px;}
 
+td.daynumber { height:50px;}
+
 td.daynumber div.header {
   margin-bottom:2px;
   padding-bottom:1px;
