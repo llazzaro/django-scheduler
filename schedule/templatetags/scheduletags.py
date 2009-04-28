@@ -35,7 +35,7 @@ def day_cell( calendar, day, month, size="regular" ):
 
 
 @register.inclusion_tag("schedule/_daily_table.html", takes_context=True)
-def daily_table( context, width, width_slot, height, start=8, end=20, increment=30):
+def daily_table( context, day, width, width_slot, height, start=8, end=20, increment=30):
     """
       Display a nice table with occurrences and action buttons.
       Arguments:
@@ -46,7 +46,6 @@ def daily_table( context, width, width_slot, height, start=8, end=20, increment=
       end - hour at which the day ends
       increment - size of a time slot (in minutes)
     """
-    day = context['periods']['day']
     width_occ = width - width_slot
     day_part = day.get_time_slot(day.start  + datetime.timedelta(hours=start), day.start  + datetime.timedelta(hours=end))
     occurrences = day_part.get_occurrences()
