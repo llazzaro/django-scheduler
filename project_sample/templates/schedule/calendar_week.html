@@ -1,5 +1,44 @@
 {% extends "schedule/base.html" %}
 {% load scheduletags %}
 {% block body %}
-<h3>Weekly Calendar is not implemented yet.</h3>
+
+<div class="navigation">
+  <a href="{% url month_calendar calendar.slug %}{% querystring_for_date periods.week.start 2 %}">
+    Month
+  </a>
+  <a href="{% url year_calendar calendar.slug %}{% querystring_for_date periods.week.start 1%}">
+    Year
+  </a>
+</div>
+
+<div class="tablewrapper">
+    <div class="calendarname">{{ calendar.name }}</div>
+    {% prevnext "week_calendar" calendar.slug periods.week "\Week W, Y" %}
+    <div class="now">
+      <a href="{% url week_calendar calendar.slug %}">
+        This week
+      </a>
+    </div>
+</div>
+
+<h3>Week from {{periods.week.start|date:"Y-m-d"}} to {{periods.week.end|date:"Y-m-d"}}</h3>
+<div id="week">
+  {% for day in periods.week.get_days %}
+    <div class="weekday weekday{{forloop.counter}}">
+      <div class="weekdayheader">
+        <a href="{% url day_calendar calendar.slug %}{% querystring_for_date day.start %}">
+          {{day.start|date:"l, d"}}
+        </a>
+      </div>
+      <div class="weekdaytable">
+      {% if forloop.first %}
+          {% daily_table day 230 80 600 9 19 %}
+      {% else %}
+          {% daily_table day 150 15 600 9 19 %}
+      {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
 {% endblock %}

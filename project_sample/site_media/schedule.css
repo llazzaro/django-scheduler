@@ -1,7 +1,7 @@
 div.slot_column {
   position:absolute;
   top:0px;
- left:0px;
+  left:0px;
   border:1px solid black;
   border-right:none;
 }
@@ -191,4 +191,38 @@ td.daynumber div.eventdesc {
     height:1em;
     overflow:hidden;
     width:75px;
+}
+
+div#week {position:relative;}
+
+div#week div.weekdayheader {
+  background:#D0D0D0 none repeat scroll 0 0;
+  border:1px solid black;
+  display:block;
+  display:block;
+  font-weight:bold;
+  padding-left:5px;
+}
+
+div#week div.weekdaytable {position:relative;}
+
+div#week div.weekday {
+  float:left;
+  width:150px;
+}
+
+div#week div.weekday1 {
+  width:230px;
+}
+
+div#week div.slot {
+  font-size:10px;
+}
+
+div.weekday span.time {
+  display:none;
+}
+
+div.weekday1 span.time {
+  display:inline;
 }

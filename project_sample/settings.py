@@ -95,3 +95,4 @@ INSTALLED_APPS = (
 #    return test_result
 #
 #SCHEDULE_EVENT_EDITOR_TEST = _test_user_fuction
+FIRST_DAY_OF_WEEK = 1
