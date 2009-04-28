@@ -34,6 +34,9 @@ $('div.occ').tooltip({
 
 {% block body %}
 <div class="navigation">
+  <a href="{% url week_calendar calendar.slug %}{% querystring_for_date periods.day.start 3 %}">
+    Week
+  </a>
   <a href="{% url month_calendar calendar.slug %}{% querystring_for_date periods.day.start 2 %}">
     Month
   </a>
