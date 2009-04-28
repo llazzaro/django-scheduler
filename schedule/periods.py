@@ -247,8 +247,13 @@ class Week(Period):
         super(Week, self).__init__(events, start, end, 
             parent_persisted_occurrences, occurrence_pool)
     
+    def prev_week(self):
+        return self.start - datetime.timedelta(days=7)
+    prev = prev_week
+
     def next_week(self):
         return self.end
+    next = next_week
 
     def get_days(self):
         days = []
