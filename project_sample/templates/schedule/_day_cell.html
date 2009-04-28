@@ -3,18 +3,31 @@
 {% endcomment %}
 {% load scheduletags %}
 <td class="daynumber{% ifequal size "small" %} compact{% endifequal %}{% ifnotequal day.start.month month.start.month %} noday"></td>{% else %}{% if day.has_occurrences %} busy{% else %} free{% endif %}">
-<a href="{% url day_calendar calendar.slug %}{% querystring_for_date day.start 3 %}">
-    <b>{{day.start.day}}</b>
-</a><br/>
-{% ifnotequal size "small" %}
-{% if day.has_occurrences %}
-{% for o in day.get_occurrence_partials %}
-{% ifequal o.class 0 %}{{ o.occurrence.start|time:"P" }} -- {{ o.occurrence.event.title }}<br/>{% endifequal %}
-{% ifequal o.class 1 %}{{ o.occurrence.start|time:"P" }} -- {{ o.occurrence.event.title }}<br/>{% endifequal %}
-{% ifequal o.class 2 %}(All day)<br/>{{ o.occurrence.event.title }}<br/>{% endifequal %}
-{% ifequal o.class 3 %}Ends at {{ o.occurrence.end|time:"P" }} -- {{ o.occurrence.event.title }}<br/>{% endifequal %}
-{% endfor %}
-{% endif %}
-{% endifnotequal %}
+    <div class="header">
+        <a href="{% url day_calendar calendar.slug %}{% querystring_for_date day.start 3 %}">
+            <b>{{day.start.day}}</b>
+        </a>
+    </div>
+    {% ifnotequal size "small" %}
+        <div class="daycell">
+            {% if day.has_occurrences %}
+                {% for o in day.get_occurrence_partials %}
+                    {% if not o.occurrence.cancelled %}
+                        <div class="eventcell eventcell{{o.class}}">
+                            <div class="starttime">
+                                {% ifequal o.class 0 %}{{ o.occurrence.start|time:"G:i" }}{% endifequal %}
+                                {% ifequal o.class 1 %}{{ o.occurrence.start|time:"G:i" }}{% endifequal %}
+                                {% ifequal o.class 2 %}(All day){% endifequal %}
+                                {% ifequal o.class 3 %}Ends at {{ o.occurrence.end|time:"G:i" }}{% endifequal %}
+                            </div>
+                            <div class="eventdesc">
+                                {{ o.occurrence.event.title }}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endifnotequal %}
 </td>
 {% endifnotequal %}
