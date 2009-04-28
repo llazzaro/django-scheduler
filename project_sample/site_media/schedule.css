@@ -155,3 +155,38 @@ div.time-picker li.selected {
 }
 
 #id_start_1, #id_end_1 { width:80px;}
+
+td.daynumber div.header {
+  margin-bottom:2px;
+  padding-bottom:1px;
+  padding-top:1px;
+  text-align:right;
+}
+
+td.daynumber div.header a {
+  padding:1px 5px 1px 90px;
+}
+
+td.compact div.header a {
+    padding:0;
+}
+
+td.daynumber div.eventcell {
+    background:#f0f0f0;
+    border:1px dotted grey;
+    clear:both;
+    margin:0 1px 3px 1px;
+    overflow:auto;
+}
+
+td.daynumber div.starttime {
+    float:left;
+    width:40px;
+}
+
+td.daynumber div.eventdesc {
+    float:left;
+    height:1em;
+    overflow:hidden;
+    width:75px;
+}
