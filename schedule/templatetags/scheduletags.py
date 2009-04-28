@@ -223,15 +223,11 @@ def _cook_occurrences(period, occs, width, height):
     for o in occs:
         # number of overlapping occurrences
         o.max = len([n for n in occs if not(n.end<=o.start or n.start>=o.end)]) 
-    hashid = 0
-    hashbase = period.start.strftime('%Y%m%d%H%M%S')
     for o in occs:
-        o.hash = 'occ%s%d' % (hashbase, hashid)
-        hashid += 1
         o.real_start = max(o.start, period.start)
         o.real_end = min(o.end, period.end)
         # number of "columns" is a minimum number of overlaps for each overlapping group
-        o.max = min([n.max for n in occs if not(n.end<=o.start or n.start>=o.end)]) 
+        o.max = min([n.max for n in occs if not(n.end<=o.start or n.start>=o.end)] or [1]) 
         w = int(width / (o.max))
         o.width = w - 2
         o.left = w * o.level
@@ -265,3 +261,6 @@ def _cook_slots(period, increment, width, height):
         s = s + tdiff
     return slots
 
+@register.simple_tag
+def hash_occurrence(occ):
+    return '%s_%s' % (occ.start.strftime('%Y%m%d%H%M%S'), occ.event.id)
