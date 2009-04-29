@@ -1,24 +1,9 @@
 {% extends "schedule/base.html" %}
 {% load scheduletags %}
 
-{% block extra_head %}
-{{block.super}}
-<script>
-$(function() {
-$('div.occ').tooltip({
-  track: true,
-  delay: 0,
-  extraClass: "detail",
-  fixPNG: true,
-  left: 0,
-  bodyHandler:function(){return $($(this).attr("href")).html();},
-  showURL:false,
-});
-});
-</script>
-{% endblock %}
-
 {% block body %}
+
+{% include "schedule/_dialogs.html" %}
 
 <div class="navigation">
   <a href="{% url month_calendar calendar.slug %}{% querystring_for_date periods.week.start 2 %}">
@@ -49,9 +34,9 @@ $('div.occ').tooltip({
       </div>
       <div class="weekdaytable">
       {% if forloop.first %}
-          {% daily_table day 230 80 600 9 19 %}
+          {% daily_table day 230 80 600 9 21 %}
       {% else %}
-          {% daily_table day 150 15 600 9 19 %}
+          {% daily_table day 150 15 600 9 21 %}
       {% endif %}
       </div>
     </div>
