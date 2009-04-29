@@ -1,38 +1,11 @@
 {% extends "schedule/base.html" %}
 {% load scheduletags %}
 
-{% block extra_head %}
-{{block.super}}
-<script>
-function openCancelDialog(node, cancel_url, delete_url){
-  var btns = {"This":function(){window.location=cancel_url;}, "All":function(){window.location=delete_url}, "Do nothing":function(){$(this).dialog("destroy");}};
-  dia = $("#delete_dialog").dialog({'buttons':btns, 'modal':true});
-  dia.dialog('open');
-  return false;
-}
-
-function openEditDialog(node, occurrence_url, event_url){
-  var btns = {"This":function(){window.location=occurrence_url;}, "All":function(){window.location=event_url}, "Do nothing":function(){$(this).dialog("destroy");}};
-  dia = $("#edit_dialog").dialog({'buttons':btns, 'modal':true});
-  dia.dialog('open');
-  return false;
-}
-
-$(function() {
-$('div.occ').tooltip({
-  track: true,
-  delay: 0,
-  extraClass: "detail",
-  fixPNG: true,
-  left: 0,
-  bodyHandler:function(){return $($(this).attr("href")).html();},
-  showURL:false,
-});
-});
-</script>
-{% endblock %}
 
 {% block body %}
+
+{% include "schedule/_dialogs.html" %}
+
 <div class="navigation">
   <a href="{% url week_calendar calendar.slug %}{% querystring_for_date periods.day.start 3 %}">
     Week
@@ -62,14 +35,5 @@ $('div.occ').tooltip({
       {% daily_table periods.day 420 120 600 12 24 %}
     </div>
 </div>
-
-<div style="display:none;" id="delete_dialog" title="Question">
-  Do you want to cancel this occurrence or delete all occurrences of this event?
-</div>
-
-<div style="display:none;" id="edit_dialog" title="This is a recurring event">
-  Do you want to edit this occurrence or all occurrences?
-</div>
-
 
 {% endblock %}

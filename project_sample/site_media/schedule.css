@@ -66,7 +66,8 @@ div.event_options div.buttons {
 
 table.calendar {
 	border-collapse: separate;
-	border-spacing: 2px
+	border-spacing: 2px;
+  border:2px solid #f0f0f0;
 }
 
 .dateheader {
@@ -203,6 +204,7 @@ div#week div.weekdayheader {
   border:1px solid black;
   display:block;
   display:block;
+  font-size:14px;
   font-weight:bold;
   padding-left:5px;
 }
@@ -219,7 +221,7 @@ div#week div.weekday1 {
 }
 
 div#week div.slot {
-  font-size:10px;
+  font-size:14px;
 }
 
 div.weekday span.time {
@@ -228,4 +230,16 @@ div.weekday span.time {
 
 div.weekday1 span.time {
   display:inline;
+}
+
+#demo {
+  border-color:#e0e0e0;
+  border-style:solid;
+  border-width: 0 3px 3px 0;
+  float:left;
+  padding-right:5px;
+}
+
+.error {
+  border:1px solid red;
 }
