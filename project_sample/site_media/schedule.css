@@ -22,7 +22,12 @@ div.occ {
   position:absolute;
   border:1px solid red;
   background-color:#eee;
+  cursor:pointer;
   overflow:hidden;
+}
+
+div.occ a:hover {
+    background-color:gray;
 }
 
 div.type0 {
@@ -178,6 +183,7 @@ td.daynumber div.eventcell {
     background:#f0f0f0;
     border:1px dotted grey;
     clear:both;
+    cursor:pointer;
     margin:0 1px 3px 1px;
     overflow:auto;
 }
