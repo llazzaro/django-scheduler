@@ -13,7 +13,8 @@
             {% if day.has_occurrences %}
                 {% for o in day.get_occurrence_partials %}
                     {% if not o.occurrence.cancelled %}
-                        <div class="eventcell eventcell{{o.class}}" href="#{% hash_occurrence o.occurrence %}">
+                        <div class="eventcell eventcell{{o.class}}" 
+                            href="#{% hash_occurrence o.occurrence %}" onclick="openDetail(this);">
                             <div class="starttime">
                                 {% ifequal o.class 0 %}{{ o.occurrence.start|time:"G:i" }}{% endifequal %}
                                 {% ifequal o.class 1 %}{{ o.occurrence.start|time:"G:i" }}{% endifequal %}
