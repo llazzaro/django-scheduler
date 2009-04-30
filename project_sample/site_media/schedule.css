@@ -1,3 +1,5 @@
+/**** DAILY VIEW ****/
+
 div.slot_column {
   position:absolute;
   top:0px;
@@ -43,22 +45,10 @@ div.type2 {
   border-bottom:4px dotted gray;
 }
 
-#tooltip.detail {
-	font-family: Arial;
-	border: 1px solid grey;
-	width: 210px;
-	padding:10px;
-	opacity: 0.8;
-}
-#tooltip.pretty h3 {
-	margin-bottom: 0.75em;
-	font-size: 12pt;
-	width: 220px;
-	text-align: center;
-}
-#tooltip.pretty div { width: 220px; text-align: left; }
+/**** EVENT DETAIL DIALOG ****/
 
 div.detail tr {vertical-align:top;}
+
 div.detail td.left {font-weight:bold;}
 
 div.event_options div.title {
@@ -68,6 +58,8 @@ div.event_options div.title {
 div.event_options div.buttons {
   float:right;
 }
+
+/**** MONTH TABLE ****/
 
 table.calendar {
 	border-collapse: separate;
@@ -114,54 +106,6 @@ table.calendar td.compact {
 	text-align: center
 }
 
-div.navigation {
-  text-align:center;
-}
-
-div.navigation a {
-  padding:0 20px;
-}
-
-div.tablewrapper {
-    text-align:center;
-}
-
-div.calendarname {
-    font-weight:bold;
-}
-
-div.time-picker {
-    position: absolute;
-    height: 200px;
-    width:80px; /* needed for IE */
-    overflow: auto;
-    background: #fff;
-    border: 1px solid #000;
-    z-index: 99;
-}
-
-div.time-picker-12hours {
-    width:6em; /* needed for IE */
-}
-
-div.time-picker ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-
-div.time-picker li {
-    padding: 1px;
-    cursor: pointer;
-}
-
-div.time-picker li.selected {
-    background: #316AC5;
-    color: #fff;
-}
-
-#id_start_1, #id_end_1 { width:80px;}
-
 td.daynumber { height:50px;}
 
 td.daynumber div.header {
@@ -199,6 +143,8 @@ td.daynumber div.eventdesc {
     overflow:hidden;
     width:75px;
 }
+
+/**** WEEK VIEW ****/
 
 div#week {
   margin-top:10px;
@@ -238,6 +184,42 @@ div.weekday1 span.time {
   display:inline;
 }
 
+/**** FORMS AND WIDGETS ****/
+
+div.time-picker {
+    position: absolute;
+    height: 200px;
+    width:80px; /* needed for IE */
+    overflow: auto;
+    background: #fff;
+    border: 1px solid #000;
+    z-index: 99;
+}
+
+div.time-picker-12hours {
+    width:6em; /* needed for IE */
+}
+
+div.time-picker ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+div.time-picker li {
+    padding: 1px;
+    cursor: pointer;
+}
+
+div.time-picker li.selected {
+    background: #316AC5;
+    color: #fff;
+}
+
+#id_start_1, #id_end_1 { width:80px;}
+
+/**** GENERAL SETTINGS ****/
+
 #demo {
   border-color:#e0e0e0;
   border-style:solid;
@@ -246,6 +228,31 @@ div.weekday1 span.time {
   padding-right:5px;
 }
 
+body, td {font-family:sans-serif;}
+
 .error {
   border:1px solid red;
+}
+
+div.calendarname {
+  border-color:#e0e0e0;
+  border-style:solid;
+  border-width: 0 0px 3px 3px;
+  font-weight:bold;
+  padding-left:5px;
+  position:absolute;
+  right:10px;
+  top:10px;
+}
+
+div.navigation {
+  text-align:center;
+}
+
+div.navigation a {
+  padding:0 20px;
+}
+
+div.tablewrapper {
+    text-align:center;
 }
