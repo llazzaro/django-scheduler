@@ -1,13 +1,5 @@
 {% load scheduletags %}
 <table align="center" class="calendar">
-<tr class="month">
-    <td>&nbsp;</td>
-    <td colspan="6">
-        <a href="{% url month_calendar calendar.slug %}{% querystring_for_date month.start 2 %}">
-            {{month.name}}
-        </a>
-    </td>
-</tr>
 {% if day_names %}
 <tr class="daysofweek">
 <td>&nbsp;</td>

@@ -7,7 +7,11 @@
     <table align="center">
     <tr>
     {% for month in periods.year.get_months %}
-        <td valign="top">{% month_table calendar month "small" %}</td>
+        <td valign="top">
+        <a href="{% url month_calendar calendar.slug %}{% querystring_for_date month.start 2 %}">
+            {{month.name}}
+        </a>
+        {% month_table calendar month "small" %}</td>
         <td width="12">&nbsp;</td>
         {% ifequal forloop.counter 3  %}
             </tr>
