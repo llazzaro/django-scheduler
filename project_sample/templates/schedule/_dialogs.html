@@ -16,8 +16,8 @@ function openEditDialog(node, occurrence_url, event_url){
 }
 
 $(function() {
-$('div.occ').tooltip({
-  track: true,
+$('div.occ, div.eventcell').tooltip({
+  track: false,
   delay: 0,
   extraClass: "detail",
   fixPNG: true,
