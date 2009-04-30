@@ -59,6 +59,9 @@ div.event_options div.buttons {
   float:right;
 }
 
+div.occ span.actions {display:block;float:right;padding-right:3px;}
+div.occ span.actions span.edit {padding-right:3px;}
+
 /**** MONTH TABLE ****/
 
 table.calendar {
@@ -184,6 +187,8 @@ div.weekday1 span.time {
   display:inline;
 }
 
+#week div.occ span.title {font-size:12px;}
+
 /**** FORMS AND WIDGETS ****/
 
 div.time-picker {
@@ -232,6 +237,11 @@ body, td {font-family:sans-serif;}
 
 .error {
   border:1px solid red;
+}
+
+#messages {
+  position:absolute;
+  top:50px;
 }
 
 div.calendarname {
