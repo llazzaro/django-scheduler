@@ -1,4 +1,5 @@
-{{ occurrence.event.title }} &nbsp; 
+<span class="actions">
+<span class="edit">
 {% if occurrence.event.rule %}
     {% if occurrence.id %}
         <a href="#" onclick="openURL('{{ edit_occurrence }}?next={{here}}', event);">
@@ -14,7 +15,8 @@
         <img border="0" src="{{MEDIA_URL}}pencil.png" alt="Edit Event">
     </a>
 {% endif %}
-&nbsp;
+</span>
+<span class="delete">
 {% if occurrence.event.rule %}
     {% if occurrence.id %}
         <a href="#" onclick="openURL('{{cancel_occurrence}}?next={{here}}', event);">
@@ -30,4 +32,6 @@
     <img border="0" src="{{MEDIA_URL}}delete.png" alt="Delete Event">
 </a>
 {% endif %}
-<br/>
+</span>
+</span>
+<span class="title">{{ occurrence.event.title }}</span>
