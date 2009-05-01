@@ -223,6 +223,10 @@ def _cook_occurrences(period, occs, width, height):
         # number of overlapping occurrences
         o.max = len([n for n in occs if not(n.end<=o.start or n.start>=o.end)]) 
     for o in occs:
+        o_data = period.classify_occurrence(o)
+        if not o_data:
+            continue
+        o.cls = o_data['class']
         o.real_start = max(o.start, period.start)
         o.real_end = min(o.end, period.end)
         # number of "columns" is a minimum number of overlaps for each overlapping group
@@ -233,8 +237,6 @@ def _cook_occurrences(period, occs, width, height):
         o.top = int(height * (float((o.real_start - period.start).seconds) / (period.end - period.start).seconds))
         o.height = int(height * (float((o.real_end - o.real_start).seconds) / (period.end - period.start).seconds))
         o.height = min(o.height, height - o.top) # trim what extends beyond the area
-        o_data = period.classify_occurrence(o)
-        o.cls = o_data['class']
     return occs
 
 
