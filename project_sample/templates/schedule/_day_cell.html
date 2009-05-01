@@ -9,9 +9,9 @@
 {% ifnotequal size "small" %}
 {% if day.has_occurrences %}
 {% for o in day.get_occurrence_partials %}
-{% ifequal o.class 0 %}{{ o.occurrence.start|time:"P" }} -- {{ o.occurrence.event.title }}<br/>{% endifequal %}
-{% ifequal o.class 1 %}{{ o.occurrence.start|time:"P" }} -- {{ o.occurrence.event.title }}<br/>{% endifequal %}
-{% ifequal o.class 2 %}(All day)<br/>{{ o.occurrence.event.title }}<br/>{% endifequal %}
+{% ifequal o.class 0 %}{{ o.occurrence.start|time:"P" }} -- {{ o.occurrence.title }}<br/>{% endifequal %}
+{% ifequal o.class 1 %}{{ o.occurrence.start|time:"P" }} -- {{ o.occurrence.title }}<br/>{% endifequal %}
+{% ifequal o.class 2 %}(All day)<br/>{{ o.occurrence.title }}<br/>{% endifequal %}
 {% ifequal o.class 3 %}Ends at {{ o.occurrence.end|time:"P" }} -- {{ o.occurrence.event.title }}<br/>{% endifequal %}
 {% endfor %}
 {% endif %}
