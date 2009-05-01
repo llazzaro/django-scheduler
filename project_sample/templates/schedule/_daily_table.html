@@ -2,21 +2,21 @@
 <table align="center" class="calendar">
     <tr><td width="68">&nbsp;</td><td width="325">Morning Events</td></td><td width="68">&nbsp;</td><td width="325">Afternoon and Evening Events</td></tr>
     {% for am_slot, pm_slot in day_slots %}
-        <td class="compact"><small>{{ am_slot.start|time:"g:i a" }}</small></td>
-        {% if am_slot.has_occurrences %}<td class="compact busy">
+        <td class="small"><small>{{ am_slot.start|time:"g:i a" }}</small></td>
+        {% if am_slot.has_occurrences %}<td class="small busy">
             {% for o in am_slot.get_occurrence_partials %}
                 {% ifequal o.class 0 %}{% title_and_options o.occurrence %}{% endifequal %}
                 {% ifequal o.class 1 %}{% title_and_options o.occurrence %}{% endifequal %}
             {% endfor %}</td>
-        {% else %}<td class="compact free">{% create_event_url calendar am_slot.start %}</td>
+        {% else %}<td class="small free">{% create_event_url calendar am_slot.start %}</td>
         {% endif %}
-        <td class="compact"><small>{{ pm_slot.start|time:"g:i a" }}</small></td>
-        {% if pm_slot.has_occurrences %}<td class="compact busy">
+        <td class="small"><small>{{ pm_slot.start|time:"g:i a" }}</small></td>
+        {% if pm_slot.has_occurrences %}<td class="small busy">
             {% for o in pm_slot.get_occurrence_partials %}
                 {% ifequal o.class 0 %}{% title_and_options o.occurrence %}{% endifequal %}
                 {% ifequal o.class 1 %}{% title_and_options o.occurrence %}{% endifequal %}
             {% endfor %}</td>
-        {% else %}<td class="compact free">{% create_event_url calendar pm_slot.start %}</td>
+        {% else %}<td class="small free">{% create_event_url calendar pm_slot.start %}</td>
         {% endif %}
         </tr>
     {% endfor %}
