@@ -108,7 +108,7 @@ table.calendar td.busy {
 	background-color: #ffcece
 }
 
-table.calendar td.compact {
+table.calendar td.small {
 	width: 28px;
 	height: 20px;
 	text-align: center
@@ -175,7 +175,7 @@ td.daynumber div.header a {
   padding:1px 5px 1px 90px;
 }
 
-td.compact div.header a {
+td.small div.header a {
     padding:0;
 }
 
