@@ -22,7 +22,7 @@
                                 {% ifequal o.class 3 %}Ends at {{ o.occurrence.end|time:"G:i" }}{% endifequal %}
                             </div>
                             <div class="eventdesc">
-                                {{ o.occurrence.event.title }}
+                                {{ o.occurrence.title }}
                             </div>
                         </div>
                         <div id="{% hash_occurrence o.occurrence %}" style="display:none;">
