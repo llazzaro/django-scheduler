@@ -1,7 +1,6 @@
 /**** DAILY VIEW ****/
 
 div.slot_column {
-  position:absolute;
   top:0px;
   left:0px;
   border:1px solid black;
@@ -151,6 +150,7 @@ td.daynumber div.eventdesc {
 
 div#week {
   margin-top:10px;
+  overflow:auto;
   position:relative;
 }
 
