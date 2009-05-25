@@ -34,6 +34,8 @@ class UpcomingEventsFeed(Feed):
         return item.event.title
     
     def item_authors(self, item):
+        if item.event.creator is None:
+            return [{'name': ''}]
         return [{"name": item.event.creator.username}]
     
     def item_updated(self, item):

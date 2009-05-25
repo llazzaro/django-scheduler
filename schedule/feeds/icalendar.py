@@ -1,4 +1,4 @@
-from schedule.feeds import vobject
+import vobject
 
 from django.http import HttpResponse
 
