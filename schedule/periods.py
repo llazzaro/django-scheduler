@@ -79,6 +79,8 @@ class Period(object):
             return self._persisted_occurrences
 
     def classify_occurrence(self, occurrence):
+        if occurrence.cancelled and not settings.SHOW_CANCELLED_OCCURRENCES:
+            return 
         if occurrence.start > self.end or occurrence.end < self.start:
             return None
         started = False

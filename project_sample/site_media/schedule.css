@@ -31,6 +31,21 @@ div.occ a:hover {
     background-color:gray;
 }
 
+div.occ_column div.cancelled {
+  background-color:#FFF;
+  border:1px solid black;
+  color:gray;
+}
+
+div.occ_column div.cancelled .actions {
+  display:none;
+}
+
+td.daynumber div.daycell .cancelled {
+  background-color:inherit;
+  color:gray;
+}
+
 div.type0 {
   border-bottom:4px dotted gray;
 }

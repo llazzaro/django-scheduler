@@ -96,3 +96,8 @@ INSTALLED_APPS = (
 #
 #SCHEDULE_EVENT_EDITOR_TEST = _test_user_fuction
 FIRST_DAY_OF_WEEK = 1
+
+# whether to display cancelled occurrences
+# (if they are displayed then they have a css class "cancelled")
+# this controls behaviour of Period.classify_occurrence method
+SHOW_CANCELLED_OCCURRENCES = False

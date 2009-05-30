@@ -9,13 +9,12 @@
   </div>
   <div class="occ_column" style="left:{{width_slot}}px;width:{{width_occ}}px;height:{{height}}px;">
   {% for occ in occurrences %}
-    {% if not occ.cancelled %}
-      <div href="#{% hash_occurrence occ %}" class="occ type{{occ.cls}}" style="top:{{occ.top}}px;left:{{occ.left}}px;width:{{occ.width}}px;height:{{occ.height}}px;" onclick="openDetail(this);">
+      <div href="#{% hash_occurrence occ %}" class="occ type{{occ.cls}}{% if occ.cancelled %} cancelled{% endif %}" 
+      style="top:{{occ.top}}px;left:{{occ.left}}px;width:{{occ.width}}px;height:{{occ.height}}px;" onclick="openDetail(this);">
         {% title_and_options occ %}
       </div>
       <div id="{% hash_occurrence occ %}" style="display:none;">
         {% detail occ %}
       </div>
-    {% endif %}
   {% endfor %}
   </div>
