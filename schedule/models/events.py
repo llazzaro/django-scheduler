@@ -84,7 +84,7 @@ class Event(models.Model):
                 p_occ = occ_replacer.get_occurrence(
                         occ)
                 # ...but only if they are within this period
-                if p_occ.start < end and p_occ.end >= start and not p_occ.cancelled: # ...and are not cancelled
+                if p_occ.start < end and p_occ.end >= start:
                     final_occurrences.append(p_occ)
             else:
               final_occurrences.append(occ)
