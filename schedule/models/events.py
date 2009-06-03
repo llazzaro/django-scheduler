@@ -156,6 +156,8 @@ class Event(models.Model):
         difference = self.end - self.start
         while True:
             o_start = date_iter.next()
+            if o_start > self.end_recurring_period:
+                raise StopIteration
             o_end = o_start + difference
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)
@@ -436,5 +438,3 @@ class Occurrence(models.Model):
     
     def __eq__(self, other):
         return self.event == other.event and self.original_start == other.original_start and self.original_end == other.original_end
-    
-    

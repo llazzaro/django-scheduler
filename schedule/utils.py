@@ -1,7 +1,6 @@
 import datetime
 import heapq
 
-
 class EventListManager(object):
     """
     This class is responsible for doing functions on a list of events. It is
@@ -40,7 +39,7 @@ class EventListManager(object):
             try:
                 next = heapq.heapreplace(occurrences, (generator.next(), generator))[0]
             except StopIteration:
-                next = heapq.heappop(occurrences)
+                next = heapq.heappop(occurrences)[0]
             yield occ_replacer.get_occurrence(next)
     
 
@@ -73,4 +72,3 @@ class OccurrenceReplacer(object):
         Return persisted occurrences which are now in the period
         """
         return [occ for key,occ in self.lookup.items() if (occ.start < end and occ.end >= start and not occ.cancelled)]
-        
