@@ -1,5 +1,8 @@
 import datetime
 import heapq
+from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponseRedirect
+from django.conf import settings
 
 class EventListManager(object):
     """
@@ -72,3 +75,22 @@ class OccurrenceReplacer(object):
         Return persisted occurrences which are now in the period
         """
         return [occ for key,occ in self.lookup.items() if (occ.start < end and occ.end >= start and not occ.cancelled)]
+
+
+class check_event_permissions(object):
+
+    def __init__(self, f):
+        self.f = f
+        self.contenttype = ContentType.objects.get(app_label='schedule', model='event')
+
+    def __call__(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_anonymous():
+            return HttpResponseRedirect(settings.LOGIN_URL)
+        object_id = kwargs['event_id']
+        obj = self.contenttype.get_object_for_this_type(pk=object_id)
+        allowed = settings.CHECK_PERMISSION_FUNC(obj, user)
+        if not allowed:
+            return HttpResponseRedirect(settings.LOGIN_URL)
+        return self.f(request, *args, **kwargs)
+

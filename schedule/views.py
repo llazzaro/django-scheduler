@@ -13,6 +13,7 @@ import datetime
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import *
 from schedule.periods import weekday_names
+from schedule.utils import check_event_permissions
 
 def calendar(request, calendar_slug, template='schedule/calendar.html'):
     """
@@ -153,6 +154,7 @@ def edit_occurrence(request, event_id,
     }, context_instance=RequestContext(request))
 
 
+@check_event_permissions
 def cancel_occurrence(request, event_id, 
     template_name='schedule/cancel_occurrence.html', *args, **kwargs):
     """
@@ -195,7 +197,7 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
     return event, occurrence
 
 
-@login_required
+@check_event_permissions
 def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
     template_name='schedule/create_event.html'):
     """
@@ -270,6 +272,7 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
     }, context_instance=RequestContext(request))
 
 
+@check_event_permissions
 def delete_event(request, event_id, next=None, login_required=True):
     """
     After the event is deleted there are three options for redirect, tried in
