@@ -203,13 +203,10 @@ def _cook_occurrences(period, occs, width, height):
     last = {}
     # find out which occurrences overlap
     for o in occs:
-<<<<<<< HEAD:schedule/templatetags/scheduletags.py
         o.data = period.classify_occurrence(o)
         if not o.data:
             occs.remove(o)
             continue
-=======
->>>>>>> e7259336f2541c1ed5f3fecd94e9393d01adcdbd:schedule/templatetags/scheduletags.py
         o.level = -1
         o.max = 0
         if not last:
@@ -230,14 +227,7 @@ def _cook_occurrences(period, occs, width, height):
         # number of overlapping occurrences
         o.max = len([n for n in occs if not(n.end<=o.start or n.start>=o.end)]) 
     for o in occs:
-<<<<<<< HEAD:schedule/templatetags/scheduletags.py
         o.cls = o.data['class']
-=======
-        o_data = period.classify_occurrence(o)
-        if not o_data:
-            continue
-        o.cls = o_data['class']
->>>>>>> e7259336f2541c1ed5f3fecd94e9393d01adcdbd:schedule/templatetags/scheduletags.py
         o.real_start = max(o.start, period.start)
         o.real_end = min(o.end, period.end)
         # number of "columns" is a minimum number of overlaps for each overlapping group
