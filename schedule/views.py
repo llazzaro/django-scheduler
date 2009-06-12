@@ -135,6 +135,7 @@ def occurrence(request, event_id,
     }, context_instance=RequestContext(request))
 
 
+@check_event_permissions
 def edit_occurrence(request, event_id, 
     template_name="schedule/edit_occurrence.html", *args, **kwargs):
     event, occurrence = get_occurrence(event_id, *args, **kwargs)

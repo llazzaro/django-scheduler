@@ -3,7 +3,9 @@
     {% for slot in slots %}
     <div class="slot" style="top:{{slot.top}}px;height:{{slot.height}}px;width:{{width}}px;">
       <span class="time">{{ slot.start|time:"G:i" }}</span>
+      {% if addable %}
       {% create_event_url calendar slot.start %}
+      {% endif %}
     </div>
     {% endfor %}
   </div>

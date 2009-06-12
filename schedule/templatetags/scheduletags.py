@@ -46,6 +46,8 @@ def daily_table( context, day, width, width_slot, height, start=8, end=20, incre
       end - hour at which the day ends
       increment - size of a time slot (in minutes)
     """
+    user = context['request'].user
+    context['addable'] = settings.CHECK_PERMISSION_FUNC(None, user)
     width_occ = width - width_slot
     day_part = day.get_time_slot(day.start  + datetime.timedelta(hours=start), day.start  + datetime.timedelta(hours=end))
     occurrences = day_part.get_occurrences()
@@ -67,10 +69,13 @@ def title_and_options(context, occurrence ):
         'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
     })
     context['view_occurrence'] = occurrence.get_absolute_url()
-    context['edit_occurrence'] = occurrence.get_edit_url()
-    context['cancel_occurrence'] = occurrence.get_cancel_url()
-    context['delete_event'] = reverse('delete_event', args=(occurrence.event.id,))
-    context['edit_event'] = reverse('edit_event', args=(occurrence.event.calendar.slug, occurrence.event.id,))
+    user = context['request'].user
+    if settings.CHECK_PERMISSION_FUNC(occurrence.event, user):
+        context['edit_occurrence'] = occurrence.get_edit_url()
+        print context['edit_occurrence']
+        context['cancel_occurrence'] = occurrence.get_cancel_url()
+        context['delete_event'] = reverse('delete_event', args=(occurrence.event.id,))
+        context['edit_event'] = reverse('edit_event', args=(occurrence.event.calendar.slug, occurrence.event.id,))
     return context
 
 @register.inclusion_tag("schedule/_create_event_options.html", takes_context=True)

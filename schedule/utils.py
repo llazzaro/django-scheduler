@@ -85,10 +85,8 @@ class check_event_permissions(object):
 
     def __call__(self, request, *args, **kwargs):
         user = request.user
-        if user.is_anonymous():
-            return HttpResponseRedirect(settings.LOGIN_URL)
-        object_id = kwargs['event_id']
-        obj = self.contenttype.get_object_for_this_type(pk=object_id)
+        object_id = kwargs.get('event_id', 0)
+        obj = object_id and self.contenttype.get_object_for_this_type(pk=object_id) or None
         allowed = settings.CHECK_PERMISSION_FUNC(obj, user)
         if not allowed:
             return HttpResponseRedirect(settings.LOGIN_URL)

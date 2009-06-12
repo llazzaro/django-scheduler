@@ -86,18 +86,26 @@ INSTALLED_APPS = (
     'schedule',
     'schedule_tests',
 )
-# Show how to change the user test allowing to edit content
 
-#def _test_user_fuction(user):
-#    test_result = False
-#    if user.is_staff:
-#        test_result = True
-#    return test_result
-#
-#SCHEDULE_EVENT_EDITOR_TEST = _test_user_fuction
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.core.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.request",
+)
+
 FIRST_DAY_OF_WEEK = 1
 
 # whether to display cancelled occurrences
 # (if they are displayed then they have a css class "cancelled")
 # this controls behaviour of Period.classify_occurrence method
 SHOW_CANCELLED_OCCURRENCES = False
+
+# method to check if a user has edit permissions to event (and occurrence)
+# used by check_edit_permission decorator
+# if ob==None we check permission to add events
+def check_edit_permission(ob, user):
+    return user.is_authenticated()
+
+CHECK_PERMISSION_FUNC = check_edit_permission
