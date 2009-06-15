@@ -76,6 +76,8 @@ def title_and_options(context, occurrence ):
         context['cancel_occurrence'] = occurrence.get_cancel_url()
         context['delete_event'] = reverse('delete_event', args=(occurrence.event.id,))
         context['edit_event'] = reverse('edit_event', args=(occurrence.event.calendar.slug, occurrence.event.id,))
+    else:
+        context['edit_event'] = context['delete_event'] = ''
     return context
 
 @register.inclusion_tag("schedule/_create_event_options.html", takes_context=True)
