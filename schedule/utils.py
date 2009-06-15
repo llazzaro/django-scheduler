@@ -92,3 +92,29 @@ class check_event_permissions(object):
             return HttpResponseRedirect(settings.LOGIN_URL)
         return self.f(request, *args, **kwargs)
 
+
+def coerce_date_dict(date_dict):
+    """
+    given a dictionary (presumed to be from request.GET) it returns a tuple 
+    that represents a date. It will return from year down to seconds until one
+    is not found.  ie if year, month, and seconds are in the dictionary, only 
+    year and month will be returned, the rest will be returned as min. If none
+    of the parts are found return an empty tuple.
+    """
+    keys = ['year', 'month', 'day', 'hour', 'minute', 'second']
+    retVal = {
+                'year': 1,
+                'month': 1,
+                'day': 1,
+                'hour': 0,
+                'minute': 0,
+                'second': 0}
+    modified = False
+    for key in keys:
+        try:
+            retVal[key] = int(date_dict[key])
+            modified = True
+        except KeyError:
+            break
+    return modified and retVal or {}
+

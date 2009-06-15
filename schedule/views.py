@@ -13,7 +13,7 @@ import datetime
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import *
 from schedule.periods import weekday_names
-from schedule.utils import check_event_permissions
+from schedule.utils import check_event_permissions, coerce_date_dict
 
 def calendar(request, calendar_slug, template='schedule/calendar.html'):
     """
@@ -304,31 +304,6 @@ def check_next_url(next):
         return None
     return next
     
-def coerce_date_dict(date_dict):
-    """
-    given a dictionary (presumed to be from request.GET) it returns a tuple 
-    that represents a date. It will return from year down to seconds until one
-    is not found.  ie if year, month, and seconds are in the dictionary, only 
-    year and month will be returned, the rest will be returned as min. If none
-    of the parts are found return an empty tuple.
-    """
-    keys = ['year', 'month', 'day', 'hour', 'minute', 'second']
-    retVal = {
-                'year': 1,
-                'month': 1,
-                'day': 1,
-                'hour': 0,
-                'minute': 0,
-                'second': 0}
-    modified = False
-    for key in keys:
-        try:
-            retVal[key] = int(date_dict[key])
-            modified = True
-        except KeyError:
-            break
-    return modified and retVal or {}
-
 def get_next_url(request, default):
     next = default
     if hasattr(settings, 'OCCURRENCE_CANCEL_REDIRECT'):

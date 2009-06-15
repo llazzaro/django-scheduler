@@ -29,6 +29,17 @@ function openURL(url, event){
     window.location=url;
 }
 
+$(function() {
+    $('div.eventcell').tooltip({
+          track: true,
+          delay: 0,
+          extraClass: "detail",
+          fixPNG: true,
+          left: 0,
+          bodyHandler:function(){return $($(this).attr("href")).html();},
+          showURL:false,
+    });
+});
 </script>
 {% endblock %}
 

@@ -1,22 +1,7 @@
 {% extends "schedule/base.html" %}
 {% load scheduletags %}
 
-    {{block.super}}
-    <script>
-    $(function() {
-    $('div.eventcell').tooltip({
-      track: true,
-      delay: 0,
-      extraClass: "detail",
-      fixPNG: true,
-      left: 0,
-      bodyHandler:function(){return $($(this).attr("href")).html();},
-      showURL:false,
-    });
-    });
-    </script>
-
-{% block body %}
+ {% block body %}
 {% include "schedule/_dialogs.html" %}
 <div class="tablewrapper">
   <div class="calendarname">{{ calendar.name }}</div>
