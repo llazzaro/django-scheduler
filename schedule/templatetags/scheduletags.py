@@ -8,30 +8,31 @@ from schedule.periods import weekday_names, weekday_abbrs,  Month
 
 register = template.Library()
 
-@register.inclusion_tag("schedule/_month_table.html")
-def month_table( calendar, month, size="regular", shift=None):
+@register.inclusion_tag("schedule/_month_table.html",  takes_context=True)
+def month_table(context,  calendar, month, size="regular", shift=None):
     if shift:
         if shift == -1:
             month = Month(calendar.events.all(), month.prev())
         if shift == 1:
             month = Month(calendar.events.all(), month.next())
     if size == "small":
-        context = {'day_names':weekday_abbrs}
+        context['day_names']  = weekday_abbrs
     else:
-        context = {'day_names':weekday_names}
+        context['day_names']  = weekday_names
     context['calendar'] = calendar
     context['month'] = month
     context['size'] = size
     return context
 
-@register.inclusion_tag("schedule/_day_cell.html")
-def day_cell( calendar, day, month, size="regular" ):
-    return {
+@register.inclusion_tag("schedule/_day_cell.html",  takes_context=True)
+def day_cell(context,  calendar, day, month, size="regular" ):
+    context.update({
         'calendar' : calendar,
         'day' : day,
         'month' : month,
         'size' : size
-    }
+    })
+    return context
 
 
 @register.inclusion_tag("schedule/_daily_table.html", takes_context=True)
@@ -62,8 +63,15 @@ def daily_table( context, day, width, width_slot, height, start=8, end=20, incre
     context['height'] = height
     return context
 
+@register.inclusion_tag("schedule/_event_title.html", takes_context=True)
+def title(context, occurrence ):
+    context.update({
+        'occurrence' : occurrence,
+    })
+    return context
+
 @register.inclusion_tag("schedule/_event_options.html", takes_context=True)
-def title_and_options(context, occurrence ):
+def options(context, occurrence ):
     context.update({
         'occurrence' : occurrence,
         'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
