@@ -109,3 +109,14 @@ def check_edit_permission(ob, user):
     return user.is_authenticated()
 
 CHECK_PERMISSION_FUNC = check_edit_permission
+
+# method to get event list for a calendar and user
+def get_events(request, calendar):
+    """
+        This can be replaced to get event list for displaying occurrences in a custom way
+        (e.g. from multiple calendars or with permission-based filter)
+        Imports have to be placed within the function body to avoid circular imports
+    """
+    return calendar.objects.all()
+
+GET_EVENTS_FUNC = get_events

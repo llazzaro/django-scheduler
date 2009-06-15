@@ -75,7 +75,8 @@ def calendar_by_periods(request, calendar_slug, periods=None,
             raise Http404
     else:
         date = datetime.datetime.now()
-    period_objects = dict([(period.__name__.lower(), period(calendar.events.all(), date)) for period in periods])
+    event_list = settings.GET_EVENTS_FUNC(request, calendar)
+    period_objects = dict([(period.__name__.lower(), period(event_list, date)) for period in periods])
     return render_to_response(template_name,{
             'date': date,
             'periods': period_objects,
