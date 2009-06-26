@@ -117,6 +117,6 @@ def get_events(request, calendar):
         (e.g. from multiple calendars or with permission-based filter)
         Imports have to be placed within the function body to avoid circular imports
     """
-    return calendar.objects.all()
+    return calendar.event_set.all()
 
 GET_EVENTS_FUNC = get_events
