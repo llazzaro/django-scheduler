@@ -95,28 +95,4 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
 )
 
-FIRST_DAY_OF_WEEK = 1
-
-# whether to display cancelled occurrences
-# (if they are displayed then they have a css class "cancelled")
-# this controls behaviour of Period.classify_occurrence method
-SHOW_CANCELLED_OCCURRENCES = False
-
-# method to check if a user has edit permissions to event (and occurrence)
-# used by check_edit_permission decorator
-# if ob==None we check permission to add events
-def check_edit_permission(ob, user):
-    return user.is_authenticated()
-
-CHECK_PERMISSION_FUNC = check_edit_permission
-
-# method to get event list for a calendar and user
-def get_events(request, calendar):
-    """
-        This can be replaced to get event list for displaying occurrences in a custom way
-        (e.g. from multiple calendars or with permission-based filter)
-        Imports have to be placed within the function body to avoid circular imports
-    """
-    return calendar.event_set.all()
-
-GET_EVENTS_FUNC = get_events
+FIRST_DAY_OF_WEEK = 1 # Monday
