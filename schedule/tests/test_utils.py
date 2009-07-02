@@ -30,7 +30,7 @@ class TestEventListManager(TestCase):
                 'title': 'Recent Event',
                 'start': datetime.datetime(2008, 1, 5, 9, 0),
                 'end': datetime.datetime(2008, 1, 5, 10, 0),
-                'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
+                'end_recurring_period' : datetime.datetime(2009, 5, 5, 0, 0),
                 'rule': daily,
                 'calendar': cal
                })
