@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
+from schedule.conf.settings import FIRST_DAY_OF_WEEK
 from schedule.models import Event, Rule, Occurrence, Calendar
 from schedule.periods import Period, Month, Day, Year
 from schedule.utils import EventListManager
@@ -92,19 +93,37 @@ class TestMonth(TestCase):
 
     def test_get_weeks(self):
         weeks = self.month.get_weeks()
-        self.assertEqual([(week.start,week.end) for week in weeks],
-            [
+        actuals = [(week.start,week.end) for week in weeks]
+
+        if FIRST_DAY_OF_WEEK == 0:
+            expecteds = [
+                (datetime.datetime(2008, 1, 27, 0, 0),
+                 datetime.datetime(2008, 2, 3, 0, 0)),
+                (datetime.datetime(2008, 2, 3, 0, 0),
+                 datetime.datetime(2008, 2, 10, 0, 0)),
+                (datetime.datetime(2008, 2, 10, 0, 0),
+                 datetime.datetime(2008, 2, 17, 0, 0)),
+                (datetime.datetime(2008, 2, 17, 0, 0),
+                 datetime.datetime(2008, 2, 24, 0, 0)),
+                (datetime.datetime(2008, 2, 24, 0, 0),
+                 datetime.datetime(2008, 3, 2, 0, 0))
+            ]
+        else:
+            expecteds = [
                 (datetime.datetime(2008, 1, 28, 0, 0),
-                datetime.datetime(2008, 2, 4, 0, 0)),
+                 datetime.datetime(2008, 2, 4, 0, 0)),
                 (datetime.datetime(2008, 2, 4, 0, 0),
-                datetime.datetime(2008, 2, 11, 0, 0)),
+                 datetime.datetime(2008, 2, 11, 0, 0)),
                 (datetime.datetime(2008, 2, 11, 0, 0),
                  datetime.datetime(2008, 2, 18, 0, 0)),
                 (datetime.datetime(2008, 2, 18, 0, 0),
                  datetime.datetime(2008, 2, 25, 0, 0)),
                 (datetime.datetime(2008, 2, 25, 0, 0),
                  datetime.datetime(2008, 3, 3, 0, 0))
-            ])
+            ]
+
+        for actual, expected in zip(actuals, expecteds):
+            self.assertEqual(actual, expected)
 
     def test_get_days(self):
         weeks = self.month.get_weeks()
@@ -112,22 +131,41 @@ class TestMonth(TestCase):
         days = week.get_days()
         actuals = [(len(day.occurrences), day.start,day.end) for day in days]
 
-        expecteds = [
-            (0, datetime.datetime(2008, 1, 28, 0, 0),
-             datetime.datetime(2008, 1, 29, 0, 0)),
-            (0, datetime.datetime(2008, 1, 29, 0, 0),
-             datetime.datetime(2008, 1, 30, 0, 0)),
-            (0, datetime.datetime(2008, 1, 30, 0, 0),
-             datetime.datetime(2008, 1, 31, 0, 0)),
-            (0, datetime.datetime(2008, 1, 31, 0, 0),
-             datetime.datetime(2008, 2, 1, 0, 0)),
-            (0, datetime.datetime(2008, 2, 1, 0, 0),
-             datetime.datetime(2008, 2, 2, 0, 0)),
-            (1, datetime.datetime(2008, 2, 2, 0, 0),
-             datetime.datetime(2008, 2, 3, 0, 0)),
-            (0, datetime.datetime(2008, 2, 3, 0, 0),
-             datetime.datetime(2008, 2, 4, 0, 0))
-        ]
+        if FIRST_DAY_OF_WEEK == 0:
+            expecteds = [
+                (0, datetime.datetime(2008, 1, 27, 0, 0),
+                 datetime.datetime(2008, 1, 28, 0, 0))
+                (0, datetime.datetime(2008, 1, 28, 0, 0),
+                 datetime.datetime(2008, 1, 29, 0, 0)),
+                (0, datetime.datetime(2008, 1, 29, 0, 0),
+                 datetime.datetime(2008, 1, 30, 0, 0)),
+                (0, datetime.datetime(2008, 1, 30, 0, 0),
+                 datetime.datetime(2008, 1, 31, 0, 0)),
+                (0, datetime.datetime(2008, 1, 31, 0, 0),
+                 datetime.datetime(2008, 2, 1, 0, 0)),
+                (0, datetime.datetime(2008, 2, 1, 0, 0),
+                 datetime.datetime(2008, 2, 2, 0, 0)),
+                (1, datetime.datetime(2008, 2, 2, 0, 0),
+                 datetime.datetime(2008, 2, 3, 0, 0)),
+            ]
+
+        else:
+            expecteds = [
+                (0, datetime.datetime(2008, 1, 28, 0, 0),
+                 datetime.datetime(2008, 1, 29, 0, 0)),
+                (0, datetime.datetime(2008, 1, 29, 0, 0),
+                 datetime.datetime(2008, 1, 30, 0, 0)),
+                (0, datetime.datetime(2008, 1, 30, 0, 0),
+                 datetime.datetime(2008, 1, 31, 0, 0)),
+                (0, datetime.datetime(2008, 1, 31, 0, 0),
+                 datetime.datetime(2008, 2, 1, 0, 0)),
+                (0, datetime.datetime(2008, 2, 1, 0, 0),
+                 datetime.datetime(2008, 2, 2, 0, 0)),
+                (1, datetime.datetime(2008, 2, 2, 0, 0),
+                 datetime.datetime(2008, 2, 3, 0, 0)),
+                (0, datetime.datetime(2008, 2, 3, 0, 0),
+                 datetime.datetime(2008, 2, 4, 0, 0))
+            ]
 
         for actual, expected in zip(actuals, expecteds):
             self.assertEqual(actual, expected)
