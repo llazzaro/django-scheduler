@@ -86,8 +86,11 @@ class check_event_permissions(object):
 
     def __call__(self, request, *args, **kwargs):
         user = request.user
-        object_id = kwargs.get('event_id', 0)
-        obj = object_id and self.contenttype.get_object_for_this_type(pk=object_id) or None
+        object_id = kwargs.get('event_id', None)
+        try:
+            obj = self.contenttype.get_object_for_this_type(pk=object_id)
+        except self.contenttype.model_class().DoesNotExist:
+            obj = None
         allowed = CHECK_PERMISSION_FUNC(obj, user)
         if not allowed:
             return HttpResponseRedirect(settings.LOGIN_URL)

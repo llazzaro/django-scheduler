@@ -61,7 +61,7 @@ class TestUrls(TestCase):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context[0]["calendar"].name,
                          "Example Calendar")
-        month = self.response.context[0]["month"]
+        month = self.response.context[0]["periods"]['month']
         self.assertEqual((month.start, month.end),
                          (datetime.datetime(2000, 11, 1, 0, 0), datetime.datetime(2000, 12, 1, 0, 0)))
 
@@ -89,7 +89,7 @@ class TestUrls(TestCase):
         self.assertEqual(self.response.status_code, 302)
 
         highest_event_id = self.highest_event_id
-        highest_even_id += 1
+        highest_event_id += 1
         self.response = c.get(reverse("event",
                                       kwargs={"event_id":highest_event_id}), {})
         self.assertEqual(self.response.status_code, 200)
@@ -107,7 +107,6 @@ class TestUrls(TestCase):
     def test_delete_event_authenticated_user(self):
         c.login(username="admin", password="admin")
 
-        assert(False)
         # Load the deletion page
         self.response = c.get(reverse("delete_event",kwargs={"event_id":1}), {})
         self.assertEqual(self.response.status_code, 200)

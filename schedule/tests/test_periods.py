@@ -89,6 +89,7 @@ class TestMonth(TestCase):
         recurring_event.save()
         self.month = Month(events=Event.objects.all(),
                            date=datetime.datetime(2008, 2, 7, 9, 0))
+
     def test_get_weeks(self):
         weeks = self.month.get_weeks()
         self.assertEqual([(week.start,week.end) for week in weeks],
