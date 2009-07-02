@@ -10,6 +10,13 @@ FIRST_DAY_OF_WEEK
 
 This setting determines which day of the week your calendar begins on if your locale doesn't already set it. Default is 1, which is Monday.
 
+.. _ref-settings-OCCURRENCE_CANCEL_REDIRECT:
+
+OCCURRENCE_CANCEL_REDIRECT
+--------------------------
+
+This setting controls the behavior of :func:`Views.get_next_url`. If set, all calendar modifications will redirect here (unless there is a `next` set in the request.)
+
 .. _ref-settings-show-cancelled-occurrences:
 
 SHOW_CANCELLED_OCCURRENCES
