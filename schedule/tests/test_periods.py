@@ -94,42 +94,44 @@ class TestMonth(TestCase):
         weeks = self.month.get_weeks()
         self.assertEqual([(week.start,week.end) for week in weeks],
             [
-                (datetime.datetime(2008, 1, 27, 0, 0),
-                datetime.datetime(2008, 2, 3, 0, 0)),
-                (datetime.datetime(2008, 2, 3, 0, 0),
-                datetime.datetime(2008, 2, 10, 0, 0)),
-                (datetime.datetime(2008, 2, 10, 0, 0),
-                 datetime.datetime(2008, 2, 17, 0, 0)),
-                (datetime.datetime(2008, 2, 17, 0, 0),
-                 datetime.datetime(2008, 2, 24, 0, 0)),
-                (datetime.datetime(2008, 2, 24, 0, 0),
-                 datetime.datetime(2008, 3, 2, 0, 0))
+                (datetime.datetime(2008, 1, 28, 0, 0),
+                datetime.datetime(2008, 2, 4, 0, 0)),
+                (datetime.datetime(2008, 2, 4, 0, 0),
+                datetime.datetime(2008, 2, 11, 0, 0)),
+                (datetime.datetime(2008, 2, 11, 0, 0),
+                 datetime.datetime(2008, 2, 18, 0, 0)),
+                (datetime.datetime(2008, 2, 18, 0, 0),
+                 datetime.datetime(2008, 2, 25, 0, 0)),
+                (datetime.datetime(2008, 2, 25, 0, 0),
+                 datetime.datetime(2008, 3, 3, 0, 0))
             ])
 
     def test_get_days(self):
         weeks = self.month.get_weeks()
         week = weeks[0]
         days = week.get_days()
-        self.assertEqual(
-            [
-                (len(day.occurrences), day.start,day.end) for day in days
-            ],
-            [
-                (0, datetime.datetime(2008, 1, 27, 0, 0),
-                 datetime.datetime(2008, 1, 28, 0, 0)),
-                (0, datetime.datetime(2008, 1, 28, 0, 0),
-                 datetime.datetime(2008, 1, 29, 0, 0)),
-                (0, datetime.datetime(2008, 1, 29, 0, 0),
-                 datetime.datetime(2008, 1, 30, 0, 0)),
-                (0, datetime.datetime(2008, 1, 30, 0, 0),
-                 datetime.datetime(2008, 1, 31, 0, 0)),
-                (0, datetime.datetime(2008, 1, 31, 0, 0),
-                 datetime.datetime(2008, 2, 1, 0, 0)),
-                (0, datetime.datetime(2008, 2, 1, 0, 0),
-                 datetime.datetime(2008, 2, 2, 0, 0)),
-                (1, datetime.datetime(2008, 2, 2, 0, 0),
-                 datetime.datetime(2008, 2, 3, 0, 0))]
-            )
+        actuals = [(len(day.occurrences), day.start,day.end) for day in days]
+
+        expecteds = [
+            (0, datetime.datetime(2008, 1, 28, 0, 0),
+             datetime.datetime(2008, 1, 29, 0, 0)),
+            (0, datetime.datetime(2008, 1, 29, 0, 0),
+             datetime.datetime(2008, 1, 30, 0, 0)),
+            (0, datetime.datetime(2008, 1, 30, 0, 0),
+             datetime.datetime(2008, 1, 31, 0, 0)),
+            (0, datetime.datetime(2008, 1, 31, 0, 0),
+             datetime.datetime(2008, 2, 1, 0, 0)),
+            (0, datetime.datetime(2008, 2, 1, 0, 0),
+             datetime.datetime(2008, 2, 2, 0, 0)),
+            (1, datetime.datetime(2008, 2, 2, 0, 0),
+             datetime.datetime(2008, 2, 3, 0, 0)),
+            (0, datetime.datetime(2008, 2, 3, 0, 0),
+             datetime.datetime(2008, 2, 4, 0, 0))
+        ]
+
+        for actual, expected in zip(actuals, expecteds):
+            self.assertEqual(actual, expected)
+
 
     def test_month_convenience_functions(self):
         self.assertEqual( self.month.prev_month(), datetime.datetime(2008, 1, 1, 0, 0))

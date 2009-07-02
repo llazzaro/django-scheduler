@@ -53,7 +53,7 @@ class Period(object):
 
     def cached_get_sorted_occurrences(self):
         if hasattr(self, '_occurrences'):
-             return self._occurrences
+            return self._occurrences
         occs = self._get_sorted_occurrences()
         self._occurrences = occs
         return occs
