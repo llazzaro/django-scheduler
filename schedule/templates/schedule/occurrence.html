@@ -1,0 +1,42 @@
+{% extends "schedule/base.html" %}
+{% load i18n %}
+{% load scheduletags %}
+
+{% block body %}
+<div class="navigation">
+  <a href="{% url day_calendar occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 %}">
+    Day
+  </a>
+  <a href="{% url month_calendar occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 %}">
+    Month
+  </a>
+</div>
+<div class="event_actions" align="center">
+	{% if back_url %}
+	<a href="{{ back_url }}"><img border="0" src="{{ MEDIA_URL }}left_mod.png" alt="{% trans "Back" %}"></a> &nbsp;
+	{% endif %}
+	<a href="{{occurrence.get_edit_url}}"><img border="0" src="{{ MEDIA_URL }}pencil.png" alt="{% trans "Change" %}"></a> &nbsp;
+	<a href="{{occurrence.get_cancel_url}}"><img border="0" src="{{ MEDIA_URL }}delete.png" alt="{% trans "Cancel" %}"></a>
+</div>
+<h2 align="center">{{occurrence.title}}</h2>
+<table align="center">
+<tr>
+<td>Starts</td>
+<td>{% blocktrans with occurrence.start|date:_("DATETIME_FORMAT") as start_date %}{{ start_date }}{% endblocktrans %}</td>
+</tr>
+<tr>
+<td>Ends</td>
+<td>{% blocktrans with occurrence.end|date:_("DATETIME_FORMAT") as end_date %}{{ end_date }}{% endblocktrans %}</td>
+</tr>
+{% if occurrence.event.rule %}
+<tr>
+<td>Reoccurs</td><td>{{event.rule}}</td>
+</tr>
+{% endif %}
+</table>
+{% if occurrence.description %}
+<h3>Description</h3>
+<p>{{occurrence.description}}</p>
+{% endif %}
+
+{% endblock %}
