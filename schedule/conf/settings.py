@@ -10,7 +10,7 @@ try:
     FIRST_DAY_OF_WEEK = int(fdow)
 except ValueError:
     # Let's try our settings
-    fdow = settings.get('FIRST_DAY_OF_WEEK', fdow_default)
+    fdow = getattr(settings, 'FIRST_DAY_OF_WEEK', fdow_default)
     FIRST_DAY_OF_WEEK = int(fdow)
 except ValueError:
     raise ImproperlyConfigured("FIRST_DAY_OF_WEEK must be an integer between 0 and 6")
