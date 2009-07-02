@@ -15,6 +15,7 @@ DjangoSchedule is an open-source calendaring application.
     template_tags
     views
     models
+    settings
 
 
 Indices and tables
