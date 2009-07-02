@@ -2,7 +2,6 @@ import datetime
 import os
 
 from django.test import TestCase
-from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from schedule.forms import GlobalSplitDateTimeWidget
@@ -18,7 +17,7 @@ class TestEventListManager(TestCase):
         daily.save()
         cal = Calendar(name="MyCal")
         cal.save()
-        
+
         self.event1 = Event(**{
                 'title': 'Weekly Event',
                 'start': datetime.datetime(2009, 4, 1, 8, 0),
@@ -37,7 +36,7 @@ class TestEventListManager(TestCase):
                 'calendar': cal
                })
         self.event2.save()
-    
+
     def test_occurrences_after(self):
         eml = EventListManager([self.event1, self.event2])
         occurrences = eml.occurrences_after(datetime.datetime(2009,4,1,0,0))

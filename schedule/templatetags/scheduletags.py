@@ -3,6 +3,7 @@ from django.conf import settings
 from django import template
 from django.core.urlresolvers import reverse
 from django.utils.dateformat import format
+from schedule.conf.settings import CHECK_PERMISSION_FUNC
 from schedule.models import Calendar
 from schedule.periods import weekday_names, weekday_abbrs,  Month
 
@@ -48,7 +49,7 @@ def daily_table( context, day, width, width_slot, height, start=8, end=20, incre
       increment - size of a time slot (in minutes)
     """
     user = context['request'].user
-    context['addable'] = settings.CHECK_PERMISSION_FUNC(None, user)
+    context['addable'] = CHECK_PERMISSION_FUNC(None, user)
     width_occ = width - width_slot
     day_part = day.get_time_slot(day.start  + datetime.timedelta(hours=start), day.start  + datetime.timedelta(hours=end))
     occurrences = day_part.get_occurrences()
@@ -78,7 +79,7 @@ def options(context, occurrence ):
     })
     context['view_occurrence'] = occurrence.get_absolute_url()
     user = context['request'].user
-    if settings.CHECK_PERMISSION_FUNC(occurrence.event, user):
+    if CHECK_PERMISSION_FUNC(occurrence.event, user):
         context['edit_occurrence'] = occurrence.get_edit_url()
         print context['edit_occurrence']
         context['cancel_occurrence'] = occurrence.get_cancel_url()
@@ -240,13 +241,13 @@ def _cook_occurrences(period, occs, width, height):
     # calculate position and dimensions
     for o in occs:
         # number of overlapping occurrences
-        o.max = len([n for n in occs if not(n.end<=o.start or n.start>=o.end)]) 
+        o.max = len([n for n in occs if not(n.end<=o.start or n.start>=o.end)])
     for o in occs:
         o.cls = o.data['class']
         o.real_start = max(o.start, period.start)
         o.real_end = min(o.end, period.end)
         # number of "columns" is a minimum number of overlaps for each overlapping group
-        o.max = min([n.max for n in occs if not(n.end<=o.start or n.start>=o.end)] or [1]) 
+        o.max = min([n.max for n in occs if not(n.end<=o.start or n.start>=o.end)] or [1])
         w = int(width / (o.max))
         o.width = w - 2
         o.left = w * o.level

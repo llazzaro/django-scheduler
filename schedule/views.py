@@ -7,9 +7,9 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.generic.create_update import delete_object
-from django.conf import settings
 import datetime
 
+from schedule.conf.settings import GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import *
 from schedule.periods import weekday_names
@@ -21,9 +21,9 @@ def calendar(request, calendar_slug, template='schedule/calendar.html'):
     interested in the meta data of a calendar, not if you want to display a
     calendar.  It is suggested that you use calendar_by_periods if you would
     like to display a calendar.
-    
+
     Context Variables:
-    
+
     ``calendar``
         The Calendar object designated by the ``calendar_slug``.
     """
@@ -39,32 +39,32 @@ def calendar_by_periods(request, calendar_slug, periods=None,
     calendar.  Which periods you get, is designated with the list periods. You
     can designate which date you the periods to be initialized to by passing
     a date in request.GET. See the template tag ``query_string_for_date``
-    
+
     Context Variables
-    
+
     ``date``
         This was the date that was generated from the query string.
-    
+
     ``periods``
         this is a dictionary that returns the periods from the list you passed
         in.  If you passed in Month and Day, then your dictionary would look
         like this
-        
+
         {
             'month': <schedule.periods.Month object>
             'day':   <schedule.periods.Day object>
         }
-        
+
         So in the template to access the Day period in the context you simply
         use ``periods.day``.
-    
+
     ``calendar``
         This is the Calendar that is designated by the ``calendar_slug``.
-    
+
     ``weekday_names``
         This is for convenience. It returns the local names of weekedays for
         internationalization.
-        
+
     """
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
     date = coerce_date_dict(request.GET)
@@ -75,7 +75,7 @@ def calendar_by_periods(request, calendar_slug, periods=None,
             raise Http404
     else:
         date = datetime.datetime.now()
-    event_list = settings.GET_EVENTS_FUNC(request, calendar)
+    event_list = GET_EVENTS_FUNC(request, calendar)
     period_objects = dict([(period.__name__.lower(), period(event_list, date)) for period in periods])
     return render_to_response(template_name,{
             'date': date,
@@ -87,16 +87,16 @@ def calendar_by_periods(request, calendar_slug, periods=None,
 
 def event(request, event_id, template_name="schedule/event.html"):
     """
-    This view is for showing an event. It is important to remember that an 
+    This view is for showing an event. It is important to remember that an
     event is not an occurrence.  Events define a set of reccurring occurrences.
-    If you would like to display an occurrence (a single instance of a 
+    If you would like to display an occurrence (a single instance of a
     recurring event) use occurrence.
-    
+
     Context Variables:
-    
+
     event
         This is the event designated by the event_id
-    
+
     back_url
         this is the url that referred to this view.
     """
@@ -115,15 +115,15 @@ def occurrence(request, event_id,
     template_name="schedule/occurrence.html", *args, **kwargs):
     """
     This view is used to display an occurrence.
-    
+
     Context Variables:
-    
+
     ``event``
         the event that produces the occurrence
-    
-    ``occurrence`` 
+
+    ``occurrence``
         the occurrence to be displayed
-    
+
     ``back_url``
         the url from which this request was refered
     """
@@ -137,7 +137,7 @@ def occurrence(request, event_id,
 
 
 @check_event_permissions
-def edit_occurrence(request, event_id, 
+def edit_occurrence(request, event_id,
     template_name="schedule/edit_occurrence.html", *args, **kwargs):
     event, occurrence = get_occurrence(event_id, *args, **kwargs)
     next = kwargs.get('next', None)
@@ -146,9 +146,9 @@ def edit_occurrence(request, event_id,
         occurrence = form.save(commit=False)
         occurrence.event = event
         occurrence.save()
-        next = next or get_next_url(request, occurrence.get_absolute_url()) 
+        next = next or get_next_url(request, occurrence.get_absolute_url())
         return HttpResponseRedirect(next)
-    next = next or get_next_url(request, occurrence.get_absolute_url()) 
+    next = next or get_next_url(request, occurrence.get_absolute_url())
     return render_to_response(template_name, {
         'form': form,
         'occurrence': occurrence,
@@ -157,7 +157,7 @@ def edit_occurrence(request, event_id,
 
 
 @check_event_permissions
-def cancel_occurrence(request, event_id, 
+def cancel_occurrence(request, event_id,
     template_name='schedule/cancel_occurrence.html', *args, **kwargs):
     """
     This view is used to cancel an occurrence. If it is called with a POST it
@@ -173,7 +173,7 @@ def cancel_occurrence(request, event_id,
         }, context_instance=RequestContext(request))
     occurrence.cancel()
     return HttpResponseRedirect(next)
-    
+
 
 def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
     day=None, hour=None, minute=None, second=None):
@@ -190,7 +190,7 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
     elif(all((year, month, day, hour, minute, second))):
         event = get_object_or_404(Event, id=event_id)
         occurrence = event.get_occurrence(
-            datetime.datetime(int(year), int(month), int(day), int(hour), 
+            datetime.datetime(int(year), int(month), int(day), int(hour),
                 int(minute), int(second)))
         if occurrence is None:
             raise Http404
@@ -208,13 +208,13 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
 
     Template:
         schedule/create_event.html
-    
+
     Context Variables:
-        
+
     form:
         an instance of EventForm
-    
-    calendar: 
+
+    calendar:
         a Calendar with id=calendar_id
 
     if this function gets a GET request with ``year``, ``month``, ``day``,
@@ -246,16 +246,16 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
             raise Http404
         except ValueError:
             raise Http404
-    
+
     instance = None
     if event_id is not None:
         instance = get_object_or_404(Event, id=event_id)
-    
+
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
-    
-    form = EventForm(data=request.POST or None, instance=instance, 
+
+    form = EventForm(data=request.POST or None, instance=instance,
         hour24=True, initial=initial_data)
-    
+
     if form.is_valid():
         event = form.save(commit=False)
         if instance is None:
@@ -265,7 +265,7 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
         next = next or reverse('event', args=[event.id])
         next = get_next_url(request, next)
         return HttpResponseRedirect(next)
-    
+
     next = get_next_url(request, next)
     return render_to_response(template_name, {
         "form": form,
@@ -304,11 +304,11 @@ def check_next_url(next):
     if not next or '://' in next:
         return None
     return next
-    
+
 def get_next_url(request, default):
     next = default
-    if hasattr(settings, 'OCCURRENCE_CANCEL_REDIRECT'):
-        next = settings.OCCURRENCE_CANCEL_REDIRECT
+    if OCCURRENCE_CANCEL_REDIRECT:
+        next = OCCURRENCE_CANCEL_REDIRECT
     if 'next' in request.REQUEST and check_next_url(request.REQUEST['next']) is not None:
         next = request.REQUEST['next']
     return next

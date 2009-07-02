@@ -3,25 +3,13 @@ from django.db.models.query import QuerySet
 from django.template.defaultfilters import date
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
-from django.conf import settings
+from schedule.conf.settings import FIRST_DAY_OF_WEEK, SHOW_CANCELLED_OCCURRENCES
 from schedule.models import Occurrence
 from schedule.utils import OccurrenceReplacer
 
-# Look for FIRST_DAY_OF_WEEK as a locale setting
-first_day_of_week = ugettext('FIRST_DAY_OF_WEEK')
-if first_day_of_week == 'FIRST_DAY_OF_WEEK':
-    # FIRST_DAY_OF_WEEK was not set in the locale, try the settings
-    first_day_of_week = getattr(settings, 'FIRST_DAY_OF_WEEK', "0")
-
-try:
-    first_day_of_week = int(first_day_of_week)
-except:
-    # default to Sunday
-    first_day_of_week = 0
-
 weekday_names = []
 weekday_abbrs = []
-if first_day_of_week == 1:
+if FIRST_DAY_OF_WEEK == 1:
     # The calendar week starts on Monday
     for i in range(7):
         weekday_names.append( WEEKDAYS[i] )
@@ -79,8 +67,8 @@ class Period(object):
             return self._persisted_occurrences
 
     def classify_occurrence(self, occurrence):
-        if occurrence.cancelled and not settings.SHOW_CANCELLED_OCCURRENCES:
-            return 
+        if occurrence.cancelled and not SHOW_CANCELLED_OCCURRENCES:
+            return
         if occurrence.start > self.end or occurrence.end < self.start:
             return None
         started = False
@@ -128,7 +116,7 @@ class Year(Period):
             date = datetime.datetime.now()
         start, end = self._get_year_range(date)
         super(Year, self).__init__(events, start, end, parent_persisted_occurrences)
-    
+
     def get_months(self):
         months = []
         month_start = self.start
@@ -138,27 +126,27 @@ class Year(Period):
             months.append(month)
             month_start = month.next_month()
         return months
-    
+
     def next_year(self):
         return self.end
     next = next_year
-    
+
     def prev_year(self):
         return datetime.datetime(
             self.start.year-1, self.start.month, self.start.day)
     prev = prev_year
-        
+
     def _get_year_range(self, year):
         start = datetime.datetime(year.year, datetime.datetime.min.month,
             datetime.datetime.min.day)
         end = datetime.datetime(year.year+1, datetime.datetime.min.month,
             datetime.datetime.min.day)
         return start, end
-            
+
     def __unicode__(self):
         return self.start.strftime('%Y')
-    
-            
+
+
 
 class Month(Period):
     """
@@ -170,7 +158,7 @@ class Month(Period):
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_month_range(date)
-        super(Month, self).__init__(events, start, end, 
+        super(Month, self).__init__(events, start, end,
             parent_persisted_occurrences, occurrence_pool)
 
     def get_weeks(self):
@@ -204,7 +192,7 @@ class Month(Period):
     def next_month(self):
         return self.end
     next = next_month
-    
+
     def prev_month(self):
         return (self.start - datetime.timedelta(days=1)).replace(day=1)
     prev = prev_month
@@ -241,14 +229,14 @@ class Week(Period):
     """
     The Week period that has functions for retrieving Day periods within it
     """
-    def __init__(self, events, date=None, parent_persisted_occurrences=None, 
+    def __init__(self, events, date=None, parent_persisted_occurrences=None,
         occurrence_pool=None):
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_week_range(date)
-        super(Week, self).__init__(events, start, end, 
+        super(Week, self).__init__(events, start, end,
             parent_persisted_occurrences, occurrence_pool)
-    
+
     def prev_week(self):
         return self.start - datetime.timedelta(days=7)
     prev = prev_week
@@ -274,7 +262,7 @@ class Week(Period):
         start = datetime.datetime.combine(week, datetime.time.min)
         # Adjust the start datetime to Monday or Sunday of the current week
         sub_days = 0
-        if first_day_of_week == 1:
+        if FIRST_DAY_OF_WEEK == 1:
             # The week begins on Monday
             sub_days = start.isoweekday() - 1
         else:
@@ -300,7 +288,7 @@ class Day(Period):
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_day_range(date)
-        super(Day, self).__init__(events, start, end, 
+        super(Day, self).__init__(events, start, end,
             parent_persisted_occurrences, occurrence_pool)
 
     def _get_day_range(self, date):

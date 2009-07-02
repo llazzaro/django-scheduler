@@ -2,7 +2,6 @@ import datetime
 import os
 
 from django.test import TestCase
-from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from schedule.forms import GlobalSplitDateTimeWidget
