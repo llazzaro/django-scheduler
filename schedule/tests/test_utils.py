@@ -4,7 +4,6 @@ import os
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from schedule.forms import GlobalSplitDateTimeWidget
 from schedule.models import Event, Rule, Occurrence, Calendar
 from schedule.periods import Period, Month, Day
 from schedule.utils import EventListManager

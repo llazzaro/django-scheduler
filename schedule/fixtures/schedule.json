@@ -1,0 +1,173 @@
+[
+    {
+        "pk": 1,
+        "model": "auth.user",
+        "fields": {
+            "username": "admin",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2009-07-01 23:28:31",
+            "groups": [],
+            "user_permissions": [],
+            "password": "sha1$45afe$fd274a3086305e9b6660e414035b69abde514a91",
+            "email": "admin@test.com",
+            "date_joined": "2009-07-01 23:28:31"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "schedule.calendar",
+        "fields": {
+            "name": "Example Calendar",
+            "slug": "example"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "schedule.rule",
+        "fields": {
+            "frequency": "YEARLY",
+            "params": null,
+            "name": "Yearly",
+            "description": "will recur once every Year"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "schedule.rule",
+        "fields": {
+            "frequency": "MONTHLY",
+            "params": null,
+            "name": "Monthly",
+            "description": "will recur once every Month"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "schedule.rule",
+        "fields": {
+            "frequency": "WEEKLY",
+            "params": null,
+            "name": "Weekly",
+            "description": "will recur once every Week"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "schedule.rule",
+        "fields": {
+            "frequency": "DAILY",
+            "params": null,
+            "name": "Daily",
+            "description": "will recur once every Day"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "schedule.event",
+        "fields": {
+            "end": "2008-11-03 09:00:00",
+            "description": null,
+            "creator": null,
+            "title": "Exercise",
+            "rule": 3,
+            "start": "2008-11-03 08:00:00",
+            "created_on": "2009-07-01 23:28:41",
+            "end_recurring_period": "2009-06-01 00:00:00",
+            "calendar": 1
+        }
+    },
+    {
+        "pk": 2,
+        "model": "schedule.event",
+        "fields": {
+            "end": "2008-11-05 16:30:00",
+            "description": null,
+            "creator": null,
+            "title": "Exercise",
+            "rule": 3,
+            "start": "2008-11-05 15:00:00",
+            "created_on": "2009-07-01 23:28:41",
+            "end_recurring_period": "2009-06-01 00:00:00",
+            "calendar": 1
+        }
+    },
+    {
+        "pk": 3,
+        "model": "schedule.event",
+        "fields": {
+            "end": "2008-11-07 09:30:00",
+            "description": null,
+            "creator": null,
+            "title": "Exercise",
+            "rule": 3,
+            "start": "2008-11-07 08:00:00",
+            "created_on": "2009-07-01 23:28:41",
+            "end_recurring_period": "2009-06-01 00:00:00",
+            "calendar": 1
+        }
+    },
+    {
+        "pk": 4,
+        "model": "schedule.event",
+        "fields": {
+            "end": "2008-11-01 14:30:00",
+            "description": null,
+            "creator": null,
+            "title": "Pay Mortgage",
+            "rule": 2,
+            "start": "2008-11-01 14:00:00",
+            "created_on": "2009-07-01 23:28:41",
+            "end_recurring_period": "2009-10-02 00:00:00",
+            "calendar": 1
+        }
+    },
+    {
+        "pk": 5,
+        "model": "schedule.event",
+        "fields": {
+            "end": "2008-12-11 23:59:00",
+            "description": null,
+            "creator": null,
+            "title": "Rock's Birthday Party",
+            "rule": 1,
+            "start": "2008-12-11 19:00:00",
+            "created_on": "2009-07-01 23:28:42",
+            "end_recurring_period": "2009-12-22 00:00:00",
+            "calendar": 1
+        }
+    },
+    {
+        "pk": 6,
+        "model": "schedule.event",
+        "fields": {
+            "end": "2008-12-25 23:59:00",
+            "description": null,
+            "creator": null,
+            "title": "Christmas Party",
+            "rule": 1,
+            "start": "2008-12-25 19:30:00",
+            "created_on": "2009-07-01 23:28:42",
+            "end_recurring_period": "2010-12-31 00:00:00",
+            "calendar": 1
+        }
+    },
+    {
+        "pk": 7,
+        "model": "schedule.event",
+        "fields": {
+            "end": "2009-01-06 12:00:00",
+            "description": null,
+            "creator": null,
+            "title": "New Pinax site goes live",
+            "rule": null,
+            "start": "2009-01-06 11:00:00",
+            "created_on": "2009-07-01 23:28:42",
+            "end_recurring_period": "2009-01-07 00:00:00",
+            "calendar": 1
+        }
+    }
+]
