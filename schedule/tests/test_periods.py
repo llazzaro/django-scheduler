@@ -30,6 +30,7 @@ class TestPeriod(TestCase):
         self.period = Period(events=Event.objects.all(),
                             start = datetime.datetime(2008,1,4,7,0),
                             end = datetime.datetime(2008,1,21,7,0))
+
     def test_get_occurrences(self):
         occurrence_list = self.period.occurrences
         self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrence_list],
@@ -197,3 +198,34 @@ class TestDay(TestCase):
         period = self.day.get_time_slot( slot_start, slot_end )
         self.assertEqual( period.start, slot_start )
         self.assertEqual( period.end, slot_end )
+
+
+class TestOccurrencePool(TestCase):
+    
+    def setUp(self):
+        rule = Rule(frequency = "WEEKLY")
+        rule.save()
+        cal = Calendar(name="MyCal")
+        cal.save()
+        data = {
+                'title': 'Recent Event',
+                'start': datetime.datetime(2008, 1, 5, 8, 0),
+                'end': datetime.datetime(2008, 1, 5, 9, 0),
+                'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0),
+                'rule': rule,
+                'calendar': cal
+               }
+        self.recurring_event = Event(**data)
+        self.recurring_event.save()
+
+    def testPeriodFromPool(self):
+        """
+            Test that period initiated with occurrence_pool returns the same occurrences as "straigh" period
+            in a corner case whereby a period's start date is equal to the occurrence's end date
+        """
+        start = datetime.datetime(2008, 1, 5, 9, 0)
+        end = datetime.datetime(2008, 1, 5, 10, 0)
+        parent_period = Period(Event.objects.all(), start, end)
+        period = Period(parent_period.events, start, end, parent_period.get_persisted_occurrences(), parent_period.occurrences)
+        self.assertEquals(parent_period.occurrences, period.occurrences)
+
