@@ -22,6 +22,7 @@ else:
         weekday_names.append( WEEKDAYS[i] )
         weekday_abbrs.append( WEEKDAYS_ABBR[i] )
 
+
 class Period(object):
     '''
     This class represents a period of time. It can return a set of occurrences
@@ -110,6 +111,17 @@ class Period(object):
             return Period( self.events, start, end )
         return None
 
+    def create_sub_period(self, cls, start=None):
+        start = start or self.start
+        return cls(self.events, start, self.get_persisted_occurrences(), self.occurrences)
+
+    def get_periods(self, cls):
+        period = self.create_sub_period(cls)
+        while period.start < self.end:
+            yield self.create_sub_period(cls, period.start)
+            period = period.next()
+
+
 class Year(Period):
     def __init__(self, events, date=None, parent_persisted_occurrences=None):
         if date is None:
@@ -118,22 +130,15 @@ class Year(Period):
         super(Year, self).__init__(events, start, end, parent_persisted_occurrences)
 
     def get_months(self):
-        months = []
-        month_start = self.start
-        for i in range(12):
-            month = Month(self.events, month_start,
-            self.get_persisted_occurrences(), self.occurrences)
-            months.append(month)
-            month_start = month.next_month()
-        return months
+        return self.get_periods(Month)
 
     def next_year(self):
-        return self.end
+        return Year(self.events, self.end)
     next = next_year
 
     def prev_year(self):
-        return datetime.datetime(
-            self.start.year-1, self.start.month, self.start.day)
+        start = datetime.datetime(self.start.year-1, self.start.month, self.start.day)
+        return Year(self.events, start)
     prev = prev_year
 
     def _get_year_range(self, year):
@@ -162,49 +167,37 @@ class Month(Period):
             parent_persisted_occurrences, occurrence_pool)
 
     def get_weeks(self):
-        date = self.start
-        weeks = []
-        while date < self.end:
-            #list events to make it only one query
-            week = Week(self.events, date, self.get_persisted_occurrences(),
-                self.occurrences)
-            weeks.append(week)
-            date = week.next_week()
-        return weeks
+        return self.get_periods(Week)
+        date = self.star
 
     def get_days(self):
-        date = self.start
-        days = []
-        while date < self.end:
-            #list events to make it only one query
-            day = Day(self.events, date, self.get_persisted_occurrences(),
-                self.occurrences)
-            days.append(day)
-            date = day.next_day()
-        return days
+        return self.get_periods(Day)
 
     def get_day(self, daynumber ):
         date = self.start
         if daynumber > 1:
             date += datetime.timedelta(days=daynumber-1)
-        return Day(self.events, date, self.get_persisted_occurrences(), self.occurrences)
+        return self.create_sub_period(Day, date)
 
     def next_month(self):
-        return self.end
+        return Month(self.events, self.end)
     next = next_month
 
     def prev_month(self):
-        return (self.start - datetime.timedelta(days=1)).replace(day=1)
+        start = (self.start - datetime.timedelta(days=1)).replace(day=1)
+        return Month(self.events, start)
     prev = prev_month
 
     def current_year(self):
-        return datetime.datetime.min.replace(year=self.start.year)
+        return Year(self.events, self.start)
 
     def prev_year(self):
-        return datetime.datetime.min.replace(year=self.start.year-1)
+        start = datetime.datetime.min.replace(year=self.start.year-1)
+        return Year(self.events, start)
 
     def next_year(self):
-        return datetime.datetime.min.replace(year=self.start.year+1)
+        start = datetime.datetime.min.replace(year=self.start.year+1)
+        return Year(self.events, start)
 
     def _get_month_range(self, month):
         year = month.year
@@ -225,6 +218,7 @@ class Month(Period):
     def year(self):
         return self.start.strftime('%Y')
 
+
 class Week(Period):
     """
     The Week period that has functions for retrieving Day periods within it
@@ -238,22 +232,21 @@ class Week(Period):
             parent_persisted_occurrences, occurrence_pool)
 
     def prev_week(self):
-        return self.start - datetime.timedelta(days=7)
+        return Week(self.events, self.start - datetime.timedelta(days=7))
     prev = prev_week
 
     def next_week(self):
-        return self.end
+        return Week(self.events, self.end)
     next = next_week
 
+    def current_month(self):
+        return Month(self.events, self.start)
+
+    def current_year(self):
+        return Year(self.events, self.start)
+
     def get_days(self):
-        days = []
-        date = self.start
-        while date < self.end:
-            day = Day(self.events, date, self.get_persisted_occurrences(),
-                self.occurrences)
-            days.append(day)
-            date = day.next_day()
-        return days
+        return self.get_periods(Day)
 
     def _get_week_range(self, week):
         if isinstance(week, datetime.datetime):
@@ -282,6 +275,7 @@ class Week(Period):
             'end': date(self.end, date_format),
         }
 
+
 class Day(Period):
     def __init__(self, events, date=None, parent_persisted_occurrences=None,
         occurrence_pool=None):
@@ -306,15 +300,19 @@ class Day(Period):
         }
 
     def prev_day(self):
-        return self.start - datetime.timedelta(days=1)
+        return Day(self.events, self.start - datetime.timedelta(days=1))
     prev = prev_day
 
     def next_day(self):
-        return self.end
+        return Day(self.events, self.end)
     next = next_day
 
-    def month(self):
+    def current_year(self):
+        return Year(self.events, self.start)
+
+    def current_month(self):
         return Month(self.events, self.start)
 
-    def week(self):
+    def current_week(self):
         return Week(self.events, self.start)
+

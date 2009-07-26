@@ -13,9 +13,9 @@ register = template.Library()
 def month_table(context,  calendar, month, size="regular", shift=None):
     if shift:
         if shift == -1:
-            month = Month(calendar.events.all(), month.prev())
+            month = month.prev()
         if shift == 1:
-            month = Month(calendar.events.all(), month.next())
+            month = month.next()
     if size == "small":
         context['day_names']  = weekday_abbrs
     else:
@@ -177,13 +177,13 @@ def querystring_for_date(date, num=6):
 def prev_url(target, slug, period):
     return '%s%s' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-            querystring_for_date(period.prev()))
+            querystring_for_date(period.prev().start))
 
 @register.simple_tag
 def next_url(target, slug, period):
     return '%s%s' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-            querystring_for_date(period.next()))
+            querystring_for_date(period.next().start))
 
 @register.inclusion_tag("schedule/_prevnext.html")
 def prevnext( target, slug, period, fmt=None):

@@ -63,7 +63,9 @@ class TestPeriod(TestCase):
                                           datetime.datetime(2008,1,4,7,12) )
         self.failIf( slot.has_occurrences() )
 
+
 class TestYear(TestCase):
+
     def setUp(self):
         self.year = Year(events=[], date=datetime.datetime(2008,4,1))
 
@@ -74,6 +76,7 @@ class TestYear(TestCase):
 
 
 class TestMonth(TestCase):
+
     def setUp(self):
         rule = Rule(frequency = "WEEKLY")
         rule.save()
@@ -128,7 +131,7 @@ class TestMonth(TestCase):
 
     def test_get_days(self):
         weeks = self.month.get_weeks()
-        week = weeks[0]
+        week = list(weeks)[0]
         days = week.get_days()
         actuals = [(len(day.occurrences), day.start,day.end) for day in days]
 
@@ -173,11 +176,12 @@ class TestMonth(TestCase):
 
 
     def test_month_convenience_functions(self):
-        self.assertEqual( self.month.prev_month(), datetime.datetime(2008, 1, 1, 0, 0))
-        self.assertEqual( self.month.next_month(), datetime.datetime(2008, 3, 1, 0, 0))
-        self.assertEqual( self.month.current_year(), datetime.datetime(2008, 1, 1, 0, 0))
-        self.assertEqual( self.month.prev_year(), datetime.datetime(2007, 1, 1, 0, 0))
-        self.assertEqual( self.month.next_year(), datetime.datetime(2009, 1, 1, 0, 0))
+        self.assertEqual( self.month.prev_month().start, datetime.datetime(2008, 1, 1, 0, 0))
+        self.assertEqual( self.month.next_month().start, datetime.datetime(2008, 3, 1, 0, 0))
+        self.assertEqual( self.month.current_year().start, datetime.datetime(2008, 1, 1, 0, 0))
+        self.assertEqual( self.month.prev_year().start, datetime.datetime(2007, 1, 1, 0, 0))
+        self.assertEqual( self.month.next_year().start, datetime.datetime(2009, 1, 1, 0, 0))
+
 
 class TestDay(TestCase):
     def setUp(self):
@@ -189,8 +193,8 @@ class TestDay(TestCase):
         self.assertEqual( self.day.end, datetime.datetime(2008, 2, 8, 0, 0))
 
     def test_day_convenience_functions(self):
-        self.assertEqual( self.day.prev_day(), datetime.datetime(2008, 2, 6, 0, 0))
-        self.assertEqual( self.day.next_day(), datetime.datetime(2008, 2, 8, 0, 0))
+        self.assertEqual( self.day.prev_day().start, datetime.datetime(2008, 2, 6, 0, 0))
+        self.assertEqual( self.day.next_day().start, datetime.datetime(2008, 2, 8, 0, 0))
 
     def test_time_slot(self):
         slot_start = datetime.datetime(2008, 2, 7, 13, 30)
