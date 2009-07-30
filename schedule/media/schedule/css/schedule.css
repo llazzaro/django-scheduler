@@ -260,14 +260,9 @@ body, td {font-family:sans-serif;}
 }
 
 div.calendarname {
-  border-color:#e0e0e0;
-  border-style:solid;
-  border-width: 0 0px 3px 3px;
   font-weight:bold;
-  padding-left:5px;
-  position:absolute;
-  right:10px;
-  top:10px;
+  margin:1em;
+  position:relative;
 }
 
 div.navigation {
