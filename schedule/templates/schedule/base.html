@@ -12,9 +12,12 @@
 {% block rtab_id %}id="schedule_tab"{% endblock %}
 
 {% block subnav %}
-    <ul>
+<ul>
+    {% if user.is_authenticated %}
         <li><a href="">Create a Calendar</a></li>
         <li><a href="">Your Calendars</a></li>
+    {% endif %}
+
         <li><a href="">All Calendars</a></li>
     </ul>
 {% endblock %}
