@@ -201,7 +201,7 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
 
 @check_event_permissions
 def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
-    template_name='schedule/create_event.html'):
+    template_name='schedule/create_event.html', form_class = EventForm):
     """
     This function, if it receives a GET request or if given an invalid form in a
     POST request it will generate the following response
@@ -253,7 +253,7 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
 
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
 
-    form = EventForm(data=request.POST or None, instance=instance,
+    form = form_class(data=request.POST or None, instance=instance,
         hour24=True, initial=initial_data)
 
     if form.is_valid():
