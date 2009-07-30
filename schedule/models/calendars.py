@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext, ugettext_lazy as _
+from django.template.defaultfilters import slugify
 import datetime
 from dateutil import rrule
 from schedule.utils import EventListManager
@@ -76,6 +77,7 @@ class CalendarManager(models.Manager):
                 calendar = Calendar(name = unicode(obj))
             else:
                 calendar = Calendar(name = name)
+            calendar.slug = slugify(calendar.name)
             calendar.save()
             calendar.create_relation(obj, distinction)
             return calendar
