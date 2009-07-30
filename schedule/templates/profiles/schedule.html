@@ -1,0 +1,51 @@
+{% load i18n %}
+{% load scheduletags %}
+
+<h2>{% trans "Schedule" %}</h2>
+
+{% get_or_create_calendar other_user other_user.username as calendar %}
+
+{% if calendar.event_set.count %}
+<table>
+    <thead>
+        <tr>
+            <th>{% trans "Start" %}</th>
+            <th>{% trans "End" %}</th>
+            <th>{% trans "Title" %}</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for event in calendar.event_set.all %}
+        <tr>
+            <td>{{ event.start }}</td>
+            <td>{{ event.end }}</td>
+            <td>{{ event.title }}</td>
+            <td>
+                {% block schedule_event_controls %}
+                <a href="{% url event event.pk %}" title="{% trans "Event details" %} {{ event }}">
+                    <img src="{{ settings.MEDIA_URL }}icons/time_go.png" alt="{% trans "Event details" %}" />
+                </a>
+                {% ifequal request.user other_user %}
+                <a href="{% url edit_event calendar.slug event.pk %}" title="{% trans "Edit event" %} {{ event }}">
+                    <img src="{{ settings.MEDIA_URL }}icons/time_edit.png" alt="{% trans "Edit event" %}" />
+                </a>
+                <a href="{% url delete_event event.pk %}" title="{% trans "Delete event" %} {{ event }}">
+                    <img src="{{ settings.MEDIA_URL }}icons/time_delete.png" alt="{% trans "Delete event" %}" />
+                </a>
+                {% endifequal %}
+                {% endblock schedule_event_controls %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    {% url calendar_create_event as add_event_url %}
+    <p>{% blocktrans %}You haven't added any <a href="{{ add_event_url }}">event</a> yet.{% endblocktrans %}</p>
+{% endif %}
+
+<p>
+    <a href="{% url calendar_create_event calendar %}">{% block schedule_add_event_link_label %}{% trans "Add event" %}{% endblock %}</a>
+</p>
+
