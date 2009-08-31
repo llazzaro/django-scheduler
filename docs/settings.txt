@@ -38,7 +38,7 @@ example::
     check_edit_permission(ob, user):
         return user.is_authenticated()
 
-If ob is None, then the function is checking for permission to add new events
+If ob is None, then the function is checking for permission to add new occurrences.
 
 .. _ref-settings-get-events-func:
 
