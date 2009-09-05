@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.contrib.contenttypes import generic
 from django.db import models
 from django.db.models import Q
@@ -142,7 +143,7 @@ class Calendar(models.Model):
 
     def __unicode__(self):
         return self.name
-    
+
     def events(self):
         return self.event_set.all()
     events = property(events)
@@ -235,4 +236,4 @@ class CalendarRelation(models.Model):
         app_label = 'schedule'
 
     def __unicode__(self):
-        return '%s - %s' %(self.calendar, self.content_object)
+        return u'%s - %s' %(self.calendar, self.content_object)

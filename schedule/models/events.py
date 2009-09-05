@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.contrib.contenttypes import generic
 from django.db import models
 from django.db.models import Q
@@ -92,13 +93,13 @@ class Event(models.Model):
         # fall within it
         final_occurrences += occ_replacer.get_additional_occurrences(start, end)
         return final_occurrences
-    
+
     def get_rrule_object(self):
         if self.rule is not None:
             params = self.rule.get_params()
             frequency = 'rrule.%s' % self.rule.frequency
             return rrule.rrule(eval(frequency), dtstart=self.start, **params)
-    
+
     def _create_occurrence(self, start, end=None):
         if end is None:
             end = start + (self.end - self.start)
@@ -115,7 +116,7 @@ class Event(models.Model):
                 return Occurrence.objects.get(event = self, original_start = date)
             except Occurrence.DoesNotExist:
                 return self._create_occurrence(next_occurrence)
-            
+
 
     def _get_occurrence_list(self, start, end):
         """
@@ -138,13 +139,13 @@ class Event(models.Model):
                 return [self._create_occurrence(self.start)]
             else:
                 return []
-    
+
     def _occurrences_after_generator(self, after=None):
         """
-        returns a generator that produces unpresisted occurrences after the 
+        returns a generator that produces unpresisted occurrences after the
         datetime ``after``.
         """
-        
+
         if after is None:
             after = datetime.datetime.now()
         rule = self.get_rrule_object()
@@ -162,7 +163,7 @@ class Event(models.Model):
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)
 
-    
+
     def occurrences_after(self, after=None):
         """
         returns a generator that produces occurrences after the datetime
@@ -222,35 +223,35 @@ class EventRelationManager(models.Manager):
     #         eventrelation__content_type = ct,
     #         eventrelation__event = event
     #     )
-    
+
     def get_events_for_object(self, content_object, distinction=None, inherit=True):
         '''
         returns a queryset full of events, that relate to the object through, the
         distinction
-        
+
         If inherit is false it will not consider the calendars that the events
         belong to. If inherit is true it will inherit all of the relations and
         distinctions that any calendar that it belongs to has, as long as the
         relation has inheritable set to True.  (See Calendar)
-        
+
         >>> event = Event.objects.get(title='Test1')
         >>> user = User.objects.get(username = 'alice')
         >>> EventRelation.objects.get_events_for_object(user, 'owner', inherit=False)
         [<Event: Test1: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>]
-        
+
         If a distinction is not declared it will not vet the relations based on
         distinction.
         >>> EventRelation.objects.get_events_for_object(user, inherit=False)
         [<Event: Test1: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>, <Event: Test2: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>]
-        
+
         Now if there is a Calendar
         >>> calendar = Calendar(name = 'MyProject')
         >>> calendar.save()
-        
+
         And an event that belongs to that calendar
         >>> event = Event.objects.get(title='Test2')
         >>> calendar.events.add(event)
-        
+
         If we relate this calendar to some object with inheritable set to true,
         that relation will be inherited
         >>> user = User.objects.get(username='bob')
@@ -276,7 +277,7 @@ class EventRelationManager(models.Manager):
             inherit_q = Q()
         event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id),Q(eventrelation__content_type=ct))
         return Event.objects.filter(inherit_q|event_q)
-    
+
     def change_distinction(self, distinction, new_distinction):
         '''
         This function is for change the a group of eventrelations from an old
@@ -286,7 +287,7 @@ class EventRelationManager(models.Manager):
         for relation in self.filter(distinction = distinction):
             relation.distinction = new_distinction
             relation.save()
-    
+
     def create_relation(self, event, content_object, distinction=None):
         """
         Creates a relation between event and content_object.
@@ -303,7 +304,7 @@ class EventRelationManager(models.Manager):
         )
         er.save()
         return er
-    
+
 
 class EventRelation(models.Model):
     '''
@@ -312,14 +313,14 @@ class EventRelation(models.Model):
     events that are only visible by certain users, you could create a relation
     between events and users, with the distinction of 'visibility', or
     'ownership'.
-    
+
     event: a foreign key relation to an Event model.
     content_type: a foreign key relation to ContentType of the generic object
     object_id: the id of the generic object
     content_object: the generic foreign key to the generic object
     distinction: a string representing a distinction of the relation, User could
     have a 'veiwer' relation and an 'owner' relation for example.
-    
+
     DISCLAIMER: while this model is a nice out of the box feature to have, it
     may not scale well.  If you use this keep that in mindself.
     '''
@@ -328,17 +329,17 @@ class EventRelation(models.Model):
     object_id = models.IntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
     distinction = models.CharField(_("distinction"), max_length = 20, null=True)
-    
+
     objects = EventRelationManager()
-    
+
     class Meta:
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
         app_label = 'schedule'
-    
+
     def __unicode__(self):
-        return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
-    
+        return u'%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
+
 
 
 
@@ -351,37 +352,37 @@ class Occurrence(models.Model):
     cancelled = models.BooleanField(_("cancelled"), default=False)
     original_start = models.DateTimeField(_("original start"))
     original_end = models.DateTimeField(_("original end"))
-    
+
     class Meta:
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
         app_label = 'schedule'
-    
+
     def __init__(self, *args, **kwargs):
         super(Occurrence, self).__init__(*args, **kwargs)
         if self.title is None:
             self.title = self.event.title
         if self.description is None:
             self.description = self.event.description
-        
-    
+
+
     def moved(self):
         return self.original_start != self.start or self.original_end != self.end
     moved = property(moved)
-    
+
     def move(self, new_start, new_end):
         self.start = new_start
         self.end = new_end
         self.save()
-    
+
     def cancel(self):
         self.cancelled = True
         self.save()
-    
+
     def uncancel(self):
         self.cancelled = False
         self.save()
-    
+
     def get_absolute_url(self):
         if self.pk is not None:
             return reverse('occurrence', kwargs={'occurrence_id': self.pk,
@@ -395,7 +396,7 @@ class Occurrence(models.Model):
             'minute': self.start.minute,
             'second': self.start.second,
         })
-    
+
     def get_cancel_url(self):
         if self.pk is not None:
             return reverse('cancel_occurrence', kwargs={'occurrence_id': self.pk,
@@ -409,7 +410,7 @@ class Occurrence(models.Model):
             'minute': self.start.minute,
             'second': self.start.second,
         })
-    
+
     def get_edit_url(self):
         if self.pk is not None:
             return reverse('edit_occurrence', kwargs={'occurrence_id': self.pk,
@@ -423,18 +424,18 @@ class Occurrence(models.Model):
             'minute': self.start.minute,
             'second': self.start.second,
         })
-    
+
     def __unicode__(self):
         return ugettext("%(start)s to %(end)s") % {
             'start': self.start,
             'end': self.end,
         }
-    
+
     def __cmp__(self, other):
         rank = cmp(self.start, other.start)
         if rank == 0:
             return cmp(self.end, other.end)
         return rank
-    
+
     def __eq__(self, other):
         return self.event == other.event and self.original_start == other.original_start and self.original_end == other.original_end
