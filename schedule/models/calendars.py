@@ -173,7 +173,7 @@ class Calendar(models.Model):
         return EventListManager(self.events.all()).occurrences_after(date)
 
     def get_absolute_url(self):
-        return reverse('s_calendar', args=[self.slug])
+        return reverse('calendar_home', kwargs={'calendar_slug':self.slug})
 
     def add_event_url(self):
         return reverse('s_create_event_in_calendar', args=[self.slug])

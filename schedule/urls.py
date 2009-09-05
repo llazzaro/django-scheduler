@@ -48,8 +48,9 @@ url(r'^calendar/daily/(?P<calendar_slug>[-\w]+)/$',
     kwargs={'periods': [Day], 'template_name': 'schedule/calendar_day.html'}),
 
 url(r'^calendar/(?P<calendar_slug>[-\w]+)/$',
-    'schedule.views.calendar',\
-    name = "calendar"),
+    'schedule.views.calendar',
+    name = "calendar_home",
+    ),
 
 #Event Urls
 url(r'^event/create/(?P<calendar_slug>[-\w]+)/$',
