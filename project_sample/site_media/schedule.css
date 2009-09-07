@@ -46,6 +46,26 @@ td.daynumber div.daycell .cancelled {
   color:gray;
 }
 
+td.daynumber div.daycell .eventcell0 {
+  border-right:none;
+  margin-right:-1px;
+}
+
+td.daynumber div.daycell .eventcell1 {
+}
+
+td.daynumber div.daycell .eventcell2 {
+  border-right:none;
+  margin-right:-1px;
+  border-left:none;
+  margin-left:-1px;
+}
+
+td.daynumber div.daycell .eventcell3 {
+  border-left:none;
+  margin-left:-1px;
+}
+
 div.type0 {
   border-bottom:4px dotted gray;
 }
