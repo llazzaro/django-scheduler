@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.create_update import delete_object
 import datetime
 
-from schedule.conf.settings import GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT
+from schedule.conf.settings import GET_EVENTS_FUNC, CHECK_PERMISSION_FUNC, OCCURRENCE_CANCEL_REDIRECT
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import *
 from schedule.periods import weekday_names
@@ -312,3 +312,33 @@ def get_next_url(request, default):
     if 'next' in request.REQUEST and check_next_url(request.REQUEST['next']) is not None:
         next = request.REQUEST['next']
     return next
+
+def weekcalendarjs(request):
+    config_params = {} # will draw from settings
+    return render_to_response('schedule/weekcalendar.js', config_params)
+
+from django.template import Context, loader
+
+def calendar_by_periods_json(request, calendar_slug, periods, template_name='schedule/occurrences_json.html'):
+    user = request.user
+    calendar = get_object_or_404(Calendar, slug=calendar_slug)
+    date = coerce_date_dict(request.GET)
+    if date:
+        try:
+            date = datetime.datetime(**date)
+        except ValueError:
+            raise Http404
+    else:
+        date = datetime.datetime.now()
+    event_list = GET_EVENTS_FUNC(request, calendar)
+    period_object = periods[0](event_list, date)
+    for i, occ in enumerate(period_object.occurrences):
+        occ.start = occ.start.ctime()
+        occ.end = occ.end.ctime()
+        occ.read_only = not CHECK_PERMISSION_FUNC(occ, user)
+        occ.id = i
+    rnd = loader.get_template(template_name)
+    resp = rnd.render(Context({'occurrences':period_object.occurrences}))
+#    return render_to_response(template_name, {'occurrences':period_object.occurrences})
+    return HttpResponse(resp)
+

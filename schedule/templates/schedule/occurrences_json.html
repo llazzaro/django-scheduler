@@ -1,0 +1,5 @@
+[
+{% for occ in occurrences %}
+    {"id":{{occ.id}}, "title":"{{occ.title}}", "start":new Date("{{occ.start}}"), "end":new Date("{{occ.end}}"), "readOnly": {{occ.read_only|yesno:"true,false"}} },
+{% endfor %}
+]

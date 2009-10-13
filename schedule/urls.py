@@ -37,6 +37,11 @@ url(r'^calendar/month/(?P<calendar_slug>[-\w]+)/$',
     name = "month_calendar",
     kwargs={'periods': [Month], 'template_name': 'schedule/calendar_month.html'}),
 
+url(r'^calendar/week/json/(?P<calendar_slug>[-\w]+)/$',
+    'schedule.views.calendar_by_periods_json',
+    name = "week_calendar_json",
+    kwargs={'periods': [Week], 'template_name': 'schedule/occurrences_json.html'}),
+
 url(r'^calendar/week/(?P<calendar_slug>[-\w]+)/$',
     'schedule.views.calendar_by_periods',
     name = "week_calendar",
@@ -96,5 +101,7 @@ url(r'^feed/calendar/(.*)/$',
  
 (r'^ical/calendar/(.*)/$', CalendarICalendar()),
 
+ # weekcalendar javascript
+ url(r'weekcalendarjs/$', 'schedule.views.weekcalendarjs', name="weekcalendarjs"),
  url(r'$', object_list, info_dict, name='schedule'), 
 )

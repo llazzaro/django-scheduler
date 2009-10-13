@@ -1,0 +1,191 @@
+
+
+.week-calendar {
+	font-size: 14px;	
+	font-family: arial, helvetica;
+}
+
+.week-calendar .calendar-nav {
+	padding: 1em;
+	text-align: right;	
+}
+
+.week-calendar .calendar-nav button {
+	margin: 0 0.5em;	
+}
+ 
+
+.week-calendar table {
+	border-collapse: collapse;
+    border-spacing: 0;
+}
+.week-calendar table td {
+	margin: 0;
+	padding: 0;
+}
+
+.week-calendar-header {
+	background: #eee;
+	border-top: 1px solid #aaa;
+	border-bottom: 1px solid #aaa;
+	width: 100%;
+}
+
+.week-calendar-header .time-column-header {
+	width: 5%;	
+}
+
+.week-calendar-header .scrollbar-shim {
+	width: 16px;	
+}
+
+.week-calendar-header .day-column-header {
+	text-align: center;
+	padding: 0.4em;
+}
+.week-calendar-header td {
+	background-color: #eee;	
+}
+
+.grid-timeslot-header {
+	width: 6%;
+	background: #eee;	
+}
+
+
+
+.calendar-scrollable-grid {
+	overflow: auto;
+	overflow-x: hidden !important;
+	overflow-y: auto !important; 
+	position: relative;
+	background-color: #fff;
+	width: 100%;
+}
+
+
+table.week-calendar-time-slots {
+	width: 100%;
+	table-layout: fixed;
+	cursor: default;
+}
+
+.week-calendar-time-slots .day-column {
+	width: 13.5%;
+	border-left: 1px solid #ddd;	
+	overflow: visible;
+	vertical-align: top;
+}
+
+.week-calendar-time-slots .day-column-inner {
+	width: 100%;
+	position:relative;	
+}
+
+.time-slot-wrapper {
+	position:relative;	
+	height: 1px;
+	top: 1px;
+}
+
+.time-slots {
+	position: absolute;	
+	width: 100%;
+}
+
+
+.time-header-cell {
+	padding: 5px;	
+	height: 80px; /* reference height */
+}
+
+
+.time-slot {
+	border-bottom: 1px dotted #ddd;	
+}
+
+.hour-header {
+	text-align: right;
+}
+
+.hour-end, .hour-header {
+	border-bottom: 1px solid #ccc;	
+	color: #555;
+}
+
+.business-hours {
+	background-color: #E6EEF1;
+	border-bottom: 1px solid #ccc;
+	color: #333;
+	font-size: 1.4em;
+}
+
+.business-hours .am-pm {
+	font-size: 0.6em;	
+}
+
+.day-header-cell {
+	text-align: center;
+	vertical-align: middle;
+	padding: 5px;
+}
+
+
+
+.time-slot-header .header-cell {
+	text-align: right;
+	padding-right: 10px;	
+}
+
+.week-calendar-header .today  {
+	font-weight: bold;
+}
+
+.week-calendar-time-slots .today {
+	background-color: #ffffcc;	
+}
+
+
+.cal-event {
+	background-color: #68a1e5;	
+	filter:alpha(opacity=80);
+	-moz-opacity:0.8;
+	-khtml-opacity: 0.8;
+	opacity: 0.8;
+	position: absolute;	
+	text-align: center;
+	overflow: hidden;
+	cursor: pointer;
+	color: #fff;
+	width: 100%;
+	display: none;
+}
+
+
+.cal-event div {
+	padding: 0 5px;
+	
+}
+
+.cal-event .time {
+	background-color: #2b72d0;
+	border: 1px solid #1b62c0;
+	color: #fff;
+	padding: 0;
+	font-weight: bold;
+}
+
+.ui-draggable .time {
+	cursor: move;
+}
+
+.cal-event .title {
+	position: relative;	
+}
+
+.ui-resizable-s {
+	height: 10px;
+	bottom: -8px;	
+}
+
+

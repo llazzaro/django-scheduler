@@ -1,0 +1,51 @@
+{% extends "schedule/base.html" %}
+{% load scheduletags %}
+
+{% block extra_head %}
+{{block.super}}
+
+<link rel="stylesheet" href="{{ MEDIA_URL }}css/jquery.weekcalendar.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="{{ MEDIA_URL }}css/weekcalendar.css" type="text/css" media="screen" />
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.weekcalendar.js"></script>
+<script type="text/javascript" src="{% url weekcalendarjs %}"></script>
+
+{% endblock %}
+
+{% block body %}
+
+<div class="navigation">
+  <a href="{% url month_calendar calendar.slug %}{% querystring_for_date periods.week.start 2 %}">
+    Month
+  </a>
+  <a href="{% url year_calendar calendar.slug %}{% querystring_for_date periods.week.start 1%}">
+    Year
+  </a>
+</div>
+
+<div id="week">
+	<div id='calendar' slug="{{calendar.slug}}" year="{{periods.week.start.year}}" month="{{periods.week.start.month}}" day="{{periods.week.start.day}}"></div>
+	<div id="event_edit_container">
+		<form>
+			<input type="hidden" />
+			<ul>
+				<li>
+					<span>Date: </span><span class="date_holder"></span> 
+				</li>
+				<li>
+					<label for="start">Start Time: </label><select name="start"><option value="">Select Start Time</option></select>
+				</li>
+				<li>
+					<label for="end">End Time: </label><select name="end"><option value="">Select End Time</option></select>
+				</li>
+				<li>
+					<label for="title">Title: </label><input type="text" name="title" />
+				</li>
+				<li>
+					<label for="body">Body: </label><textarea name="body"></textarea>
+				</li>
+			</ul>
+		</form>
+	</div>
+</div>
+
+{% endblock %}
