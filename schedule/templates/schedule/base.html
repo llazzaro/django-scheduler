@@ -1,23 +1,8 @@
 {% extends "site_base.html" %}
 {% block extra_head %}
 {{ block.super }}
-<link rel="stylesheet" href="{{ MEDIA_URL }}schedule/css/schedule.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="{{ MEDIA_URL }}css/jquery-ui.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="{{ MEDIA_URL }}css/jquery.tooltip.css" />
-<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.tooltip.js"></script>
-{% endblock %}
-
-{% block rtab_id %}id="schedule_tab"{% endblock %}
-
-{% block subnav %}
-<ul>
-    {% if user.is_authenticated %}
-        <li><a href="">Create a Calendar</a></li>
-        <li><a href="">Your Calendars</a></li>
-    {% endif %}
-
-        <li><a href="">All Calendars</a></li>
-    </ul>
+<link rel="stylesheet" href="{{ MEDIA_URL }}schedule.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="{{ MEDIA_URL }}jquery-ui.css" type="text/css" media="screen" />
+<script type="text/javascript" src="{{ MEDIA_URL }}jquery.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}jquery-ui.js"></script>
 {% endblock %}
