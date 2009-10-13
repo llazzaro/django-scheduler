@@ -1,18 +1,15 @@
-{% extends "site_base.html" %}
+{% extends "schedule/base.html" %}
+
 {% block extra_head %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{ MEDIA_URL }}jquery-ui.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="{{ MEDIA_URL }}schedule.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="{{ MEDIA_URL }}jquery.js"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}jquery-ui.js"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}jquery.timePicker.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.timePicker.js"></script>
     <script type="text/javascript">
     $(function() {
         $("#id_start_0").datepicker({dateFormat: $.datepicker.ATOM});
         $("#id_end_0").datepicker({dateFormat: $.datepicker.ATOM});
         $("#id_start_1").timePicker();
         $("#id_end_1").timePicker();
-        $("#id_end_recurring_period").datepicker({dateFormat: "yy-mm-dd 23:59:00"});
+        $("#id_end_recurring_period").datepicker({dateFormat: $.datepicker.ATOM});
         var oldTime = $.timePicker("#id_start_1").getTime();
         $("#id_start_1").change(function() {
           if ($("#id_end_1").val()) { // Only update when second input has a value.
