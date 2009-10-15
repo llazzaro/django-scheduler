@@ -11,9 +11,11 @@ import datetime
 
 from schedule.conf.settings import GET_EVENTS_FUNC, CHECK_PERMISSION_FUNC, OCCURRENCE_CANCEL_REDIRECT
 from schedule.forms import EventForm, OccurrenceForm
+from schedule.forms import OccurrenceBackendForm
 from schedule.models import *
 from schedule.periods import weekday_names
 from schedule.utils import check_event_permissions, coerce_date_dict
+from schedule.utils import encode_occurrence, decode_occurrence
 
 def calendar(request, calendar_slug, template='schedule/calendar.html'):
     """
@@ -187,7 +189,7 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
     if(occurrence_id):
         occurrence = get_object_or_404(Occurrence, id=occurrence_id)
         event = occurrence.event
-    elif(all((year, month, day, hour, minute, second))):
+    elif not [x for x in (year, month, day, hour, minute, second) if x is None]:
         event = get_object_or_404(Event, id=event_id)
         occurrence = event.get_occurrence(
             datetime.datetime(int(year), int(month), int(day), int(hour),
@@ -333,12 +335,31 @@ def calendar_by_periods_json(request, calendar_slug, periods, template_name='sch
     event_list = GET_EVENTS_FUNC(request, calendar)
     period_object = periods[0](event_list, date)
     for i, occ in enumerate(period_object.occurrences):
+        occ.id = encode_occurrence(occ)
         occ.start = occ.start.ctime()
         occ.end = occ.end.ctime()
         occ.read_only = not CHECK_PERMISSION_FUNC(occ, user)
-        occ.id = i
     rnd = loader.get_template(template_name)
     resp = rnd.render(Context({'occurrences':period_object.occurrences}))
 #    return render_to_response(template_name, {'occurrences':period_object.occurrences})
     return HttpResponse(resp)
+
+
+def edit_occurrence_by_code(request):
+    try:
+        id = request.REQUEST.get('id')
+        kwargs = decode_occurrence(id)
+        event_id = kwargs.pop('event_id')
+        event, occurrence = get_occurrence(event_id, **kwargs)
+        form = OccurrenceBackendForm(data=request.POST or None, instance=occurrence)
+        if form.is_valid():
+            occurrence = form.save(commit=False)
+            occurrence.event = event
+            occurrence.save()
+            return HttpResponse('OK')
+        return HttpResponse(str(form.errors))
+    except Exception, e:
+        return HttpResponse(str(e))
+
+
 

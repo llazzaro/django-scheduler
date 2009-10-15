@@ -1,4 +1,21 @@
 
+edit_occurrence_url = "{% url edit_occurrence_by_code %}"
+
+function lead_zero(v){
+    if(v<10){
+        v = '0' + v;
+    }
+    return v;
+}
+
+function format_datetime(dt){
+    var s = ''
+    s = s + dt.getFullYear() + '-' + lead_zero(dt.getMonth()+1) + '-' + lead_zero(dt.getDate());
+    s = s + ' '
+    s = s + lead_zero(dt.getHours()) + ':' + lead_zero(dt.getMinutes()) + ':' + lead_zero(dt.getSeconds());
+    return s
+}
+
 $(document).ready(function() {
 
 
@@ -117,15 +134,28 @@ $(document).ready(function() {
                 },
                 buttons: {
                     save : function(){
-                        /* TODO save old params, send AJAX request to save new data, restore old data upon receiving
-                         * error message from server */
-                        calEvent.start = new Date(startField.val());
-                        calEvent.end = new Date(endField.val());
-                        calEvent.title = titleField.val();
-                        calEvent.body = bodyField.val();
+                        /* send new data to the server; if response is OK
+                         * then update calendar and close dialog */
+                        start = new Date(startField.val());
+                        end = new Date(endField.val());
+                        title = titleField.val();
+                        body = bodyField.val();
+                        st = format_datetime(calEvent.start);
+                        en = format_datetime(calEvent.end);
+                        data = {id:calEvent.id, start:st, end:en, title:title, description:body};
+                        $.post(edit_occurrence_url, data, function(data){
+                            if(data=='OK'){
+                                calEvent.start = start;
+                                calEvent.end = end;
+                                calEvent.title = title;
+                                calEvent.body = body;
+                                $dialogContent.dialog("close");
+                                $calendar.weekCalendar("updateEvent", calEvent);
+                            }else{
+                                alert(data);
+                            }
+                        });
 
-                        $calendar.weekCalendar("updateEvent", calEvent);
-                        $dialogContent.dialog("close");
                     },
                     "delete" : function(){
                         $calendar.weekCalendar("removeEvent", calEvent.id);
@@ -137,8 +167,8 @@ $(document).ready(function() {
                 }
             }).show();
 
-            var startField = $dialogContent.find("select[name='start']").val(calEvent.start);
-            var endField =  $dialogContent.find("select[name='end']").val(calEvent.end);
+            startField = $dialogContent.find("select[name='start']").val(calEvent.start);
+            endField =  $dialogContent.find("select[name='end']").val(calEvent.end);
             $dialogContent.find(".date_holder").text($calendar.weekCalendar("formatDate", calEvent.start));
             setupStartAndEndTimeFields(startField, endField, calEvent, $calendar.weekCalendar("getTimeslotTimes", calEvent.start));
 		    $(window).resize().resize(); //fixes a bug in modal overlay size ??
@@ -152,17 +182,17 @@ $(document).ready(function() {
 
 		},
 		data : function(start, end, callback) {
-            /* this is called (a) upon page load and (b) when week is changed
-             * start and end are beginning/end of selected week */
-            slug = $('#calendar').attr('slug');
-            base_url = '{% url week_calendar_json calendar_slug="nobody" %}';
-            base_url = base_url.replace('nobody', slug);
-            var url = base_url + '?year=' + start.getFullYear() + '&month=' + (start.getMonth() + 1) + '&day=' + start.getDate();
-            $.getJSON(url, function(data){
-                res = {events:data};
-                callback(res);
-            });
-        }
+                /* this is called (a) upon page load and (b) when week is changed
+                 * start and end are beginning/end of selected week */
+                slug = $('#calendar').attr('slug');
+                base_url = '{% url week_calendar_json calendar_slug="nobody" %}';
+                base_url = base_url.replace('nobody', slug);
+                var url = base_url + '?year=' + start.getFullYear() + '&month=' + (start.getMonth() + 1) + '&day=' + start.getDate();
+                $.getJSON(url, function(data){
+                    res = {events:data};
+                    callback(res);
+                });
+            }
 	});
 
     function resetForm($dialogContent) {

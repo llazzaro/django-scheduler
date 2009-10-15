@@ -71,7 +71,7 @@ ROOT_URLCONF = 'project_sample.urls'
 
 TEMPLATE_DIRS = (
     # uncomment this to use ajax week view
-#    os.path.join(PROJECT_DIR,"schedule_weekcal/templates"),
+    os.path.join(PROJECT_DIR,"schedule_weekcal/templates"),
     os.path.join(PROJECT_DIR,"templates"),
 )
 

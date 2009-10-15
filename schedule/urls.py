@@ -92,7 +92,11 @@ url(r'^occurrence/cancel/(?P<event_id>\d+)/(?P<year>\d+)/(?P<month>\d+)/(?P<day>
 url(r'^occurrence/edit/(?P<event_id>\d+)/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/(?P<hour>\d+)/(?P<minute>\d+)/(?P<second>\d+)/$',
     'schedule.views.edit_occurrence', 
     name="edit_occurrence_by_date"),
-    
+
+#url for occurrences by encoded data
+url(r'^occurrence/edit_by_code/$',
+    'schedule.views.edit_occurrence_by_code',
+    name="edit_occurrence_by_code"),
 
 #feed urls 
 url(r'^feed/calendar/(.*)/$',

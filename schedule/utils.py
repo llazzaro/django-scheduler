@@ -1,5 +1,6 @@
 import datetime
 import heapq
+import re
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.conf import settings
@@ -122,3 +123,39 @@ def coerce_date_dict(date_dict):
             break
     return modified and retVal or {}
 
+
+occtimeformat = 'ST%Y%m%d%H%M%S'
+
+def encode_occurrence(occ):
+    """
+        Create a temp id containing event id, encoded id if it is persisted,
+        otherwise timestamp.
+        Used by AJAX implementations so that JS can assemble a URL
+        for calls to occurrence_edit
+    """
+    if occ.id:
+        s = 'ID%d' % occ.id
+    else:
+        s = occ.start.strftime(occtimeformat)
+    return 'E%d_%s' % (occ.event.id, s)
+
+
+def decode_occurrence(id):
+    """
+        reverse of encode_occurrence - given an encoded string
+        returns a dict containing event_id and occurrence data
+        occurrence data contain either occurrence_id
+        or year, month etc.
+    """
+    res = {}
+    parts = id.split('_')
+    res['event_id'] = parts[0][1:]
+    occ = parts[1]
+    if occ.startswith('ID'):
+        res['occurrence_id'] = occ[2:]
+    else:
+        start = datetime.datetime.strptime(occ, occtimeformat)
+        occ_data = dict(year=start.year, month=start.month, day=start.day,
+            hour=start.hour, minute=start.minute, second=start.second)
+        res.update(occ_data)
+    return res
