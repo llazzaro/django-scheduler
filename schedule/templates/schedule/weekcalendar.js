@@ -1,4 +1,27 @@
 
+function weekcal_save_event(calEvent){
+    /* post data to the server
+     * if the server returns an error we display alert
+     * and reload page to get back to original values
+     * */
+    start = calEvent.start;
+    end = calEvent.end;
+    title = calEvent.title;
+    body = calEvent.body;
+    st = format_datetime(start);
+    en = format_datetime(end);
+    data = {id:calEvent.id, start:st, end:en, title:title, description:body};
+    $.post(edit_occurrence_url, data, function(data){
+        if(data=='OK'){
+            // pass
+        }else{
+            alert(data);
+            window.location.reload();
+        }
+    });
+}
+
+
 $(document).ready(function() {
 
 
@@ -76,21 +99,12 @@ $(document).ready(function() {
 
 		},
 		eventDrop : function(calEvent, $event) {
-        /* this is called when user finishes draggin event to different time
-         * new data is in calEvent.start, calEvent.end */
-        /* TODO send AJAX request to save new data, restore old data upon receiving
-         * error message from server */
-		},
-    /* TODO save old data when event is being dragged so that eventDrop can roll back
-     * possible solution: implement eventDrag with pseudocode like:
-     * eventDrag:
-     *   if calEvent has no old data
-     *   then save old data
-     * eventDrop:
-     *   delete old data
-     * */
+                        weekcal_save_event(calEvent);
+
+                },
+
 		eventResize : function(calEvent, $event) {
-      /* TODO same as for eventDrop */
+                        weekcal_save_event(calEvent);
 		},
 		eventClick : function(calEvent, $event) {
 
