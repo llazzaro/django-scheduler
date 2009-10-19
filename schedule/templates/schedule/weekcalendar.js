@@ -167,9 +167,7 @@ $(document).ready(function() {
 		data : function(start, end, callback) {
                 /* this is called (a) upon page load and (b) when week is changed
                  * start and end are beginning/end of selected week */
-                slug = $('#calendar').attr('slug');
-                base_url = '{% url week_calendar_json calendar_slug="nobody" %}';
-                base_url = base_url.replace('nobody', slug);
+                var base_url = '{% url week_calendar_json calendar_slug=calendar_slug %}';
                 var url = base_url + '?year=' + start.getFullYear() + '&month=' + (start.getMonth() + 1) + '&day=' + start.getDate();
                 $.getJSON(url, function(data){
                     res = {events:data};
@@ -274,10 +272,10 @@ $(document).ready(function() {
                 }
             }).show();
     });
-    /* jump to initial date as provided in html */
-    var year = $calendar.attr('year');
-    var month = parseInt($calendar.attr('month')) - 1; /* we count from 1 */
-    var day = $calendar.attr('day');
+    /* jump to initial date */
+    var year = {{start_date.year}};
+    var month = {{start_date.month}} - 1; /* we count from 1 */
+    var day = {{start_date.day}};
     var initial_date = new Date(year, month, day);
     $calendar.weekCalendar("gotoWeek", initial_date);
 

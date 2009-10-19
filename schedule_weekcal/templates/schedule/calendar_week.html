@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{{ MEDIA_URL }}css/weekcalendar.css" type="text/css" media="screen" />
 <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.weekcalendar.js"></script>
 <script type="text/javascript" src="{% url schedulelib.js %}"></script>
-<script type="text/javascript" src="{% url weekcalendar.js %}"></script>
+<script type="text/javascript" src="{% url weekcalendar.js calendar_slug=calendar.slug %}{% querystring_for_date periods.week.start 3%}"></script>
 
 {% endblock %}
 
@@ -24,7 +24,7 @@
 </div>
 
 <div id="week">
-	<div id='calendar' slug="{{calendar.slug}}" year="{{periods.week.start.year}}" month="{{periods.week.start.month}}" day="{{periods.week.start.day}}"></div>
+	<div id='calendar'></div>
 	<div id="event_edit_container">
 		<form>
 			<input type="hidden" />

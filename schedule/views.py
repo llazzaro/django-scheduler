@@ -315,8 +315,11 @@ def get_next_url(request, default):
         next = request.REQUEST['next']
     return next
 
-def weekcalendarjs(request):
+def weekcalendarjs(request, calendar_slug):
     config_params = {} # will draw from settings
+    config_params['calendar_slug'] = calendar_slug
+    config_params['start_date'] = coerce_date_dict(request.GET)
+    print config_params
     return render_to_response('schedule/weekcalendar.js', config_params)
 
 def schedulelibjs(request):

@@ -106,7 +106,7 @@ url(r'^feed/calendar/(.*)/$',
 (r'^ical/calendar/(.*)/$', CalendarICalendar()),
 
  # weekcalendar javascript
- url(r'weekcalendarjs/$', 'schedule.views.weekcalendarjs', name="weekcalendar.js"),
+ url(r'weekcalendarjs/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.weekcalendarjs', name="weekcalendar.js"),
  url(r'schedule_lib_js/$', 'schedule.views.schedulelibjs', name="schedulelib.js"),
  url(r'$', object_list, info_dict, name='schedule'), 
 )
