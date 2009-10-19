@@ -315,11 +315,17 @@ def get_next_url(request, default):
         next = request.REQUEST['next']
     return next
 
+
+from schedule.periods import Week
+
 def weekcalendarjs(request, calendar_slug):
     config_params = {} # will draw from settings
     config_params['calendar_slug'] = calendar_slug
-    config_params['start_date'] = coerce_date_dict(request.GET)
-    print config_params
+    start_date_dict = coerce_date_dict(request.GET)
+    start_date = datetime.date(start_date_dict['year'], start_date_dict['month'], start_date_dict['day'])
+    target_week = Week([], start_date)
+    if target_week != Week([]): # is it current period?
+        config_params['start_date'] = start_date
     return render_to_response('schedule/weekcalendar.js', config_params)
 
 def schedulelibjs(request):

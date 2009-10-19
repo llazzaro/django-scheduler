@@ -286,11 +286,13 @@ $(document).ready(function() {
                 }
             }).show();
     });
+    {% if start_date %}
     /* jump to initial date */
     var year = {{start_date.year}};
     var month = {{start_date.month}} - 1; /* we count from 1 */
     var day = {{start_date.day}};
     var initial_date = new Date(year, month, day);
     $calendar.weekCalendar("gotoWeek", initial_date);
+    {% endif %}
 
 });
