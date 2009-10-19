@@ -28,7 +28,7 @@ setup(
                  'Operating System :: OS Independent',
                  'Programming Language :: Python',
                  'Topic :: Utilities'],
-    install_requires=['setuptools', 'vobject'],
+    install_requires=['setuptools', 'vobject', 'python-dateutil'],
     license='BSD',
     test_suite = "schedule.tests",
 )
