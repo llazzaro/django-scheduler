@@ -140,8 +140,8 @@ $(document).ready(function() {
                         end = new Date(endField.val());
                         title = titleField.val();
                         body = bodyField.val();
-                        st = format_datetime(calEvent.start);
-                        en = format_datetime(calEvent.end);
+                        st = format_datetime(start);
+                        en = format_datetime(end);
                         data = {id:calEvent.id, start:st, end:en, title:title, description:body};
                         $.post(edit_occurrence_url, data, function(data){
                             if(data=='OK'){
