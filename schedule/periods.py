@@ -40,6 +40,9 @@ class Period(object):
     def __eq__(self, period):
         return self.start==period.start and self.end==period.end and self.events==period.events
 
+    def __ne__(self, period):
+        return self.start!=period.start or self.end!=period.end or self.events!=period.events
+
     def _get_sorted_occurrences(self):
         occurrences = []
         if hasattr(self, "occurrence_pool") and self.occurrence_pool is not None:
