@@ -319,6 +319,10 @@ def weekcalendarjs(request):
     config_params = {} # will draw from settings
     return render_to_response('schedule/weekcalendar.js', config_params)
 
+def schedulelibjs(request):
+    config_params = {} # will draw from settings
+    return render_to_response('schedule/schedule_lib.js', config_params)
+
 from django.template import Context, loader
 
 def calendar_by_periods_json(request, calendar_slug, periods, template_name='schedule/occurrences_json.html'):
