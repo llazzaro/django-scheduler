@@ -177,8 +177,16 @@ $(document).ready(function() {
 
                     },
                     "delete" : function(){
-                        $calendar.weekCalendar("removeEvent", calEvent.id);
-                        $dialogContent.dialog("close");
+                        data = {id:calEvent.id, action:"cancel"};
+                        $.post(edit_occurrence_url, data, function(data){
+                            if(data=='OK'){
+                                $calendar.weekCalendar("removeEvent", calEvent.id);
+                                $dialogContent.dialog("close");
+                            }else{
+                                alert(data);
+                            }
+                        });
+                        
                     },
                     cancel : function(){
                         $dialogContent.dialog("close");

@@ -358,12 +358,16 @@ def calendar_by_periods_json(request, calendar_slug, periods, template_name='sch
     return HttpResponse(resp)
 
 
+# TODO permissions check
 def edit_occurrence_by_code(request):
     try:
         id = request.REQUEST.get('id')
         kwargs = decode_occurrence(id)
         event_id = kwargs.pop('event_id')
         event, occurrence = get_occurrence(event_id, **kwargs)
+        if request.REQUEST.get('action') == 'cancel':
+            occurrence.cancel()
+            return HttpResponse('OK')
         form = OccurrenceBackendForm(data=request.POST or None, instance=occurrence)
         if form.is_valid():
             occurrence = form.save(commit=False)
@@ -373,6 +377,5 @@ def edit_occurrence_by_code(request):
         return HttpResponse(str(form.errors))
     except Exception, e:
         return HttpResponse(str(e))
-
 
 
