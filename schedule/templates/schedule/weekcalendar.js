@@ -22,6 +22,14 @@ function weekcal_save_event(calEvent){
 }
 
 
+function format_time(dt){
+    return lead_zero(dt.getHours()) + ":" + lead_zero(dt.getMinutes());
+}
+
+function format_date(dt){
+    return dt.getFullYear() + '-' + lead_zero(dt.getMonth()+1) + '-' + lead_zero(dt.getDate());
+}
+
 $(document).ready(function() {
 
 
@@ -104,6 +112,25 @@ $(document).ready(function() {
 
         eventClick : function(calEvent, $event) {
             if(calEvent.readOnly) {
+                var $viewDial = $("#event_view_container")
+                var dateSpan = $viewDial.find("span[name='date']").html(format_date(calEvent.start));
+                var startSpan = $viewDial.find("span[name='start']").html(format_time(calEvent.start));
+                var endSpan = $viewDial.find("span[name='end']").html(format_time(calEvent.end));
+                var titleSpan = $viewDial.find("span[name='title']").html(calEvent.title);
+                var startBody = $viewDial.find("span[name='body']").html(calEvent.body);
+                $viewDial.dialog({
+                    modal:true,
+                    title:"View - " + calEvent.title,
+                    close: function() {
+                        $viewDial.dialog("destroy");
+                        $viewDial.hide();
+                    },
+                    buttons:{
+                        close:function(){
+                            $viewDial.dialog("close");
+                        }
+                    }
+                });
                 return;
             }
 
