@@ -55,6 +55,11 @@ $(document).ready(function() {
                             "border" : "1px solid #888"
                         });
             }
+            if((calEvent.recurring) && !(calEvent.persisted)){
+                /* mark those which are parts of a recurrence chain
+                 * TODO delegate to CSS file */
+                $event.find(".time").css({"color":"black"});
+            }
         },
         draggable : function(calEvent, $event) {
             return calEvent.readOnly != true;
@@ -112,6 +117,8 @@ $(document).ready(function() {
 
         eventClick : function(calEvent, $event) {
             if(calEvent.readOnly) {
+                /* view the event details
+                 */
                 var $viewDial = $("#event_view_container")
                 var dateSpan = $viewDial.find("span[name='date']").html(format_date(calEvent.start));
                 var startSpan = $viewDial.find("span[name='start']").html(format_time(calEvent.start));
