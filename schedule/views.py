@@ -332,9 +332,11 @@ def schedulelibjs(request):
     config_params = {} # will draw from settings
     return render_to_response('schedule/schedule_lib.js', config_params)
 
+
 from django.template import Context, loader
 
 def calendar_by_periods_json(request, calendar_slug, periods, template_name='schedule/occurrences_json.html'):
+    # XXX is this function name good?
     user = request.user
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
     date = coerce_date_dict(request.GET)
@@ -347,14 +349,17 @@ def calendar_by_periods_json(request, calendar_slug, periods, template_name='sch
         date = datetime.datetime.now()
     event_list = GET_EVENTS_FUNC(request, calendar)
     period_object = periods[0](event_list, date)
+    occ_list = []
     for i, occ in enumerate(period_object.occurrences):
-        occ.id = encode_occurrence(occ)
-        occ.start = occ.start.ctime()
-        occ.end = occ.end.ctime()
-        occ.read_only = not CHECK_PERMISSION_FUNC(occ, user)
+        res = period_object.classify_occurrence(occ)
+        if res:
+            occ.id = encode_occurrence(occ)
+            occ.start = occ.start.ctime()
+            occ.end = occ.end.ctime()
+            occ.read_only = not CHECK_PERMISSION_FUNC(occ, user)
+            occ_list.append(occ)
     rnd = loader.get_template(template_name)
     resp = rnd.render(Context({'occurrences':period_object.occurrences}))
-#    return render_to_response(template_name, {'occurrences':period_object.occurrences})
     return HttpResponse(resp)
 
 
