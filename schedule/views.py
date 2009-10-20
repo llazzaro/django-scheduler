@@ -353,10 +353,17 @@ def calendar_by_periods_json(request, calendar_slug, periods, template_name='sch
     for i, occ in enumerate(period_object.occurrences):
         res = period_object.classify_occurrence(occ)
         if res:
+            original_id = occ.id
             occ.id = encode_occurrence(occ)
             occ.start = occ.start.ctime()
             occ.end = occ.end.ctime()
             occ.read_only = not CHECK_PERMISSION_FUNC(occ, user)
+            occ.recurring = bool(occ.event.rule)
+            occ.persisted = bool(original_id)
+            # these attributes are very important from UI point of view
+            # if occ is recurreing and not persisted then a user can edit either event or occurrence
+            # once an occ has been edited it is persisted so he can edit only occurrence
+            # if occ represents non-recurring event then he always edits the event
             occ_list.append(occ)
     rnd = loader.get_template(template_name)
     resp = rnd.render(Context({'occurrences':period_object.occurrences}))
