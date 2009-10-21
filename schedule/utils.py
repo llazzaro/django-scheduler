@@ -4,6 +4,7 @@ import re
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.conf import settings
+from django.template import Context, loader
 from schedule.conf.settings import CHECK_PERMISSION_FUNC
 
 class EventListManager(object):
@@ -159,3 +160,24 @@ def decode_occurrence(id):
             hour=start.hour, minute=start.minute, second=start.second)
         res.update(occ_data)
     return res
+
+
+def serialize_occurrences(occurrences, user):
+    occ_list = []
+    for occ in occurrences:
+        original_id = occ.id
+        occ.id = encode_occurrence(occ)
+        occ.start = occ.start.ctime()
+        occ.end = occ.end.ctime()
+        occ.read_only = not CHECK_PERMISSION_FUNC(occ, user)
+        occ.recurring = bool(occ.event.rule)
+        occ.persisted = bool(original_id)
+        # these attributes are very important from UI point of view
+        # if occ is recurreing and not persisted then a user can edit either event or occurrence
+        # once an occ has been edited it is persisted so he can edit only occurrence
+        # if occ represents non-recurring event then he always edits the event
+        occ_list.append(occ)
+    rnd = loader.get_template('schedule/occurrences_json.html')
+    resp = rnd.render(Context({'occurrences':occ_list}))
+    return resp
+

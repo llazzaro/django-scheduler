@@ -1,5 +1,6 @@
 
-function weekcal_save_event(calEvent){
+
+function weekcal_save_event($calendar, calEvent){
     /* post data to the server
      * if the server returns an error we display alert
      * and reload page to get back to original values
@@ -12,13 +13,17 @@ function weekcal_save_event(calEvent){
     en = format_datetime(end);
     data = {id:calEvent.id, start:st, end:en, title:title, description:body};
     $.post(edit_occurrence_url, data, function(data){
-        if(data=='OK'){
-            // pass
-        }else{
-            alert(data);
+        try{
+            evt = data[0]
+            calEvent.id = evt.id;
+            calEvent.recurring = evt.recurring;
+            calEvent.persisted = evt.persisted;
+            $calendar.weekCalendar("updateEvent", calEvent);
+        }catch(e){
+            alert(e + data);
             window.location.reload();
         }
-    });
+    }, 'json');
 }
 
 
@@ -30,8 +35,12 @@ function format_date(dt){
     return dt.getFullYear() + '-' + lead_zero(dt.getMonth()+1) + '-' + lead_zero(dt.getDate());
 }
 
-$(document).ready(function() {
+function mark_event_chained($event){
+    /** TODO delegate to CSS file */
+    $event.find(".time").css({"color":"black"});
+}
 
+$(document).ready(function() {
 
     var $calendar = $('#calendar');
     var id = 10;
@@ -56,9 +65,8 @@ $(document).ready(function() {
                         });
             }
             if((calEvent.recurring) && !(calEvent.persisted)){
-                /* mark those which are parts of a recurrence chain
-                 * TODO delegate to CSS file */
-                $event.find(".time").css({"color":"black"});
+                /* mark those which are parts of a recurrence chain */
+                mark_event_chained($event);
             }
         },
         draggable : function(calEvent, $event) {
@@ -108,11 +116,11 @@ $(document).ready(function() {
         },
 
         eventDrop : function(calEvent, $event) {
-            weekcal_save_event(calEvent);
+            weekcal_save_event($calendar, calEvent);
         },
 
         eventResize : function(calEvent, $event) {
-            weekcal_save_event(calEvent);
+            weekcal_save_event($calendar, calEvent);
         },
 
         eventClick : function(calEvent, $event) {
@@ -170,18 +178,21 @@ $(document).ready(function() {
                     en = format_datetime(end);
                     data = {id:calEvent.id, start:st, end:en, title:title, description:body};
                     $.post(edit_occurrence_url, data, function(data){
-                        if(data=='OK'){
+                        try{
+                            evt = data[0]
+                            calEvent.id = evt['id']
                             calEvent.start = start;
                             calEvent.end = end;
                             calEvent.title = title;
                             calEvent.body = body;
+                            calEvent.recurring = evt.recurring;
+                            calEvent.persisted = evt.persisted;
                             $dialogContent.dialog("close");
                             $calendar.weekCalendar("updateEvent", calEvent);
-                        }else{
-                            alert(data);
+                        }catch(e){
+                            alert(e + data);
                         }
-                    });
-
+                    }, 'json');
                     },
                     "delete" : function(){
                         data = {id:calEvent.id, action:"cancel"};

@@ -1,3 +1,4 @@
+from schedule.utils import serialize_occurrences
 from urllib import quote
 from django.shortcuts import render_to_response, get_object_or_404
 from django.views.generic.create_update import delete_object
@@ -15,7 +16,7 @@ from schedule.forms import OccurrenceBackendForm
 from schedule.models import *
 from schedule.periods import weekday_names
 from schedule.utils import check_event_permissions, coerce_date_dict
-from schedule.utils import encode_occurrence, decode_occurrence
+from schedule.utils import encode_occurrence, decode_occurrence, serialize_occurrences
 
 def calendar(request, calendar_slug, template='schedule/calendar.html'):
     """
@@ -333,7 +334,7 @@ def schedulelibjs(request):
     return render_to_response('schedule/schedule_lib.js', config_params)
 
 
-from django.template import Context, loader
+
 
 def calendar_by_periods_json(request, calendar_slug, periods, template_name='schedule/occurrences_json.html'):
     # XXX is this function name good?
@@ -349,24 +350,11 @@ def calendar_by_periods_json(request, calendar_slug, periods, template_name='sch
         date = datetime.datetime.now()
     event_list = GET_EVENTS_FUNC(request, calendar)
     period_object = periods[0](event_list, date)
-    occ_list = []
-    for i, occ in enumerate(period_object.occurrences):
-        res = period_object.classify_occurrence(occ)
-        if res:
-            original_id = occ.id
-            occ.id = encode_occurrence(occ)
-            occ.start = occ.start.ctime()
-            occ.end = occ.end.ctime()
-            occ.read_only = not CHECK_PERMISSION_FUNC(occ, user)
-            occ.recurring = bool(occ.event.rule)
-            occ.persisted = bool(original_id)
-            # these attributes are very important from UI point of view
-            # if occ is recurreing and not persisted then a user can edit either event or occurrence
-            # once an occ has been edited it is persisted so he can edit only occurrence
-            # if occ represents non-recurring event then he always edits the event
-            occ_list.append(occ)
-    rnd = loader.get_template(template_name)
-    resp = rnd.render(Context({'occurrences':period_object.occurrences}))
+    occurrences = []
+    for o in period_object.occurrences:
+        if period_object.classify_occurrence(o):
+            occurrences.append(o)
+    resp = serialize_occurrences(occurrences, user)
     return HttpResponse(resp)
 
 
@@ -385,7 +373,7 @@ def edit_occurrence_by_code(request):
             occurrence = form.save(commit=False)
             occurrence.event = event
             occurrence.save()
-            return HttpResponse('OK')
+            return HttpResponse(serialize_occurrences([occurrence], request.user))
         return HttpResponse(str(form.errors))
     except Exception, e:
         return HttpResponse(str(e))
