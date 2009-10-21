@@ -115,8 +115,6 @@ $(document).ready(function() {
                                 $dialogContent.dialog("close");
                             }else{
                                 alert(data.error);
-                                $calendar.weekCalendar("removeUnsavedEvents");
-                                $dialogContent.dialog("close");
                             }
                         }, 'json');
                     },
@@ -211,7 +209,12 @@ $(document).ready(function() {
                     },
                     "delete" : function(){
                         data = {id:calEvent.id, action:"cancel"};
-                        $.post(edit_occurrence_url, data, function(data){
+                        if(calEvent.recurring == true){
+                            url = edit_occurrence_url;
+                        }else{
+                            url = edit_event_url;
+                        }
+                        $.post(url, data, function(data){
                             if(data.error == undefined){
                                 $calendar.weekCalendar("removeEvent", calEvent.id);
                                 $dialogContent.dialog("close");

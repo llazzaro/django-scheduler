@@ -339,6 +339,7 @@ class JSONError(HttpResponse):
     def __init__(self, error):
         s = "{error:'%s'}" % error
         HttpResponse.__init__(self, s)
+        # TODO strip html tags from form errors
 
 
 def calendar_by_periods_json(request, calendar_slug, periods, template_name='schedule/occurrences_json.html'):
@@ -380,7 +381,7 @@ def ajax_edit_occurrence_by_code(request):
             occurrence.event = event
             occurrence.save()
             return HttpResponse(serialize_occurrences([occurrence], request.user))
-        return JSONError(form.errors))
+        return JSONError(form.errors)
     except Exception, e:
         import traceback
         traceback.print_exc()
@@ -388,9 +389,20 @@ def ajax_edit_occurrence_by_code(request):
 
 
 def ajax_edit_event(request, calendar_slug):
-    calendar = get_object_or_404(Calendar, slug=calendar_slug)
-    # creation of a non-recurring event
     try:
+        id = request.REQUEST.get('id') # we should have got occurrence's id
+        kwargs = decode_occurrence(id)
+        event_id = kwargs['event_id']
+        # deleting an event
+        if request.REQUEST.get('action') == 'cancel':
+            # cancellation of a non-recurring event means deleting the event
+            event = Event.objects.get(pk=event_id)
+            event.delete()
+            # there is nothing more - we return empty json
+            return HttpResponse(serialize_occurrences([], request.user))
+
+        calendar = get_object_or_404(Calendar, slug=calendar_slug)
+        # creation of a non-recurring event
         form = EventBackendForm(data=request.POST)
         if form.is_valid():
             event = form.save(commit=False)
