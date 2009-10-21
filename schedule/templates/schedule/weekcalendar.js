@@ -92,18 +92,33 @@ $(document).ready(function() {
                 },
                 buttons: {
                     save : function(){
-                        /* TODO save old params, send AJAX request to save new data, restore old data upon receiving
-                        * error message from server */
-                        calEvent.id = id;
-                        id++;
                         calEvent.start = new Date(startField.val());
                         calEvent.end = new Date(endField.val());
                         calEvent.title = titleField.val();
                         calEvent.body = bodyField.val();
 
-                        $calendar.weekCalendar("removeUnsavedEvents");
-                        $calendar.weekCalendar("updateEvent", calEvent);
-                        $dialogContent.dialog("close");
+                        start = calEvent.start;
+                        end = calEvent.end;
+                        title = calEvent.title;
+                        body = calEvent.body;
+                        st = format_datetime(start);
+                        en = format_datetime(end);
+                        data = {id:calEvent.id, start:st, end:en, title:title, description:body};
+                        $.post(edit_event_url, data, function(data){
+                            try{
+                                evt = data[0]
+                                calEvent.id = evt.id;
+                                calEvent.recurring = evt.recurring;
+                                calEvent.persisted = evt.persisted;
+                                $calendar.weekCalendar("removeUnsavedEvents");
+                                $calendar.weekCalendar("updateEvent", calEvent);
+                                $dialogContent.dialog("close");
+                            }catch(e){
+                                alert(e + data);
+                                $calendar.weekCalendar("removeUnsavedEvents");
+                                $dialogContent.dialog("close");
+                            }
+                        }, 'json');
                     },
                     cancel : function(){
                         $dialogContent.dialog("close");
@@ -178,6 +193,7 @@ $(document).ready(function() {
                     en = format_datetime(end);
                     data = {id:calEvent.id, start:st, end:en, title:title, description:body};
                     $.post(edit_occurrence_url, data, function(data){
+                        alert(data);
                         try{
                             evt = data[0]
                             calEvent.id = evt['id']
@@ -232,8 +248,7 @@ $(document).ready(function() {
         data : function(start, end, callback) {
             /* this is called (a) upon page load and (b) when week is changed
             * start and end are beginning/end of selected week */
-            var base_url = '{% url week_calendar_json calendar_slug=calendar_slug %}';
-            var url = base_url + '?year=' + start.getFullYear() + '&month=' + (start.getMonth() + 1) + '&day=' + start.getDate();
+            var url = get_occurrences_url + '?year=' + start.getFullYear() + '&month=' + (start.getMonth() + 1) + '&day=' + start.getDate();
             $.getJSON(url, function(data){
                 res = {events:data};
                 callback(res);

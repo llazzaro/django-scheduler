@@ -12,7 +12,7 @@ import datetime
 
 from schedule.conf.settings import GET_EVENTS_FUNC, CHECK_PERMISSION_FUNC, OCCURRENCE_CANCEL_REDIRECT
 from schedule.forms import EventForm, OccurrenceForm
-from schedule.forms import OccurrenceBackendForm
+from schedule.forms import EventBackendForm, OccurrenceBackendForm
 from schedule.models import *
 from schedule.periods import weekday_names
 from schedule.utils import check_event_permissions, coerce_date_dict
@@ -329,15 +329,14 @@ def weekcalendarjs(request, calendar_slug):
         config_params['start_date'] = start_date
     return render_to_response('schedule/weekcalendar.js', config_params)
 
-def schedulelibjs(request):
-    config_params = {} # will draw from settings
+def schedulelibjs(request, calendar_slug):
+    config_params = {'calendar_slug':calendar_slug} # will draw from settings
     return render_to_response('schedule/schedule_lib.js', config_params)
-
-
 
 
 def calendar_by_periods_json(request, calendar_slug, periods, template_name='schedule/occurrences_json.html'):
     # XXX is this function name good?
+    # it conforms with the standard API structure but in this case it is rather cryptic
     user = request.user
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
     date = coerce_date_dict(request.GET)
@@ -359,7 +358,7 @@ def calendar_by_periods_json(request, calendar_slug, periods, template_name='sch
 
 
 # TODO permissions check
-def edit_occurrence_by_code(request):
+def ajax_edit_occurrence_by_code(request):
     try:
         id = request.REQUEST.get('id')
         kwargs = decode_occurrence(id)
@@ -376,6 +375,29 @@ def edit_occurrence_by_code(request):
             return HttpResponse(serialize_occurrences([occurrence], request.user))
         return HttpResponse(str(form.errors))
     except Exception, e:
+        import traceback
+        traceback.print_exc()
         return HttpResponse(str(e))
+
+
+def ajax_edit_event(request, calendar_slug):
+    calendar = get_object_or_404(Calendar, slug=calendar_slug)
+    # creation of a non-recurring event
+    try:
+        form = EventBackendForm(data=request.POST)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.creator = request.user
+            event.calendar = calendar
+            event.save()
+            return HttpResponse(serialize_occurrences(event.get_occurrences(event.start, event.end), request.user))
+        print str(form.errors)
+        return HttpResponse(str(form.errors))
+    except Exception, e:
+        import traceback
+        traceback.print_exc()
+        print str(e)
+        return HttpResponse(str(e))
+
 
 

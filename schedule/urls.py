@@ -37,11 +37,6 @@ url(r'^calendar/month/(?P<calendar_slug>[-\w]+)/$',
     name = "month_calendar",
     kwargs={'periods': [Month], 'template_name': 'schedule/calendar_month.html'}),
 
-url(r'^calendar/week/json/(?P<calendar_slug>[-\w]+)/$',
-    'schedule.views.calendar_by_periods_json',
-    name = "week_calendar_json",
-    kwargs={'periods': [Week], 'template_name': 'schedule/occurrences_json.html'}),
-
 url(r'^calendar/week/(?P<calendar_slug>[-\w]+)/$',
     'schedule.views.calendar_by_periods',
     name = "week_calendar",
@@ -93,10 +88,6 @@ url(r'^occurrence/edit/(?P<event_id>\d+)/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d
     'schedule.views.edit_occurrence', 
     name="edit_occurrence_by_date"),
 
-#url for occurrences by encoded data
-url(r'^occurrence/edit_by_code/$',
-    'schedule.views.edit_occurrence_by_code',
-    name="edit_occurrence_by_code"),
 
 #feed urls 
 url(r'^feed/calendar/(.*)/$',
@@ -105,8 +96,27 @@ url(r'^feed/calendar/(.*)/$',
  
 (r'^ical/calendar/(.*)/$', CalendarICalendar()),
 
+# AJAX API
+
+#url for occurrences by encoded data
+url(r'^ajax/occurrence/edit_by_code/$',
+    'schedule.views.ajax_edit_occurrence_by_code',
+    name="ajax_edit_occurrence_by_code"),
+
+url(r'^ajax/calendar/week/json/(?P<calendar_slug>[-\w]+)/$',
+    'schedule.views.calendar_by_periods_json',
+    name = "week_calendar_json",
+    kwargs={'periods': [Week], 'template_name': 'schedule/occurrences_json.html'}),
+
+url(r'^ajax/edit_event/(?P<calendar_slug>[-\w]+)/$',
+    'schedule.views.ajax_edit_event',
+    name = "ajax_edit_event"),
+
+# AJAX library
+url(r'schedule_lib_js/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.schedulelibjs', name="schedulelib.js"),
+
  # weekcalendar javascript
  url(r'weekcalendarjs/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.weekcalendarjs', name="weekcalendar.js"),
- url(r'schedule_lib_js/$', 'schedule.views.schedulelibjs', name="schedulelib.js"),
+ 
  url(r'$', object_list, info_dict, name='schedule'), 
 )
