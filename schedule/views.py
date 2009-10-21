@@ -334,6 +334,13 @@ def schedulelibjs(request, calendar_slug):
     return render_to_response('schedule/schedule_lib.js', config_params)
 
 
+class JSONError(HttpResponse):
+
+    def __init__(self, error):
+        s = "{error:'%s'}" % error
+        HttpResponse.__init__(self, s)
+
+
 def calendar_by_periods_json(request, calendar_slug, periods, template_name='schedule/occurrences_json.html'):
     # XXX is this function name good?
     # it conforms with the standard API structure but in this case it is rather cryptic
@@ -366,18 +373,18 @@ def ajax_edit_occurrence_by_code(request):
         event, occurrence = get_occurrence(event_id, **kwargs)
         if request.REQUEST.get('action') == 'cancel':
             occurrence.cancel()
-            return HttpResponse('OK')
+            return HttpResponse(serialize_occurrences([occurrence], request.user))
         form = OccurrenceBackendForm(data=request.POST or None, instance=occurrence)
         if form.is_valid():
             occurrence = form.save(commit=False)
             occurrence.event = event
             occurrence.save()
             return HttpResponse(serialize_occurrences([occurrence], request.user))
-        return HttpResponse(str(form.errors))
+        return JSONError(form.errors))
     except Exception, e:
         import traceback
         traceback.print_exc()
-        return HttpResponse(str(e))
+        return JSONError(e)
 
 
 def ajax_edit_event(request, calendar_slug):
@@ -391,13 +398,11 @@ def ajax_edit_event(request, calendar_slug):
             event.calendar = calendar
             event.save()
             return HttpResponse(serialize_occurrences(event.get_occurrences(event.start, event.end), request.user))
-        print str(form.errors)
-        return HttpResponse(str(form.errors))
+        return JSONError(form.errors)
     except Exception, e:
         import traceback
         traceback.print_exc()
-        print str(e)
-        return HttpResponse(str(e))
+        return JSONError(e)
 
 
 

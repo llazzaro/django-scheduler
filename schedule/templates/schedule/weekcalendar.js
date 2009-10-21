@@ -13,13 +13,13 @@ function weekcal_save_event($calendar, calEvent){
     en = format_datetime(end);
     data = {id:calEvent.id, start:st, end:en, title:title, description:body};
     $.post(edit_occurrence_url, data, function(data){
-        try{
+        if(data.error == undefined){
             evt = data[0]
             calEvent.id = evt.id;
             calEvent.recurring = evt.recurring;
             calEvent.persisted = evt.persisted;
             $calendar.weekCalendar("updateEvent", calEvent);
-        }catch(e){
+        }else{
             alert(e + data);
             window.location.reload();
         }
@@ -105,7 +105,7 @@ $(document).ready(function() {
                         en = format_datetime(end);
                         data = {id:calEvent.id, start:st, end:en, title:title, description:body};
                         $.post(edit_event_url, data, function(data){
-                            try{
+                            if(data.error == undefined){
                                 evt = data[0]
                                 calEvent.id = evt.id;
                                 calEvent.recurring = evt.recurring;
@@ -113,8 +113,8 @@ $(document).ready(function() {
                                 $calendar.weekCalendar("removeUnsavedEvents");
                                 $calendar.weekCalendar("updateEvent", calEvent);
                                 $dialogContent.dialog("close");
-                            }catch(e){
-                                alert(e + data);
+                            }else{
+                                alert(data.error);
                                 $calendar.weekCalendar("removeUnsavedEvents");
                                 $dialogContent.dialog("close");
                             }
@@ -193,8 +193,7 @@ $(document).ready(function() {
                     en = format_datetime(end);
                     data = {id:calEvent.id, start:st, end:en, title:title, description:body};
                     $.post(edit_occurrence_url, data, function(data){
-                        alert(data);
-                        try{
+                        if(data.error == undefined){
                             evt = data[0]
                             calEvent.id = evt['id']
                             calEvent.start = start;
@@ -205,19 +204,19 @@ $(document).ready(function() {
                             calEvent.persisted = evt.persisted;
                             $dialogContent.dialog("close");
                             $calendar.weekCalendar("updateEvent", calEvent);
-                        }catch(e){
-                            alert(e + data);
+                        }else{
+                            alert(data.error);
                         }
                     }, 'json');
                     },
                     "delete" : function(){
                         data = {id:calEvent.id, action:"cancel"};
                         $.post(edit_occurrence_url, data, function(data){
-                            if(data=='OK'){
+                            if(data.error == undefined){
                                 $calendar.weekCalendar("removeEvent", calEvent.id);
                                 $dialogContent.dialog("close");
                             }else{
-                                alert(data);
+                                alert(data.error);
                             }
                         });
                         
