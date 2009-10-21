@@ -391,26 +391,33 @@ def ajax_edit_occurrence_by_code(request):
 def ajax_edit_event(request, calendar_slug):
     try:
         id = request.REQUEST.get('id') # we should have got occurrence's id
-        kwargs = decode_occurrence(id)
-        event_id = kwargs['event_id']
-        # deleting an event
-        if request.REQUEST.get('action') == 'cancel':
-            # cancellation of a non-recurring event means deleting the event
+        if id:
+            kwargs = decode_occurrence(id)
+            event_id = kwargs['event_id']
             event = Event.objects.get(pk=event_id)
-            event.delete()
-            # there is nothing more - we return empty json
-            return HttpResponse(serialize_occurrences([], request.user))
-
-        calendar = get_object_or_404(Calendar, slug=calendar_slug)
-        # creation of a non-recurring event
-        form = EventBackendForm(data=request.POST)
-        if form.is_valid():
-            event = form.save(commit=False)
-            event.creator = request.user
-            event.calendar = calendar
-            event.save()
-            return HttpResponse(serialize_occurrences(event.get_occurrences(event.start, event.end), request.user))
-        return JSONError(form.errors)
+            # deleting an event
+            if request.REQUEST.get('action') == 'cancel':
+                # cancellation of a non-recurring event means deleting the event
+                event.delete()
+                # there is nothing more - we return empty json
+                return HttpResponse(serialize_occurrences([], request.user))
+            else:
+                form = EventBackendForm(data=request.POST)
+                if form.is_valid():
+                    event = form.save()
+                    return HttpResponse(serialize_occurrences(event.get_occurrences(event.start, event.end), request.user))
+                return JSONError(form.errors)
+        else:
+            calendar = get_object_or_404(Calendar, slug=calendar_slug)
+            # creation of a non-recurring event
+            form = EventBackendForm(data=request.POST)
+            if form.is_valid():
+                event = form.save(commit=False)
+                event.creator = request.user
+                event.calendar = calendar
+                event.save()
+                return HttpResponse(serialize_occurrences(event.get_occurrences(event.start, event.end), request.user))
+            return JSONError(form.errors)
     except Exception, e:
         import traceback
         traceback.print_exc()

@@ -12,6 +12,11 @@ function weekcal_save_event($calendar, calEvent){
     st = format_datetime(start);
     en = format_datetime(end);
     data = {id:calEvent.id, start:st, end:en, title:title, description:body};
+    if(calEvent.recurring == true){
+        url = edit_occurrence_url;
+    }else{
+        url = edit_event_url;
+    }
     $.post(edit_occurrence_url, data, function(data){
         if(data.error == undefined){
             evt = data[0]
@@ -103,7 +108,7 @@ $(document).ready(function() {
                         body = calEvent.body;
                         st = format_datetime(start);
                         en = format_datetime(end);
-                        data = {id:calEvent.id, start:st, end:en, title:title, description:body};
+                        data = {start:st, end:en, title:title, description:body};
                         $.post(edit_event_url, data, function(data){
                             if(data.error == undefined){
                                 evt = data[0]
