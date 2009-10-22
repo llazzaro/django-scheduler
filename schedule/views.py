@@ -10,13 +10,13 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.create_update import delete_object
 import datetime
 
-from schedule.conf.settings import GET_EVENTS_FUNC, CHECK_PERMISSION_FUNC, OCCURRENCE_CANCEL_REDIRECT
+from schedule.conf.settings import GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.forms import EventBackendForm, OccurrenceBackendForm
 from schedule.models import *
 from schedule.periods import weekday_names
 from schedule.utils import check_event_permissions, coerce_date_dict
-from schedule.utils import encode_occurrence, decode_occurrence, serialize_occurrences
+from schedule.utils import decode_occurrence, serialize_occurrences
 
 def calendar(request, calendar_slug, template='schedule/calendar.html'):
     """
@@ -403,7 +403,7 @@ def ajax_edit_event(request, calendar_slug):
                 # there is nothing more - we return empty json
                 return HttpResponse(serialize_occurrences([], request.user))
             else:
-                form = EventBackendForm(data=request.POST)
+                form = EventBackendForm(data=request.POST, instance=event)
                 if form.is_valid():
                     event = form.save()
                     return HttpResponse(serialize_occurrences(event.get_occurrences(event.start, event.end), request.user))

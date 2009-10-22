@@ -4,7 +4,7 @@ from django import template
 from django.core.urlresolvers import reverse
 from django.utils.dateformat import format
 from schedule.conf.settings import CHECK_PERMISSION_FUNC
-from schedule.models import Calendar
+from schedule.models import Calendar, Rule
 from schedule.periods import weekday_names, weekday_abbrs,  Month
 
 register = template.Library()
@@ -282,3 +282,17 @@ def _cook_slots(period, increment, width, height):
 @register.simple_tag
 def hash_occurrence(occ):
     return '%s_%s' % (occ.start.strftime('%Y%m%d%H%M%S'), occ.event.id)
+
+
+@register.simple_tag
+def rule_select(name):
+    s = """
+        <select name="%s">
+            <option value="">----</option>
+            %s
+        </select>
+    """
+    opts = ''
+    for r in Rule.objects.order_by('name'):
+        opts += '<option value="%s">%s</option>' % (r.id, r.name)
+    return s % (name, opts)
