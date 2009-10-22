@@ -1,5 +1,5 @@
 
-
+/* TODO those function should be methods of calendar */
 function weekcal_save_event($calendar, calEvent){
     /* post data to the server
      * if the server returns an error we display alert
@@ -81,6 +81,11 @@ $(document).ready(function() {
             return calEvent.readOnly != true;
         },
         eventNew : function(calEvent, $event) {
+            if(!user_is_authenticated){
+                alert("You must be logged in to create events");
+                $calendar.weekCalendar("removeUnsavedEvents");
+                return;
+            }
             var $dialogContent = $("#event_edit_container");
             resetForm($dialogContent);
             var startField = $dialogContent.find("select[name='start']").val(calEvent.start);

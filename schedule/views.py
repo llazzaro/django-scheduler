@@ -331,6 +331,7 @@ def weekcalendarjs(request, calendar_slug):
 
 def schedulelibjs(request, calendar_slug):
     config_params = {'calendar_slug':calendar_slug} # will draw from settings
+    config_params['user'] = request.user
     return render_to_response('schedule/schedule_lib.js', config_params)
 
 
