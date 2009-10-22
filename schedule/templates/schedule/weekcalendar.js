@@ -260,7 +260,7 @@ $(document).ready(function() {
         data : function(start, end, callback) {
             /* this is called (a) upon page load and (b) when week is changed
             * start and end are beginning/end of selected week */
-            var url = get_occurrences_url + '?year=' + start.getFullYear() + '&month=' + (start.getMonth() + 1) + '&day=' + start.getDate();
+            var url = get_week_occurrences_url + '?year=' + start.getFullYear() + '&month=' + (start.getMonth() + 1) + '&day=' + start.getDate();
             $.getJSON(url, function(data){
                 res = {events:data};
                 callback(res);
