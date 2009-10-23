@@ -1,0 +1,22 @@
+TODO list for ajax_ui branch - weekcalendar:
+
+Known bugs:
+
+ * editing a recurring event changes the start of the whole event to the date of the
+occurrence from which editing started
+
+Missing features:
+
+ * end_recurring_period
+
+TODOs:
+
+ * cleanup in weekcal.js - lots of copy-and-paste programming there
+ * move formatting to CSS stylesheet
+ * move harcoded params to settings
+ * mouseover preview of an event
+ * make variable naming in weekcal.js consistent (event vs occurrence)
+
+A big question mark:
+
+ * support for multi-day events (???)
