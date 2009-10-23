@@ -253,7 +253,7 @@ $(document).ready(function() {
                     data = {id:calEvent.id, action:"cancel"};
                     $.post(edit_event_url, data, function(data){
                         if(data.error == undefined){
-                            $calendar.weekCalendar("removeEvent", calEvent.id);
+                            $calendar.weekCalendar("refresh");
                             $dialogContent.dialog("close");
                         }else{
                             alert(data.error);
