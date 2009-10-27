@@ -1,6 +1,6 @@
 TODO list for ajax_ui branch - weekcalendar:
 
- * cleanup in weekcal.js - lots of copy-and-paste programming there
+ * cleanup in weekcal.js - lots of copy-and-paste programming there, and handling of dates is awful
  * move formatting to CSS stylesheet
  * move harcoded params to settings
  * mouseover preview of an event
