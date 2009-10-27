@@ -393,11 +393,15 @@ def ajax_edit_occurrence_by_code(request):
 
 #TODO permission control
 def ajax_edit_event(request, calendar_slug):
+    print request.POST
     try:
-        id = request.REQUEST.get('id') # we should have got occurrence's id
+        id = request.REQUEST.get('id') # we got occurrence's encoded id or event id
         if id:
             kwargs = decode_occurrence(id)
-            event_id = kwargs['event_id']
+            if kwargs:
+                event_id = kwargs['event_id']
+            else:
+                event_id = id
             event = Event.objects.get(pk=event_id)
             # deleting an event
             if request.REQUEST.get('action') == 'cancel':

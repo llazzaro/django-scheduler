@@ -148,18 +148,21 @@ def decode_occurrence(id):
         occurrence data contain either occurrence_id
         or year, month etc.
     """
-    res = {}
-    parts = id.split('_')
-    res['event_id'] = parts[0][1:]
-    occ = parts[1]
-    if occ.startswith('ID'):
-        res['occurrence_id'] = occ[2:]
-    else:
-        start = datetime.datetime.strptime(occ, occtimeformat)
-        occ_data = dict(year=start.year, month=start.month, day=start.day,
-            hour=start.hour, minute=start.minute, second=start.second)
-        res.update(occ_data)
-    return res
+    try:
+        res = {}
+        parts = id.split('_')
+        res['event_id'] = parts[0][1:]
+        occ = parts[1]
+        if occ.startswith('ID'):
+            res['occurrence_id'] = occ[2:]
+        else:
+            start = datetime.datetime.strptime(occ, occtimeformat)
+            occ_data = dict(year=start.year, month=start.month, day=start.day,
+                hour=start.hour, minute=start.minute, second=start.second)
+            res.update(occ_data)
+        return res
+    except IndexError:
+        return
 
 
 def serialize_occurrences(occurrences, user):

@@ -301,3 +301,7 @@ div.navigation a {
 div.tablewrapper {
     text-align:center;
 }
+
+#ui-datepicker-div {
+    z-index:10000;
+}
