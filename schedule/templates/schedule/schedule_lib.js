@@ -26,3 +26,4 @@ get_week_occurrences_url = '{% url week_calendar_json calendar_slug=calendar_slu
 edit_event_url = "{% url ajax_edit_event calendar_slug=calendar_slug %}";
 user_is_authenticated = {{user.is_authenticated|yesno:"true,false"}};
 username = "{{user.username}}";
+get_event_url = "{% url event_json %}";

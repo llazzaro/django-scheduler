@@ -211,46 +211,38 @@ $(document).ready(function() {
          * of the event itself, not occurrence we clicked! */
         var $dialogContent = $("#event_edit_container");
         resetForm($dialogContent);
-        var startField = $dialogContent.find("select[name='start']").val(calEvent.start);
-        var endField =  $dialogContent.find("select[name='end']").val(calEvent.end);
-        var titleField = $dialogContent.find("input[name='title']").val(calEvent.title);
-        var bodyField = $dialogContent.find("textarea[name='body']").val(calEvent.body);
-//            var endRecPeriodField = $dialogContent.find("input[name='end_recurring_period']").val(calEvent.end_recurring_period);
-        var ruleField = $dialogContent.find("select[name='rule']").val(calEvent.rule);
+        var url = get_event_url + '?event_id=' + calEvent.event_id;
+        $.getJSON(url, function(data){
+            calEvent = data[0];
+            var startField = $dialogContent.find("select[name='start']").val(calEvent.start);
+            var endField =  $dialogContent.find("select[name='end']").val(calEvent.end);
+            var titleField = $dialogContent.find("input[name='title']").val(calEvent.title);
+            var bodyField = $dialogContent.find("textarea[name='body']").val(calEvent.body);
+            var endRecPeriodField = $dialogContent.find("input[name='end_recurring_period']").val(calEvent.end_recurring_period);
+            var ruleField = $dialogContent.find("select[name='rule']").val(calEvent.rule);
 
-        $dialogContent.dialog({
-            modal: true,
-            title: "Edit - " + calEvent.title,
-            close: function() {
-                $dialogContent.dialog("destroy");
-                $dialogContent.hide();
-                $('#calendar').weekCalendar("removeUnsavedEvents");
-            },
-            buttons: {
-            save : function(){
-                /* send new data to the server; if response is OK
-                * then update calendar and close dialog */
-                start = new Date(startField.val());
-                end = new Date(endField.val());
-                title = titleField.val();
-                body = bodyField.val();
-                st = format_datetime(start);
-                en = format_datetime(end);
-                end_recurring_period = ''; //endRecPeriodField.val()
-                rule = ruleField.val()
-                data = {id:calEvent.id, start:st, end:en, title:title, description:body,
-                    end_recurring_period:end_recurring_period, rule:rule};
-                $.post(edit_event_url, data, function(data){
-                    if(data.error == undefined){
-                        $calendar.weekCalendar("refresh");
-                        $dialogContent.dialog("close");
-                    }else{
-                        alert(data.error);
-                    }
-                }, 'json');
+            $dialogContent.dialog({
+                modal: true,
+                title: "Edit - " + calEvent.title,
+                close: function() {
+                    $dialogContent.dialog("destroy");
+                    $dialogContent.hide();
+                    $('#calendar').weekCalendar("removeUnsavedEvents");
                 },
-                "delete" : function(){
-                    data = {id:calEvent.id, action:"cancel"};
+                buttons: {
+                save : function(){
+                    /* send new data to the server; if response is OK
+                    * then update calendar and close dialog */
+                    start = new Date(startField.val());
+                    end = new Date(endField.val());
+                    title = titleField.val();
+                    body = bodyField.val();
+                    st = format_datetime(start);
+                    en = format_datetime(end);
+                    end_recurring_period = ''; //endRecPeriodField.val()
+                    rule = ruleField.val()
+                    data = {id:calEvent.pk, start:st, end:en, title:title, description:body,
+                        end_recurring_period:end_recurring_period, rule:rule};
                     $.post(edit_event_url, data, function(data){
                         if(data.error == undefined){
                             $calendar.weekCalendar("refresh");
@@ -258,19 +250,31 @@ $(document).ready(function() {
                         }else{
                             alert(data.error);
                         }
-                    });
-                },
-                cancel : function(){
-                    $dialogContent.dialog("close");
+                    }, 'json');
+                    },
+                    "delete" : function(){
+                        data = {id:calEvent.id, action:"cancel"};
+                        $.post(edit_event_url, data, function(data){
+                            if(data.error == undefined){
+                                $calendar.weekCalendar("refresh");
+                                $dialogContent.dialog("close");
+                            }else{
+                                alert(data.error);
+                            }
+                        });
+                    },
+                    cancel : function(){
+                        $dialogContent.dialog("close");
+                    }
                 }
-            }
-        }).show();
+            }).show();
 
-        startField = $dialogContent.find("select[name='start']").val(calEvent.start);
-        endField =  $dialogContent.find("select[name='end']").val(calEvent.end);
-        $dialogContent.find(".date_holder").text($calendar.weekCalendar("formatDate", calEvent.start));
-        setupStartAndEndTimeFields(startField, endField, calEvent, $calendar.weekCalendar("getTimeslotTimes", calEvent.start));
-        $(window).resize().resize(); //fixes a bug in modal overlay size ??
+            startField = $dialogContent.find("select[name='start']").val(calEvent.start);
+            endField =  $dialogContent.find("select[name='end']").val(calEvent.end);
+            $dialogContent.find(".date_holder").text($calendar.weekCalendar("formatDate", calEvent.start));
+            setupStartAndEndTimeFields(startField, endField, calEvent, $calendar.weekCalendar("getTimeslotTimes", calEvent.start));
+            $(window).resize().resize(); //fixes a bug in modal overlay size ??
+        });
     }
 
     function editOccurrence(calEvent, $event) {

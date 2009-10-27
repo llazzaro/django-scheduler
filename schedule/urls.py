@@ -112,6 +112,10 @@ url(r'^ajax/edit_event/(?P<calendar_slug>[-\w]+)/$',
     'schedule.views.ajax_edit_event',
     name = "ajax_edit_event"),
 
+url(r'^event_json/$',
+    'schedule.views.event_json',
+    name="event_json"),
+
 # AJAX library
 url(r'schedule_lib_js/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.schedulelibjs', name="schedulelib.js"),
 

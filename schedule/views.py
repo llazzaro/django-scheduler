@@ -4,6 +4,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.views.generic.create_update import delete_object
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.template import RequestContext
+from django.template import Context, loader
+from django.core import serializers
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -389,6 +391,7 @@ def ajax_edit_occurrence_by_code(request):
         return JSONError(e)
 
 
+#TODO permission control
 def ajax_edit_event(request, calendar_slug):
     try:
         id = request.REQUEST.get('id') # we should have got occurrence's id
@@ -425,4 +428,10 @@ def ajax_edit_event(request, calendar_slug):
         return JSONError(e)
 
 
-
+#TODO permission control
+def event_json(request):
+    event_id = request.REQUEST.get('event_id')
+    event = get_object_or_404(Event, pk=event_id)
+    rnd = loader.get_template('schedule/event_json.html')
+    resp = rnd.render(Context({'event':event}))
+    return HttpResponse(resp)

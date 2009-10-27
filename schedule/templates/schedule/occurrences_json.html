@@ -1,5 +1,5 @@
 [
 {% for occ in occurrences %}
-    {"id":"{{occ.id}}", "title":"{{occ.title}}", "start":new Date("{{occ.start}}"), "end":new Date("{{occ.end}}"), "body":"{{occ.description}}", "readOnly": {{occ.read_only|yesno:"true,false"}}, "recurring": {{occ.recurring|yesno:"true,false"}}, "persisted": {{occ.persisted|yesno:"true,false"}}, "rule": {{occ.event.rule.id|default:0}} },
+    {"id":"{{occ.id}}", "title":"{{occ.title}}", "start":new Date("{{occ.start}}"), "end":new Date("{{occ.end}}"), "body":"{{occ.description}}", "readOnly": {{occ.read_only|yesno:"true,false"}}, "recurring": {{occ.recurring|yesno:"true,false"}}, "persisted": {{occ.persisted|yesno:"true,false"}}, "event_id": {{occ.event.id}} },
 {% endfor %}
 ]
