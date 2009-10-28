@@ -427,13 +427,18 @@ $(document).ready(function() {
     //reduces the end time options to be only after the start time options.
     $("select[name='start']").change(function(){
         var startTime = $(this).find(":selected").val();
-        var currentEndTime = $endTimeField.find("option:selected").val();
+        var currentEndTime;
+        $endTimeField.find("option").each(function(){
+            if($(this).attr('selected') == true){
+                currentEndTime = $(this).val();
+                return;
+            }
+        });
         $endTimeField.html(
             $endTimeOptions.filter(function(){
                 return startTime < $(this).val();
             })
         );
-
         var endTimeSelected = false;
         $endTimeField.find("option").each(function() {
             if($(this).val() === currentEndTime) {
