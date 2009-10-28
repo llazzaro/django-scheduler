@@ -345,7 +345,7 @@ class JSONError(HttpResponse):
         # TODO strip html tags from form errors
 
 
-def calendar_by_periods_json(request, calendar_slug, periods, template_name='schedule/occurrences_json.html'):
+def calendar_by_periods_json(request, calendar_slug, periods):
     # XXX is this function name good?
     # it conforms with the standard API structure but in this case it is rather cryptic
     user = request.user
@@ -417,7 +417,7 @@ def ajax_edit_event(request, calendar_slug):
                 return JSONError(form.errors)
         else:
             calendar = get_object_or_404(Calendar, slug=calendar_slug)
-            # creation of a non-recurring event
+            # creation of an event
             form = EventBackendForm(data=request.POST)
             if form.is_valid():
                 event = form.save(commit=False)

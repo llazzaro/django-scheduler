@@ -106,7 +106,7 @@ url(r'^ajax/occurrence/edit_by_code/$',
 url(r'^ajax/calendar/week/json/(?P<calendar_slug>[-\w]+)/$',
     'schedule.views.calendar_by_periods_json',
     name = "week_calendar_json",
-    kwargs={'periods': [Week], 'template_name': 'schedule/occurrences_json.html'}),
+    kwargs={'periods': [Week]}),
 
 url(r'^ajax/edit_event/(?P<calendar_slug>[-\w]+)/$',
     'schedule.views.ajax_edit_event',
