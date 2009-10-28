@@ -400,7 +400,9 @@ $(document).ready(function() {
     * form for editing based on the calendar event being edited
     */
     function setupStartAndEndTimeFields($startTimeField, $endTimeField, calEvent, timeslotTimes) {
-
+        // TODO optimize - we don't need to recreate options every time
+        $startTimeField.empty();
+        $endTimeField.empty();
         for(var i=0; i<timeslotTimes.length; i++) {
             var startTime = timeslotTimes[i].start;
             var endTime = timeslotTimes[i].end;

@@ -1,4 +1,7 @@
-
+function pdump(s, pref){
+    if(pref != undefined) dump(pref + ': ');
+    dump(s + '\n');
+}
 
 
 function lead_zero(v){
