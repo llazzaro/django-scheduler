@@ -179,6 +179,7 @@ def serialize_occurrences(occurrences, user):
         # if occ is recurreing and not persisted then a user can edit either event or occurrence
         # once an occ has been edited it is persisted so he can edit only occurrence
         # if occ represents non-recurring event then he always edits the event
+        occ.description = occ.description.replace('\n', '\\n') # this can be multiline
         occ_list.append(occ)
     rnd = loader.get_template('schedule/occurrences_json.html')
     resp = rnd.render(Context({'occurrences':occ_list}))
