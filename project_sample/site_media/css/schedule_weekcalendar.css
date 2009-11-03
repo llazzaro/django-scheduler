@@ -1,0 +1,16 @@
+
+table.week-calendar-time-slots div.pastEvent {
+    background-color:#aaa;
+}
+
+table.week-calendar-time-slots div.pastEvent .time {
+     background-color:#999;
+     border:1px solid #888;
+}
+
+table.week-calendar-time-slots div.partOfChain .time {
+    border-left:7px solid black !important;
+    border-right:7px solid black !important;
+    color:black;
+
+}

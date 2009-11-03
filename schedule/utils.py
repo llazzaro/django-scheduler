@@ -1,6 +1,5 @@
 import datetime
 import heapq
-import re
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.conf import settings

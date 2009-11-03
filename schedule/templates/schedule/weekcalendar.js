@@ -47,11 +47,6 @@ function parse_date(s){
     return new Date(parseInt(s[0]), parseInt(s[1])-1, parseInt(s[2]));
 }
 
-function mark_event_chained($event){
-    /** TODO delegate to CSS file */
-    $event.find(".time").css({"color":"black"});
-}
-
 function dateplustime(d, t){
     var dt = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     dt.setHours(t.getHours());
@@ -63,7 +58,6 @@ function dateplustime(d, t){
 $(document).ready(function() {
 
     var $calendar = $('#calendar');
-    var id = 10;
 
     $calendar.weekCalendar({
          /* TODO input parameters dynamically from settings */
@@ -77,16 +71,11 @@ $(document).ready(function() {
         eventRender : function(calEvent, $event) {
             if (calEvent.end.getTime() < new Date().getTime()) {
                 /* past events grayed out */
-                /* TODO this should be (a) optional, (b) styled by CSS file */
-                $event.css("backgroundColor", "#aaa");
-                $event.find(".time").css({
-                            "backgroundColor" : "#999",
-                            "border" : "1px solid #888"
-                        });
+                $event.attr("class", $event.attr("class") + " pastEvent");
             }
             if((calEvent.recurring) && !(calEvent.persisted)){
                 /* mark those which are parts of a recurrence chain */
-                mark_event_chained($event);
+                $event.attr("class", $event.attr("class") + " partOfChain");
             }
             if(calEvent.readOnly){
                 $event.css("cursor", "default");
