@@ -116,11 +116,5 @@ url(r'^event_json/$',
     'schedule.views.event_json',
     name="event_json"),
 
-# AJAX library
-url(r'schedule_lib_js/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.schedulelibjs', name="schedulelib.js"),
-
- # weekcalendar javascript
- url(r'weekcalendarjs/(?P<calendar_slug>[-\w]+)/$', 'schedule.views.weekcalendarjs', name="weekcalendar.js"),
- 
  url(r'$', object_list, info_dict, name='schedule'), 
 )

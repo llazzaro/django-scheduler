@@ -454,11 +454,11 @@ $(document).ready(function() {
     var $about = $("#about");
 
 
-    {% if start_date %}
+    {% if periods.week.start %}
     /* jump to initial date */
-    var year = {{start_date.year}};
-    var month = {{start_date.month}} - 1; /* we count from 1 */
-    var day = {{start_date.day}};
+    var year = {{periods.week.start.year}};
+    var month = {{periods.week.start.month}} - 1; /* we count from 1 */
+    var day = {{periods.week.start.day}};
     var initial_date = new Date(year, month, day);
     $calendar.weekCalendar("gotoWeek", initial_date);
     {% endif %}

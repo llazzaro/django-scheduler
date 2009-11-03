@@ -8,8 +8,12 @@
 <link rel="stylesheet" href="{{ MEDIA_URL }}css/weekcalendar.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="{{ MEDIA_URL }}css/schedule_weekcalendar.css" type="text/css" media="screen" />
 <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.weekcalendar.js"></script>
-<script type="text/javascript" src="{% url schedulelib.js  calendar_slug=calendar.slug %}"></script>
-<script type="text/javascript" src="{% url weekcalendar.js calendar_slug=calendar.slug %}{% querystring_for_date periods.week.start 3%}"></script>
+<script type="text/javascript">
+    {% include "schedule/schedule_lib.js" %}
+</script>
+<script type="text/javascript">
+    {% include "schedule/weekcalendar.js" %}
+</script>
 
 {% endblock %}
 
