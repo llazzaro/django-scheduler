@@ -88,6 +88,9 @@ $(document).ready(function() {
                 /* mark those which are parts of a recurrence chain */
                 mark_event_chained($event);
             }
+            if(calEvent.readOnly){
+                $event.css("cursor", "default");
+            }
         },
         draggable : function(calEvent, $event) {
             return calEvent.readOnly != true;
@@ -177,6 +180,9 @@ $(document).ready(function() {
         },
 
         eventClick : function(calEvent, $event) {
+            if(calEvent.readOnly == true){
+                return;
+            }
             if(calEvent.recurring){
                 if(calEvent.persisted){
                     editOccurrence(calEvent, $event);
