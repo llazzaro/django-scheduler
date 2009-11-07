@@ -418,6 +418,7 @@ def ajax_edit_event(request, calendar_slug):
 def event_json(request):
     event_id = request.REQUEST.get('event_id')
     event = get_object_or_404(Event, pk=event_id)
+    event.rule_id = event.rule_id or "false"
     rnd = loader.get_template('schedule/event_json.html')
     resp = rnd.render(Context({'event':event}))
     return HttpResponse(resp)
