@@ -398,16 +398,26 @@ $(document).ready(function() {
         // TODO optimize - we don't need to recreate options every time
         $startTimeField.empty();
         $endTimeField.empty();
+        var event_start = calEvent.start.getTime();
+        var event_end = calEvent.end.getTime();
+        var have_start = false;
+        var have_end = false;
         for(var i=0; i<timeslotTimes.length; i++) {
             var startTime = timeslotTimes[i].start;
             var endTime = timeslotTimes[i].end;
             var startSelected = "";
-            if(startTime.getTime() === calEvent.start.getTime()) {
-                startSelected = "selected=\"selected\"";
+            if(!have_start){
+                if(startTime.getTime() >= event_start) {
+                    startSelected = "selected=\"selected\"";
+                    have_start = true;
+                }
             }
             var endSelected = "";
-            if(endTime.getTime() === calEvent.end.getTime()) {
-                endSelected = "selected=\"selected\"";
+            if(!have_end){
+                if(endTime.getTime() >= event_end) {
+                    endSelected = "selected=\"selected\"";
+                    have_end = true;
+                }
             }
             $startTimeField.append("<option value=\"" + startTime + "\" " + startSelected + ">" + timeslotTimes[i].startFormatted + "</option>");
             $endTimeField.append("<option value=\"" + endTime + "\" " + endSelected + ">" + timeslotTimes[i].endFormatted + "</option>");
@@ -417,30 +427,26 @@ $(document).ready(function() {
     }
 
     var $endTimeField = $("select[name='end']");
-    var $endTimeOptions = $endTimeField.find("option");
+    var $endTimeOptions;// = $endTimeField.find("option");
 
     //reduces the end time options to be only after the start time options.
     $("select[name='start']").change(function(){
         var startTime = $(this).find(":selected").val();
-        var currentEndTime;
-        $endTimeField.find("option").each(function(){
-            if($(this).attr('selected') == true){
-                currentEndTime = $(this).val();
-                return;
-            }
-        });
+        var currentEndTime = $endTimeField.val();
         $endTimeField.html(
             $endTimeOptions.filter(function(){
                 return startTime < $(this).val();
             })
         );
         var endTimeSelected = false;
-        $endTimeField.find("option").each(function() {
-            if($(this).val() === currentEndTime) {
-                $(this).attr("selected", "selected");
+        // TODO this loop can probably be eliminated too
+        $endTimeOptions.each(function() {
+            if($(this).val() == currentEndTime) {
+                $endTimeField.val(currentEndTime);
                 endTimeSelected = true;
                 return false;
             }
+            return true;
         });
 
         if(!endTimeSelected) {
