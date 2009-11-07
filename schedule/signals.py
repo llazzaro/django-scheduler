@@ -7,14 +7,14 @@ def optionnal_calendar(sender, **kwargs):
 
     if not isinstance(event, Event):
         return True
+    if not event.calendar:
+        try:
+            calendar = Calendar._default_manager.get(name='default')
+        except Calendar.DoesNotExist:
+            calendar = Calendar(name='default', slug='default')
+            calendar.save()
 
-    try:
-        calendar = Calendar._default_manager.get(name='default')
-    except Calendar.DoesNotExist:
-        calendar = Calendar(name='default', slug='default')
-        calendar.save()
-
-    event.calendar = calendar
+        event.calendar = calendar
     return True
 
 pre_save.connect(optionnal_calendar)
