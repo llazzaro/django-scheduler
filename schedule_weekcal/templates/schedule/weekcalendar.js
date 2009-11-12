@@ -44,7 +44,7 @@ function format_date(dt){
 
 function parse_date(s){
     s = s.split('-');
-    return new Date(parseInt(s[0]), parseInt(s[1])-1, parseInt(s[2]));
+    return new Date(parseInt(s[0]), parseInt(s[1], 10)-1, parseInt(s[2], 10));
 }
 
 function dateplustime(d, t){
