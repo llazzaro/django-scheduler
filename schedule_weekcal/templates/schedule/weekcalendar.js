@@ -61,10 +61,10 @@ $(document).ready(function() {
 
     $calendar.weekCalendar({
          /* TODO input parameters dynamically from settings */
-        timeslotsPerHour : 4,
-        allowCalEventOverlap : true,
-        firstDayOfWeek : 1,
-        businessHours :{start: 8, end: 18, limitDisplay: true },
+        timeslotsPerHour : timeslotsPerHour,
+        allowCalEventOverlap : allowCalEventOverlap,
+        firstDayOfWeek : firstDayOfWeek,
+        businessHours :businessHours,
         height : function($calendar) {
             return $(window).height() - $("h1").outerHeight();
         },
