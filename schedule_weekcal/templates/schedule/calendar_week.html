@@ -33,10 +33,10 @@
 
 <div id="week">
 	<div id='calendar'></div>
-        <div id="editing_choice_dialog" title="This is a recurring event">
-            Do you want to edit this single occurrence, or the whole chain?
-        </div>
-	<div id="event_edit_container">
+    <div id="editing_choice_dialog" title="This is a recurring event" style="display:none;">
+        Do you want to edit this single occurrence, or the whole chain?
+    </div>
+	<div id="event_edit_container" style="display:none;">
 		<form>
 			<input type="hidden" />
 			<ul>
@@ -66,12 +66,12 @@
 			</ul>
 		</form>
 	</div>
-	<div id="occurrence_edit_container">
+	<div id="occurrence_edit_container" style="display:none;">
 		<form>
 			<input type="hidden" />
 			<ul>
 				<li>
-					<span>O Date: </span><span class="date_holder"></span> 
+					<span>Date: </span><span class="date_holder"></span> 
 				</li>
 				<li>
 					<label for="start">Start Time: </label><select name="start"><option value="">Select Start Time</option></select>
