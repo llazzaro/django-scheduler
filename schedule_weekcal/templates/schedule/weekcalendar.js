@@ -114,17 +114,21 @@ $(document).ready(function() {
                 },
                 buttons: {
                     save : function(){
-                        calEvent.start = new Date(startField.val());
-                        calEvent.end = new Date(endField.val());
-                        calEvent.title = titleField.val();
-                        calEvent.body = bodyField.val();
+
+                        start_date = parse_date(startDateField.val());
+                        start_time = new Date(startField.val());
+                        start = dateplustime(start_date, start_time);
+                        end_time = new Date(endField.val());
+                        end = dateplustime(start_date, end_time);
+                        title = titleField.val();
+                        body = bodyField.val();
+                        calEvent.start = start;
+                        calEvent.end = end;
+                        calEvent.title = title;
+                        calEvent.body = body;
                         calEvent.end_recurring_period = endRecPeriodField.val()
                         calEvent.rule = ruleField.val()
 
-                        start = calEvent.start;
-                        end = calEvent.end;
-                        title = calEvent.title;
-                        body = calEvent.body;
                         st = format_datetime(start);
                         en = format_datetime(end);
                         data = {start:st, end:en, title:title, description:body,
