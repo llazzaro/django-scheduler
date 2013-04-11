@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
+import datetime
+from dateutil import rrule
+
 from django.contrib.contenttypes import generic
 from django.db import models
 from django.db.models import Q
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import date
 from django.utils.translation import ugettext, ugettext_lazy as _
-import datetime
-from dateutil import rrule
+
+from schedule.conf import settings
 from schedule.models.rules import Rule
 from schedule.models.calendars import Calendar
 from schedule.utils import OccurrenceReplacer
@@ -27,7 +29,7 @@ class Event(models.Model):
     end = models.DateTimeField(_("end"),help_text=_("The end time must be later than the start time."))
     title = models.CharField(_("title"), max_length = 255)
     description = models.TextField(_("description"), null = True, blank = True)
-    creator = models.ForeignKey(User, null = True, verbose_name=_("creator"))
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, null = True, verbose_name=_("creator"), related_name='creator')
     created_on = models.DateTimeField(_("created on"), default = datetime.datetime.now)
     rule = models.ForeignKey(Rule, null = True, blank = True, verbose_name=_("rule"), help_text=_("Select '----' for a one time only event."))
     end_recurring_period = models.DateTimeField(_("end recurring period"), null = True, blank = True, help_text=_("This date is ignored for one time only events."))

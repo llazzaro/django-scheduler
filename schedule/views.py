@@ -1,17 +1,14 @@
 from urllib import quote
 from django.shortcuts import render_to_response, get_object_or_404
 from django.views.generic.create_update import delete_object
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.http import HttpResponseRedirect, Http404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.views.generic.create_update import delete_object
 import datetime
 
 from schedule.conf.settings import GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT
 from schedule.forms import EventForm, OccurrenceForm
-from schedule.models import *
+from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
 from schedule.utils import check_event_permissions, coerce_date_dict
 
