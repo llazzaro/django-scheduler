@@ -1,0 +1,13 @@
+language: python
+python:
+    - "2.6"
+    - "2.7"
+    - "3.2"
+    - "3.3"
+install:
+    - pip install . --user-mirrors
+    - pip install -r requirements.txt --use-mirrors
+
+script: python manage.py test
+
+# vim: et
