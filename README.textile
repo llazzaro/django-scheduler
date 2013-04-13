@@ -1,5 +1,6 @@
 Build Status
-.. _travis-build-status: https://travis-ci.org/llazzaro/django-schedule.png
+<p><img src="https://travis-ci.org/llazzaro/django-schedule.png" alt="travis-build-status" /></p>
+
 
 
 
