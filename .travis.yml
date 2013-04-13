@@ -8,6 +8,7 @@ install:
     - pip install . --use-mirrors
 #    - pip install -r requirements.txt --use-mirrors
 
-script: python manage.py test
+script: python schedule/manage.py syncdb
+script: python schedule/manage.py test
 
 # vim: et
