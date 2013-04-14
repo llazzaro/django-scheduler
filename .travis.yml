@@ -6,7 +6,7 @@ python:
     - "3.3"
 install:
     - pip install . --use-mirrors
-    - pip install -r requirements.txt --use-mirrors
+    - pip install -r schedule/requirements.txt --use-mirrors
 
 script: python schedule/manage.py syncdb
 script: python schedule/manage.py test
