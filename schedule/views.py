@@ -1,6 +1,6 @@
 from urllib import quote
 from django.shortcuts import render_to_response, get_object_or_404
-from django.views.generic.create_update import delete_object
+from django.views.generic.edit import DeleteView
 from django.http import HttpResponseRedirect, Http404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse

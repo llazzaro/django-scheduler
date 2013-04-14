@@ -6,13 +6,13 @@
 
 {% include "schedule/_dialogs.html" %}
 <div class="navigation">
-  <a href="{% url week_calendar calendar.slug %}{% querystring_for_date periods.day.start 3 %}">
+  <a href="{% url "week_calendar" calendar.slug %}{% querystring_for_date periods.day.start 3 %}">
     Week
   </a>
-  <a href="{% url month_calendar calendar.slug %}{% querystring_for_date periods.day.start 2 %}">
+  <a href="{% url "month_calendar" calendar.slug %}{% querystring_for_date periods.day.start 2 %}">
     Month
   </a>
-  <a href="{% url year_calendar calendar.slug %}{% querystring_for_date periods.day.start 1%}">
+  <a href="{% url "year_calendar" calendar.slug %}{% querystring_for_date periods.day.start 1%}">
     Year
   </a>
 </div>
@@ -20,7 +20,7 @@
     <div class="calendarname">{{ calendar.name }}</div>
     {% prevnext "day_calendar" calendar.slug periods.day "l, F d, Y" %}
     <div class="now">
-      <a href="{% url day_calendar calendar.slug %}">
+      <a href="{% url "day_calendar" calendar.slug %}">
         Today
       </a>
     </div>

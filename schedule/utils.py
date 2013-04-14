@@ -82,6 +82,7 @@ class check_event_permissions(object):
 
     def __init__(self, f):
         self.f = f
+        self.__name__ = f.__name__
         self.contenttype = ContentType.objects.get(app_label='schedule', model='event')
 
     def __call__(self, request, *args, **kwargs):
