@@ -7,7 +7,7 @@ env:
   - DJANGO=1.5
 #  - DJANGO=https://github.com/django/django/zipball/master
 install:
-  - pip install -q Django==$DJANGO --use-mirrors
+#  - pip install -q Django==$DJANGO --use-mirrors
   - pip install -e . --use-mirrors
   - pip install -r schedule/requirements.txt --use-mirrors
 script:
