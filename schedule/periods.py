@@ -5,6 +5,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
 from schedule.conf.settings import FIRST_DAY_OF_WEEK, SHOW_CANCELLED_OCCURRENCES
 from schedule.models import Occurrence
+from django.utils import timezone
 
 weekday_names = []
 weekday_abbrs = []
@@ -129,7 +130,7 @@ class Year(Period):
     def __init__(self, events, date=None, parent_persisted_occurrences=None, tzinfo=pytz.utc):
         self.tzinfo = tzinfo
         if date is None:
-            date = datetime.datetime.now().replace(tzinfo=pytz.utc)
+            date = timezone.now()
         start, end = self._get_year_range(date)
         super(Year, self).__init__(events, start, end, parent_persisted_occurrences)
 
@@ -141,7 +142,7 @@ class Year(Period):
     next = next_year
 
     def prev_year(self):
-        start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day)
+        start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day, tzinfo=self.tzinfo)
         return Year(self.events, start)
     prev = prev_year
 
@@ -166,7 +167,7 @@ class Month(Period):
         occurrence_pool=None, tzinfo=pytz.utc):
         self.tzinfo = tzinfo
         if date is None:
-            date = datetime.datetime.now()
+            date = timezone.now()
         start, end = self._get_month_range(date)
         super(Month, self).__init__(events, start, end,
             parent_persisted_occurrences, occurrence_pool)
@@ -231,7 +232,7 @@ class Week(Period):
         occurrence_pool=None, tzinfo=pytz.utc):
         self.tzinfo = tzinfo
         if date is None:
-            date = datetime.datetime.now()
+            date = timezone.now()
         start, end = self._get_week_range(date)
         super(Week, self).__init__(events, start, end,
             parent_persisted_occurrences, occurrence_pool)
@@ -286,7 +287,7 @@ class Day(Period):
         occurrence_pool=None, tzinfo=pytz.utc):
         self.tzinfo = tzinfo
         if date is None:
-            date = datetime.datetime.now()
+            date = timezone.now()
         start, end = self._get_day_range(date)
         super(Day, self).__init__(events, start, end,
             parent_persisted_occurrences, occurrence_pool)

@@ -15,6 +15,7 @@ from schedule.conf import settings
 from schedule.models.rules import Rule
 from schedule.models.calendars import Calendar
 from schedule.utils import OccurrenceReplacer
+from django.utils import timezone
 
 class EventManager(models.Manager):
 
@@ -31,7 +32,7 @@ class Event(models.Model):
     title = models.CharField(_("title"), max_length = 255)
     description = models.TextField(_("description"), null = True, blank = True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, null = True, verbose_name=_("creator"), related_name='creator')
-    created_on = models.DateTimeField(_("created on"), default = datetime.datetime.now)
+    created_on = models.DateTimeField(_("created on"), default = timezone.now)
     rule = models.ForeignKey(Rule, null = True, blank = True, verbose_name=_("rule"), help_text=_("Select '----' for a one time only event."))
     end_recurring_period = models.DateTimeField(_("end recurring period"), null = True, blank = True, help_text=_("This date is ignored for one time only events."))
     calendar = models.ForeignKey(Calendar, blank=True)
@@ -150,7 +151,7 @@ class Event(models.Model):
         """
 
         if after is None:
-            after = datetime.datetime.now().replace(tzinfo=tzinfo)
+            after = timezone.now()
         rule = self.get_rrule_object()
         if rule is None:
             if self.end > after:
