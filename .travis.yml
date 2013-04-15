@@ -11,6 +11,6 @@ install:
   - pip install -e . --use-mirrors
   - pip install -r schedule/requirements.txt --use-mirrors
 script:
-  - python schedule/manage.py syncdb
+  - python schedule/manage.py syncdb --noinput
   - python schedule/mange.py test
 
