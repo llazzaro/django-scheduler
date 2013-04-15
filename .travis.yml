@@ -11,4 +11,5 @@ install:
 script: python schedule/manage.py syncdb
 script: python schedule/manage.py test
 
-# vim: et
+env:
+    DJANGO=1.5
