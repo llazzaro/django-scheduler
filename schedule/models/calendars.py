@@ -144,9 +144,9 @@ class Calendar(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
     def events(self):
-        return self.event_set.all()
-    events = property(events)
+        return self.event_set
 
     def create_relation(self, obj, distinction = None, inheritable = True):
         """

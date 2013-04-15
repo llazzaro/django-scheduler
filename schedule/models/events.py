@@ -51,6 +51,7 @@ class Event(models.Model):
             'end': date(self.end, date_format),
         }
 
+
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
@@ -442,4 +443,4 @@ class Occurrence(models.Model):
         return rank
 
     def __eq__(self, other):
-        return self.event == other.event and self.original_start == other.original_start and self.original_end == other.original_end
+        return self.original_start == other.original_start and self.original_end == other.original_end
