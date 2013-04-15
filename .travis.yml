@@ -1,15 +1,18 @@
 language: python
 python:
-    - "2.6"
+#    - "2.6"
     - "2.7"
-    - "3.2"
-    - "3.3"
-install:
-    - pip install . --use-mirrors
-    - pip install -r schedule/requirements.txt --use-mirrors
+#    - "3.2"
+#    - "3.3"
 
 script: python schedule/manage.py syncdb
 script: python schedule/manage.py test
 
-env:
-    - DJANGO=1.5
+#env:
+#    - DJANGO=django==1.5
+#
+#install:
+#    - pip install . --use-mirrors
+#    - pip install -q $DJANGO --use-mirrors
+#    - pip install -r schedule/requirements.txt --use-mirrors
+
