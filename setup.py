@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
- 
+
 setup(
     name='django-schedule',
-    version='0.5b',
+    version='0.6',
     description='A calendaring app for Django.',
     author='Anthony Robert Hauber',
     author_email='thauber@gmail.com',
     url='http://github.com/thauber/django-schedule/tree/master',
     packages=[
         'schedule',
+        'schedule.conf',
         'schedule.feeds',
         'schedule.management',
         'schedule.management.commands',
