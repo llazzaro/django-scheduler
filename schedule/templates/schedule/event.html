@@ -5,13 +5,13 @@
 {% block body %}
 
 <div class="navigation">
-  <a href="{% url day_calendar event.calendar.slug %}{% querystring_for_date event.start 3 %}">
+  <a href="{% url "day_calendar" event.calendar.slug %}{% querystring_for_date event.start 3 %}">
     Day
   </a>
-  <a href="{% url month_calendar event.calendar.slug %}{% querystring_for_date event.start 2 %}">
+  <a href="{% url "month_calendar" event.calendar.slug %}{% querystring_for_date event.start 2 %}">
     Month
   </a>
-  <a href="{% url year_calendar event.calendar.slug %}{% querystring_for_date event.start 1%}">
+  <a href="{% url "year_calendar" event.calendar.slug %}{% querystring_for_date event.start 1%}">
     Year
   </a>
 </div>
@@ -23,11 +23,11 @@
   </a>
   &nbsp;
   {% endif %}
-  <a href="{% url edit_event event.calendar.slug,event.id %}">
+  <a href="{% url "edit_event" event.calendar.slug event.id %}">
     <img border="0" src="{{ MEDIA_URL }}pencil.png" alt="{% trans "Change" %}"/>
   </a>
   &nbsp;
-  <a href="{% url delete_event event.id %}">
+  <a href="{% url "delete_event" event.id %}">
     <img border="0" src="{{ MEDIA_URL }}delete.png" alt="{% trans "Delete" %}"/>
   </a>
 </div>
