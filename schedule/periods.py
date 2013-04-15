@@ -1,11 +1,10 @@
+import pytz
 import datetime
-from django.db.models.query import QuerySet
 from django.template.defaultfilters import date
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
 from schedule.conf.settings import FIRST_DAY_OF_WEEK, SHOW_CANCELLED_OCCURRENCES
 from schedule.models import Occurrence
-from schedule.utils import OccurrenceReplacer
 
 weekday_names = []
 weekday_abbrs = []
@@ -29,10 +28,11 @@ class Period(object):
     based on its events, and its time period (start and end).
     '''
     def __init__(self, events, start, end, parent_persisted_occurrences = None,
-        occurrence_pool=None):
+        occurrence_pool=None, tzinfo=pytz.utc):
         self.start = start
         self.end = end
         self.events = events
+        self.tzinfo = tzinfo
         self.occurrence_pool = occurrence_pool
         if parent_persisted_occurrences is not None:
             self._persisted_occurrences = parent_persisted_occurrences
@@ -126,9 +126,10 @@ class Period(object):
 
 
 class Year(Period):
-    def __init__(self, events, date=None, parent_persisted_occurrences=None):
+    def __init__(self, events, date=None, parent_persisted_occurrences=None, tzinfo=pytz.utc):
+        self.tzinfo = tzinfo
         if date is None:
-            date = datetime.datetime.now()
+            date = datetime.datetime.now().replace(tzinfo=pytz.utc)
         start, end = self._get_year_range(date)
         super(Year, self).__init__(events, start, end, parent_persisted_occurrences)
 
@@ -140,15 +141,15 @@ class Year(Period):
     next = next_year
 
     def prev_year(self):
-        start = datetime.datetime(self.start.year-1, self.start.month, self.start.day)
+        start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day)
         return Year(self.events, start)
     prev = prev_year
 
     def _get_year_range(self, year):
         start = datetime.datetime(year.year, datetime.datetime.min.month,
-            datetime.datetime.min.day)
-        end = datetime.datetime(year.year+1, datetime.datetime.min.month,
-            datetime.datetime.min.day)
+            datetime.datetime.min.day, tzinfo=self.tzinfo)
+        end = datetime.datetime(year.year + 1, datetime.datetime.min.month,
+            datetime.datetime.min.day, tzinfo=self.tzinfo)
         return start, end
 
     def __unicode__(self):
@@ -162,7 +163,8 @@ class Month(Period):
     and day periods within the date.
     """
     def __init__(self, events, date=None, parent_persisted_occurrences=None,
-        occurrence_pool=None):
+        occurrence_pool=None, tzinfo=pytz.utc):
+        self.tzinfo = tzinfo
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_month_range(date)
@@ -171,7 +173,6 @@ class Month(Period):
 
     def get_weeks(self):
         return self.get_periods(Week)
-        date = self.star
 
     def get_days(self):
         return self.get_periods(Day)
@@ -187,7 +188,7 @@ class Month(Period):
     next = next_month
 
     def prev_month(self):
-        start = (self.start - datetime.timedelta(days=1)).replace(day=1)
+        start = (self.start - datetime.timedelta(days=1)).replace(day=1, tzinfo=self.tzinfo)
         return Month(self.events, start)
     prev = prev_month
 
@@ -195,21 +196,21 @@ class Month(Period):
         return Year(self.events, self.start)
 
     def prev_year(self):
-        start = datetime.datetime.min.replace(year=self.start.year-1)
+        start = datetime.datetime.min.replace(year=self.start.year - 1, tzinfo=self.tzinfo)
         return Year(self.events, start)
 
     def next_year(self):
-        start = datetime.datetime.min.replace(year=self.start.year+1)
+        start = datetime.datetime.min.replace(year=self.start.year + 1, tzinfo=self.tzinfo)
         return Year(self.events, start)
 
     def _get_month_range(self, month):
         year = month.year
         month = month.month
-        start = datetime.datetime.min.replace(year=year, month=month)
+        start = datetime.datetime.min.replace(year=year, month=month, tzinfo=self.tzinfo)
         if month == 12:
-            end = start.replace(month=1, year=year+1)
+            end = start.replace(month=1, year=year + 1, tzinfo=self.tzinfo)
         else:
-            end = start.replace(month=month+1)
+            end = start.replace(month=month + 1, tzinfo=self.tzinfo)
         return start, end
 
     def __unicode__(self):
@@ -227,7 +228,8 @@ class Week(Period):
     The Week period that has functions for retrieving Day periods within it
     """
     def __init__(self, events, date=None, parent_persisted_occurrences=None,
-        occurrence_pool=None):
+        occurrence_pool=None, tzinfo=pytz.utc):
+        self.tzinfo = tzinfo
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_week_range(date)
@@ -255,7 +257,7 @@ class Week(Period):
         if isinstance(week, datetime.datetime):
             week = week.date()
         # Adjust the start datetime to midnight of the week datetime
-        start = datetime.datetime.combine(week, datetime.time.min)
+        start = datetime.datetime.combine(week, datetime.time.min).replace(tzinfo=self.tzinfo)
         # Adjust the start datetime to Monday or Sunday of the current week
         sub_days = 0
         if FIRST_DAY_OF_WEEK == 1:
@@ -281,7 +283,8 @@ class Week(Period):
 
 class Day(Period):
     def __init__(self, events, date=None, parent_persisted_occurrences=None,
-        occurrence_pool=None):
+        occurrence_pool=None, tzinfo=pytz.utc):
+        self.tzinfo = tzinfo
         if date is None:
             date = datetime.datetime.now()
         start, end = self._get_day_range(date)
@@ -291,7 +294,7 @@ class Day(Period):
     def _get_day_range(self, date):
         if isinstance(date, datetime.datetime):
             date = date.date()
-        start = datetime.datetime.combine(date, datetime.time.min)
+        start = datetime.datetime.combine(date, datetime.time.min).replace(tzinfo=self.tzinfo)
         end = start + datetime.timedelta(days=1)
         return start, end
 

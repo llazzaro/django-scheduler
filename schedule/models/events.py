@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytz
 import datetime
 from dateutil import rrule
 
@@ -62,12 +63,12 @@ class Event(models.Model):
         """
         >>> rule = Rule(frequency = "MONTHLY", name = "Monthly")
         >>> rule.save()
-        >>> event = Event(rule=rule, start=datetime.datetime(2008,1,1), end=datetime.datetime(2008,1,2))
+        >>> event = Event(rule=rule, start=datetime.datetime(2008,1,1,tzinfo=pytz.utc), end=datetime.datetime(2008,1,2))
         >>> event.rule
         <Rule: Monthly>
         >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
         >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
-        ['2008-02-01 00:00:00 to 2008-02-02 00:00:00', '2008-03-01 00:00:00 to 2008-03-02 00:00:00']
+        ['2008-02-01 00:00:00+00:00 to 2008-02-02 00:00:00+00:00', '2008-03-01 00:00:00+00:00 to 2008-03-02 00:00:00+00:00']
 
         Ensure that if an event has no rule, that it appears only once.
 
@@ -75,7 +76,7 @@ class Event(models.Model):
         >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
         >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
         []
-
+`
         """
         persisted_occurrences = self.occurrence_set.all()
         occ_replacer = OccurrenceReplacer(persisted_occurrences)
@@ -142,14 +143,14 @@ class Event(models.Model):
             else:
                 return []
 
-    def _occurrences_after_generator(self, after=None):
+    def _occurrences_after_generator(self, after=None, tzinfo=pytz.utc):
         """
         returns a generator that produces unpresisted occurrences after the
         datetime ``after``.
         """
 
         if after is None:
-            after = datetime.datetime.now()
+            after = datetime.datetime.now().replace(tzinfo=tzinfo)
         rule = self.get_rrule_object()
         if rule is None:
             if self.end > after:
