@@ -12,4 +12,4 @@ script: python schedule/manage.py syncdb
 script: python schedule/manage.py test
 
 env:
-    DJANGO=1.5
+    - DJANGO=1.5
