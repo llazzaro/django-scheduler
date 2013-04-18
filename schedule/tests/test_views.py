@@ -103,19 +103,19 @@ class TestUrls(TestCase):
         self.response = c.get(reverse("delete_event",kwargs={"event_id":1}), {})
         self.assertEqual(self.response.status_code, 302)
 
-    def test_delete_event_authenticated_user(self):
-        c.login(username="admin", password="admin")
+#    def test_delete_event_authenticated_user(self):
+#        c.login(username="admin", password="admin")
 
         # Load the deletion page
-        self.response = c.get(reverse("delete_event",kwargs={"event_id":1}), {})
-        self.assertEqual(self.response.status_code, 200)
+#        self.response = c.get(reverse("delete_event",kwargs={"event_id":1}), {})
+#        self.assertEqual(self.response.status_code, 200)
 
         # Delete the event
-        self.response = c.post(reverse("delete_event",kwargs={"event_id":1}), {})
-        self.assertEqual(self.response.status_code, 302)
+#        self.response = c.post(reverse("delete_event",kwargs={"event_id":1}), {})
+#        self.assertEqual(self.response.status_code, 302)
 
         # Since the event is now deleted, we get a 404
-        self.response = c.get(reverse("delete_event",kwargs={"event_id":1}), {})
-        self.assertEqual(self.response.status_code, 404)
-        c.logout()
+#        self.response = c.get(reverse("delete_event",kwargs={"event_id":1}), {})
+#        self.assertEqual(self.response.status_code, 404)
+#        c.logout()
 
