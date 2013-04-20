@@ -1,3 +1,9 @@
+Build Status
+<p><img src="https://travis-ci.org/llazzaro/django-schedule.png" alt="travis-build-status" /></p>
+
+
+
+
 h1. Django-schedule
 
 A calendaring/scheduling application, featuring:
