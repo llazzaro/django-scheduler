@@ -1,8 +1,9 @@
-import datetime
+import pytz
 import heapq
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.conf import settings
+from django.utils import timezone
 from schedule.conf.settings import CHECK_PERMISSION_FUNC
 
 class EventListManager(object):
@@ -14,7 +15,7 @@ class EventListManager(object):
     def __init__(self, events):
         self.events = events
 
-    def occurrences_after(self, after=None):
+    def occurrences_after(self, after=None, tzinfo=pytz.utc):
         """
         It is often useful to know what the next occurrence is given a list of
         events.  This function produces a generator that yields the
@@ -23,7 +24,7 @@ class EventListManager(object):
         """
         from schedule.models import Occurrence
         if after is None:
-            after = datetime.datetime.now()
+            after = timezone.now()
         occ_replacer = OccurrenceReplacer(
             Occurrence.objects.filter(event__in = self.events))
         generators = [event._occurrences_after_generator(after) for event in self.events]
@@ -82,6 +83,7 @@ class check_event_permissions(object):
 
     def __init__(self, f):
         self.f = f
+        self.__name__ = f.__name__
         self.contenttype = ContentType.objects.get(app_label='schedule', model='event')
 
     def __call__(self, request, *args, **kwargs):

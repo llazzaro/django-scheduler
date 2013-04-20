@@ -1,0 +1,44 @@
+{% load i18n %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" xml:lang="{{ LANGUAGE_CODE }}" lang="{{ LANGUAGE_CODE }}">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title>{% if site_name %}{{ site_name }} : {% endif %}{% block head_title %}{% endblock %}</title>
+        <!--[if IE]><style>
+            div {
+                zoom: 1; /* trigger hasLayout */
+            }
+        </style><![endif]-->
+        {% if LANGUAGE_BIDI %}
+        <style type="text/css" media="screen">
+            div.right_panel {
+                float: left; /* hotfix for sidebar */
+            }
+        </style>
+        {% endif %}
+        {% block extra_head %}
+        {% endblock %}
+    </head>
+
+    <body>
+    <h3 id="demo">This is a demo of a django-schedule calendar</h3>
+    <p style="clear:both"/>
+
+        <div id="body">
+            {% if messages %}
+                <ul id="messages">
+                    {% for message in messages %}
+                    <li id="message_{{ forloop.counter }}"><a href="#" onclick="$('#message_{{ forloop.counter }}').fadeOut(); return false;"><small>{% trans "clear" %}</small></a> {{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% block body %}
+            {% endblock %}
+
+        </div>
+
+        <div id="footer">{% block footer %}{% endblock %}</div>
+
+    </body>
+</html>

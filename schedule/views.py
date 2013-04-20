@@ -1,17 +1,17 @@
+import datetime
 from urllib import quote
+
 from django.shortcuts import render_to_response, get_object_or_404
-from django.views.generic.create_update import delete_object
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.utils import timezone
+from django.http import HttpResponseRedirect, Http404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.views.generic.create_update import delete_object
-import datetime
+from django.shortcuts import render
+from django.views.generic.edit import DeleteView
 
 from schedule.conf.settings import GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT
 from schedule.forms import EventForm, OccurrenceForm
-from schedule.models import *
+from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
 from schedule.utils import check_event_permissions, coerce_date_dict
 
@@ -74,7 +74,7 @@ def calendar_by_periods(request, calendar_slug, periods=None,
         except ValueError:
             raise Http404
     else:
-        date = datetime.datetime.now()
+        date = timezone.now()
     event_list = GET_EVENTS_FUNC(request, calendar)
     period_objects = dict([(period.__name__.lower(), period(event_list, date)) for period in periods])
     return render_to_response(template_name,{
@@ -101,15 +101,16 @@ def event(request, event_id, template_name="schedule/event.html"):
         this is the url that referred to this view.
     """
     event = get_object_or_404(Event, id=event_id)
-    back_url = request.META.get('HTTP_REFERER', None)
+    #back_url = request.META.get('HTTP_REFERER', None)
     try:
         cal = event.calendar_set.get()
     except:
         cal = None
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         "event": event,
-        "back_url" : back_url,
-    }, context_instance=RequestContext(request))
+        "back_url" : None,
+    })
+    #, context_instance=RequestContext(request))
 
 def occurrence(request, event_id,
     template_name="schedule/occurrence.html", *args, **kwargs):
@@ -287,6 +288,7 @@ def delete_event(request, event_id, next=None, login_required=True):
     event = get_object_or_404(Event, id=event_id)
     next = next or reverse('day_calendar', args=[event.calendar.slug])
     next = get_next_url(request, next)
+    #TODO: migratis this view http://dashdrum.com/blog/2011/11/class-based-views-deleteview-example/
     return delete_object(request,
                          model = Event,
                          object_id = event_id,

@@ -69,4 +69,4 @@ class Rule(models.Model):
 
     def __unicode__(self):
         """Human readable string for Rule"""
-        return self.name
+        return 'Rule %s params %s' % (self.name, self.params)

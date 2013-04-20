@@ -15,7 +15,7 @@ except ValueError:
 except ValueError:
     raise ImproperlyConfigured("FIRST_DAY_OF_WEEK must be an integer between 0 and 6")
 
-
+AUTH_USER_MODEL = settings.AUTH_USER_MODEL
 # whether to display cancelled occurrences
 # (if they are displayed then they have a css class "cancelled")
 # this controls behaviour of Period.classify_occurrence method
