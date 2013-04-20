@@ -1,10 +1,10 @@
 Build Status
-<p><img src="https://travis-ci.org/llazzaro/django-schedule.png" alt="travis-build-status" /></p>
+<p><img src="https://travis-ci.org/llazzaro/django-scheduler.png" alt="travis-build-status" /></p>
 
 
 
 
-h1. Django-schedule
+h1. Django-scheduler
 
 A calendaring/scheduling application, featuring:
 
@@ -28,7 +28,7 @@ h2. Settings.py
 
 h3. REQUIRED
 
-INSTALLED_APPS - add: 
+INSTALLED_APPS - add:
     'schedule'
 
 TEMPLATE_CONTEXT_PROCESSORS - add:
@@ -52,7 +52,7 @@ Defaults to False
 
 CHECK_PERMISSION_FUNC
 
-This setting controls the callable used to determine if a user has permission to edit an event or occurance. The callable must take the object and the user and return a boolean. 
+This setting controls the callable used to determine if a user has permission to edit an event or occurance. The callable must take the object and the user and return a boolean.
 
 Default:
 <pre>
