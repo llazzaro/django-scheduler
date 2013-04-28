@@ -129,6 +129,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'schedule',
     'django_nose',
+    'django_coverage',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
@@ -188,3 +189,8 @@ LOGGING = {
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+# Tell nose to measure coverage on the 'foo' and 'bar' apps
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=foo,bar',
+]
