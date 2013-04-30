@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import pytz
-import datetime
 from dateutil import rrule
 
 from django.contrib.contenttypes import generic
@@ -10,12 +9,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import date
 from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils import timezone
 
 from schedule.conf import settings
 from schedule.models.rules import Rule
 from schedule.models.calendars import Calendar
 from schedule.utils import OccurrenceReplacer
-from django.utils import timezone
 
 class EventManager(models.Manager):
 
@@ -102,8 +101,8 @@ class Event(models.Model):
     def get_rrule_object(self):
         if self.rule is not None:
             params = self.rule.get_params()
-            frequency = 'rrule.%s' % self.rule.frequency
-            return rrule.rrule(eval(frequency), dtstart=self.start, **params)
+            frequency = self.rule.rrule_frequency()
+            return rrule.rrule(frequency, dtstart=self.start, **params)
 
     def _create_occurrence(self, start, end=None):
         if end is None:
