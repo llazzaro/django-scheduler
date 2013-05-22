@@ -96,5 +96,5 @@ url(r'^feed/calendar/(.*)/$',
 
 (r'^ical/calendar/(.*)/$', CalendarICalendar()),
 
- url(r'$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
+ url(r'^$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
 )
