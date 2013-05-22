@@ -44,8 +44,8 @@ class Event(models.Model):
         app_label = 'schedule'
 
     def __unicode__(self):
-        date_format = u'l, %s' % ugettext("DATE_FORMAT")
-        return ugettext('%(title)s: %(start)s-%(end)s') % {
+        date_format = u'%s' % ugettext("DATE_FORMAT")
+        return ugettext('%(title)s: %(start)s - %(end)s') % {
             'title': self.title,
             'start': date(self.start, date_format),
             'end': date(self.end, date_format),
