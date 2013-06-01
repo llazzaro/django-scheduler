@@ -111,6 +111,8 @@ class Event(models.Model):
         return Occurrence(event=self,start=start,end=end, original_start=start, original_end=end)
 
     def get_occurrence(self, date):
+        if timezone.is_naive(date):
+            date = timezone.make_aware(date, timezone.utc)
         rule = self.get_rrule_object()
         if rule:
             next_occurrence = rule.after(date, inc=True)
