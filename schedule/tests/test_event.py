@@ -78,4 +78,9 @@ class TestEvent(TestCase):
         occurrence = event.get_occurrence(datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc))
         self.assertTrue(occurrence.pk is not None)
 
-
+    def test_prevent_type_error_when_comparing_naive_and_aware_dates(self):
+        # this only test if the TypeError is raised
+        event = Event(**self.recurring_data)
+        event.save()
+        naive_date = datetime.datetime(2008, 1, 20, 0, 0)
+        self.assertIsNone(event.get_occurrence(naive_date))
