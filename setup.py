@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-schedule',
-    version='0.6a',
+    version='0.6.1',
     description='A calendaring app for Django.',
     author='Anthony Robert Hauber',
     author_email='thauber@gmail.com',
@@ -29,7 +29,7 @@ setup(
                  'Operating System :: OS Independent',
                  'Programming Language :: Python',
                  'Topic :: Utilities'],
-    install_requires=['setuptools', 'vobject', 'python-dateutil'],
+    install_requires=['vobject', 'python-dateutil'],
     license='BSD',
     test_suite = "schedule.tests",
 )

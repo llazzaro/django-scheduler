@@ -30,11 +30,11 @@ class Event(models.Model):
     end = models.DateTimeField(_("end"),help_text=_("The end time must be later than the start time."))
     title = models.CharField(_("title"), max_length = 255)
     description = models.TextField(_("description"), null = True, blank = True)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, null = True, verbose_name=_("creator"), related_name='creator')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_("creator"), related_name='creator')
     created_on = models.DateTimeField(_("created on"), default = timezone.now)
     rule = models.ForeignKey(Rule, null = True, blank = True, verbose_name=_("rule"), help_text=_("Select '----' for a one time only event."))
     end_recurring_period = models.DateTimeField(_("end recurring period"), null = True, blank = True, help_text=_("This date is ignored for one time only events."))
-    calendar = models.ForeignKey(Calendar, blank=True)
+    calendar = models.ForeignKey(Calendar, null=True, blank=True)
     objects = EventManager()
 
     class Meta:
@@ -43,8 +43,8 @@ class Event(models.Model):
         app_label = 'schedule'
 
     def __unicode__(self):
-        date_format = u'l, %s' % ugettext("DATE_FORMAT")
-        return ugettext('%(title)s: %(start)s-%(end)s') % {
+        date_format = u'%s' % ugettext("DATE_FORMAT")
+        return ugettext('%(title)s: %(start)s - %(end)s') % {
             'title': self.title,
             'start': date(self.start, date_format),
             'end': date(self.end, date_format),
@@ -110,6 +110,8 @@ class Event(models.Model):
         return Occurrence(event=self,start=start,end=end, original_start=start, original_end=end)
 
     def get_occurrence(self, date):
+        if timezone.is_naive(date):
+            date = timezone.make_aware(date, timezone.utc)
         rule = self.get_rrule_object()
         if rule:
             next_occurrence = rule.after(date, inc=True)
@@ -132,7 +134,7 @@ class Event(models.Model):
             if self.end_recurring_period and self.end_recurring_period < end:
                 end = self.end_recurring_period
             rule = self.get_rrule_object()
-            o_starts = rule.between(start-difference, end, inc=True)
+            o_starts = rule.between(start-difference, end-difference, inc=True)
             for o_start in o_starts:
                 o_end = o_start + difference
                 occurrences.append(self._create_occurrence(o_start, o_end))

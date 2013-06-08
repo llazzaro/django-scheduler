@@ -13,9 +13,9 @@ urlpatterns = patterns('',
 
 # urls for Calendars
 url(r'^calendar/$',
-    ListView,
-    name="schedule",
-    kwargs={'queryset':Calendar.objects.all(), 'template_name':'schedule/calendar_list.html'}),
+    ListView.as_view(queryset=Calendar.objects.all(), 
+                     template_name='schedule/calendar_list.html'),
+    name="calendar_list"),
 
 url(r'^calendar/year/(?P<calendar_slug>[-\w]+)/$',
     'schedule.views.calendar_by_periods',
@@ -96,5 +96,5 @@ url(r'^feed/calendar/(.*)/$',
 
 (r'^ical/calendar/(.*)/$', CalendarICalendar()),
 
- url(r'$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
+ url(r'^$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
 )
