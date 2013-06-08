@@ -129,7 +129,10 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'schedule',
     'django_nose',
+<<<<<<< HEAD
     'django_coverage',
+=======
+>>>>>>> adding back the file settings.py for travis
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
@@ -189,8 +192,11 @@ LOGGING = {
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+<<<<<<< HEAD
 # Tell nose to measure coverage on the 'foo' and 'bar' apps
 NOSE_ARGS = [
     '--with-coverage',
     '--cover-package=schedule',
 ]
+=======
+>>>>>>> adding back the file settings.py for travis
