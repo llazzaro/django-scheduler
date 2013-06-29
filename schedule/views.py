@@ -275,28 +275,33 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
     }, context_instance=RequestContext(request))
 
 
-@check_event_permissions
-def delete_event(request, event_id, next=None, login_required=True):
-    """
-    After the event is deleted there are three options for redirect, tried in
-    this order:
+class EventDeleteView(DeleteView):
+    template_name = 'schedule/delete_event.html'
+    model = Event
 
-    # Try to find a 'next' GET variable
-    # If the key word argument redirect is set
-    # Lastly redirect to the event detail of the recently create event
-    """
-    event = get_object_or_404(Event, id=event_id)
-    next = next or reverse('day_calendar', args=[event.calendar.slug])
-    next = get_next_url(request, next)
-    #TODO: migratis this view http://dashdrum.com/blog/2011/11/class-based-views-deleteview-example/
-    return delete_object(request,
-                         model = Event,
-                         object_id = event_id,
-                         post_delete_redirect = next,
-                         template_name = "schedule/delete_event.html",
-                         extra_context = dict(next=next),
-                         login_required = login_required
-                        )
+    def get_success_url(self):
+        # Try to find a 'next' GET variable
+        # If the key word argument redirect is set
+        # Lastly redirect to the event detail of the recently create event
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        else:
+            return reverse('day_calendar', args=[event.calendar.slug])
+
+    ## Override dispatch to apply the permission decorator
+    @check_event_permissions
+    def dispatch(self, request, *args, **kwargs):
+        return super(EventDeleteView, self).dispatch(request, *args, **kwargs)
+
+    ## Only return object if the allow_delete property is True
+    def get_object(self, *args, **kwargs):
+        event = super(EventDeleteView, self).get_object(*args, **kwargs)
+        if event.allow_delete:
+            return event
+        else:
+            raise Http404
+
 
 def check_next_url(next):
     """
