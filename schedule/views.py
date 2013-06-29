@@ -17,6 +17,7 @@ from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
 from schedule.utils import check_event_permissions, coerce_date_dict
 
+
 def calendar(request, calendar_slug, template='schedule/calendar.html'):
     """
     This view returns a calendar.  This view should be used if you are
@@ -278,14 +279,9 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
 
 
 class DeleteEventView(DeleteView):
-    model = Event
-    pk_url_kwarg = 'event_id'
     template_name = 'schedule/delete_event.html'
-
-    @method_decorator(login_required)
-    @method_decorator(check_event_permissions)
-    def dispatch(self, request, *args, **kwargs):
-        return super(DeleteEventView, self).dispatch(request, *args, **kwargs)
+    pk_url_kwarg = 'event_id'
+    model = Event
 
     def get_context_data(self, **kwargs):
         ctx = super(DeleteEventView, self).get_context_data(**kwargs)
@@ -304,6 +300,20 @@ class DeleteEventView(DeleteView):
         next = self.kwargs.get('next') or reverse('day_calendar', args=[self.object.calendar.slug])
         next = get_next_url(self.request, next)
         return next
+
+    ## Override dispatch to apply the permission decorator
+    @method_decorator(login_required)
+    @method_decorator(check_event_permissions)
+    def dispatch(self, request, *args, **kwargs):
+        return super(EventDeleteView, self).dispatch(request, *args, **kwargs)
+
+    ## Only return object if the allow_delete property is True
+    def get_object(self, *args, **kwargs):
+        event = super(EventDeleteView, self).get_object(*args, **kwargs)
+        if event.allow_delete:
+            return event
+        else:
+            raise Http404
 
 
 def check_next_url(next):
