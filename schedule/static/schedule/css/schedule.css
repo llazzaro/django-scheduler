@@ -1,0 +1,303 @@
+/**** DAILY VIEW ****/
+
+div.slot_column {
+  top:0px;
+  left:0px;
+  border:1px solid black;
+  border-right:none;
+}
+
+div.slot {
+  position:absolute;
+  left:0px;
+  border-bottom:1px dotted grey;
+}
+
+div.occ_column {
+  position:absolute;
+  border:1px solid black;
+  top:0px;
+}
+
+div.occ {
+  position:absolute;
+  border:1px solid red;
+  background-color:#eee;
+  cursor:pointer;
+  overflow:hidden;
+}
+
+div.occ a:hover {
+    background-color:gray;
+}
+
+div.occ_column div.cancelled {
+  background-color:#FFF;
+  border:1px solid black;
+  color:gray;
+}
+
+div.occ_column div.cancelled .actions {
+  display:none;
+}
+
+td.daynumber div.daycell .cancelled {
+  background-color:inherit;
+  color:gray;
+}
+
+td.daynumber div.daycell .eventcell0 {
+  border-right:none;
+  margin-right:-1px;
+}
+
+td.daynumber div.daycell .eventcell1 {
+}
+
+td.daynumber div.daycell .eventcell2 {
+  border-right:none;
+  margin-right:-1px;
+  border-left:none;
+  margin-left:-1px;
+}
+
+td.daynumber div.daycell .eventcell3 {
+  border-left:none;
+  margin-left:-1px;
+}
+
+div.type0 {
+  border-bottom:4px dotted gray;
+}
+
+div.type3 {
+  border-top:4px dotted gray;
+}
+
+div.type2 {
+  border-top:4px dotted gray;
+  border-bottom:4px dotted gray;
+}
+
+/**** EVENT DETAIL DIALOG ****/
+
+div.detail tr {vertical-align:top;}
+
+div.detail td.left {font-weight:bold;}
+
+div.event_options div.title {
+  float:left;
+}
+
+div.event_options div.buttons {
+  float:right;
+}
+
+div.occ span.actions {display:block;float:right;padding-right:3px;}
+div.occ span.actions span.edit {padding-right:3px;}
+
+/**** MONTH TABLE ****/
+
+table.calendar {
+	border-collapse: separate;
+	border-spacing: 2px;
+  border:2px solid #f0f0f0;
+}
+
+.dateheader {
+	height: 30px;
+	text-align: center
+}
+
+.daysofweek {
+	height: 20px;
+	text-align: center
+}
+
+table.calendar td {
+  text-align:left;
+	margin: 2px;
+	padding: 1px;
+}
+
+table.calendar td.daynumber {
+	font-size: 8pt;
+	vertical-align: top
+}
+
+table.calendar td.noday {
+	background-color: #eef
+}
+
+table.calendar td.free {
+	background-color: #c5dbff
+}
+
+table.calendar td.busy {
+	background-color: #ffcece
+}
+
+table.calendar td.small {
+	width: 28px;
+	height: 20px;
+	text-align: center
+}
+
+td.daynumber { height:50px;}
+
+td.daynumber div.header {
+  margin-bottom:2px;
+  padding-bottom:1px;
+  padding-top:1px;
+  text-align:right;
+}
+
+td.daynumber div.header a {
+  padding:1px 5px 1px 90px;
+}
+
+td.small div.header a {
+    padding:0;
+}
+
+td.daynumber div.eventcell {
+    background:#f0f0f0;
+    border:1px dotted grey;
+    clear:both;
+    cursor:pointer;
+    margin:0 1px 3px 1px;
+    overflow:auto;
+}
+
+td.daynumber div.starttime {
+    float:left;
+    width:40px;
+}
+
+td.daynumber div.eventdesc {
+    float:left;
+    height:1em;
+    overflow:hidden;
+    width:75px;
+}
+
+/**** WEEK VIEW ****/
+
+div#week {
+  margin-top:10px;
+  overflow:auto;
+  position:relative;
+}
+
+div#week div.weekdayheader {
+  background:#D0D0D0 none repeat scroll 0 0;
+  border:1px solid black;
+  display:block;
+  display:block;
+  font-size:14px;
+  font-weight:bold;
+  padding-left:5px;
+}
+
+div#week div.weekdaytable {position:relative;}
+
+div#week div.weekday {
+  float:left;
+  width:150px;
+}
+
+div#week div.weekday1 {
+  width:230px;
+}
+
+div#week div.slot {
+  font-size:14px;
+}
+
+div.weekday span.time {
+  display:none;
+}
+
+div.weekday1 span.time {
+  display:inline;
+}
+
+#week div.occ span.title {font-size:12px;}
+
+/**** FORMS AND WIDGETS ****/
+
+div.time-picker {
+    position: absolute;
+    height: 200px;
+    width:80px; /* needed for IE */
+    overflow: auto;
+    background: #fff;
+    border: 1px solid #000;
+    z-index: 99;
+}
+
+div.time-picker-12hours {
+    width:6em; /* needed for IE */
+}
+
+div.time-picker ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+div.time-picker li {
+    padding: 1px;
+    cursor: pointer;
+}
+
+div.time-picker li.selected {
+    background: #316AC5;
+    color: #fff;
+}
+
+#id_start_1, #id_end_1 { width:80px;}
+
+/**** GENERAL SETTINGS ****/
+
+#demo {
+  border-color:#e0e0e0;
+  border-style:solid;
+  border-width: 0 3px 3px 0;
+  float:left;
+  padding-right:5px;
+}
+
+body, td {font-family:sans-serif;}
+
+.error {
+  border:1px solid red;
+}
+
+#messages {
+  position:absolute;
+  top:50px;
+}
+
+div.calendarname {
+  border-color:#e0e0e0;
+  border-style:solid;
+  border-width: 0 0px 3px 3px;
+  font-weight:bold;
+  padding-left:5px;
+  position:absolute;
+  right:10px;
+  top:10px;
+}
+
+div.navigation {
+  text-align:center;
+}
+
+div.navigation a {
+  padding:0 20px;
+}
+
+div.tablewrapper {
+    text-align:center;
+}
