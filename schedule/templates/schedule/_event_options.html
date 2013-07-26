@@ -1,3 +1,4 @@
+{% load staticfiles %}
 
 <span class="actions">
 {% if edit_event %}
@@ -5,16 +6,16 @@
 {% if occurrence.event.rule %}
     {% if occurrence.id %}
         <a href="#" onclick="openURL('{{ edit_occurrence }}?next={{ here }}', event);">
-            <img border="0" src="{{ MEDIA_URL }}schedule/img/pencil.png" alt="Edit Event">
+            <img border="0" src="{% static "schedule/img/pencil.png" %}" alt="Edit Event">
         </a>
     {% else %}
         <a href="#" onclick="openEditDialog(this, '{{ edit_occurrence }}?next={{ here }}', '{{ edit_event }}?next={{ here }}', event);">
-            <img border="0" src="{{ MEDIA_URL }}schedule/img/pencil.png" alt="Edit Event">
+            <img border="0" src="{% static "schedule/img/pencil.png" %}" alt="Edit Event">
         </a>
     {% endif %}
 {% else %}
     <a href="#" onclick="openURL('{{ edit_event }}?next={{ here }}', event);">
-        <img border="0" src="{{ MEDIA_URL }}schedule/img/pencil.png" alt="Edit Event">
+        <img border="0" src="{% static "schedule/img/pencil.png" %}" alt="Edit Event">
     </a>
 {% endif %}
 {% endif %}
@@ -24,16 +25,16 @@
 {% if occurrence.event.rule %}
     {% if occurrence.id %}
         <a href="#" onclick="openURL('{{cancel_occurrence}}?next={{here}}', event);">
-            <img border="0" src="{{ MEDIA_URL }}schedule/img/delete.png" alt="Delete Event">
+            <img border="0" src="{% static "schedule/img/delete.png" %}" alt="Delete Event">
         </a>
     {% else %}
         <a href="#" onclick="openCancelDialog(this, '{{ cancel_occurrence }}?next={{here}}', '{{delete_event}}?next={{here}}', event);">
-            <img border="0" src="{{ MEDIA_URL }}schedule/img/delete.png" alt="Delete Event">
+            <img border="0" src="{% static "schedule/img/delete.png" %}" alt="Delete Event">
         </a>
     {% endif %}
 {% else %}
 <a href="#" onclick="openURL('{{delete_event}}?next={{here}}', event);">
-    <img border="0" src="{{ MEDIA_URL }}schedule/img/delete.png" alt="Delete Event">
+    <img border="0" src="{% static "schedule/img/delete.png" %}" alt="Delete Event">
 </a>
 {% endif %}
 {% endif %}
