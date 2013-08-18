@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.views.generic.list import ListView
+from schedule.views import EventDeleteView
 from schedule.models import Calendar
 from schedule.feeds import UpcomingEventsFeed
 from schedule.feeds import CalendarICalendar
@@ -13,7 +14,7 @@ urlpatterns = patterns('',
 
 # urls for Calendars
 url(r'^calendar/$',
-    ListView.as_view(queryset=Calendar.objects.all(), 
+    ListView.as_view(queryset=Calendar.objects.all(),
                      template_name='schedule/calendar_list.html'),
     name="calendar_list"),
 
@@ -63,7 +64,7 @@ url(r'^event/(?P<event_id>\d+)/$',
     'schedule.views.event',
     name="event"),
 url(r'^event/delete/(?P<event_id>\d+)/$',
-    'schedule.views.delete_event',
+    EventDeleteView.as_view(),
     name="delete_event"),
 
 #urls for already persisted occurrences

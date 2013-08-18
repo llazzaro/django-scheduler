@@ -16,7 +16,7 @@ A calendaring/scheduling application, featuring:
  * view day, week, month, three months and year
  * project sample which can be launched immediately and reused in your project
 
-See see "wiki page":http://wiki.github.com/thauber/django-schedule for more.
+See see "wiki page":https://github.com/llazzaro/django-scheduler/wiki for more.
 
 h2. Installation
 
