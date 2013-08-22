@@ -59,3 +59,12 @@ class TestCalendar(TestCase):
 #    def test_get_absolute_url(self):
 #        calendar = Calendar()
 #        self.assertEquals(calendar.get_absolute_url(), '')
+
+    def test_get_calendar_for_object(self):
+        calendar = Calendar(name='My Cal')
+        calendar.save()
+        rule = Rule()
+        rule.save()
+        calendar.create_relation(rule)
+        result = Calendar.objects.get_calendar_for_object(rule)
+        self.assertFalse(result.name, 'My Cal')
