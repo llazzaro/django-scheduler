@@ -67,4 +67,4 @@ class TestCalendar(TestCase):
         rule.save()
         calendar.create_relation(rule)
         result = Calendar.objects.get_calendar_for_object(rule)
-        self.assertFalse(result.name, 'My Cal')
+        self.assertEquals(result.name, 'My Cal')
