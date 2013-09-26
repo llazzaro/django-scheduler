@@ -5,7 +5,7 @@ import pytz
 from django.test import TestCase
 from django.utils import timezone
 
-from schedule.models import Event, Rule, Calendar, Occurrence
+from schedule.models import Event, Rule, Calendar, Occurrence, CalendarRelation
 from schedule.periods import Period, Day
 
 class TestCalendar(TestCase):
@@ -68,3 +68,67 @@ class TestCalendar(TestCase):
         calendar.create_relation(rule)
         result = Calendar.objects.get_calendar_for_object(rule)
         self.assertEquals(result.name, 'My Cal')
+
+    def test_get_calendar_for_object_without_calendars(self):
+        with self.assertRaises(Calendar.DoesNotExist):
+            rule = Rule()
+            rule.save()
+            Calendar.objects.get_calendar_for_object(rule)
+
+    def test_get_calendar_for_object_with_more_than_one_calendar(self):
+        calendar_1 = Calendar(name='My Cal 1')
+        calendar_1.save()
+        calendar_2 = Calendar(name='My Cal 2')
+        calendar_2.save()
+        rule = Rule()
+        rule.save()
+        calendar_1.create_relation(rule)
+        calendar_2.create_relation(rule)
+        with self.assertRaises(AssertionError):
+            result = Calendar.objects.get_calendar_for_object(rule)
+
+    def test_get_or_create_calendar_for_object_without_calendar(self):
+        """
+            Creation test
+        """
+        rule = Rule()
+        rule.save()
+        calendar = Calendar.objects.get_or_create_calendar_for_object(rule, name='My Cal')
+        self.assertEquals(calendar.name, 'My Cal')
+        calendar_from_rule = Calendar.objects.get_calendars_for_object(rule)[0]
+        self.assertEquals(calendar, calendar_from_rule)
+
+    def test_get_or_create_calendar_for_object_withouth_name(self):
+        """
+            Test with already created calendar
+        """
+        rule = Rule()
+        rule.save()
+        calendar = Calendar.objects.get_or_create_calendar_for_object(rule)
+        calendar_from_rule = Calendar.objects.get_calendars_for_object(rule)[0]
+        self.assertEquals(calendar, calendar_from_rule)
+
+    def test_get_calendars_for_object_without_calendars(self):
+        rule = Rule()
+        rule.save()
+        calendar = Calendar.objects.get_or_create_calendar_for_object(rule, name='My Cal', distinction='owner')
+        rule = Rule()
+        rule.save()
+        calendars = list(Calendar.objects.get_calendars_for_object(rule, distinction='owner'))
+        print calendars
+        self.assertEquals(len(calendars), 0)
+        self.assertEquals(calendars[0].distinction, 'owner')
+
+    def test_calendar_absolute_and_event_url(self):
+        """
+            this test seems to not make too much send, just added since an
+            url was with wrong reverse name.
+
+        """
+        rule = Rule()
+        rule.save()
+        calendar = Calendar.objects.get_or_create_calendar_for_object(rule, name='My Cal', distinction='owner')
+        abs_url = calendar.get_absolute_url()
+        calendar.add_event_url()
+        relation = CalendarRelation.objects.create_relation(calendar, rule)
+        relation.__unicode__()
