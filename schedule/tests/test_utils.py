@@ -1,5 +1,6 @@
-import datetime
 import os
+import pytz
+import datetime
 
 from django.test import TestCase
 from django.utils import timezone
@@ -46,3 +47,5 @@ class TestEventListManager(TestCase):
         self.assertEqual(occurrences.next().event, self.event2)
         self.assertEqual(occurrences.next().event, self.event2)
         self.assertEqual(occurrences.next().event, self.event1)
+        occurrences = eml.occurrences_after()
+        self.assertEqual(list(occurrences), [])
