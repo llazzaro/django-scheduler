@@ -3,6 +3,7 @@ import pytz
 
 from django.test import TestCase
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 from schedule.models import Event, Rule, Calendar
 from schedule.periods import Period, Day
@@ -171,6 +172,31 @@ class TestEvent(TestCase):
         occurrences = list(event.occurrences_after())
         self.assertEquals(len(occurrences), 11)
 
+    def test_get_for_object(self):
+        user = User.objects.create_user('john', 'lennon@thebeatles.com', 'johnpassword')
+        event_relations = list(Event.objects.get_for_object(user, 'owner', inherit=False))
+        self.assertEquals(len(event_relations), 1)
+        self.assertEquals(rule, event_relations[0].content_object)
+
+    def test_get_absolute(self):
+        cal = Calendar(name='MyCal')
+        cal.save()
+        rule = Rule(frequency = "DAILY")
+        rule.save()
+        start = timezone.now() + datetime.timedelta(days=1)
+        event = self.__create_recurring_event(
+                            'Non recurring event test get_occurrence',
+                            start,
+                            start + datetime.timedelta(hours=1),
+                            start + datetime.timedelta(days=10),
+                            rule,
+                            cal)
+        event.save()
+        url = event.get_absolute_url()
+        self.assertEquals('/event/1/', url)
+
+    def test_(self):
+        pass
 
 class TestEventRelationManager(TestCase):
 
