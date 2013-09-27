@@ -55,12 +55,6 @@ class Event(models.Model):
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
-    def create_relation(self, obj, distinction = None):
-        """
-        Creates a EventRelation between self and obj.
-        """
-        EventRelation.objects.create_relation(self, obj, distinction)
-
     def get_occurrences(self, start, end):
         """
         >>> rule = Rule(frequency = "MONTHLY", name = "Monthly")
@@ -282,16 +276,6 @@ class EventRelationManager(models.Manager):
             inherit_q = Q()
         event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id),Q(eventrelation__content_type=ct))
         return Event.objects.filter(inherit_q|event_q)
-
-    def change_distinction(self, distinction, new_distinction):
-        '''
-        This function is for change the a group of eventrelations from an old
-        distinction to a new one. It should only be used for managerial stuff.
-        It is also expensive so it should be used sparingly.
-        '''
-        for relation in self.filter(distinction = distinction):
-            relation.distinction = new_distinction
-            relation.save()
 
     def create_relation(self, event, content_object, distinction=None):
         """
