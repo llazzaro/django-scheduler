@@ -1,13 +1,14 @@
 from django.db import models
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
 
-freqs = (   ("YEARLY", _("Yearly")),
-            ("MONTHLY", _("Monthly")),
-            ("WEEKLY", _("Weekly")),
-            ("DAILY", _("Daily")),
-            ("HOURLY", _("Hourly")),
-            ("MINUTELY", _("Minutely")),
-            ("SECONDLY", _("Secondly")))
+freqs = (("YEARLY", _("Yearly")),
+         ("MONTHLY", _("Monthly")),
+         ("WEEKLY", _("Weekly")),
+         ("DAILY", _("Daily")),
+         ("HOURLY", _("Hourly")),
+         ("MINUTELY", _("Minutely")),
+         ("SECONDLY", _("Secondly")))
+
 
 class Rule(models.Model):
     """

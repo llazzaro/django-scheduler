@@ -1,6 +1,5 @@
 from django.core.management.base import NoArgsCommand
 
-from django.core.management.color import no_style
 
 class Command(NoArgsCommand):
     help = "Load some sample data into the db"
@@ -21,9 +20,8 @@ class Command(NoArgsCommand):
             print "Sample data not found in db."
             print "Install it..."
 
-
         print "Create Example Calendar ..."
-        cal = Calendar(name="Example Calendar",slug="example")
+        cal = Calendar(name="Example Calendar", slug="example")
         cal.save()
         print "The Example Calendar is created."
         print "Do we need to install the most common rules?"
