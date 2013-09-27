@@ -55,7 +55,6 @@ class Event(models.Model):
             'end': date(self.end, date_format),
         }
 
-
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
@@ -85,14 +84,13 @@ class Event(models.Model):
         for occ in occurrences:
             # replace occurrences with their persisted counterparts
             if occ_replacer.has_occurrence(occ):
-                p_occ = occ_replacer.get_occurrence(
-                    occ)
+                p_occ = occ_replacer.get_occurrence(occ)
                 # ...but only if they are within this period
                 if p_occ.start < end and p_occ.end >= start:
                     final_occurrences.append(p_occ)
             else:
                 final_occurrences.append(occ)
-            # then add persisted occurrences which originated outside of this period but now
+        # then add persisted occurrences which originated outside of this period but now
         # fall within it
         final_occurrences += occ_replacer.get_additional_occurrences(start, end)
         return final_occurrences

@@ -5,11 +5,12 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
 from django.template.defaultfilters import slugify
 import datetime
 from schedule.utils import EventListManager
 from django.utils import timezone
+
 
 class CalendarManager(models.Manager):
     """
@@ -57,13 +58,13 @@ class CalendarManager(models.Manager):
         """
         calendar_list = self.get_calendars_for_object(obj, distinction)
         if len(calendar_list) == 0:
-            raise Calendar.DoesNotExist, "Calendar does not exist."
+            raise Calendar.DoesNotExist("Calendar does not exist.")
         elif len(calendar_list) > 1:
-            raise AssertionError, "More than one calendars were found."
+            raise AssertionError("More than one calendars were found.")
         else:
             return calendar_list[0]
 
-    def get_or_create_calendar_for_object(self, obj, distinction = None, name = None):
+    def get_or_create_calendar_for_object(self, obj, distinction=None, name=None):
         """
         >>> user = User(username="jeremy")
         >>> user.save()
@@ -75,9 +76,9 @@ class CalendarManager(models.Manager):
             return self.get_calendar_for_object(obj, distinction)
         except Calendar.DoesNotExist:
             if name is None:
-                calendar = Calendar(name = unicode(obj))
+                calendar = Calendar(name=unicode(obj))
             else:
-                calendar = Calendar(name = name)
+                calendar = Calendar(name=name)
             calendar.slug = slugify(calendar.name)
             calendar.save()
             calendar.create_relation(obj, distinction)
@@ -132,8 +133,8 @@ class Calendar(models.Model):
     >>> calendar.events.add(event)
     '''
 
-    name = models.CharField(_("name"), max_length = 200)
-    slug = models.SlugField(_("slug"),max_length = 200)
+    name = models.CharField(_("name"), max_length=200)
+    slug = models.SlugField(_("slug"),max_length=200)
     objects = CalendarManager()
 
     class Meta:
@@ -148,7 +149,7 @@ class Calendar(models.Model):
     def events(self):
         return self.event_set
 
-    def create_relation(self, obj, distinction = None, inheritable = True):
+    def create_relation(self, obj, distinction=None, inheritable=True):
         """
         Creates a CalendarRelation between self and obj.
 
@@ -157,7 +158,7 @@ class Calendar(models.Model):
         """
         CalendarRelation.objects.create_relation(self, obj, distinction, inheritable)
 
-    def get_recent(self, amount=5, in_datetime = datetime.datetime.now, tzinfo=pytz.utc):
+    def get_recent(self, amount=5, in_datetime=datetime.datetime.now, tzinfo=pytz.utc):
         """
         This shortcut function allows you to get events that have started
         recently.
@@ -174,7 +175,7 @@ class Calendar(models.Model):
         return EventListManager(self.events.all()).occurrences_after(date)
 
     def get_absolute_url(self):
-        return reverse('calendar_home', kwargs={'calendar_slug':self.slug})
+        return reverse('calendar_home', kwargs={'calendar_slug': self.slug})
 
     def add_event_url(self):
         return reverse('calendar_create_event', args=[self.slug])
@@ -197,6 +198,7 @@ class CalendarRelationManager(models.Manager):
         )
         cr.save()
         return cr
+
 
 class CalendarRelation(models.Model):
     '''
@@ -236,4 +238,4 @@ class CalendarRelation(models.Model):
         app_label = 'schedule'
 
     def __unicode__(self):
-        return u'%s - %s' %(self.calendar, self.content_object)
+        return u'%s - %s' % (self.calendar, self.content_object)
