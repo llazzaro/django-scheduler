@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -67,11 +66,11 @@ msgstr "наследуемый"
 
 #: models/calendars.py:234
 msgid "calendar relation"
-msgstr ""
+msgstr "связка календаря"
 
 #: models/calendars.py:235
 msgid "calendar relations"
-msgstr ""
+msgstr "связки календарей"
 
 #: models/events.py:30 models/events.py:357
 msgid "start"
@@ -128,11 +127,11 @@ msgstr ""
 
 #: models/events.py:343
 msgid "event relation"
-msgstr ""
+msgstr "связка события"
 
 #: models/events.py:344
 msgid "event relations"
-msgstr ""
+msgstr "связки событий"
 
 #: models/events.py:359
 msgid "cancelled"
