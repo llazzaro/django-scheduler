@@ -4,10 +4,10 @@
 {% block body %}
 <div class="navigation">
   <a href="{% url "day_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 %}">
-    Day
+    {% trans "Day" %}
   </a>
   <a href="{% url "month_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 %}">
-    Month
+    {% trans "Month" %}
   </a>
 </div>
 <div class="event_actions" align="center">
@@ -20,21 +20,21 @@
 <h2 align="center">{{occurrence.title}}</h2>
 <table align="center">
 <tr>
-<td>Starts</td>
+<td>{% trans "Starts" %}</td>
 <td>{% blocktrans with occurrence.start|date:_("DATETIME_FORMAT") as start_date %}{{ start_date }}{% endblocktrans %}</td>
 </tr>
 <tr>
-<td>Ends</td>
+<td>{% trans "Ends" %}</td>
 <td>{% blocktrans with occurrence.end|date:_("DATETIME_FORMAT") as end_date %}{{ end_date }}{% endblocktrans %}</td>
 </tr>
 {% if occurrence.event.rule %}
 <tr>
-<td>Reoccurs</td><td>{{event.rule}}</td>
+<td>{% trans "Reoccurs" %}</td><td>{{event.rule}}</td>
 </tr>
 {% endif %}
 </table>
 {% if occurrence.description %}
-<h3>Description</h3>
+<h3>{% trans "Description" %}</h3>
 <p>{{occurrence.description}}</p>
 {% endif %}
 
