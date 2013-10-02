@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-03 00:51+0400\n"
+"POT-Creation-Date: 2013-10-03 01:19+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,23 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: forms.py:11 forms.py:15
+#: forms.py:10 models/events.py:30 models/events.py:357
+msgid "start"
+msgstr "начало"
+
+#: forms.py:12 models/events.py:31 models/events.py:358
+msgid "end"
+msgstr "окончание"
+
+#: forms.py:13 forms.py:17
 msgid "The end time must be later than start time."
 msgstr "Время окончания должно быть больше времени начала."
 
-#: forms.py:23 models/events.py:37
+#: forms.py:25
+msgid "End recurring period"
+msgstr "Окончание периода для повторения"
+
+#: forms.py:26 models/events.py:37
 msgid "This date is ignored for one time only events."
 msgstr "Эта дата игнорируется для одноразовых событий"
 
@@ -71,14 +83,6 @@ msgstr "связка календаря"
 #: models/calendars.py:235
 msgid "calendar relations"
 msgstr "связки календарей"
-
-#: models/events.py:30 models/events.py:357
-msgid "start"
-msgstr "начало"
-
-#: models/events.py:31 models/events.py:358
-msgid "end"
-msgstr "окончание"
 
 #: models/events.py:31
 msgid "The end time must be later than the start time."
