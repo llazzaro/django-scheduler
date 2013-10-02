@@ -1,0 +1,316 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-10-03 00:03+0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: forms.py:11 forms.py:15
+msgid "The end time must be later than start time."
+msgstr "Время окончания должно быть больше времени начала."
+
+#: forms.py:23 models/events.py:37
+msgid "This date is ignored for one time only events."
+msgstr "Эта дата игнорируется для одноразовых событий"
+
+#: periods.py:278 periods.py:303 models/events.py:47
+msgid "DATE_FORMAT"
+msgstr ""
+
+#: periods.py:279
+#, python-format
+msgid "Week: %(start)s-%(end)s"
+msgstr "Неделя: %(start)s-%(end)s"
+
+#: periods.py:304
+#, python-format
+msgid "Day: %(start)s-%(end)s"
+msgstr "День: %(start)s-%(end)s"
+
+#: conf/settings.py:8
+msgid "FIRST_DAY_OF_WEEK"
+msgstr ""
+
+#: models/calendars.py:135 models/rules.py:41
+msgid "name"
+msgstr "название"
+
+#: models/calendars.py:136
+msgid "slug"
+msgstr "метка"
+
+#: models/calendars.py:140 models/calendars.py:141 models/calendars.py:224
+msgid "calendar"
+msgstr "календарь"
+
+#: models/calendars.py:228 models/events.py:338
+msgid "distinction"
+msgstr "признак различия"
+
+#: models/calendars.py:229
+msgid "inheritable"
+msgstr "наследуемый"
+
+#: models/calendars.py:234
+msgid "calendar relation"
+msgstr ""
+
+#: models/calendars.py:235
+msgid "calendar relations"
+msgstr ""
+
+#: models/events.py:30 models/events.py:357
+msgid "start"
+msgstr "начало"
+
+#: models/events.py:31 models/events.py:358
+msgid "end"
+msgstr "окончание"
+
+#: models/events.py:31
+msgid "The end time must be later than the start time."
+msgstr "Время окончания должно быть больше времени начала."
+
+#: models/events.py:32 models/events.py:355
+msgid "title"
+msgstr "заголовок"
+
+#: models/events.py:33 models/events.py:356 models/rules.py:42
+msgid "description"
+msgstr "описание"
+
+#: models/events.py:34
+msgid "creator"
+msgstr "создатель"
+
+#: models/events.py:35
+msgid "created on"
+msgstr "дата создания"
+
+#: models/events.py:36 models/rules.py:47
+msgid "rule"
+msgstr "правило"
+
+#: models/events.py:36
+msgid "Select '----' for a one time only event."
+msgstr "Выберите '----' для одноразового события"
+
+#: models/events.py:37
+msgid "end recurring period"
+msgstr "окончание периода для повторения"
+
+#: models/events.py:42 models/events.py:334 models/events.py:354
+msgid "event"
+msgstr "событие"
+
+#: models/events.py:43
+msgid "events"
+msgstr "события"
+
+#: models/events.py:48
+#, python-format
+msgid "%(title)s: %(start)s - %(end)s"
+msgstr ""
+
+#: models/events.py:343
+msgid "event relation"
+msgstr ""
+
+#: models/events.py:344
+msgid "event relations"
+msgstr ""
+
+#: models/events.py:359
+msgid "cancelled"
+msgstr "отменено"
+
+#: models/events.py:360
+msgid "original start"
+msgstr "исходное начало"
+
+#: models/events.py:361
+msgid "original end"
+msgstr "исходное окончание"
+
+#: models/events.py:364
+msgid "occurrence"
+msgstr "возникновение события"
+
+#: models/events.py:365
+msgid "occurrences"
+msgstr "возникновения событий"
+
+#: models/events.py:436
+#, python-format
+msgid "%(start)s to %(end)s"
+msgstr "с %(start)s по %(end)s"
+
+#: models/rules.py:4
+msgid "Yearly"
+msgstr "Ежегодно"
+
+#: models/rules.py:5
+msgid "Monthly"
+msgstr "Ежемесячно"
+
+#: models/rules.py:6
+msgid "Weekly"
+msgstr "Еженедельно"
+
+#: models/rules.py:7
+msgid "Daily"
+msgstr "Ежедневно"
+
+#: models/rules.py:8
+msgid "Hourly"
+msgstr "Ежечасно"
+
+#: models/rules.py:9
+msgid "Minutely"
+msgstr "Ежеминутно"
+
+#: models/rules.py:10
+msgid "Secondly"
+msgstr "Ежесекундно"
+
+#: models/rules.py:43
+msgid "frequency"
+msgstr "частота"
+
+#: models/rules.py:44
+msgid "params"
+msgstr "параметры"
+
+#: models/rules.py:48
+msgid "rules"
+msgstr "правила"
+
+#: templates/site_base.html:31
+msgid "clear"
+msgstr "очистить"
+
+#: templates/profiles/schedule.html:4
+msgid "Schedule"
+msgstr "Расписание"
+
+#: templates/profiles/schedule.html:12
+msgid "Start"
+msgstr "Начало"
+
+#: templates/profiles/schedule.html:13
+msgid "End"
+msgstr "Окончание"
+
+#: templates/profiles/schedule.html:14
+msgid "Title"
+msgstr "Заголовок"
+
+#: templates/profiles/schedule.html:26 templates/profiles/schedule.html:27
+msgid "Event details"
+msgstr "Детали события"
+
+#: templates/profiles/schedule.html:30 templates/profiles/schedule.html:31
+msgid "Edit event"
+msgstr "Изменить событие"
+
+#: templates/profiles/schedule.html:33 templates/profiles/schedule.html:34
+msgid "Delete event"
+msgstr "Удалить событие"
+
+#: templates/profiles/schedule.html:45
+#, python-format
+msgid "You haven't added any <a href=\"%(add_event_url)s\">event</a> yet."
+msgstr "Вы еще не добавилини одного <a href=\"%(add_event_url)s\">события</a>."
+
+#: templates/profiles/schedule.html:49
+msgid "Add event"
+msgstr "Добавить событие"
+
+#: templates/schedule/_detail.html:7 templates/schedule/_detail.html.py:11
+#: templates/schedule/_detail.html:21
+#: templates/schedule/cancel_occurrence.html:10
+#: templates/schedule/cancel_occurrence.html:11
+#: templates/schedule/event.html:36 templates/schedule/event.html.py:40
+#: templates/schedule/event.html:45 templates/schedule/occurrence.html:24
+#: templates/schedule/occurrence.html:28
+msgid "DATETIME_FORMAT"
+msgstr ""
+
+#: templates/schedule/_detail.html:7 templates/schedule/event.html:36
+#: templates/schedule/occurrence.html:24
+#, python-format
+msgid "%(start_date)s"
+msgstr ""
+
+#: templates/schedule/_detail.html:11 templates/schedule/_detail.html.py:21
+#: templates/schedule/event.html:40 templates/schedule/occurrence.html:28
+#, python-format
+msgid "%(end_date)s"
+msgstr ""
+
+#: templates/schedule/cancel_occurrence.html:5
+#: templates/schedule/cancel_occurrence.html:12
+#: templates/schedule/delete_event.html:5
+#: templates/schedule/delete_event.html:10 templates/schedule/event.html:29
+msgid "Delete"
+msgstr "Удалить"
+
+#: templates/schedule/cancel_occurrence.html:6
+msgid "Are you sure that you really want to cancel this occurrence?"
+msgstr "Вы уверены, что хотите отменить это возникновение события?"
+
+#: templates/schedule/cancel_occurrence.html:13
+#: templates/schedule/create_event.html:13
+#: templates/schedule/delete_event.html:11
+#: templates/schedule/edit_occurrence.html:13
+#: templates/schedule/occurrence.html:18
+msgid "Cancel"
+msgstr "Отменить"
+
+#: templates/schedule/create_event.html:5
+msgid "Create or change event. All fields are required."
+msgstr "Создать или изменить событие. Все поля обязательны для заполнения."
+
+#: templates/schedule/create_event.html:12
+#: templates/schedule/edit_occurrence.html:12
+msgid "Save"
+msgstr "Сохранить"
+
+#: templates/schedule/delete_event.html:6
+msgid "Are you sure that you really want to delete it?"
+msgstr "Вы уверены, что хотите удалить его?"
+
+#: templates/schedule/edit_occurrence.html:5
+msgid "Create or change occurrence. All fields are required."
+msgstr "Создать или изменить возникновение события. Все поля обязательны для заполнения."
+
+#: templates/schedule/event.html:20 templates/schedule/occurrence.html:15
+msgid "Back"
+msgstr "Назад"
+
+#: templates/schedule/event.html:25 templates/schedule/occurrence.html:17
+msgid "Change"
+msgstr "Изменить"
+
+#: templates/schedule/event.html:45
+#, python-format
+msgid "%(end_recurring_date)s"
+msgstr ""
+
+#: templates/schedule/event.html:47
+msgid "Never. This is a 'one time only' event."
+msgstr "Никогда. Это одноразовое событие"
