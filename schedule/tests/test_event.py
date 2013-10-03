@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from schedule.models import Event, Rule, Calendar
+from schedule.models import Event, Rule, Calendar, EventRelation
 from schedule.periods import Period, Day
 
 class TestEvent(TestCase):
@@ -175,8 +175,26 @@ class TestEvent(TestCase):
     def test_get_for_object(self):
         user = User.objects.create_user('john', 'lennon@thebeatles.com', 'johnpassword')
         event_relations = list(Event.objects.get_for_object(user, 'owner', inherit=False))
-        self.assertEquals(len(event_relations), 1)
-        self.assertEquals(rule, event_relations[0].content_object)
+        self.assertEquals(len(event_relations), 0)
+
+        rule = Rule(frequency = "DAILY")
+        rule.save()
+        cal = Calendar(name='MyCal')
+        cal.save()
+        event = self.__create_event(
+                'event test',
+                datetime.datetime(2013, 1, 5, 8, 0, tzinfo=pytz.utc),
+                datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
+                cal
+               )
+        event.save()
+        events = list(Event.objects.get_for_object(user, 'owner', inherit=False))
+        self.assertEquals(len(events), 0)
+        EventRelation.objects.create_relation(event, user, 'owner')
+
+        events = list(Event.objects.get_for_object(user, 'owner', inherit=False))
+        self.assertEquals(len(events), 1)
+        self.assertEquals(event, events[0])
 
     def test_get_absolute(self):
         cal = Calendar(name='MyCal')
