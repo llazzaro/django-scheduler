@@ -115,9 +115,7 @@ class TestCalendar(TestCase):
         rule = Rule()
         rule.save()
         calendars = list(Calendar.objects.get_calendars_for_object(rule, distinction='owner'))
-        print calendars
         self.assertEquals(len(calendars), 0)
-        self.assertEquals(calendars[0].distinction, 'owner')
 
     def test_calendar_absolute_and_event_url(self):
         """
