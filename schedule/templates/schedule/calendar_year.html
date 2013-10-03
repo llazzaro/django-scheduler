@@ -1,5 +1,5 @@
 {% extends "schedule/base.html" %}
-{% load scheduletags %}
+{% load scheduletags i18n %}
 {% block body %}
 <div class="tablewrapper">
     <div class="calendarname">{{ calendar.name }}</div>
@@ -27,13 +27,13 @@
         {% endifequal %}
     {% endfor %}
     </tr>
-</table></p>
+</table></div>
 <div class="navigation">
   <a href="{% url "month_calendar" calendar.slug %}">
-    Current Month Calendar
+    {% trans "Current Month Calendar" %}
   </a>
   <a href="{% url "year_calendar" calendar.slug %}">
-    Current Year Calendar
+    {% trans "Current Year Calendar" %}
   </a>
 </div>
 {% endblock %}
