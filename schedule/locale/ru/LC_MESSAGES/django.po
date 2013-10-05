@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-03 01:19+0400\n"
+"POT-Creation-Date: 2013-10-05 23:15+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: forms.py:10 models/events.py:30 models/events.py:357
+#: forms.py:10 models/events.py:32 models/events.py:360
 msgid "start"
 msgstr "начало"
 
-#: forms.py:12 models/events.py:31 models/events.py:358
+#: forms.py:12 models/events.py:33 models/events.py:361
 msgid "end"
 msgstr "окончание"
 
@@ -34,20 +34,20 @@ msgstr "Время окончания должно быть больше вре�
 msgid "End recurring period"
 msgstr "Окончание периода для повторения"
 
-#: forms.py:26 models/events.py:37
+#: forms.py:26 models/events.py:42
 msgid "This date is ignored for one time only events."
 msgstr "Эта дата игнорируется для одноразовых событий"
 
-#: periods.py:278 periods.py:303 models/events.py:47
+#: periods.py:276 periods.py:301 models/events.py:52
 msgid "DATE_FORMAT"
 msgstr ""
 
-#: periods.py:279
+#: periods.py:277
 #, python-format
 msgid "Week: %(start)s-%(end)s"
 msgstr "Неделя: %(start)s-%(end)s"
 
-#: periods.py:304
+#: periods.py:302
 #, python-format
 msgid "Day: %(start)s-%(end)s"
 msgstr "День: %(start)s-%(end)s"
@@ -68,7 +68,7 @@ msgstr "метка"
 msgid "calendar"
 msgstr "календарь"
 
-#: models/calendars.py:228 models/events.py:338
+#: models/calendars.py:228 models/events.py:343
 msgid "distinction"
 msgstr "признак различия"
 
@@ -84,80 +84,80 @@ msgstr "связка календаря"
 msgid "calendar relations"
 msgstr "связки календарей"
 
-#: models/events.py:31
+#: models/events.py:33
 msgid "The end time must be later than the start time."
 msgstr "Время окончания должно быть больше времени начала."
 
-#: models/events.py:32 models/events.py:355
+#: models/events.py:34 models/events.py:358
 msgid "title"
 msgstr "заголовок"
 
-#: models/events.py:33 models/events.py:356 models/rules.py:42
+#: models/events.py:35 models/events.py:359 models/rules.py:42
 msgid "description"
 msgstr "описание"
 
-#: models/events.py:34
+#: models/events.py:36
 msgid "creator"
 msgstr "создатель"
 
-#: models/events.py:35
+#: models/events.py:38
 msgid "created on"
 msgstr "дата создания"
 
-#: models/events.py:36 models/rules.py:47
+#: models/events.py:39 models/rules.py:47
 msgid "rule"
 msgstr "правило"
 
-#: models/events.py:36
+#: models/events.py:40
 msgid "Select '----' for a one time only event."
 msgstr "Выберите '----' для одноразового события"
 
-#: models/events.py:37
+#: models/events.py:41
 msgid "end recurring period"
 msgstr "окончание периода для повторения"
 
-#: models/events.py:42 models/events.py:334 models/events.py:354
+#: models/events.py:47 models/events.py:339 models/events.py:357
 msgid "event"
 msgstr "событие"
 
-#: models/events.py:43
+#: models/events.py:48
 msgid "events"
 msgstr "события"
 
-#: models/events.py:48
+#: models/events.py:53
 #, python-format
 msgid "%(title)s: %(start)s - %(end)s"
 msgstr ""
 
-#: models/events.py:343
+#: models/events.py:348
 msgid "event relation"
 msgstr "связка события"
 
-#: models/events.py:344
+#: models/events.py:349
 msgid "event relations"
 msgstr "связки событий"
 
-#: models/events.py:359
+#: models/events.py:362
 msgid "cancelled"
 msgstr "отменено"
 
-#: models/events.py:360
+#: models/events.py:363
 msgid "original start"
 msgstr "исходное начало"
 
-#: models/events.py:361
+#: models/events.py:364
 msgid "original end"
 msgstr "исходное окончание"
 
-#: models/events.py:364
+#: models/events.py:367
 msgid "occurrence"
-msgstr "возникновение события"
+msgstr "дата события"
 
-#: models/events.py:365
+#: models/events.py:368
 msgid "occurrences"
-msgstr "возникновения событий"
+msgstr "даты событий"
 
-#: models/events.py:436
+#: models/events.py:439
 #, python-format
 msgid "%(start)s to %(end)s"
 msgstr "с %(start)s по %(end)s"
@@ -294,6 +294,32 @@ msgstr "до"
 #: templates/schedule/occurrence.html:37
 msgid "Description"
 msgstr "Описание"
+
+#: templates/schedule/_dialogs.html:6 templates/schedule/_dialogs.html:14
+msgid "This"
+msgstr "Только это"
+
+#: templates/schedule/_dialogs.html:6 templates/schedule/_dialogs.html:14
+msgid "All"
+msgstr "Все"
+
+#: templates/schedule/_dialogs.html:6 templates/schedule/_dialogs.html:14
+msgid "Do nothing"
+msgstr "Отменить"
+
+#: templates/schedule/_dialogs.html:21
+msgid "Close"
+msgstr "Закрыть"
+
+#: templates/schedule/_dialogs.html:36
+msgid ""
+"Do you want to cancel this occurrence or delete all occurrences of this "
+"event?"
+msgstr "Вы хотите удалить только эту дату или все событие"
+
+#: templates/schedule/_dialogs.html:40
+msgid "Do you want to edit this occurrence or all occurrences?"
+msgstr "Вы хотите изменить только эту дату или все событие"
 
 #: templates/schedule/_event_options.html:9
 #: templates/schedule/_event_options.html:13
@@ -436,7 +462,7 @@ msgstr "Вы уверены, что хотите удалить его?"
 #: templates/schedule/edit_occurrence.html:5
 msgid "Create or change occurrence. All fields are required."
 msgstr ""
-"Создать или изменить возникновение события. Все поля обязательны для "
+"Создать или изменить дату события. Все поля обязательны для "
 "заполнения."
 
 #: templates/schedule/event.html:7 templates/schedule/occurrence.html:7
