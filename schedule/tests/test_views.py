@@ -27,6 +27,14 @@ class TestViews(TestCase):
         }
         self.event = Event.objects.create(**data)
 
+    @override_settings(USE_TZ=False)
+    def test_timezone_off(self):
+        url = reverse('day_calendar', kwargs={'calendar_slug': self.calendar.slug})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.client.login(username="admin", password="admin")
+
 
 class TestViewUtils(TestCase):
     def test_check_next_url(self):
@@ -132,6 +140,8 @@ class TestUrls(TestCase):
         # Load the deletion page
         self.response = c.get(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.response.context['next'],
+                         reverse('day_calendar', args=[Event.objects.get(id=1).calendar.slug]))
 
         # Delete the event
         self.response = c.post(reverse("delete_event", kwargs={"event_id": 1}), {})

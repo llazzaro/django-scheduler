@@ -287,6 +287,11 @@ class DeleteEventView(DeleteView):
     def dispatch(self, request, *args, **kwargs):
         return super(DeleteEventView, self).dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        ctx = super(DeleteEventView, self).get_context_data(**kwargs)
+        ctx['next'] = self.get_success_url()
+        return ctx
+
     def get_success_url(self):
         """
         After the event is deleted there are three options for redirect, tried in
