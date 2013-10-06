@@ -448,4 +448,5 @@ class Occurrence(models.Model):
         return rank
 
     def __eq__(self, other):
-        return self.original_start == other.original_start and self.original_end == other.original_end
+        return (isinstance(other, Occurrence) and
+                self.original_start == other.original_start and self.original_end == other.original_end)
