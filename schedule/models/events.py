@@ -370,9 +370,9 @@ class Occurrence(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Occurrence, self).__init__(*args, **kwargs)
-        if self.title is None:
+        if self.title is None and self.event_id:
             self.title = self.event.title
-        if self.description is None:
+        if self.description is None and self.event_id:
             self.description = self.event.description
 
     def moved(self):

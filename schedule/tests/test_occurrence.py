@@ -81,5 +81,11 @@ class TestOccurrence(TestCase):
         self.assertNotEqual(self.recurring_event.get_occurrences(start=self.start, end=self.end)[0],
                             event2)
 
+    def test_create_occurrence_without_event(self):
+        """
+        may be required for creating formsets, for example in admin
+        """
+        o = Occurrence()
+
 
 
