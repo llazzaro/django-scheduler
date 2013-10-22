@@ -1,5 +1,5 @@
 {% extends "site_base.html" %}
-{% load staticfiles %}
+{% load staticfiles i18n %}
 {% block extra_head %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static "schedule/css/schedule.css" %}" type="text/css" media="screen" />
@@ -15,10 +15,10 @@
 {% block subnav %}
 <ul>
     {% if user.is_authenticated %}
-        <li><a href="">Create a Calendar</a></li>
-        <li><a href="">Your Calendars</a></li>
+        <li><a href="">{% trans "Create a Calendar" %}</a></li>
+        <li><a href="">{% trans "Your Calendars" %}</a></li>
     {% endif %}
 
-        <li><a href="">All Calendars</a></li>
+        <li><a href="">{% trans "All Calendars" %}</a></li>
     </ul>
 {% endblock %}

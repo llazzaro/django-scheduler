@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings as django_settings
 import pytz
 import datetime
 from dateutil import rrule
@@ -17,10 +18,11 @@ from schedule.models.calendars import Calendar
 from schedule.utils import OccurrenceReplacer
 from django.utils import timezone
 
-class EventManager(models.Manager):
 
+class EventManager(models.Manager):
     def get_for_object(self, content_object, distinction=None, inherit=True):
         return EventRelation.objects.get_events_for_object(content_object, distinction, inherit)
+
 
 class Event(models.Model):
     '''
@@ -28,13 +30,16 @@ class Event(models.Model):
     other models.
     '''
     start = models.DateTimeField(_("start"))
-    end = models.DateTimeField(_("end"),help_text=_("The end time must be later than the start time."))
-    title = models.CharField(_("title"), max_length = 255)
-    description = models.TextField(_("description"), null = True, blank = True)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_("creator"), related_name='creator')
-    created_on = models.DateTimeField(_("created on"), default = timezone.now)
-    rule = models.ForeignKey(Rule, null = True, blank = True, verbose_name=_("rule"), help_text=_("Select '----' for a one time only event."))
-    end_recurring_period = models.DateTimeField(_("end recurring period"), null = True, blank = True, help_text=_("This date is ignored for one time only events."))
+    end = models.DateTimeField(_("end"), help_text=_("The end time must be later than the start time."))
+    title = models.CharField(_("title"), max_length=255)
+    description = models.TextField(_("description"), null=True, blank=True)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_("creator"),
+                                related_name='creator')
+    created_on = models.DateTimeField(_("created on"), default=timezone.now)
+    rule = models.ForeignKey(Rule, null=True, blank=True, verbose_name=_("rule"),
+                             help_text=_("Select '----' for a one time only event."))
+    end_recurring_period = models.DateTimeField(_("end recurring period"), null=True, blank=True,
+                                                help_text=_("This date is ignored for one time only events."))
     calendar = models.ForeignKey(Calendar, null=True, blank=True)
     objects = EventManager()
 
@@ -55,7 +60,7 @@ class Event(models.Model):
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
-    def create_relation(self, obj, distinction = None):
+    def create_relation(self, obj, distinction=None):
         """
         Creates a EventRelation between self and obj.
         """
@@ -88,13 +93,13 @@ class Event(models.Model):
             # replace occurrences with their persisted counterparts
             if occ_replacer.has_occurrence(occ):
                 p_occ = occ_replacer.get_occurrence(
-                        occ)
+                    occ)
                 # ...but only if they are within this period
                 if p_occ.start < end and p_occ.end >= start:
                     final_occurrences.append(p_occ)
             else:
-              final_occurrences.append(occ)
-        # then add persisted occurrences which originated outside of this period but now
+                final_occurrences.append(occ)
+            # then add persisted occurrences which originated outside of this period but now
         # fall within it
         final_occurrences += occ_replacer.get_additional_occurrences(start, end)
         return final_occurrences
@@ -108,10 +113,10 @@ class Event(models.Model):
     def _create_occurrence(self, start, end=None):
         if end is None:
             end = start + (self.end - self.start)
-        return Occurrence(event=self,start=start,end=end, original_start=start, original_end=end)
+        return Occurrence(event=self, start=start, end=end, original_start=start, original_end=end)
 
     def get_occurrence(self, date):
-        if timezone.is_naive(date):
+        if timezone.is_naive(date) and django_settings.USE_TZ:
             date = timezone.make_aware(date, timezone.utc)
         rule = self.get_rrule_object()
         if rule:
@@ -120,7 +125,7 @@ class Event(models.Model):
             next_occurrence = self.start
         if next_occurrence == date:
             try:
-                return Occurrence.objects.get(event = self, original_start = date)
+                return Occurrence.objects.get(event=self, original_start=date)
             except Occurrence.DoesNotExist:
                 return self._create_occurrence(next_occurrence)
 
@@ -135,7 +140,7 @@ class Event(models.Model):
             if self.end_recurring_period and self.end_recurring_period < end:
                 end = self.end_recurring_period
             rule = self.get_rrule_object()
-            o_starts = rule.between(start-difference, end-difference, inc=True)
+            o_starts = rule.between(start - difference, end - difference, inc=True)
             for o_start in o_starts:
                 o_end = o_start + difference
                 occurrences.append(self._create_occurrence(o_start, o_end))
@@ -268,22 +273,22 @@ class EventRelationManager(models.Manager):
         '''
         ct = ContentType.objects.get_for_model(type(content_object))
         if distinction:
-            dist_q = Q(eventrelation__distinction = distinction)
-            cal_dist_q = Q(calendar__calendarrelation__distinction = distinction)
+            dist_q = Q(eventrelation__distinction=distinction)
+            cal_dist_q = Q(calendar__calendarrelation__distinction=distinction)
         else:
             dist_q = Q()
             cal_dist_q = Q()
         if inherit:
             inherit_q = Q(
                 cal_dist_q,
-                calendar__calendarrelation__object_id = content_object.id,
-                calendar__calendarrelation__content_type = ct,
-                calendar__calendarrelation__inheritable = True,
+                calendar__calendarrelation__object_id=content_object.id,
+                calendar__calendarrelation__content_type=ct,
+                calendar__calendarrelation__inheritable=True,
             )
         else:
             inherit_q = Q()
-        event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id),Q(eventrelation__content_type=ct))
-        return Event.objects.filter(inherit_q|event_q)
+        event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id), Q(eventrelation__content_type=ct))
+        return Event.objects.filter(inherit_q | event_q)
 
     def change_distinction(self, distinction, new_distinction):
         '''
@@ -291,7 +296,7 @@ class EventRelationManager(models.Manager):
         distinction to a new one. It should only be used for managerial stuff.
         It is also expensive so it should be used sparingly.
         '''
-        for relation in self.filter(distinction = distinction):
+        for relation in self.filter(distinction=distinction):
             relation.distinction = new_distinction
             relation.save()
 
@@ -303,11 +308,11 @@ class EventRelationManager(models.Manager):
         ct = ContentType.objects.get_for_model(type(content_object))
         object_id = content_object.id
         er = EventRelation(
-            content_type = ct,
-            object_id = object_id,
-            event = event,
-            distinction = distinction,
-            content_object = content_object
+            content_type=ct,
+            object_id=object_id,
+            event=event,
+            distinction=distinction,
+            content_object=content_object
         )
         er.save()
         return er
@@ -335,7 +340,7 @@ class EventRelation(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
-    distinction = models.CharField(_("distinction"), max_length = 20, null=True)
+    distinction = models.CharField(_("distinction"), max_length=20, null=True)
 
     objects = EventRelationManager()
 
@@ -346,8 +351,6 @@ class EventRelation(models.Model):
 
     def __unicode__(self):
         return u'%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
-
-
 
 
 class Occurrence(models.Model):
@@ -367,14 +370,14 @@ class Occurrence(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Occurrence, self).__init__(*args, **kwargs)
-        if self.title is None:
+        if self.title is None and self.event_id:
             self.title = self.event.title
-        if self.description is None:
+        if self.description is None and self.event_id:
             self.description = self.event.description
-
 
     def moved(self):
         return self.original_start != self.start or self.original_end != self.end
+
     moved = property(moved)
 
     def move(self, new_start, new_end):
@@ -393,7 +396,7 @@ class Occurrence(models.Model):
     def get_absolute_url(self):
         if self.pk is not None:
             return reverse('occurrence', kwargs={'occurrence_id': self.pk,
-                'event_id': self.event.id})
+                                                 'event_id': self.event.id})
         return reverse('occurrence_by_date', kwargs={
             'event_id': self.event.id,
             'year': self.start.year,
@@ -407,7 +410,7 @@ class Occurrence(models.Model):
     def get_cancel_url(self):
         if self.pk is not None:
             return reverse('cancel_occurrence', kwargs={'occurrence_id': self.pk,
-                'event_id': self.event.id})
+                                                        'event_id': self.event.id})
         return reverse('cancel_occurrence_by_date', kwargs={
             'event_id': self.event.id,
             'year': self.start.year,
@@ -421,7 +424,7 @@ class Occurrence(models.Model):
     def get_edit_url(self):
         if self.pk is not None:
             return reverse('edit_occurrence', kwargs={'occurrence_id': self.pk,
-                'event_id': self.event.id})
+                                                      'event_id': self.event.id})
         return reverse('edit_occurrence_by_date', kwargs={
             'event_id': self.event.id,
             'year': self.start.year,
@@ -445,4 +448,5 @@ class Occurrence(models.Model):
         return rank
 
     def __eq__(self, other):
-        return self.original_start == other.original_start and self.original_end == other.original_end
+        return (isinstance(other, Occurrence) and
+                self.original_start == other.original_start and self.original_end == other.original_end)

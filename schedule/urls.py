@@ -1,9 +1,13 @@
-from django.conf.urls.defaults import *
+try:
+    from django.conf.urls import patterns, url, include
+except ImportError:
+    from django.conf.urls.defaults import patterns, url, include
 from django.views.generic.list import ListView
 from schedule.models import Calendar
 from schedule.feeds import UpcomingEventsFeed
 from schedule.feeds import CalendarICalendar
 from schedule.periods import Year, Month, Week, Day
+from schedule.views import DeleteEventView
 
 info_dict = {
     'queryset': Calendar.objects.all(),
@@ -63,7 +67,7 @@ url(r'^event/(?P<event_id>\d+)/$',
     'schedule.views.event',
     name="event"),
 url(r'^event/delete/(?P<event_id>\d+)/$',
-    'schedule.views.delete_event',
+    DeleteEventView.as_view(),
     name="delete_event"),
 
 #urls for already persisted occurrences
