@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
+from setuptools import setup
+
+with open('schedule/requirements.txt') as f:
+    required = f.read().splitlines()
 
 setup(
     name='django-schedule',
@@ -8,7 +11,7 @@ setup(
     description='A calendaring app for Django.',
     author='Anthony Robert Hauber',
     author_email='thauber@gmail.com',
-    url='http://github.com/thauber/django-schedule/tree/master',
+    url='https://github.com/llazzaro/django-scheduler',
     packages=[
         'schedule',
         'schedule.conf',
@@ -29,7 +32,7 @@ setup(
                  'Operating System :: OS Independent',
                  'Programming Language :: Python',
                  'Topic :: Utilities'],
-    install_requires=['vobject', 'python-dateutil'],
+    install_requires=required,
     license='BSD',
-    test_suite = "schedule.tests",
+    test_suite="schedule.tests",
 )

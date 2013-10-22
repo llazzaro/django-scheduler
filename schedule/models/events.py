@@ -16,10 +16,12 @@ from schedule.models.rules import Rule
 from schedule.models.calendars import Calendar
 from schedule.utils import OccurrenceReplacer
 
+
 class EventManager(models.Manager):
 
     def get_for_object(self, content_object, distinction=None, inherit=True):
         return EventRelation.objects.get_events_for_object(content_object, distinction, inherit)
+
 
 class Event(models.Model):
     '''
@@ -29,12 +31,12 @@ class Event(models.Model):
     start = models.DateTimeField(_("start"))
     end = models.DateTimeField(_("end"),help_text=_("The end time must be later than the start time."))
     title = models.CharField(_("title"), max_length = 255)
-    description = models.TextField(_("description"), null = True, blank = True)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_("creator"), related_name='creator')
-    created_on = models.DateTimeField(_("created on"), default = timezone.now)
-    rule = models.ForeignKey(Rule, null = True, blank = True, verbose_name=_("rule"), help_text=_("Select '----' for a one time only event."))
-    end_recurring_period = models.DateTimeField(_("end recurring period"), null = True, blank = True, help_text=_("This date is ignored for one time only events."))
-    calendar = models.ForeignKey(Calendar, null=True, blank=True)
+    description = models.TextField(_("description"), null=True, blank=True)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, verbose_name=_("creator"), related_name='creator')
+    created_on = models.DateTimeField(_("created on"), default=timezone.now)
+    rule = models.ForeignKey(Rule, null=True, blank=True, verbose_name=_("rule"), help_text=_("Select '----' for a one time only event."))
+    end_recurring_period = models.DateTimeField(_("end recurring period"), null=True, blank=True, help_text=_("This date is ignored for one time only events."))
+    calendar = models.ForeignKey(Calendar, blank=True)
     objects = EventManager()
 
     class Meta:
@@ -50,15 +52,8 @@ class Event(models.Model):
             'end': date(self.end, date_format),
         }
 
-
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
-
-    def create_relation(self, obj, distinction = None):
-        """
-        Creates a EventRelation between self and obj.
-        """
-        EventRelation.objects.create_relation(self, obj, distinction)
 
     def get_occurrences(self, start, end):
         """
@@ -86,13 +81,12 @@ class Event(models.Model):
         for occ in occurrences:
             # replace occurrences with their persisted counterparts
             if occ_replacer.has_occurrence(occ):
-                p_occ = occ_replacer.get_occurrence(
-                        occ)
+                p_occ = occ_replacer.get_occurrence(occ)
                 # ...but only if they are within this period
                 if p_occ.start < end and p_occ.end >= start:
                     final_occurrences.append(p_occ)
             else:
-              final_occurrences.append(occ)
+                final_occurrences.append(occ)
         # then add persisted occurrences which originated outside of this period but now
         # fall within it
         final_occurrences += occ_replacer.get_additional_occurrences(start, end)
@@ -119,7 +113,7 @@ class Event(models.Model):
             next_occurrence = self.start
         if next_occurrence == date:
             try:
-                return Occurrence.objects.get(event = self, original_start = date)
+                return Occurrence.objects.get(event=self, original_start = date)
             except Occurrence.DoesNotExist:
                 return self._create_occurrence(next_occurrence)
 
@@ -283,16 +277,6 @@ class EventRelationManager(models.Manager):
             inherit_q = Q()
         event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id),Q(eventrelation__content_type=ct))
         return Event.objects.filter(inherit_q|event_q)
-
-    def change_distinction(self, distinction, new_distinction):
-        '''
-        This function is for change the a group of eventrelations from an old
-        distinction to a new one. It should only be used for managerial stuff.
-        It is also expensive so it should be used sparingly.
-        '''
-        for relation in self.filter(distinction = distinction):
-            relation.distinction = new_distinction
-            relation.save()
 
     def create_relation(self, event, content_object, distinction=None):
         """
