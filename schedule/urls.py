@@ -3,7 +3,6 @@ try:
 except ImportError:
     from django.conf.urls.defaults import patterns, url, include
 from django.views.generic.list import ListView
-from schedule.views import EventDeleteView
 from schedule.models import Calendar
 from schedule.feeds import UpcomingEventsFeed
 from schedule.feeds import CalendarICalendar

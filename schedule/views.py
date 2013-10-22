@@ -305,15 +305,7 @@ class DeleteEventView(DeleteView):
     @method_decorator(login_required)
     @method_decorator(check_event_permissions)
     def dispatch(self, request, *args, **kwargs):
-        return super(EventDeleteView, self).dispatch(request, *args, **kwargs)
-
-    ## Only return object if the allow_delete property is True
-    def get_object(self, *args, **kwargs):
-        event = super(EventDeleteView, self).get_object(*args, **kwargs)
-        if event.allow_delete:
-            return event
-        else:
-            raise Http404
+        return super(DeleteEventView, self).dispatch(request, *args, **kwargs)
 
 
 def check_next_url(next):
