@@ -6,7 +6,7 @@ with open('schedule/requirements.txt') as f:
         required = f.read().splitlines()
 
 setup(
-    name='django-schedule',
+    name='django-scheduler',
     version='0.7',
     description='A calendaring app for Django.',
     author='Anthony Robert Hauber',
