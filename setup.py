@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
-with open('schedule/requirements.txt') as f:
-        required = f.read().splitlines()
-
 setup(
     name='django-scheduler',
     version='0.7',
@@ -32,7 +29,14 @@ setup(
                  'Operating System :: OS Independent',
                  'Programming Language :: Python',
                  'Topic :: Utilities'],
-    install_requires=required,
+    install_requires=[
+        'Django>=1.5',
+        'argparse>=1.2.1',
+        'python-dateutil>=2.1',
+        'pytz>=2013b',
+        'six>=1.3.0',
+        'vobject>=0.8.1c',
+    ],
     license='BSD',
     test_suite="schedule.tests",
 )
