@@ -92,13 +92,9 @@ url(r'^occurrence/edit/(?P<event_id>\d+)/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d
     'schedule.views.edit_occurrence',
     name="edit_occurrence_by_date"),
 
-
 #feed urls
-url(r'^feed/calendar/(.*)/$',
-    'django.contrib.syndication.views.Feed',
-    { "feed_dict": { "upcoming": UpcomingEventsFeed(None, None) } }),
+url(r'^feed/calendar/upcoming/(.*)/$', UpcomingEventsFeed(), name='upcoming_events_feed'),
+url(r'^ical/calendar/(.*)/$', CalendarICalendar(), name='calendar_ical'),
 
-(r'^ical/calendar/(.*)/$', CalendarICalendar()),
-
- url(r'^$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
+url(r'^$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
 )
