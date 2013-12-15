@@ -74,6 +74,9 @@ class Event(models.Model):
         []
 `
         """
+        if self.pk:
+            # performance booster for occurrences relationship
+            Event.objects.select_related('occurrence').get(pk=self.pk)
         persisted_occurrences = self.occurrence_set.all()
         occ_replacer = OccurrenceReplacer(persisted_occurrences)
         occurrences = self._get_occurrence_list(start, end)
