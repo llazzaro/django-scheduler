@@ -1,5 +1,6 @@
 Build Status
 <p><img src="https://travis-ci.org/llazzaro/django-scheduler.png" alt="travis-build-status" /></p>
+!https://coveralls.io/repos/llazzaro/django-scheduler/badge.png(Coverage Status)!:https://coveralls.io/r/llazzaro/django-scheduler
 
 
 
