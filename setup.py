@@ -6,8 +6,8 @@ setup(
     name='django-scheduler',
     version='0.7.1',
     description='A calendaring app for Django.',
-    author='Anthony Robert Hauber',
-    author_email='thauber@gmail.com',
+    author='Leonardo Lazzaro',
+    author_email='lazzaroleonardo@gmail.com',
     url='https://github.com/llazzaro/django-scheduler',
     packages=[
         'schedule',
