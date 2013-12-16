@@ -132,7 +132,7 @@ class Year(Period):
         if date is None:
             date = timezone.now()
         start, end = self._get_year_range(date)
-        super(Year, self).__init__(events, start, end, parent_persisted_occurrences)
+        super(Year, self).__init__(events, start, end, parent_persisted_occurrences, tzinfo=tzinfo)
 
     def get_months(self):
         return self.get_periods(Month)
@@ -169,7 +169,7 @@ class Month(Period):
             date = timezone.now()
         start, end = self._get_month_range(date)
         super(Month, self).__init__(events, start, end,
-                                    parent_persisted_occurrences, occurrence_pool)
+                                    parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def get_weeks(self):
         return self.get_periods(Week)
@@ -234,7 +234,7 @@ class Week(Period):
             date = timezone.now()
         start, end = self._get_week_range(date)
         super(Week, self).__init__(events, start, end,
-                                   parent_persisted_occurrences, occurrence_pool)
+                                   parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def prev_week(self):
         return Week(self.events, self.start - datetime.timedelta(days=7))
@@ -288,7 +288,7 @@ class Day(Period):
             date = timezone.now()
         start, end = self._get_day_range(date)
         super(Day, self).__init__(events, start, end,
-                                  parent_persisted_occurrences, occurrence_pool)
+                                  parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def _get_day_range(self, date):
         if isinstance(date, datetime.datetime):
