@@ -115,14 +115,18 @@ class Period(object):
             return Period(self.events, start, end)
         return None
 
-    def create_sub_period(self, cls, start=None):
+    def create_sub_period(self, cls, start=None, tzinfo=None):
+        if tzinfo is None:
+            tzinfo = self.tzinfo
         start = start or self.start
-        return cls(self.events, start, self.get_persisted_occurrences(), self.occurrences)
+        return cls(self.events, start, self.get_persisted_occurrences(), self.occurrences, tzinfo)
 
-    def get_periods(self, cls):
+    def get_periods(self, cls, tzinfo=None):
+        if tzinfo is None:
+            tzinfo = self.tzinfo
         period = self.create_sub_period(cls)
         while period.start < self.end:
-            yield self.create_sub_period(cls, period.start)
+            yield self.create_sub_period(cls, period.start, tzinfo)
             period = period.next()
 
 
@@ -132,25 +136,38 @@ class Year(Period):
         if date is None:
             date = timezone.now()
         start, end = self._get_year_range(date)
-        super(Year, self).__init__(events, start, end, parent_persisted_occurrences)
+        super(Year, self).__init__(events, start, end, parent_persisted_occurrences, tzinfo=tzinfo)
 
     def get_months(self):
         return self.get_periods(Month)
 
     def next_year(self):
-        return Year(self.events, self.end)
+        return Year(self.events, self.end, tzinfo=self.tzinfo)
     next = next_year
 
     def prev_year(self):
-        start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day, tzinfo=self.tzinfo)
-        return Year(self.events, start)
+        start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day)
+        return Year(self.events, start, tzinfo=self.tzinfo)
     prev = prev_year
 
     def _get_year_range(self, year):
-        start = datetime.datetime(year.year, datetime.datetime.min.month,
-                                  datetime.datetime.min.day, tzinfo=self.tzinfo)
-        end = datetime.datetime(year.year + 1, datetime.datetime.min.month,
-                                datetime.datetime.min.day, tzinfo=self.tzinfo)
+        #If tzinfo is not none get the local start of the year and convert it to utc.
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(
+                datetime.datetime(year.year, datetime.datetime.min.month, datetime.datetime.min.day)
+            )
+            local_end = self.tzinfo.localize(
+                datetime.datetime(year.year + 1, datetime.datetime.min.month, datetime.datetime.min.day)
+            )
+
+            start = local_start.astimezone(pytz.utc)
+            end = local_end.astimezone(pytz.utc)
+        else:
+            start = datetime.datetime(year.year, datetime.datetime.min.month,
+                                      datetime.datetime.min.day, tzinfo=self.tzinfo)
+            end = datetime.datetime(year.year + 1, datetime.datetime.min.month,
+                                    datetime.datetime.min.day, tzinfo=self.tzinfo)
+
         return start, end
 
     def __unicode__(self):
@@ -169,7 +186,7 @@ class Month(Period):
             date = timezone.now()
         start, end = self._get_month_range(date)
         super(Month, self).__init__(events, start, end,
-                                    parent_persisted_occurrences, occurrence_pool)
+                                    parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def get_weeks(self):
         return self.get_periods(Week)
@@ -184,33 +201,44 @@ class Month(Period):
         return self.create_sub_period(Day, date)
 
     def next_month(self):
-        return Month(self.events, self.end)
+        return Month(self.events, self.end, tzinfo=self.tzinfo)
     next = next_month
 
     def prev_month(self):
         start = (self.start - datetime.timedelta(days=1)).replace(day=1, tzinfo=self.tzinfo)
-        return Month(self.events, start)
+        return Month(self.events, start, tzinfo=self.tzinfo)
     prev = prev_month
 
     def current_year(self):
-        return Year(self.events, self.start)
+        return Year(self.events, self.start, tzinfo=self.tzinfo)
 
     def prev_year(self):
         start = datetime.datetime.min.replace(year=self.start.year - 1, tzinfo=self.tzinfo)
-        return Year(self.events, start)
+        return Year(self.events, start, tzinfo=self.tzinfo)
 
     def next_year(self):
         start = datetime.datetime.min.replace(year=self.start.year + 1, tzinfo=self.tzinfo)
-        return Year(self.events, start)
+        return Year(self.events, start, tzinfo=self.tzinfo)
 
     def _get_month_range(self, month):
         year = month.year
         month = month.month
-        start = datetime.datetime.min.replace(year=year, month=month, tzinfo=self.tzinfo)
-        if month == 12:
-            end = start.replace(month=1, year=year + 1, tzinfo=self.tzinfo)
+        #If tzinfo is not none get the local start of the month and convert it to utc.
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(datetime.datetime.min.replace(year=year, month=month))
+            start = local_start.astimezone(pytz.utc)
         else:
-            end = start.replace(month=month + 1, tzinfo=self.tzinfo)
+            start = datetime.datetime.min.replace(year=year, month=month, tzinfo=self.tzinfo)
+        if month == 12:
+            local_end = datetime.datetime.min.replace(month=1, year=year + 1, day=1)
+        else:
+            local_end = datetime.datetime.min.replace(month=month + 1, year=year, day=1)
+
+        if self.tzinfo is not None:
+            local_end = self.tzinfo.localize(local_end)
+            end = local_end.astimezone(pytz.utc)
+        end = local_end.astimezone(pytz.utc)
+
         return start, end
 
     def __unicode__(self):
@@ -234,21 +262,21 @@ class Week(Period):
             date = timezone.now()
         start, end = self._get_week_range(date)
         super(Week, self).__init__(events, start, end,
-                                   parent_persisted_occurrences, occurrence_pool)
+                                   parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def prev_week(self):
-        return Week(self.events, self.start - datetime.timedelta(days=7))
+        return Week(self.events, self.start - datetime.timedelta(days=7), tzinfo=self.tzinfo)
     prev = prev_week
 
     def next_week(self):
-        return Week(self.events, self.end)
+        return Week(self.events, self.end, tzinfo=self.tzinfo)
     next = next_week
 
     def current_month(self):
-        return Month(self.events, self.start)
+        return Month(self.events, self.start, tzinfo=self.tzinfo)
 
     def current_year(self):
-        return Year(self.events, self.start)
+        return Year(self.events, self.start, tzinfo=self.tzinfo)
 
     def get_days(self):
         return self.get_periods(Day)
@@ -257,7 +285,12 @@ class Week(Period):
         if isinstance(week, datetime.datetime):
             week = week.date()
         # Adjust the start datetime to midnight of the week datetime
-        start = datetime.datetime.combine(week, datetime.time.min).replace(tzinfo=self.tzinfo)
+        #If tzinfo is not none get the local start of the week and convert it to utc.
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(datetime.datetime.combine(week, datetime.time.min))
+            start = local_start.astimezone(pytz.utc)
+        else:
+            start = datetime.datetime.combine(week, datetime.time.min).replace(tzinfo=self.tzinfo)
         # Adjust the start datetime to Monday or Sunday of the current week
         if FIRST_DAY_OF_WEEK == 1:
             # The week begins on Monday
@@ -288,12 +321,18 @@ class Day(Period):
             date = timezone.now()
         start, end = self._get_day_range(date)
         super(Day, self).__init__(events, start, end,
-                                  parent_persisted_occurrences, occurrence_pool)
+                                  parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def _get_day_range(self, date):
         if isinstance(date, datetime.datetime):
             date = date.date()
-        start = datetime.datetime.combine(date, datetime.time.min).replace(tzinfo=self.tzinfo)
+        #If tzinfo is not none get the local start of the day and convert it to utc.
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(datetime.datetime.combine(date, datetime.time.min))
+            start = local_start.astimezone(pytz.utc)
+        else:
+            start = datetime.datetime.combine(date, datetime.time.min).replace(tzinfo=self.tzinfo)
+
         end = start + datetime.timedelta(days=1)
         return start, end
 
@@ -305,18 +344,18 @@ class Day(Period):
         }
 
     def prev_day(self):
-        return Day(self.events, self.start - datetime.timedelta(days=1))
+        return Day(self.events, self.start - datetime.timedelta(days=1), tzinfo=self.tzinfo)
     prev = prev_day
 
     def next_day(self):
-        return Day(self.events, self.end)
+        return Day(self.events, self.end, tzinfo=self.tzinfo)
     next = next_day
 
     def current_year(self):
-        return Year(self.events, self.start)
+        return Year(self.events, self.start, tzinfo=self.tzinfo)
 
     def current_month(self):
-        return Month(self.events, self.start)
+        return Month(self.events, self.start, tzinfo=self.tzinfo)
 
     def current_week(self):
-        return Week(self.events, self.start)
+        return Week(self.events, self.start, tzinfo=self.tzinfo)
