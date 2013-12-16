@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from schedule.conf.settings import FIRST_DAY_OF_WEEK
 from schedule.models import Event, Rule, Calendar
-from schedule.periods import Period, Month, Day, Year
+from schedule.periods import Period, Month, Day, Year, Week
 
 class TestPeriod(TestCase):
 
@@ -251,3 +251,85 @@ class TestOccurrencePool(TestCase):
         period = Period(parent_period.events, start, end, parent_period.get_persisted_occurrences(), parent_period.occurrences)
         self.assertEquals(parent_period.occurrences, period.occurrences)
 
+
+class TestAwareDay(TestCase):
+    def setUp(self):
+        self.timezone = pytz.timezone('Europe/Amsterdam')
+
+        start = self.timezone.localize(datetime.datetime(2008, 2, 7, 0, 20))
+        end = self.timezone.localize(datetime.datetime(2008, 2, 7, 0, 21))
+        self.event = Event(
+            title='One minute long event on january seventh 2008 at 00:20 in Amsterdam.',
+            start=start,
+            end=end,
+        )
+        self.event.save()
+
+        self.day = Day(
+            events=Event.objects.all(),
+            date=self.timezone.localize(datetime.datetime(2008, 2, 7, 9, 0)),
+            tzinfo=self.timezone,
+        )
+
+    def test_day_range(self):
+        start = datetime.datetime(2008, 2, 6, 23, 0, tzinfo=pytz.utc)
+        end = datetime.datetime(2008, 2, 7, 23, 0, tzinfo=pytz.utc)
+
+        self.assertEqual(start, self.day.start)
+        self.assertEqual(end, self.day.end)
+
+    def test_occurence(self):
+        self.assertEqual(self.event in [o.event for o in self.day.occurrences], True)
+
+
+
+
+class TestAwareWeek(TestCase):
+    def setUp(self):
+        self.timezone = pytz.timezone('Europe/Amsterdam')
+        self.week = Week(
+            events=Event.objects.all(),
+            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            tzinfo=self.timezone,
+        )
+
+    def test_week_range(self):
+        start = datetime.datetime(2013, 12, 15, 23, 0, tzinfo=pytz.utc)
+        end = datetime.datetime(2013, 12, 22, 23, 0, tzinfo=pytz.utc)
+
+        self.assertEqual(start, self.week.start)
+        self.assertEqual(end, self.week.end)
+
+
+class TestAwareMonth(TestCase):
+    def setUp(self):
+        self.timezone = pytz.timezone('Europe/Amsterdam')
+        self.month = Month(
+            events=Event.objects.all(),
+            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            tzinfo=self.timezone,
+        )
+
+    def test_month_range(self):
+        start = datetime.datetime(2013, 11, 30, 23, 0, tzinfo=pytz.utc)
+        end = datetime.datetime(2013, 12, 31, 23, 0, tzinfo=pytz.utc)
+
+        self.assertEqual(start, self.month.start)
+        self.assertEqual(end, self.month.end)
+
+
+class TestAwareYear(TestCase):
+    def setUp(self):
+        self.timezone = pytz.timezone('Europe/Amsterdam')
+        self.year = Year(
+            events=Event.objects.all(),
+            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            tzinfo=self.timezone,
+        )
+
+    def test_year_range(self):
+        start = datetime.datetime(2012, 12, 31, 23, 0, tzinfo=pytz.utc)
+        end = datetime.datetime(2013, 12, 31, 23, 0, tzinfo=pytz.utc)
+
+        self.assertEqual(start, self.year.start)
+        self.assertEqual(end, self.year.end)
