@@ -142,15 +142,27 @@ class Year(Period):
     next = next_year
 
     def prev_year(self):
-        start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day, tzinfo=self.tzinfo)
+        start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day)
         return Year(self.events, start)
     prev = prev_year
 
     def _get_year_range(self, year):
-        start = datetime.datetime(year.year, datetime.datetime.min.month,
-                                  datetime.datetime.min.day, tzinfo=self.tzinfo)
-        end = datetime.datetime(year.year + 1, datetime.datetime.min.month,
-                                datetime.datetime.min.day, tzinfo=self.tzinfo)
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(
+                datetime.datetime(year.year, datetime.datetime.min.month, datetime.datetime.min.day)
+            )
+            local_end = self.tzinfo.localize(
+                datetime.datetime(year.year + 1, datetime.datetime.min.month, datetime.datetime.min.day)
+            )
+
+            start = local_start.astimezone(pytz.utc)
+            end = local_end.astimezone(pytz.utc)
+        else:
+            start = datetime.datetime(year.year, datetime.datetime.min.month,
+                                      datetime.datetime.min.day, tzinfo=self.tzinfo)
+            end = datetime.datetime(year.year + 1, datetime.datetime.min.month,
+                                    datetime.datetime.min.day, tzinfo=self.tzinfo)
+
         return start, end
 
     def __unicode__(self):
@@ -206,11 +218,21 @@ class Month(Period):
     def _get_month_range(self, month):
         year = month.year
         month = month.month
-        start = datetime.datetime.min.replace(year=year, month=month, tzinfo=self.tzinfo)
-        if month == 12:
-            end = start.replace(month=1, year=year + 1, tzinfo=self.tzinfo)
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(datetime.datetime.min.replace(year=year, month=month))
+            start = local_start.astimezone(pytz.utc)
         else:
-            end = start.replace(month=month + 1, tzinfo=self.tzinfo)
+            start = datetime.datetime.min.replace(year=year, month=month, tzinfo=self.tzinfo)
+        if month == 12:
+            local_end = datetime.datetime.min.replace(month=1, year=year + 1, day=1)
+        else:
+            local_end = datetime.datetime.min.replace(month=month + 1, year=year, day=1)
+
+        if self.tzinfo is not None:
+            local_end = self.tzinfo.localize(local_end)
+            end = local_end.astimezone(pytz.utc)
+        end = local_end.astimezone(pytz.utc)
+
         return start, end
 
     def __unicode__(self):
@@ -257,7 +279,11 @@ class Week(Period):
         if isinstance(week, datetime.datetime):
             week = week.date()
         # Adjust the start datetime to midnight of the week datetime
-        start = datetime.datetime.combine(week, datetime.time.min).replace(tzinfo=self.tzinfo)
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(datetime.datetime.combine(week, datetime.time.min))
+            start = local_start.astimezone(pytz.utc)
+        else:
+            start = datetime.datetime.combine(week, datetime.time.min).replace(tzinfo=self.tzinfo)
         # Adjust the start datetime to Monday or Sunday of the current week
         if FIRST_DAY_OF_WEEK == 1:
             # The week begins on Monday
@@ -293,7 +319,13 @@ class Day(Period):
     def _get_day_range(self, date):
         if isinstance(date, datetime.datetime):
             date = date.date()
-        start = datetime.datetime.combine(date, datetime.time.min).replace(tzinfo=self.tzinfo)
+        #If tzinfo is not none get the local start of the day and convert it to utc.
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(datetime.datetime.combine(date, datetime.time.min))
+            start = local_start.astimezone(pytz.utc)
+        else:
+            start = datetime.datetime.combine(date, datetime.time.min).replace(tzinfo=self.tzinfo)
+
         end = start + datetime.timedelta(days=1)
         return start, end
 
