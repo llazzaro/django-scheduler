@@ -282,6 +282,38 @@ class TestAwareDay(TestCase):
         self.assertEqual(self.event in [o.event for o in self.day.occurrences], True)
 
 
+class TestTzInfoPersistence(TestCase):
+    def setUp(self):
+        self.timezone = pytz.timezone('Europe/Amsterdam')
+        self.day = Day(
+            events=Event.objects.all(),
+            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            tzinfo=self.timezone
+        )
+
+        self.week = Week(
+            events=Event.objects.all(),
+            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            tzinfo=self.timezone,
+        )
+
+        self.month = Month(
+            events=Event.objects.all(),
+            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            tzinfo=self.timezone,
+        )
+
+        self.year = Year(
+            events=Event.objects.all(),
+            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            tzinfo=self.timezone,
+        )
+
+    def test_persistence(self):
+        self.assertEqual(self.day.tzinfo, self.timezone)
+        self.assertEqual(self.week.tzinfo, self.timezone)
+        self.assertEqual(self.month.tzinfo, self.timezone)
+        self.assertEqual(self.year.tzinfo, self.timezone)
 
 
 class TestAwareWeek(TestCase):
