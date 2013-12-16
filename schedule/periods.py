@@ -1,6 +1,7 @@
-from django.conf import settings
 import pytz
 import datetime
+
+from django.conf import settings
 from django.template.defaultfilters import date as date_filter
 from django.utils.translation import ugettext
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
@@ -31,8 +32,8 @@ class Period(object):
     """
     def __init__(self, events, start, end, parent_persisted_occurrences=None,
                  occurrence_pool=None, tzinfo=pytz.utc):
-        self.start = start
-        self.end = end
+        self.utc_start = start.astimezone(pytz.utc)
+        self.utc_end = end.astimezone(pytz.utc)
         self.events = events
         self.tzinfo = self._get_tzinfo(tzinfo)
         self.occurrence_pool = occurrence_pool
@@ -40,10 +41,10 @@ class Period(object):
             self._persisted_occurrences = parent_persisted_occurrences
 
     def __eq__(self, period):
-        return self.start == period.start and self.end == period.end and self.events == period.events
+        return self.utc_start == period.utc_start and self.utc_end == period.utc_end and self.events == period.events
 
     def __ne__(self, period):
-        return self.start != period.start or self.end != period.end or self.events != period.events
+        return self.utc_start != period.utc_start or self.utc_end != period.utc_end or self.events != period.events
 
     def _get_tzinfo(self, tzinfo):
         return tzinfo if settings.USE_TZ else None
@@ -52,7 +53,7 @@ class Period(object):
         occurrences = []
         if hasattr(self, "occurrence_pool") and self.occurrence_pool is not None:
             for occurrence in self.occurrence_pool:
-                if occurrence.start <= self.end and occurrence.end >= self.start:
+                if occurrence.start <= self.utc_end and occurrence.end >= self.utc_start:
                     occurrences.append(occurrence)
             return occurrences
         for event in self.events:
@@ -82,9 +83,9 @@ class Period(object):
             return None
         started = False
         ended = False
-        if self.start <= occurrence.start < self.end:
+        if self.utc_start <= occurrence.start < self.utc_end:
             started = True
-        if self.start <= occurrence.end < self.end:
+        if self.utc_start <= occurrence.end < self.utc_end:
             ended = True
         if started and ended:
             return {'occurrence': occurrence, 'class': 1}
@@ -128,6 +129,14 @@ class Period(object):
         while period.start < self.end:
             yield self.create_sub_period(cls, period.start, tzinfo)
             period = period.next()
+
+    @property
+    def start(self):
+        return self.utc_start.astimezone(self.tzinfo)
+
+    @property
+    def end(self):
+        return self.utc_end.astimezone(self.tzinfo)
 
 
 class Year(Period):
