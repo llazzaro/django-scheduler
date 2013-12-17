@@ -161,21 +161,16 @@ class Year(Period):
 
     def _get_year_range(self, year):
         #If tzinfo is not none get the local start of the year and convert it to utc.
-        if self.tzinfo is not None:
-            local_start = self.tzinfo.localize(
-                datetime.datetime(year.year, datetime.datetime.min.month, datetime.datetime.min.day)
-            )
-            local_end = self.tzinfo.localize(
-                datetime.datetime(year.year + 1, datetime.datetime.min.month, datetime.datetime.min.day)
-            )
+        naive_start = datetime.datetime(year.year, datetime.datetime.min.month, datetime.datetime.min.day)
+        naive_end = datetime.datetime(year.year + 1, datetime.datetime.min.month, datetime.datetime.min.day)
 
+        start = naive_start
+        end = naive_end
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(naive_start)
+            local_end = self.tzinfo.localize(naive_end)
             start = local_start.astimezone(pytz.utc)
             end = local_end.astimezone(pytz.utc)
-        else:
-            start = datetime.datetime(year.year, datetime.datetime.min.month,
-                                      datetime.datetime.min.day, tzinfo=self.tzinfo)
-            end = datetime.datetime(year.year + 1, datetime.datetime.min.month,
-                                    datetime.datetime.min.day, tzinfo=self.tzinfo)
 
         return start, end
 
@@ -233,20 +228,19 @@ class Month(Period):
         year = month.year
         month = month.month
         #If tzinfo is not none get the local start of the month and convert it to utc.
-        if self.tzinfo is not None:
-            local_start = self.tzinfo.localize(datetime.datetime.min.replace(year=year, month=month))
-            start = local_start.astimezone(pytz.utc)
-        else:
-            start = datetime.datetime.min.replace(year=year, month=month, tzinfo=self.tzinfo)
+        naive_start = datetime.datetime.min.replace(year=year, month=month)
         if month == 12:
-            local_end = datetime.datetime.min.replace(month=1, year=year + 1, day=1)
+            naive_end = datetime.datetime.min.replace(month=1, year=year + 1, day=1)
         else:
-            local_end = datetime.datetime.min.replace(month=month + 1, year=year, day=1)
+            naive_end = datetime.datetime.min.replace(month=month + 1, year=year, day=1)
 
+        start = naive_start
+        end = naive_end
         if self.tzinfo is not None:
-            local_end = self.tzinfo.localize(local_end)
+            local_start = self.tzinfo.localize(naive_start)
+            local_end = self.tzinfo.localize(naive_end)
+            start = local_start.astimezone(pytz.utc)
             end = local_end.astimezone(pytz.utc)
-        end = local_end.astimezone(pytz.utc)
 
         return start, end
 
@@ -294,24 +288,29 @@ class Week(Period):
         if isinstance(week, datetime.datetime):
             week = week.date()
         # Adjust the start datetime to midnight of the week datetime
-        #If tzinfo is not none get the local start of the week and convert it to utc.
-        if self.tzinfo is not None:
-            local_start = self.tzinfo.localize(datetime.datetime.combine(week, datetime.time.min))
-            start = local_start.astimezone(pytz.utc)
-        else:
-            start = datetime.datetime.combine(week, datetime.time.min).replace(tzinfo=self.tzinfo)
+        naive_start = datetime.datetime.combine(week, datetime.time.min)
         # Adjust the start datetime to Monday or Sunday of the current week
         if FIRST_DAY_OF_WEEK == 1:
             # The week begins on Monday
-            sub_days = start.isoweekday() - 1
+            sub_days = naive_start.isoweekday() - 1
         else:
             # The week begins on Sunday
-            sub_days = start.isoweekday()
+            sub_days = naive_start.isoweekday()
             if sub_days == 7:
                 sub_days = 0
         if sub_days > 0:
-            start = start - datetime.timedelta(days=sub_days)
-        end = start + datetime.timedelta(days=7)
+            naive_start = naive_start - datetime.timedelta(days=sub_days)
+        naive_end = naive_start + datetime.timedelta(days=7)
+
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(naive_start)
+            local_end = self.tzinfo.localize(naive_end)
+            start = local_start.astimezone(pytz.utc)
+            end = local_end.astimezone(pytz.utc)
+        else:
+            start = naive_start
+            end = naive_end
+
         return start, end
 
     def __unicode__(self):
@@ -335,14 +334,18 @@ class Day(Period):
     def _get_day_range(self, date):
         if isinstance(date, datetime.datetime):
             date = date.date()
-        #If tzinfo is not none get the local start of the day and convert it to utc.
-        if self.tzinfo is not None:
-            local_start = self.tzinfo.localize(datetime.datetime.combine(date, datetime.time.min))
-            start = local_start.astimezone(pytz.utc)
-        else:
-            start = datetime.datetime.combine(date, datetime.time.min).replace(tzinfo=self.tzinfo)
 
-        end = start + datetime.timedelta(days=1)
+        naive_start = datetime.datetime.combine(date, datetime.time.min)
+        naive_end = datetime.datetime.combine(date + datetime.timedelta(days=1), datetime.time.min)
+        if self.tzinfo is not None:
+            local_start = self.tzinfo.localize(naive_start)
+            local_end = self.tzinfo.localize(naive_end)
+            start = local_start.astimezone(pytz.utc)
+            end = local_end.astimezone(pytz.utc)
+        else:
+            start = naive_start
+            end = naive_end
+
         return start, end
 
     def __unicode__(self):
