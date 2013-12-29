@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-05 23:15+0400\n"
+"POT-Creation-Date: 2013-12-29 19:11+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: forms.py:10 models/events.py:32 models/events.py:360
+#: forms.py:10 models/events.py:31 models/events.py:342
 msgid "start"
 msgstr "начало"
 
-#: forms.py:12 models/events.py:33 models/events.py:361
+#: forms.py:12 models/events.py:32 models/events.py:343
 msgid "end"
 msgstr "окончание"
 
@@ -56,55 +56,59 @@ msgstr "День: %(start)s-%(end)s"
 msgid "FIRST_DAY_OF_WEEK"
 msgstr ""
 
-#: models/calendars.py:135 models/rules.py:41
+#: models/calendars.py:136 models/rules.py:44
 msgid "name"
 msgstr "название"
 
-#: models/calendars.py:136
+#: models/calendars.py:137
 msgid "slug"
 msgstr "метка"
 
-#: models/calendars.py:140 models/calendars.py:141 models/calendars.py:224
+#: models/calendars.py:141 models/calendars.py:142 models/calendars.py:226
 msgid "calendar"
 msgstr "календарь"
 
-#: models/calendars.py:228 models/events.py:343
+#: models/calendars.py:230 models/events.py:325
 msgid "distinction"
 msgstr "признак различия"
 
-#: models/calendars.py:229
+#: models/calendars.py:231
 msgid "inheritable"
 msgstr "наследуемый"
 
-#: models/calendars.py:234
+#: models/calendars.py:236
 msgid "calendar relation"
 msgstr "связка календаря"
 
-#: models/calendars.py:235
+#: models/calendars.py:237
 msgid "calendar relations"
 msgstr "связки календарей"
 
-#: models/events.py:33
+#: models/events.py:32
 msgid "The end time must be later than the start time."
 msgstr "Время окончания должно быть больше времени начала."
 
-#: models/events.py:34 models/events.py:358
+#: models/events.py:33 models/events.py:340
 msgid "title"
 msgstr "заголовок"
 
-#: models/events.py:35 models/events.py:359 models/rules.py:42
+#: models/events.py:34 models/events.py:341 models/rules.py:45
 msgid "description"
 msgstr "описание"
 
-#: models/events.py:36
+#: models/events.py:35
 msgid "creator"
 msgstr "создатель"
 
-#: models/events.py:38
+#: models/events.py:37 models/events.py:347
 msgid "created on"
 msgstr "дата создания"
 
-#: models/events.py:39 models/rules.py:47
+#: models/events.py:38 models/events.py:348
+msgid "updated on"
+msgstr "дата обновления"
+
+#: models/events.py:39 models/rules.py:50
 msgid "rule"
 msgstr "правило"
 
@@ -116,7 +120,7 @@ msgstr "Выберите '----' для одноразового события"
 msgid "end recurring period"
 msgstr "окончание периода для повторения"
 
-#: models/events.py:47 models/events.py:339 models/events.py:357
+#: models/events.py:47 models/events.py:321 models/events.py:339
 msgid "event"
 msgstr "событие"
 
@@ -129,78 +133,78 @@ msgstr "события"
 msgid "%(title)s: %(start)s - %(end)s"
 msgstr ""
 
-#: models/events.py:348
+#: models/events.py:330
 msgid "event relation"
 msgstr "связка события"
 
-#: models/events.py:349
+#: models/events.py:331
 msgid "event relations"
 msgstr "связки событий"
 
-#: models/events.py:362
+#: models/events.py:344
 msgid "cancelled"
 msgstr "отменено"
 
-#: models/events.py:363
+#: models/events.py:345
 msgid "original start"
 msgstr "исходное начало"
 
-#: models/events.py:364
+#: models/events.py:346
 msgid "original end"
 msgstr "исходное окончание"
 
-#: models/events.py:367
+#: models/events.py:351
 msgid "occurrence"
 msgstr "дата события"
 
-#: models/events.py:368
+#: models/events.py:352
 msgid "occurrences"
 msgstr "даты событий"
 
-#: models/events.py:439
+#: models/events.py:423
 #, python-format
 msgid "%(start)s to %(end)s"
 msgstr "с %(start)s по %(end)s"
 
-#: models/rules.py:4
+#: models/rules.py:6
 msgid "Yearly"
 msgstr "Ежегодно"
 
-#: models/rules.py:5
+#: models/rules.py:7
 msgid "Monthly"
 msgstr "Ежемесячно"
 
-#: models/rules.py:6 templates/schedule/calendar.html:21
+#: models/rules.py:8 templates/schedule/calendar.html:21
 #: templates/schedule/calendar_list.html:13
 msgid "Weekly"
 msgstr "Еженедельно"
 
-#: models/rules.py:7 templates/schedule/calendar.html:22
+#: models/rules.py:9 templates/schedule/calendar.html:22
 #: templates/schedule/calendar_list.html:14
 msgid "Daily"
 msgstr "Ежедневно"
 
-#: models/rules.py:8
+#: models/rules.py:10
 msgid "Hourly"
 msgstr "Ежечасно"
 
-#: models/rules.py:9
+#: models/rules.py:11
 msgid "Minutely"
 msgstr "Ежеминутно"
 
-#: models/rules.py:10
+#: models/rules.py:12
 msgid "Secondly"
 msgstr "Ежесекундно"
 
-#: models/rules.py:43
+#: models/rules.py:46
 msgid "frequency"
 msgstr "частота"
 
-#: models/rules.py:44
+#: models/rules.py:47
 msgid "params"
 msgstr "параметры"
 
-#: models/rules.py:48
+#: models/rules.py:51
 msgid "rules"
 msgstr "правила"
 
@@ -256,8 +260,8 @@ msgstr "Начало"
 
 #: templates/schedule/_detail.html:7 templates/schedule/_detail.html.py:11
 #: templates/schedule/_detail.html:21
-#: templates/schedule/cancel_occurrence.html:10
 #: templates/schedule/cancel_occurrence.html:11
+#: templates/schedule/cancel_occurrence.html:12
 #: templates/schedule/event.html:36 templates/schedule/event.html.py:40
 #: templates/schedule/event.html:45 templates/schedule/occurrence.html:24
 #: templates/schedule/occurrence.html:28
@@ -333,15 +337,15 @@ msgstr "Изменить событие"
 msgid "Delete Event"
 msgstr "Удалить событие"
 
-#: templates/schedule/base.html:18
+#: templates/schedule/base.html:16
 msgid "Create a Calendar"
 msgstr "Создать календарь"
 
-#: templates/schedule/base.html:19
+#: templates/schedule/base.html:17
 msgid "Your Calendars"
 msgstr "Ваши календари"
 
-#: templates/schedule/base.html:22
+#: templates/schedule/base.html:20
 msgid "All Calendars"
 msgstr "Все календари"
 
@@ -371,7 +375,7 @@ msgstr "Лента"
 
 #: templates/schedule/calendar.html:27
 msgid "Now see docstring for schedule.views.calendar"
-msgstr ""
+msgstr "Смотрите докуемнтацию для schedule.views.calendar"
 
 #: templates/schedule/calendar_day.html:9
 msgid "Week"
@@ -428,9 +432,9 @@ msgid "Current Year Calendar"
 msgstr "Календарь на текущий год"
 
 #: templates/schedule/cancel_occurrence.html:5
-#: templates/schedule/cancel_occurrence.html:12
+#: templates/schedule/cancel_occurrence.html:13
 #: templates/schedule/delete_event.html:5
-#: templates/schedule/delete_event.html:10 templates/schedule/event.html:29
+#: templates/schedule/delete_event.html:11 templates/schedule/event.html:29
 msgid "Delete"
 msgstr "Удалить"
 
@@ -438,10 +442,10 @@ msgstr "Удалить"
 msgid "Are you sure that you really want to cancel this occurrence?"
 msgstr "Вы уверены, что хотите отменить это возникновение события?"
 
-#: templates/schedule/cancel_occurrence.html:13
-#: templates/schedule/create_event.html:13
-#: templates/schedule/delete_event.html:11
-#: templates/schedule/edit_occurrence.html:13
+#: templates/schedule/cancel_occurrence.html:14
+#: templates/schedule/create_event.html:14
+#: templates/schedule/delete_event.html:12
+#: templates/schedule/edit_occurrence.html:14
 #: templates/schedule/occurrence.html:18
 msgid "Cancel"
 msgstr "Отменить"
@@ -450,8 +454,8 @@ msgstr "Отменить"
 msgid "Create or change event. All fields are required."
 msgstr "Создать или изменить событие. Все поля обязательны для заполнения."
 
-#: templates/schedule/create_event.html:12
-#: templates/schedule/edit_occurrence.html:12
+#: templates/schedule/create_event.html:13
+#: templates/schedule/edit_occurrence.html:13
 msgid "Save"
 msgstr "Сохранить"
 
@@ -462,8 +466,7 @@ msgstr "Вы уверены, что хотите удалить его?"
 #: templates/schedule/edit_occurrence.html:5
 msgid "Create or change occurrence. All fields are required."
 msgstr ""
-"Создать или изменить дату события. Все поля обязательны для "
-"заполнения."
+"Создать или изменить дату события. Все поля обязательны для заполнения."
 
 #: templates/schedule/event.html:7 templates/schedule/occurrence.html:7
 msgid "Day"
