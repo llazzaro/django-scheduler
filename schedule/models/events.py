@@ -34,7 +34,8 @@ class Event(models.Model):
     description = models.TextField(_("description"), null=True, blank=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_("creator"),
                                 related_name='creator')
-    created_on = models.DateTimeField(_("created on"), default=timezone.now)
+    created_on = models.DateTimeField(_("created on"), auto_now_add=True)
+    updated_on = models.DateTimeField(_("updated on"), auto_now=True)
     rule = models.ForeignKey(Rule, null=True, blank=True, verbose_name=_("rule"),
                              help_text=_("Select '----' for a one time only event."))
     end_recurring_period = models.DateTimeField(_("end recurring period"), null=True, blank=True,
@@ -343,6 +344,8 @@ class Occurrence(models.Model):
     cancelled = models.BooleanField(_("cancelled"), default=False)
     original_start = models.DateTimeField(_("original start"))
     original_end = models.DateTimeField(_("original end"))
+    created_on = models.DateTimeField(_("created on"), auto_now_add=True)
+    updated_on = models.DateTimeField(_("updated on"), auto_now=True)
 
     class Meta:
         verbose_name = _("occurrence")
