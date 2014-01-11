@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-29 19:11+0400\n"
+"POT-Creation-Date: 2014-01-12 00:45+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,6 +65,7 @@ msgid "slug"
 msgstr "метка"
 
 #: models/calendars.py:141 models/calendars.py:142 models/calendars.py:226
+#: models/events.py:43
 msgid "calendar"
 msgstr "календарь"
 
