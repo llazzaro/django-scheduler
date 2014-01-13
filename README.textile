@@ -1,6 +1,7 @@
 Build Status
-<p><img src="https://travis-ci.org/llazzaro/django-scheduler.png" alt="travis-build-status" /></p>
+!https://travis-ci.org/llazzaro/django-scheduler.png(Build Status)!:https://travis-ci.org/llazzaro/django-scheduler
 !https://coveralls.io/repos/llazzaro/django-scheduler/badge.png(Coverage Status)!:https://coveralls.io/r/llazzaro/django-scheduler
+!https://gemnasium.com/llazzaro/django-scheduler.png(Dependency Status)!:https://gemnasium.com/llazzaro/django-scheduler
 
 
 
