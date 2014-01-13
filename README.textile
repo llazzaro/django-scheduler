@@ -2,7 +2,8 @@ Build Status
 !https://travis-ci.org/llazzaro/django-scheduler.png(Build Status)!:https://travis-ci.org/llazzaro/django-scheduler
 !https://coveralls.io/repos/llazzaro/django-scheduler/badge.png(Coverage Status)!:https://coveralls.io/r/llazzaro/django-scheduler
 !https://gemnasium.com/llazzaro/django-scheduler.png(Dependency Status)!:https://gemnasium.com/llazzaro/django-scheduler
-
+!https://pypip.in/v/django-scheduler/badge.png(Latest PyPI version)!:https://crate.io/packages/django-scheduler
+!https://pypip.in/d/django-scheduler/badge.png(umber of PyPI downloads)!:https://crate.io/packages/django-scheduler
 
 
 
