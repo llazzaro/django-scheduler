@@ -326,9 +326,10 @@ class TestAwareWeek(TestCase):
         )
 
     def test_week_range(self):
-        start = datetime.datetime(2013, 12, 15, 23, 0, tzinfo=pytz.utc)
-        end = datetime.datetime(2013, 12, 22, 23, 0, tzinfo=pytz.utc)
+        start = self.timezone.localize(datetime.datetime(2013, 12, 15, 0, 0))
+        end = self.timezone.localize(datetime.datetime(2013, 12, 22, 0, 0))
 
+        self.assertEqual(self.week.tzinfo, self.timezone)
         self.assertEqual(start, self.week.start)
         self.assertEqual(end, self.week.end)
 
@@ -338,14 +339,15 @@ class TestAwareMonth(TestCase):
         self.timezone = pytz.timezone('Europe/Amsterdam')
         self.month = Month(
             events=Event.objects.all(),
-            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            date=self.timezone.localize(datetime.datetime(2013, 11, 17, 9, 0)),
             tzinfo=self.timezone,
         )
 
     def test_month_range(self):
-        start = datetime.datetime(2013, 11, 30, 23, 0, tzinfo=pytz.utc)
-        end = datetime.datetime(2013, 12, 31, 23, 0, tzinfo=pytz.utc)
+        start = self.timezone.localize(datetime.datetime(2013, 11, 1, 0, 0))
+        end = self.timezone.localize(datetime.datetime(2013, 12, 1, 0, 0))
 
+        self.assertEqual(self.month.tzinfo, self.timezone)
         self.assertEqual(start, self.month.start)
         self.assertEqual(end, self.month.end)
 
@@ -360,8 +362,9 @@ class TestAwareYear(TestCase):
         )
 
     def test_year_range(self):
-        start = datetime.datetime(2012, 12, 31, 23, 0, tzinfo=pytz.utc)
-        end = datetime.datetime(2013, 12, 31, 23, 0, tzinfo=pytz.utc)
+        start = self.timezone.localize(datetime.datetime(2013, 1, 1, 0, 0))
+        end = self.timezone.localize(datetime.datetime(2014, 1, 1, 0, 0))
 
+        self.assertEqual(self.year.tzinfo, self.timezone)
         self.assertEqual(start, self.year.start)
         self.assertEqual(end, self.year.end)
