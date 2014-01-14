@@ -32,8 +32,16 @@ class Period(object):
     """
     def __init__(self, events, start, end, parent_persisted_occurrences=None,
                  occurrence_pool=None, tzinfo=pytz.utc):
-        self.utc_start = start.astimezone(pytz.utc)
-        self.utc_end = end.astimezone(pytz.utc)
+        if start.tzinfo is not None:
+            self.utc_start = start.astimezone(pytz.utc)
+        else:
+            self.utc_start = pytz.utc.localize(start)
+
+        if end.tzinfo is not None:
+            self.utc_end = end.astimezone(pytz.utc)
+        else:
+            self.utc_end = pytz.utc.localize(end)
+
         self.events = events
         self.tzinfo = self._get_tzinfo(tzinfo)
         self.occurrence_pool = occurrence_pool
@@ -132,11 +140,15 @@ class Period(object):
 
     @property
     def start(self):
-        return self.utc_start.astimezone(self.tzinfo)
+        if self.tzinfo is not None:
+            return self.utc_start.astimezone(self.tzinfo)
+        return self.utc_start.replace(tzinfo=None)
 
     @property
     def end(self):
-        return self.utc_end.astimezone(self.tzinfo)
+        if self.tzinfo is not None:
+            return self.utc_end.astimezone(self.tzinfo)
+        return self.utc_end.replace(tzinfo=None)
 
 
 class Year(Period):
@@ -201,7 +213,7 @@ class Month(Period):
     def get_day(self, daynumber):
         date = self.start
         if daynumber > 1:
-            date += datetime.timedelta(days=daynumber-1)
+            date += datetime.timedelta(days=daynumber - 1)
         return self.create_sub_period(Day, date)
 
     def next_month(self):
