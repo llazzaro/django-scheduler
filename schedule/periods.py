@@ -32,21 +32,23 @@ class Period(object):
     """
     def __init__(self, events, start, end, parent_persisted_occurrences=None,
                  occurrence_pool=None, tzinfo=pytz.utc):
-        if start.tzinfo is not None:
-            self.utc_start = start.astimezone(pytz.utc)
-        else:
-            self.utc_start = pytz.utc.localize(start)
 
-        if end.tzinfo is not None:
-            self.utc_end = end.astimezone(pytz.utc)
-        else:
-            self.utc_end = pytz.utc.localize(end)
+        self.utc_start = self._normalize_timezone_to_utc(start, tzinfo)
+
+        self.utc_end = self._normalize_timezone_to_utc(end, tzinfo)
 
         self.events = events
         self.tzinfo = self._get_tzinfo(tzinfo)
         self.occurrence_pool = occurrence_pool
         if parent_persisted_occurrences is not None:
             self._persisted_occurrences = parent_persisted_occurrences
+
+    def _normalize_timezone_to_utc(self, point_in_time, tzinfo):
+        if point_in_time.tzinfo is not None:
+            return point_in_time.astimezone(pytz.utc)
+        if tzinfo is not None:
+            return tzinfo.localize(point_in_time).astimezone(pytz.utc)
+        return pytz.utc.localize(point_in_time)
 
     def __eq__(self, period):
         return self.utc_start == period.utc_start and self.utc_end == period.utc_end and self.events == period.events
