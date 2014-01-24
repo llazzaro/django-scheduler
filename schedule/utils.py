@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils import timezone
-from schedule.conf.settings import CHECK_PERMISSION_FUNC
+from schedule.conf.settings import CHECK_EVENT_PERM_FUNC
 
 
 class EventListManager(object):
@@ -95,7 +95,7 @@ def check_event_permissions(function):
             obj = event_ct.get_object_for_this_type(pk=object_id)
         except event_ct.model_class().DoesNotExist:
             obj = None
-        allowed = CHECK_PERMISSION_FUNC(obj, user)
+        allowed = CHECK_EVENT_PERM_FUNC(obj, user)
         if not allowed:
             return HttpResponseRedirect(settings.LOGIN_URL)
         return function(request, *args, **kwargs)

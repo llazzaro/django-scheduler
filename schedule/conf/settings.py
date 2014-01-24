@@ -25,8 +25,12 @@ SHOW_CANCELLED_OCCURRENCES = getattr(settings, 'SHOW_CANCELLED_OCCURRENCES',
 # Callable used to check if a user has edit permissions to event
 # (and occurrence). Used by check_edit_permission decorator
 # if ob==None we check permission to add occurrence
-CHECK_PERMISSION_FUNC = getattr(settings, 'CHECK_PERMISSION_FUNC', None)
-if not CHECK_PERMISSION_FUNC:
+CHECK_EVENT_PERM_FUNC = getattr(settings, 'CHECK_EVENT_PERM_FUNC', None)
+
+if not CHECK_EVENT_PERM_FUNC:
+    CHECK_EVENT_PERM_FUNC = getattr(settings, 'CHECK_PERMISSION_FUNC', None)
+
+if not CHECK_EVENT_PERM_FUNC:
     def check_edit_permission(ob, user):
         return user.is_authenticated()
 

@@ -30,11 +30,11 @@ class TestPermissions(TestCase):
         self.occ2 = Occurrence.objects.create(event=self.event2, start=self.event2.start, end=self.event2.end,
                                               original_start=self.event2.start, original_end=self.event2.end)
 
-        self.DEFAULT_CHECK_FUNC = settings.CHECK_PERMISSION_FUNC
-        utils.CHECK_PERMISSION_FUNC = check_event_perms
+        self.DEFAULT_CHECK_FUNC = settings.CHECK_EVENT_PERM_FUNC
+        utils.CHECK_EVENT_PERM_FUNC = check_event_perms
 
     def tearDown(self):
-        utils.CHECK_PERMISSION_FUNC = self.DEFAULT_CHECK_FUNC
+        utils.CHECK_EVENT_PERM_FUNC = self.DEFAULT_CHECK_FUNC
 
     @override_settings(LOGIN_URL='/admin/login/')
     def test_event_perms(self):
