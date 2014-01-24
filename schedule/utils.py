@@ -1,11 +1,10 @@
 from functools import wraps
 import pytz
 import heapq
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils import timezone
-from schedule.conf.settings import CHECK_EVENT_PERM_FUNC
+from schedule.conf.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC
 
 
 class EventListManager(object):
@@ -88,16 +87,28 @@ class OccurrenceReplacer(object):
 def check_event_permissions(function):
     @wraps(function)
     def decorator(request, *args, **kwargs):
+        from schedule.models import Event, Calendar
         user = request.user
-        event_ct = ContentType.objects.get(app_label='schedule', model='event')
-        object_id = kwargs.get('event_id', None)
+        # check event permission
         try:
-            obj = event_ct.get_object_for_this_type(pk=object_id)
-        except event_ct.model_class().DoesNotExist:
-            obj = None
-        allowed = CHECK_EVENT_PERM_FUNC(obj, user)
+            event = Event.objects.get(pk=kwargs.get('event_id', None))
+        except Event.DoesNotExist:
+            event = None
+        allowed = CHECK_EVENT_PERM_FUNC(event, user)
         if not allowed:
             return HttpResponseRedirect(settings.LOGIN_URL)
+
+        # check calendar permissions
+        calendar = None
+        if event:
+            calendar = event.calendar
+        elif 'calendar_slug' in kwargs:
+            calendar = Calendar.objects.get(slug=kwargs['calendar_slug'])
+        allowed = CHECK_CALENDAR_PERM_FUNC(calendar, user)
+        if not allowed:
+            return HttpResponseRedirect(settings.LOGIN_URL)
+
+        # all checks passed
         return function(request, *args, **kwargs)
 
     return decorator

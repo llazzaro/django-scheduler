@@ -14,6 +14,10 @@ def check_event_perms(ob, user):
     return user.username == 'admin'
 
 
+def check_calendar_perms(ob, user):
+    return user.username == 'user'
+
+
 class TestPermissions(TestCase):
     def setUp(self):
         user_admin = User.objects.create_user(username='admin', password='admin')
@@ -30,14 +34,12 @@ class TestPermissions(TestCase):
         self.occ2 = Occurrence.objects.create(event=self.event2, start=self.event2.start, end=self.event2.end,
                                               original_start=self.event2.start, original_end=self.event2.end)
 
+    @override_settings(LOGIN_URL='/admin/login/')
+    def test_event_perms(self):
+        # admin has event rights, user don't
         self.DEFAULT_CHECK_FUNC = settings.CHECK_EVENT_PERM_FUNC
         utils.CHECK_EVENT_PERM_FUNC = check_event_perms
 
-    def tearDown(self):
-        utils.CHECK_EVENT_PERM_FUNC = self.DEFAULT_CHECK_FUNC
-
-    @override_settings(LOGIN_URL='/admin/login/')
-    def test_event_perms(self):
         self.client.login(username='admin', password='admin')
 
         response = self.client.get(reverse('calendar_create_event', kwargs={'calendar_slug': self.cal1.slug}))
@@ -63,3 +65,42 @@ class TestPermissions(TestCase):
         self.assertRedirects(response, '/admin/login/')
         response = self.client.get(self.occ1.get_cancel_url())
         self.assertRedirects(response, '/admin/login/')
+
+        utils.CHECK_EVENT_PERM_FUNC = self.DEFAULT_CHECK_FUNC
+
+    @override_settings(LOGIN_URL='/admin/login/')
+    def test_event_perms(self):
+        # two mutually exclusive functions, nor admin or user has rights to access protected views
+        self.DEFAULT_EVENT_CHECK_FUNC = settings.CHECK_EVENT_PERM_FUNC
+        self.DEFAULT_CALENDAR_CHECK_FUNC = settings.CHECK_EVENT_PERM_FUNC
+        utils.CHECK_EVENT_PERM_FUNC = check_event_perms
+        utils.CHECK_CALENDAR_PERM_FUNC = check_calendar_perms
+
+        self.client.login(username='admin', password='admin')
+
+        response = self.client.get(reverse('calendar_create_event', kwargs={'calendar_slug': self.cal1.slug}))
+        self.assertRedirects(response, '/admin/login/')
+        response = self.client.get(reverse('edit_event', kwargs={'calendar_slug': self.cal1.slug, 'event_id': self.event1.id}))
+        self.assertRedirects(response, '/admin/login/')
+        response = self.client.get(reverse('delete_event', kwargs={'event_id': self.event1.id}))
+        self.assertRedirects(response, '/admin/login/')
+        response = self.client.get(self.occ1.get_edit_url())
+        self.assertRedirects(response, '/admin/login/')
+        response = self.client.get(self.occ1.get_cancel_url())
+        self.assertRedirects(response, '/admin/login/')
+
+        self.client.login(username='user', password='user')
+
+        response = self.client.get(reverse('calendar_create_event', kwargs={'calendar_slug': self.cal1.slug}))
+        self.assertRedirects(response, '/admin/login/')
+        response = self.client.get(reverse('edit_event', kwargs={'calendar_slug': self.cal1.slug, 'event_id': self.event1.id}))
+        self.assertRedirects(response, '/admin/login/')
+        response = self.client.get(reverse('delete_event', kwargs={'event_id': self.event1.id}))
+        self.assertRedirects(response, '/admin/login/')
+        response = self.client.get(self.occ1.get_edit_url())
+        self.assertRedirects(response, '/admin/login/')
+        response = self.client.get(self.occ1.get_cancel_url())
+        self.assertRedirects(response, '/admin/login/')
+
+        utils.CHECK_EVENT_PERM_FUNC = self.DEFAULT_EVENT_CHECK_FUNC
+        utils.CHECK_CALENDAR_PERM_FUNC = self.DEFAULT_CALENDAR_CHECK_FUNC

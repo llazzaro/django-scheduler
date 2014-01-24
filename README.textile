@@ -54,7 +54,7 @@ Should be replaced with CHECK_EVENT_PERM_FUNC
 
 *CHECK_EVENT_PERM_FUNC*
 
-This setting controls the callable used to determine if a user has permission to edit an event or occurrence. The callable must take the object and the user and return a boolean.
+This setting controls the callable used to determine if a user has permission to edit an event or occurrence. The callable must take the object (event) and the user and return a boolean.
 
 Default:
 <pre>check_edit_permission(ob, user):
@@ -62,6 +62,15 @@ Default:
 </pre>
 
 If ob is None, then the function is checking for permission to add new events
+
+*CHECK_CALENDAR_PERM_FUNC*
+
+This setting controls the callable used to determine if a user has permission to add, update or delete an events in specific calendar. The callable must take the object (calendar) and the user and return a boolean.
+
+Default:
+<pre>check_edit_permission(ob, user):
+    return user.is_authenticated()
+</pre>
 
 *GET_EVENTS_FUNC*
 

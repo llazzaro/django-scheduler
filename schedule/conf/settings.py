@@ -31,10 +31,19 @@ if not CHECK_EVENT_PERM_FUNC:
     CHECK_EVENT_PERM_FUNC = getattr(settings, 'CHECK_PERMISSION_FUNC', None)
 
 if not CHECK_EVENT_PERM_FUNC:
-    def check_edit_permission(ob, user):
+    def check_event_permission(ob, user):
         return user.is_authenticated()
 
-    CHECK_PERMISSION_FUNC = check_edit_permission
+    CHECK_PERMISSION_FUNC = check_event_permission
+
+# Callable used to check if a user has edit permissions to calendar
+CHECK_CALENDAR_PERM_FUNC = getattr(settings, 'CHECK_CALENDAR_PERM_FUNC', None)
+
+if not CHECK_CALENDAR_PERM_FUNC:
+    def check_calendar_permission(ob, user):
+        return user.is_authenticated()
+
+    CHECK_CALENDAR_PERM_FUNC = check_calendar_permission
 
 # Callable used to customize the event list given for a calendar and user
 # (e.g. all events on that calendar, those events plus another calendar's events,

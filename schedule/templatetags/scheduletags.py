@@ -3,7 +3,7 @@ from django.conf import settings
 from django import template
 from django.core.urlresolvers import reverse
 from django.utils.dateformat import format
-from schedule.conf.settings import CHECK_EVENT_PERM_FUNC
+from schedule.conf.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC
 from schedule.models import Calendar
 from schedule.periods import weekday_names, weekday_abbrs
 
@@ -49,7 +49,12 @@ def daily_table( context, day, width, width_slot, height, start=8, end=20, incre
       increment - size of a time slot (in minutes)
     """
     user = context['request'].user
-    context['addable'] = CHECK_EVENT_PERM_FUNC(None, user)
+    addable = CHECK_EVENT_PERM_FUNC(None, user)
+    CHECK_EVENT_PERM_FUNC(None, user)
+    if 'calendar' in context:
+        addable &= CHECK_CALENDAR_PERM_FUNC(context['calendar'], user)
+    context['addable'] = addable
+
     width_occ = width - width_slot
     day_part = day.get_time_slot(day.start + datetime.timedelta(hours=start), day.start + datetime.timedelta(hours=end))
     occurrences = day_part.get_occurrences()
@@ -79,7 +84,7 @@ def options(context, occurrence ):
     })
     context['view_occurrence'] = occurrence.get_absolute_url()
     user = context['request'].user
-    if CHECK_EVENT_PERM_FUNC(occurrence.event, user):
+    if CHECK_EVENT_PERM_FUNC(occurrence.event, user) and CHECK_EVENT_PERM_FUNC(occurrence.event.calendar, user):
         context['edit_occurrence'] = occurrence.get_edit_url()
         print context['edit_occurrence']
         context['cancel_occurrence'] = occurrence.get_cancel_url()
