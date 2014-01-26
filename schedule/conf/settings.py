@@ -34,7 +34,7 @@ if not CHECK_EVENT_PERM_FUNC:
     def check_event_permission(ob, user):
         return user.is_authenticated()
 
-    CHECK_PERMISSION_FUNC = check_event_permission
+    CHECK_EVENT_PERM_FUNC = check_event_permission
 
 # Callable used to check if a user has edit permissions to calendar
 CHECK_CALENDAR_PERM_FUNC = getattr(settings, 'CHECK_CALENDAR_PERM_FUNC', None)
