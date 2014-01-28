@@ -33,7 +33,7 @@ setup(
         'Django>=1.5',
         'argparse>=1.2.1',
         'python-dateutil>=2.1',
-        'pytz>=2013b',
+        'pytz>=2013.9',
         'six>=1.3.0',
         'vobject>=0.8.1c',
     ],
