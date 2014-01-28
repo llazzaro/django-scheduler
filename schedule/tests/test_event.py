@@ -1,5 +1,6 @@
 import datetime
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 import pytz
 
@@ -297,7 +298,7 @@ class TestEvent(TestCase):
                             cal)
         event.save()
         url = event.get_absolute_url()
-        self.assertEquals('/event/1/', url)
+        self.assertEquals(reverse('event', kwargs={'event_id': event.id}), url)
 
     def test_(self):
         pass
