@@ -16,6 +16,7 @@ setup(
         'schedule.management',
         'schedule.management.commands',
         'schedule.models',
+        'schedule.migrations',
         'schedule.templatetags',
         'schedule.tests',
     ],

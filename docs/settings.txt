@@ -31,14 +31,36 @@ Defaults to False
 CHECK_PERMISSION_FUNC
 ---------------------
 
-This setting controls the callable used to determine if a user has permission to edit an event or occurance. The callable must take the object and the user and return a boolean. 
+*deprecated*
+
+Should be replaced with CHECK_EVENT_PERM_FUNC
+
+.. _ref-settings-check-event-perm-func:
+
+CHECK_EVENT_PERM_FUNC
+---------------------
+
+This setting controls the callable used to determine if a user has permission to edit an event or occurance. The callable must take the object (event) and the user and return a boolean.
 
 example::
 
     check_edit_permission(ob, user):
         return user.is_authenticated()
 
-If ob is None, then the function is checking for permission to add new occurrences.
+If ob is None, then the function is checking for permission to add new events.
+
+.. _ref-settings-check-calendar-perm-func:
+
+CHECK_CALENDAR_PERM_FUNC
+---------------------
+
+This setting controls the callable used to determine if a user has permission to add, update or delete an events in specific calendar. The callable must take the object (calendar) and the user and return a boolean.
+
+example::
+
+    check_edit_permission(ob, user):
+        return user.is_authenticated()
+
 
 .. _ref-settings-get-events-func:
 

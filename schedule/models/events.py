@@ -40,7 +40,7 @@ class Event(models.Model):
                              help_text=_("Select '----' for a one time only event."))
     end_recurring_period = models.DateTimeField(_("end recurring period"), null=True, blank=True,
                                                 help_text=_("This date is ignored for one time only events."))
-    calendar = models.ForeignKey(Calendar, null=True, blank=True)
+    calendar = models.ForeignKey(Calendar, null=True, blank=True, verbose_name=_("calendar"))
     objects = EventManager()
 
     class Meta:
