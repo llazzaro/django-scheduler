@@ -1,14 +1,22 @@
-import datetime
-from django.test.utils import override_settings
 import pytz
+import datetime
+
+from django.contrib.auth.models import User
+from django.test.utils import override_settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test import Client
+
 from schedule.models.calendars import Calendar
 from schedule.models.events import Event
 from schedule.models.rules import Rule
+from schedule import utils
 
 from schedule.views import check_next_url, coerce_date_dict
+
+
+def check_perms(ob, user):
+    return user.username == 'ann'
 
 
 class TestViews(TestCase):
@@ -68,22 +76,19 @@ class TestViewUtils(TestCase):
         )
 
 
-c = Client()
-
-
 class TestUrls(TestCase):
     fixtures = ['schedule.json']
     highest_event_id = 7
 
     def test_calendar_view(self):
-        self.response = c.get(
+        self.response = self.client.get(
             reverse("year_calendar", kwargs={"calendar_slug": 'example'}), {})
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context[0]["calendar"].name,
                          "Example Calendar")
 
     def test_calendar_month_view(self):
-        self.response = c.get(reverse("month_calendar",
+        self.response = self.client.get(reverse("month_calendar",
                                       kwargs={"calendar_slug": 'example'}),
                               {'year': 2000, 'month': 11})
         self.assertEqual(self.response.status_code, 200)
@@ -95,19 +100,21 @@ class TestUrls(TestCase):
                           datetime.datetime(2000, 12, 1, 0, 0, tzinfo=pytz.utc)))
 
     def test_event_creation_anonymous_user(self):
-        self.response = c.get(reverse("calendar_create_event",
-                                      kwargs={"calendar_slug": 'example'}),
-            {})
+        self.response = self.client.get(reverse("calendar_create_event",
+                                      kwargs={"calendar_slug": 'example'}), {})
         self.assertEqual(self.response.status_code, 302)
 
     def test_event_creation_authenticated_user(self):
-        c.login(username="admin", password="admin")
-        self.response = c.get(reverse("calendar_create_event",
-                                      kwargs={"calendar_slug": 'example'}),
-            {})
+        User.objects.create_user(username='ann', password='ann')
+        utils.CHECK_EVENT_PERM_FUNC = check_perms
+        utils.CHECK_CALENDAR_PERM_FUNC = check_perms
+        self.client.login(username="ann", password="ann")
+        self.response = self.client.get(reverse("calendar_create_event",
+                                      kwargs={"calendar_slug": 'example'}), {})
+        print self.response
         self.assertEqual(self.response.status_code, 200)
 
-        self.response = c.post(reverse("calendar_create_event",
+        self.response = self.client.post(reverse("calendar_create_event",
                                        kwargs={"calendar_slug": 'example'}),
                                {'description': 'description',
                                 'title': 'title',
@@ -120,35 +127,36 @@ class TestUrls(TestCase):
 
         highest_event_id = self.highest_event_id
         highest_event_id += 1
-        self.response = c.get(reverse("event",
+        self.response = self.client.get(reverse("event",
                                       kwargs={"event_id": highest_event_id}), {})
         self.assertEqual(self.response.status_code, 200)
-        c.logout()
+        self.client.logout()
 
     def test_view_event(self):
-        self.response = c.get(reverse("event", kwargs={"event_id": 1}), {})
+        self.response = self.client.get(reverse("event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 200)
 
     def test_delete_event_anonymous_user(self):
         # Only logged-in users should be able to delete, so we're redirected
-        self.response = c.get(reverse("delete_event", kwargs={"event_id": 1}), {})
+        self.response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 302)
 
     def test_delete_event_authenticated_user(self):
-        c.login(username="admin", password="admin")
-
+        User.objects.create_user(username='ann', password='ann')
+        utils.CHECK_EVENT_PERM_FUNC = check_perms
+        utils.CHECK_CALENDAR_PERM_FUNC = check_perms
+        self.client.login(username="ann", password="ann")
         # Load the deletion page
-        self.response = c.get(reverse("delete_event", kwargs={"event_id": 1}), {})
+        self.response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context['next'],
                          reverse('day_calendar', args=[Event.objects.get(id=1).calendar.slug]))
 
         # Delete the event
-        self.response = c.post(reverse("delete_event", kwargs={"event_id": 1}), {})
+        self.response = self.client.post(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 302)
 
         # Since the event is now deleted, we get a 404
-        self.response = c.get(reverse("delete_event", kwargs={"event_id": 1}), {})
+        self.response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 404)
-        c.logout()
-
+        self.client.logout()
