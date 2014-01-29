@@ -1,6 +1,7 @@
 from functools import wraps
 import pytz
 import heapq
+from annoying.functions import get_object_or_None
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils import timezone
@@ -90,10 +91,7 @@ def check_event_permissions(function):
         from schedule.models import Event, Calendar
         user = request.user
         # check event permission
-        try:
-            event = Event.objects.get(pk=kwargs.get('event_id', None))
-        except Event.DoesNotExist:
-            event = None
+        event = get_object_or_None(Event, pk=kwargs.get('event_id', None))
         allowed = CHECK_EVENT_PERM_FUNC(event, user)
         if not allowed:
             return HttpResponseRedirect(settings.LOGIN_URL)

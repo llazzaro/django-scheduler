@@ -38,6 +38,7 @@ setup(
         'six>=1.3.0',
         'vobject>=0.8.1c',
         'South==0.8.4',
+        'django-annoying==0.7.9',
     ],
     license='BSD',
     test_suite="schedule.tests",
