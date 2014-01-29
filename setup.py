@@ -37,6 +37,7 @@ setup(
         'pytz>=2013.9',
         'six>=1.3.0',
         'vobject>=0.8.1c',
+        'South==0.8.4',
     ],
     license='BSD',
     test_suite="schedule.tests",
