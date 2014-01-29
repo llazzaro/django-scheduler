@@ -15,10 +15,6 @@ from schedule import utils
 from schedule.views import check_next_url, coerce_date_dict
 
 
-def check_perms(ob, user):
-    return user.username == 'ann'
-
-
 class TestViews(TestCase):
     fixtures = ['schedule.json']
 
@@ -105,10 +101,7 @@ class TestUrls(TestCase):
         self.assertEqual(self.response.status_code, 302)
 
     def test_event_creation_authenticated_user(self):
-        User.objects.create_user(username='ann', password='ann')
-        utils.CHECK_EVENT_PERM_FUNC = check_perms
-        utils.CHECK_CALENDAR_PERM_FUNC = check_perms
-        self.client.login(username="ann", password="ann")
+        self.client.login(username="admin", password="admin")
         self.response = self.client.get(reverse("calendar_create_event",
                                       kwargs={"calendar_slug": 'example'}), {})
         print self.response
@@ -142,10 +135,7 @@ class TestUrls(TestCase):
         self.assertEqual(self.response.status_code, 302)
 
     def test_delete_event_authenticated_user(self):
-        User.objects.create_user(username='ann', password='ann')
-        utils.CHECK_EVENT_PERM_FUNC = check_perms
-        utils.CHECK_CALENDAR_PERM_FUNC = check_perms
-        self.client.login(username="ann", password="ann")
+        self.client.login(username="admin", password="admin")
         # Load the deletion page
         self.response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 200)
