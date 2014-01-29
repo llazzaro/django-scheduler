@@ -2,7 +2,6 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.utils import timezone
 from schedule.models.calendars import Calendar
 from schedule.models.events import Event, Occurrence
@@ -51,9 +50,8 @@ class TestPermissions(TestCase):
             if should_allow:
                 self.assertEqual(response.status_code, 200)
             else:
-                self.assertRedirects(response, '/admin/login/')
+                self.assertEqual(response.status_code, 302)
 
-    @override_settings(LOGIN_URL='/admin/login/')
     def test_event_perms(self):
         # ann has event rights, bob don't
         utils.CHECK_EVENT_PERM_FUNC = check_event_perms
@@ -65,7 +63,6 @@ class TestPermissions(TestCase):
         self.client.login(username='bob', password='bob')
         self._check_protected_urls(should_allow=False)
 
-    @override_settings(LOGIN_URL='/admin/login/')
     def test_calendar_perms(self):
         # bob has calendar rights, ann don't
         utils.CHECK_EVENT_PERM_FUNC = default_check_perms
@@ -76,8 +73,7 @@ class TestPermissions(TestCase):
 
         self.client.login(username='bob', password='bob')
         self._check_protected_urls(should_allow=True)
-        
-    @override_settings(LOGIN_URL='/admin/login/')
+
     def test_calendar_and_event_perms(self):
         # two mutually exclusive functions, nor ann or bob has rights to access protected views
         utils.CHECK_EVENT_PERM_FUNC = check_event_perms
