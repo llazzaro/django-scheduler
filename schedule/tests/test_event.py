@@ -1,4 +1,6 @@
 import datetime
+from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
 import pytz
 
 from django.test import TestCase
@@ -6,7 +8,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from schedule.models import Event, Rule, Calendar, EventRelation
-from schedule.periods import Period, Day
+
 
 class TestEvent(TestCase):
 
@@ -27,7 +29,7 @@ class TestEvent(TestCase):
                 'title': title,
                 'start': start,
                 'end': end,
-                'end_recurring_period' : end_recurring,
+                'end_recurring_period': end_recurring,
                 'rule': rule,
                 'calendar': cal
                })
@@ -35,6 +37,53 @@ class TestEvent(TestCase):
     def test_edge_case_events(self):
         cal = Calendar(name="MyCal")
         cal.save()
+        data_1 = {
+            'title': 'Edge case event test one',
+            'start': datetime.datetime(2013, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'calendar': cal
+        }
+        data_2 = {
+            'title': 'Edge case event test two',
+            'start': datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc),
+            'calendar': cal
+        }
+        event_one = Event(**data_1)
+        event_two = Event(**data_2)
+        event_one.save()
+        event_two.save()
+        occurrences_two = event_two.get_occurrences(datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
+                                                    datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc))
+        self.assertEquals(1, len(occurrences_two))
+
+        occurrences_one = event_one.get_occurrences(datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
+                                                    datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc))
+        self.assertEquals(0, len(occurrences_one))
+
+    def test_recurring_event_get_occurrences(self):
+        recurring_event = Event(**self.recurring_data)
+        occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc),
+                                                      end=datetime.datetime(2008, 1, 20, 0, 0, tzinfo=pytz.utc))
+        self.assertEquals(["%s to %s" % (o.start, o.end) for o in occurrences],
+                          ['2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00',
+                           '2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00'])
+
+    def test_event_get_occurrences_after(self):
+
+        cal = Calendar(name="MyCal")
+        cal.save()
+        rule = Rule(frequency="WEEKLY")
+        rule.save()
+
+        recurring_event = self.__create_recurring_event(
+                    'Recurrent event test get_occurrence',
+                    datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+                    rule,
+                    cal,
+                    )
         event_one = self.__create_event(
                 'Edge case event test one',
                 datetime.datetime(2013, 1, 5, 8, 0, tzinfo=pytz.utc),
@@ -127,8 +176,37 @@ class TestEvent(TestCase):
 
     def test_prevent_type_error_when_comparing_naive_and_aware_dates(self):
         # this only test if the TypeError is raised
-        event = Event(**self.recurring_data)
-        event.save()
+        cal = Calendar(name="MyCal")
+        cal.save()
+        rule = Rule(frequency = "WEEKLY")
+        rule.save()
+
+        event = self.__create_recurring_event(
+                    'Recurrent event test get_occurrence',
+                    datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+                    rule,
+                    cal,
+                    )
+        naive_date = datetime.datetime(2008, 1, 20, 0, 0)
+        self.assertIsNone(event.get_occurrence(naive_date))
+
+    @override_settings(USE_TZ=False)
+    def test_prevent_type_error_when_comparing_dates_when_tz_off(self):
+        cal = Calendar(name="MyCal")
+        cal.save()
+        rule = Rule(frequency = "WEEKLY")
+        rule.save()
+
+        event = self.__create_recurring_event(
+                    'Recurrent event test get_occurrence',
+                    datetime.datetime(2008, 1, 5, 8, 0),
+                    datetime.datetime(2008, 1, 5, 9, 0),
+                    datetime.datetime(2008, 5, 5, 0, 0),
+                    rule,
+                    cal,
+                    )
         naive_date = datetime.datetime(2008, 1, 20, 0, 0)
         self.assertIsNone(event.get_occurrence(naive_date))
 
@@ -218,7 +296,7 @@ class TestEvent(TestCase):
                             cal)
         event.save()
         url = event.get_absolute_url()
-        self.assertEquals('/event/1/', url)
+        self.assertEquals(reverse('event', kwargs={'event_id': event.id}), url)
 
     def test_(self):
         pass

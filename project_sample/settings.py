@@ -15,7 +15,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'project_sample.db',                      # Or path to database file if using sqlite3.
+        'NAME': os.path.join(PROJECT_PATH, 'project_sample.db'),                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',
@@ -129,7 +129,8 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    'schedule'
+    'schedule',
+    'south'
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )

@@ -18,7 +18,7 @@
 
       </div>
       <div id="{% hash_occurrence occ %}" style="display:none;">
-        {% detail occ %}
+         {% include 'schedule/_detail.html' with occurrence=occ %}
       </div>
   {% endfor %}
   </div>

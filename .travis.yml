@@ -13,6 +13,7 @@ install:
 script:
   - python setup.py develop
   - python schedule/manage.py syncdb --noinput
+  - python schedule/manage.py migrate schedule
   - python schedule/manage.py loaddata schedule
   - python schedule/manage.py test
 

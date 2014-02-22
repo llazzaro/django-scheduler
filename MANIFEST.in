@@ -1,4 +1,6 @@
 recursive-include docs *
+recursive-include schedule/static *
 recursive-include schedule/templates *
+recursive-include schedule/locale *
 recursive-include schedule/fixtures *.json
 recursive-include project_sample *

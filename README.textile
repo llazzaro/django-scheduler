@@ -1,7 +1,5 @@
-Build Status
-<p><img src="https://travis-ci.org/llazzaro/django-scheduler.png" alt="travis-build-status" /></p>
-
-
+h1. Build Status
+!https://travis-ci.org/llazzaro/django-scheduler.png(Build Status)!:https://travis-ci.org/llazzaro/django-scheduler !https://coveralls.io/repos/llazzaro/django-scheduler/badge.png(Coverage Status)!:https://coveralls.io/r/llazzaro/django-scheduler !https://gemnasium.com/llazzaro/django-scheduler.png(Dependency Status)!:https://gemnasium.com/llazzaro/django-scheduler !https://pypip.in/v/django-scheduler/badge.png(Latest PyPI version)!:https://crate.io/packages/django-scheduler !https://pypip.in/d/django-scheduler/badge.png(umber of PyPI downloads)!:https://crate.io/packages/django-scheduler
 
 
 h1. Django-scheduler
@@ -20,54 +18,65 @@ See see "wiki page":https://github.com/llazzaro/django-scheduler/wiki for more.
 
 h2. Installation
 
-Download the code; put in into your project's directory or run <pre>python setup.py install</pre> to install system-wide.
+<pre>pip install django-scheduler</pre>
 
-REQUIREMENTS: python-vobject (comes with most distribution as a package).
+h2. Configuration
 
-h2. Settings.py
+edit your settings.py
 
-h3. REQUIRED
+add to *INSTALLED_APPS*:
+    <pre>'schedule'</pre>
 
-INSTALLED_APPS - add:
-    'schedule'
+add to *TEMPLATE_CONTEXT_PROCESSORS*:
+    <pre>"django.core.context_processors.request"</pre>
 
-TEMPLATE_CONTEXT_PROCESSORS - add:
-    "django.core.context_processors.request"
+h4. Optional Settings
 
-h4. Optional
-
-FIRST_DAY_OF_WEEK
+*FIRST_DAY_OF_WEEK*
 
 This setting determines which day of the week your calendar begins on if your locale doesn't already set it. Default is 0, which is Sunday.
 
-OCCURRENCE_CANCEL_REDIRECT
+*OCCURRENCE_CANCEL_REDIRECT*
 
 This setting controls the behavior of :func:`Views.get_next_url`. If set, all calendar modifications will redirect here (unless there is a `next` set in the request.)
 
-SHOW_CANCELLED_OCCURRENCES
+*SHOW_CANCELLED_OCCURRENCES*
 
 This setting controls the behavior of :func:`Period.classify_occurence`. If True, then occurences that have been cancelled will be displayed with a css class of canceled, otherwise they won't appear at all.
 
 Defaults to False
 
-CHECK_PERMISSION_FUNC
+*CHECK_PERMISSION_FUNC*
 
-This setting controls the callable used to determine if a user has permission to edit an event or occurance. The callable must take the object and the user and return a boolean.
+_deprecated_
+
+Should be replaced with CHECK_EVENT_PERM_FUNC
+
+*CHECK_EVENT_PERM_FUNC*
+
+This setting controls the callable used to determine if a user has permission to edit an event or occurrence. The callable must take the object (event) and the user and return a boolean.
 
 Default:
-<pre>
-    check_edit_permission(ob, user):
-        return user.is_authenticated()
+<pre>check_edit_permission(ob, user):
+    return user.is_authenticated()
 </pre>
 
 If ob is None, then the function is checking for permission to add new events
 
-GET_EVENTS_FUNC
+*CHECK_CALENDAR_PERM_FUNC*
+
+This setting controls the callable used to determine if a user has permission to add, update or delete an events in specific calendar. The callable must take the object (calendar) and the user and return a boolean.
+
+Default:
+<pre>check_edit_permission(ob, user):
+    return user.is_authenticated()
+</pre>
+
+*GET_EVENTS_FUNC*
 
 This setting controls the callable that gets all events for calendar display. The callable must take the request and the calendar and return a `QuerySet` of events. Modifying this setting allows you to pull events from multiple calendars or to filter events based on permissions
 
 Default:
-<pre>
-    get_events(request, calendar):
-        return calendar.event_set.all()
+<pre>get_events(request, calendar):
+    return calendar.event_set.all()
 </pre>

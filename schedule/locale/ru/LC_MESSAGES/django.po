@@ -1,0 +1,495 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-01-12 00:45+0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: forms.py:10 models/events.py:31 models/events.py:342
+msgid "start"
+msgstr "начало"
+
+#: forms.py:12 models/events.py:32 models/events.py:343
+msgid "end"
+msgstr "окончание"
+
+#: forms.py:13 forms.py:17
+msgid "The end time must be later than start time."
+msgstr "Время окончания должно быть больше времени начала."
+
+#: forms.py:25
+msgid "End recurring period"
+msgstr "Окончание периода для повторения"
+
+#: forms.py:26 models/events.py:42
+msgid "This date is ignored for one time only events."
+msgstr "Эта дата игнорируется для одноразовых событий"
+
+#: periods.py:276 periods.py:301 models/events.py:52
+msgid "DATE_FORMAT"
+msgstr ""
+
+#: periods.py:277
+#, python-format
+msgid "Week: %(start)s-%(end)s"
+msgstr "Неделя: %(start)s-%(end)s"
+
+#: periods.py:302
+#, python-format
+msgid "Day: %(start)s-%(end)s"
+msgstr "День: %(start)s-%(end)s"
+
+#: conf/settings.py:8
+msgid "FIRST_DAY_OF_WEEK"
+msgstr ""
+
+#: models/calendars.py:136 models/rules.py:44
+msgid "name"
+msgstr "название"
+
+#: models/calendars.py:137
+msgid "slug"
+msgstr "метка"
+
+#: models/calendars.py:141 models/calendars.py:142 models/calendars.py:226
+#: models/events.py:43
+msgid "calendar"
+msgstr "календарь"
+
+#: models/calendars.py:230 models/events.py:325
+msgid "distinction"
+msgstr "признак различия"
+
+#: models/calendars.py:231
+msgid "inheritable"
+msgstr "наследуемый"
+
+#: models/calendars.py:236
+msgid "calendar relation"
+msgstr "связка календаря"
+
+#: models/calendars.py:237
+msgid "calendar relations"
+msgstr "связки календарей"
+
+#: models/events.py:32
+msgid "The end time must be later than the start time."
+msgstr "Время окончания должно быть больше времени начала."
+
+#: models/events.py:33 models/events.py:340
+msgid "title"
+msgstr "заголовок"
+
+#: models/events.py:34 models/events.py:341 models/rules.py:45
+msgid "description"
+msgstr "описание"
+
+#: models/events.py:35
+msgid "creator"
+msgstr "создатель"
+
+#: models/events.py:37 models/events.py:347
+msgid "created on"
+msgstr "дата создания"
+
+#: models/events.py:38 models/events.py:348
+msgid "updated on"
+msgstr "дата обновления"
+
+#: models/events.py:39 models/rules.py:50
+msgid "rule"
+msgstr "правило"
+
+#: models/events.py:40
+msgid "Select '----' for a one time only event."
+msgstr "Выберите '----' для одноразового события"
+
+#: models/events.py:41
+msgid "end recurring period"
+msgstr "окончание периода для повторения"
+
+#: models/events.py:47 models/events.py:321 models/events.py:339
+msgid "event"
+msgstr "событие"
+
+#: models/events.py:48
+msgid "events"
+msgstr "события"
+
+#: models/events.py:53
+#, python-format
+msgid "%(title)s: %(start)s - %(end)s"
+msgstr ""
+
+#: models/events.py:330
+msgid "event relation"
+msgstr "связка события"
+
+#: models/events.py:331
+msgid "event relations"
+msgstr "связки событий"
+
+#: models/events.py:344
+msgid "cancelled"
+msgstr "отменено"
+
+#: models/events.py:345
+msgid "original start"
+msgstr "исходное начало"
+
+#: models/events.py:346
+msgid "original end"
+msgstr "исходное окончание"
+
+#: models/events.py:351
+msgid "occurrence"
+msgstr "дата события"
+
+#: models/events.py:352
+msgid "occurrences"
+msgstr "даты событий"
+
+#: models/events.py:423
+#, python-format
+msgid "%(start)s to %(end)s"
+msgstr "с %(start)s по %(end)s"
+
+#: models/rules.py:6
+msgid "Yearly"
+msgstr "Ежегодно"
+
+#: models/rules.py:7
+msgid "Monthly"
+msgstr "Ежемесячно"
+
+#: models/rules.py:8 templates/schedule/calendar.html:21
+#: templates/schedule/calendar_list.html:13
+msgid "Weekly"
+msgstr "Еженедельно"
+
+#: models/rules.py:9 templates/schedule/calendar.html:22
+#: templates/schedule/calendar_list.html:14
+msgid "Daily"
+msgstr "Ежедневно"
+
+#: models/rules.py:10
+msgid "Hourly"
+msgstr "Ежечасно"
+
+#: models/rules.py:11
+msgid "Minutely"
+msgstr "Ежеминутно"
+
+#: models/rules.py:12
+msgid "Secondly"
+msgstr "Ежесекундно"
+
+#: models/rules.py:46
+msgid "frequency"
+msgstr "частота"
+
+#: models/rules.py:47
+msgid "params"
+msgstr "параметры"
+
+#: models/rules.py:51
+msgid "rules"
+msgstr "правила"
+
+#: templates/site_base.html:31
+msgid "clear"
+msgstr "очистить"
+
+#: templates/profiles/schedule.html:4
+msgid "Schedule"
+msgstr "Расписание"
+
+#: templates/profiles/schedule.html:12
+msgid "Start"
+msgstr "Начало"
+
+#: templates/profiles/schedule.html:13
+msgid "End"
+msgstr "Окончание"
+
+#: templates/profiles/schedule.html:14
+msgid "Title"
+msgstr "Заголовок"
+
+#: templates/profiles/schedule.html:26 templates/profiles/schedule.html:27
+msgid "Event details"
+msgstr "Детали события"
+
+#: templates/profiles/schedule.html:30 templates/profiles/schedule.html:31
+msgid "Edit event"
+msgstr "Изменить событие"
+
+#: templates/profiles/schedule.html:33 templates/profiles/schedule.html:34
+msgid "Delete event"
+msgstr "Удалить событие"
+
+#: templates/profiles/schedule.html:45
+#, python-format
+msgid "You haven't added any <a href=\"%(add_event_url)s\">event</a> yet."
+msgstr "Вы еще не добавилини одного <a href=\"%(add_event_url)s\">события</a>."
+
+#: templates/profiles/schedule.html:49
+msgid "Add event"
+msgstr "Добавить событие"
+
+#: templates/schedule/_create_event_options.html:2
+msgid "Add Event"
+msgstr "Добавить событие"
+
+#: templates/schedule/_detail.html:6 templates/schedule/event.html:35
+#: templates/schedule/occurrence.html:23
+msgid "Starts"
+msgstr "Начало"
+
+#: templates/schedule/_detail.html:7 templates/schedule/_detail.html.py:11
+#: templates/schedule/_detail.html:21
+#: templates/schedule/cancel_occurrence.html:11
+#: templates/schedule/cancel_occurrence.html:12
+#: templates/schedule/event.html:36 templates/schedule/event.html.py:40
+#: templates/schedule/event.html:45 templates/schedule/occurrence.html:24
+#: templates/schedule/occurrence.html:28
+msgid "DATETIME_FORMAT"
+msgstr ""
+
+#: templates/schedule/_detail.html:7 templates/schedule/event.html:36
+#: templates/schedule/occurrence.html:24
+#, python-format
+msgid "%(start_date)s"
+msgstr ""
+
+#: templates/schedule/_detail.html:10 templates/schedule/event.html:39
+#: templates/schedule/occurrence.html:27
+msgid "Ends"
+msgstr "Оканчивается"
+
+#: templates/schedule/_detail.html:11 templates/schedule/_detail.html.py:21
+#: templates/schedule/event.html:40 templates/schedule/occurrence.html:28
+#, python-format
+msgid "%(end_date)s"
+msgstr ""
+
+#: templates/schedule/_detail.html:16 templates/schedule/event.html:43
+#: templates/schedule/occurrence.html:32
+msgid "Reoccurs"
+msgstr "Повторяется"
+
+#: templates/schedule/_detail.html:20
+msgid "Until"
+msgstr "до"
+
+#: templates/schedule/_detail.html:28 templates/schedule/event.html:51
+#: templates/schedule/occurrence.html:37
+msgid "Description"
+msgstr "Описание"
+
+#: templates/schedule/_dialogs.html:6 templates/schedule/_dialogs.html:14
+msgid "This"
+msgstr "Только это"
+
+#: templates/schedule/_dialogs.html:6 templates/schedule/_dialogs.html:14
+msgid "All"
+msgstr "Все"
+
+#: templates/schedule/_dialogs.html:6 templates/schedule/_dialogs.html:14
+msgid "Do nothing"
+msgstr "Отменить"
+
+#: templates/schedule/_dialogs.html:21
+msgid "Close"
+msgstr "Закрыть"
+
+#: templates/schedule/_dialogs.html:36
+msgid ""
+"Do you want to cancel this occurrence or delete all occurrences of this "
+"event?"
+msgstr "Вы хотите удалить только эту дату или все событие"
+
+#: templates/schedule/_dialogs.html:40
+msgid "Do you want to edit this occurrence or all occurrences?"
+msgstr "Вы хотите изменить только эту дату или все событие"
+
+#: templates/schedule/_event_options.html:9
+#: templates/schedule/_event_options.html:13
+#: templates/schedule/_event_options.html:18
+msgid "Edit Event"
+msgstr "Изменить событие"
+
+#: templates/schedule/_event_options.html:28
+#: templates/schedule/_event_options.html:32
+#: templates/schedule/_event_options.html:37
+msgid "Delete Event"
+msgstr "Удалить событие"
+
+#: templates/schedule/base.html:16
+msgid "Create a Calendar"
+msgstr "Создать календарь"
+
+#: templates/schedule/base.html:17
+msgid "Your Calendars"
+msgstr "Ваши календари"
+
+#: templates/schedule/base.html:20
+msgid "All Calendars"
+msgstr "Все календари"
+
+#: templates/schedule/calendar.html:17 templates/schedule/calendar_list.html:9
+msgid "Small Month"
+msgstr "Краткий месяц"
+
+#: templates/schedule/calendar.html:18
+#: templates/schedule/calendar_list.html:10
+msgid "1 Month"
+msgstr "1 месяц"
+
+#: templates/schedule/calendar.html:19
+#: templates/schedule/calendar_list.html:11
+msgid "3 Months"
+msgstr "3 месяца"
+
+#: templates/schedule/calendar.html:20
+#: templates/schedule/calendar_list.html:12
+msgid "This Year"
+msgstr "Текущий год"
+
+#: templates/schedule/calendar.html:23
+#: templates/schedule/calendar_list.html:15
+msgid "Feed"
+msgstr "Лента"
+
+#: templates/schedule/calendar.html:27
+msgid "Now see docstring for schedule.views.calendar"
+msgstr "Смотрите докуемнтацию для schedule.views.calendar"
+
+#: templates/schedule/calendar_day.html:9
+msgid "Week"
+msgstr "Неделя"
+
+#: templates/schedule/calendar_day.html:12
+#: templates/schedule/calendar_week.html:10 templates/schedule/event.html:10
+#: templates/schedule/occurrence.html:10
+msgid "Month"
+msgstr "Месяц"
+
+#: templates/schedule/calendar_day.html:15
+#: templates/schedule/calendar_week.html:13 templates/schedule/event.html:13
+msgid "Year"
+msgstr "Год"
+
+#: templates/schedule/calendar_day.html:23
+msgid "Today"
+msgstr "Сегодня"
+
+#: templates/schedule/calendar_list.html:3
+#: templates/schedule/calendar_list.html:5
+msgid "Available Calendars"
+msgstr "Доступные календари"
+
+#: templates/schedule/calendar_month.html:11
+#: templates/schedule/calendar_tri_month.html:9
+msgid "This month"
+msgstr "Текущий месяц"
+
+#: templates/schedule/calendar_month.html:18
+msgid "Three Month Calendar"
+msgstr "Календарь по 3 месяца"
+
+#: templates/schedule/calendar_month.html:21
+#: templates/schedule/calendar_tri_month.html:27
+msgid "Full Year Calendar"
+msgstr "Календарь на весь год"
+
+#: templates/schedule/calendar_tri_month.html:24
+msgid "Monthly Calendar"
+msgstr "Календарь на месяц"
+
+#: templates/schedule/calendar_week.html:22
+msgid "This week"
+msgstr "Текущая неделя"
+
+#: templates/schedule/calendar_year.html:33
+msgid "Current Month Calendar"
+msgstr "Календарь на текущий месяц"
+
+#: templates/schedule/calendar_year.html:36
+msgid "Current Year Calendar"
+msgstr "Календарь на текущий год"
+
+#: templates/schedule/cancel_occurrence.html:5
+#: templates/schedule/cancel_occurrence.html:13
+#: templates/schedule/delete_event.html:5
+#: templates/schedule/delete_event.html:11 templates/schedule/event.html:29
+msgid "Delete"
+msgstr "Удалить"
+
+#: templates/schedule/cancel_occurrence.html:6
+msgid "Are you sure that you really want to cancel this occurrence?"
+msgstr "Вы уверены, что хотите отменить это возникновение события?"
+
+#: templates/schedule/cancel_occurrence.html:14
+#: templates/schedule/create_event.html:14
+#: templates/schedule/delete_event.html:12
+#: templates/schedule/edit_occurrence.html:14
+#: templates/schedule/occurrence.html:18
+msgid "Cancel"
+msgstr "Отменить"
+
+#: templates/schedule/create_event.html:5
+msgid "Create or change event. All fields are required."
+msgstr "Создать или изменить событие. Все поля обязательны для заполнения."
+
+#: templates/schedule/create_event.html:13
+#: templates/schedule/edit_occurrence.html:13
+msgid "Save"
+msgstr "Сохранить"
+
+#: templates/schedule/delete_event.html:6
+msgid "Are you sure that you really want to delete it?"
+msgstr "Вы уверены, что хотите удалить его?"
+
+#: templates/schedule/edit_occurrence.html:5
+msgid "Create or change occurrence. All fields are required."
+msgstr ""
+"Создать или изменить дату события. Все поля обязательны для заполнения."
+
+#: templates/schedule/event.html:7 templates/schedule/occurrence.html:7
+msgid "Day"
+msgstr "День"
+
+#: templates/schedule/event.html:20 templates/schedule/occurrence.html:15
+msgid "Back"
+msgstr "Назад"
+
+#: templates/schedule/event.html:25 templates/schedule/occurrence.html:17
+msgid "Change"
+msgstr "Изменить"
+
+#: templates/schedule/event.html:45
+msgid "until"
+msgstr "до"
+
+#: templates/schedule/event.html:45
+#, python-format
+msgid "%(end_recurring_date)s"
+msgstr ""
+
+#: templates/schedule/event.html:47
+msgid "Never. This is a 'one time only' event."
+msgstr "Никогда. Это одноразовое событие"

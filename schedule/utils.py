@@ -1,10 +1,12 @@
+from functools import wraps
 import pytz
 import heapq
-from django.contrib.contenttypes.models import ContentType
+from annoying.functions import get_object_or_None
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils import timezone
-from schedule.conf.settings import CHECK_PERMISSION_FUNC
+from schedule.conf.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC
+
 
 class EventListManager(object):
     """
@@ -12,6 +14,7 @@ class EventListManager(object):
     used to when one has a list of events and wants to access the occurrences
     from these events in as a group
     """
+
     def __init__(self, events):
         self.events = events
 
@@ -23,10 +26,11 @@ class EventListManager(object):
         events in ``self.events``
         """
         from schedule.models import Occurrence
+
         if after is None:
             after = timezone.now()
         occ_replacer = OccurrenceReplacer(
-            Occurrence.objects.filter(event__in = self.events))
+            Occurrence.objects.filter(event__in=self.events))
         generators = [event._occurrences_after_generator(after) for event in self.events]
         occurrences = []
 
@@ -37,9 +41,10 @@ class EventListManager(object):
                 pass
 
         while True:
-            if len(occurrences) == 0: raise StopIteration
+            if len(occurrences) == 0:
+                raise StopIteration
 
-            generator=occurrences[0][1]
+            generator = occurrences[0][1]
 
             try:
                 next = heapq.heapreplace(occurrences, (generator.next(), generator))[0]
@@ -55,9 +60,10 @@ class OccurrenceReplacer(object):
     have been stored in the datebase replace, in the list you are returning,
     the generated ones that are equivalent.  This class makes this easier.
     """
+
     def __init__(self, persisted_occurrences):
         lookup = [((occ.event, occ.original_start, occ.original_end), occ) for
-            occ in persisted_occurrences]
+                  occ in persisted_occurrences]
         self.lookup = dict(lookup)
 
     def get_occurrence(self, occ):
@@ -76,27 +82,34 @@ class OccurrenceReplacer(object):
         """
         Return persisted occurrences which are now in the period
         """
-        return [occ for key,occ in self.lookup.items() if (occ.start < end and occ.end >= start and not occ.cancelled)]
+        return [occ for key, occ in self.lookup.items() if (occ.start < end and occ.end >= start and not occ.cancelled)]
 
 
-class check_event_permissions(object):
-
-    def __init__(self, f):
-        self.f = f
-        self.__name__ = f.__name__
-        self.contenttype = ContentType.objects.get(app_label='schedule', model='event')
-
-    def __call__(self, request, *args, **kwargs):
+def check_event_permissions(function):
+    @wraps(function)
+    def decorator(request, *args, **kwargs):
+        from schedule.models import Event, Calendar
         user = request.user
-        object_id = kwargs.get('event_id', None)
-        try:
-            obj = self.contenttype.get_object_for_this_type(pk=object_id)
-        except self.contenttype.model_class().DoesNotExist:
-            obj = None
-        allowed = CHECK_PERMISSION_FUNC(obj, user)
+        # check event permission
+        event = get_object_or_None(Event, pk=kwargs.get('event_id', None))
+        allowed = CHECK_EVENT_PERM_FUNC(event, user)
         if not allowed:
             return HttpResponseRedirect(settings.LOGIN_URL)
-        return self.f(request, *args, **kwargs)
+
+        # check calendar permissions
+        calendar = None
+        if event:
+            calendar = event.calendar
+        elif 'calendar_slug' in kwargs:
+            calendar = Calendar.objects.get(slug=kwargs['calendar_slug'])
+        allowed = CHECK_CALENDAR_PERM_FUNC(calendar, user)
+        if not allowed:
+            return HttpResponseRedirect(settings.LOGIN_URL)
+
+        # all checks passed
+        return function(request, *args, **kwargs)
+
+    return decorator
 
 
 def coerce_date_dict(date_dict):
@@ -108,19 +121,19 @@ def coerce_date_dict(date_dict):
     of the parts are found return an empty tuple.
     """
     keys = ['year', 'month', 'day', 'hour', 'minute', 'second']
-    retVal = {
-                'year': 1,
-                'month': 1,
-                'day': 1,
-                'hour': 0,
-                'minute': 0,
-                'second': 0}
+    ret_val = {
+        'year': 1,
+        'month': 1,
+        'day': 1,
+        'hour': 0,
+        'minute': 0,
+        'second': 0}
     modified = False
     for key in keys:
         try:
-            retVal[key] = int(date_dict[key])
+            ret_val[key] = int(date_dict[key])
             modified = True
         except KeyError:
             break
-    return modified and retVal or {}
+    return modified and ret_val or {}
 

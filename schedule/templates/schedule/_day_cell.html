@@ -29,7 +29,7 @@
                             </div>
                         </div>
                         <div id="{% hash_occurrence o.occurrence %}" style="display:none;">
-                          {% detail o.occurrence %}
+                          {% include 'schedule/_detail.html' with occurrence=o.occurrence %}
                         </div>
                 {% endfor %}
             {% endif %}
