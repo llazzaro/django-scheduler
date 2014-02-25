@@ -1,5 +1,6 @@
 import pytz
 import datetime
+import calendar as standardlib_calendar
 
 from django.conf import settings
 from django.template.defaultfilters import date as date_filter
@@ -189,7 +190,7 @@ class Year(Period):
         return start, end
 
     def __unicode__(self):
-        return self.start.strftime('%Y')
+        return self.start.year
 
 
 class Month(Period):
@@ -262,10 +263,10 @@ class Month(Period):
         return self.name()
 
     def name(self):
-        return self.start.strftime('%B')
+        return standardlib_calendar.month_name[self.start.month]
 
     def year(self):
-        return self.start.strftime('%Y')
+        return self.start.year
 
 
 class Week(Period):
