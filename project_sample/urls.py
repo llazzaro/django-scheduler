@@ -6,8 +6,10 @@ from django.contrib import admin
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^$', TemplateView.as_view(template_name="homepage.html"),),
+    url(r'^fullcalendar/', TemplateView.as_view(template_name="fullcalendar.html"),),
     url(r'^schedule/', include('schedule.urls')),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs'
@@ -19,9 +21,10 @@ urlpatterns = patterns('',
 )
 
 if settings.DEBUG:
-    urlpatterns += patterns('',
-        url(r'^site_media/(?P<path>.*)$',
-         'django.views.static.serve',
-         {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
+    urlpatterns += patterns(
+        '',
+        url(
+            r'^site_media/(?P<path>.*)$',
+            'django.views.static.serve',
+            {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     )
-

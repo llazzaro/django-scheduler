@@ -1,7 +1,10 @@
+import json
+import pytz
 import datetime
 from urllib import quote
-from django.contrib.auth.decorators import login_required
 
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils import timezone
 from django.http import HttpResponseRedirect, Http404
@@ -85,12 +88,12 @@ def calendar_by_periods(request, calendar_slug, periods=None, template_name="sch
     event_list = GET_EVENTS_FUNC(request, calendar)
     period_objects = dict([(period.__name__.lower(), period(event_list, date)) for period in periods])
     return render_to_response(template_name, {
-            'date': date,
-            'periods': period_objects,
-            'calendar': calendar,
-            'weekday_names': weekday_names,
-            'here': quote(request.get_full_path()),
-        }, context_instance=RequestContext(request), )
+        'date': date,
+        'periods': period_objects,
+        'calendar': calendar,
+        'weekday_names': weekday_names,
+        'here': quote(request.get_full_path()),
+    }, context_instance=RequestContext(request), )
 
 
 def event(request, event_id, template_name="schedule/event.html"):
@@ -109,20 +112,13 @@ def event(request, event_id, template_name="schedule/event.html"):
         this is the url that referred to this view.
     """
     event = get_object_or_404(Event, id=event_id)
-    #back_url = request.META.get('HTTP_REFERER', None)
-    try:
-        cal = event.calendar_set.get()
-    except:
-        cal = None
     return render(request, template_name, {
         "event": event,
         "back_url": None,
     })
-    #, context_instance=RequestContext(request))
 
 
-def occurrence(request, event_id,
-    template_name="schedule/occurrence.html", *args, **kwargs):
+def occurrence(request, event_id, template_name="schedule/occurrence.html", *args, **kwargs):
     """
     This view is used to display an occurrence.
 
@@ -147,8 +143,7 @@ def occurrence(request, event_id,
 
 
 @check_event_permissions
-def edit_occurrence(request, event_id,
-    template_name="schedule/edit_occurrence.html", *args, **kwargs):
+def edit_occurrence(request, event_id, template_name="schedule/edit_occurrence.html", *args, **kwargs):
     event, occurrence = get_occurrence(event_id, *args, **kwargs)
     next = kwargs.get('next', None)
     form = OccurrenceForm(data=request.POST or None, instance=occurrence)
@@ -167,15 +162,14 @@ def edit_occurrence(request, event_id,
 
 
 @check_event_permissions
-def cancel_occurrence(request, event_id,
-    template_name='schedule/cancel_occurrence.html', *args, **kwargs):
+def cancel_occurrence(request, event_id, template_name='schedule/cancel_occurrence.html', *args, **kwargs):
     """
     This view is used to cancel an occurrence. If it is called with a POST it
     will cancel the view. If it is called with a GET it will ask for
     conformation to cancel.
     """
     event, occurrence = get_occurrence(event_id, *args, **kwargs)
-    next = kwargs.get('next',None) or get_next_url(request, event.get_absolute_url())
+    next = kwargs.get('next', None) or get_next_url(request, event.get_absolute_url())
     if request.method != "POST":
         return render_to_response(template_name, {
             "occurrence": occurrence,
@@ -185,8 +179,7 @@ def cancel_occurrence(request, event_id,
     return HttpResponseRedirect(next)
 
 
-def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
-    day=None, hour=None, minute=None, second=None):
+def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None, hour=None, minute=None, second=None):
     """
     Because occurrences don't have to be persisted, there must be two ways to
     retrieve them. both need an event, but if its persisted the occurrence can
@@ -200,8 +193,7 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
     elif(all((year, month, day, hour, minute, second))):
         event = get_object_or_404(Event, id=event_id)
         occurrence = event.get_occurrence(
-            datetime.datetime(int(year), int(month), int(day), int(hour),
-                int(minute), int(second)))
+            datetime.datetime(int(year), int(month), int(day), int(hour), int(minute), int(second)))
         if occurrence is None:
             raise Http404
     else:
@@ -210,8 +202,7 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
 
 
 @check_event_permissions
-def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
-    template_name='schedule/create_event.html', form_class = EventForm):
+def create_or_edit_event(request, calendar_slug, event_id=None, next=None, template_name='schedule/create_event.html', form_class=EventForm):
     """
     This function, if it receives a GET request or if given an invalid form in a
     POST request it will generate the following response
@@ -263,8 +254,7 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
 
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
 
-    form = form_class(data=request.POST or None, instance=instance,
-        hour24=True, initial=initial_data)
+    form = form_class(data=request.POST or None, instance=instance, hour24=True, initial=initial_data)
 
     if form.is_valid():
         event = form.save(commit=False)
@@ -280,7 +270,7 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None,
     return render_to_response(template_name, {
         "form": form,
         "calendar": calendar,
-        "next":next
+        "next": next
     }, context_instance=RequestContext(request))
 
 
@@ -323,6 +313,7 @@ def check_next_url(next):
         return None
     return next
 
+
 def get_next_url(request, default):
     next = default
     if OCCURRENCE_CANCEL_REDIRECT:
@@ -330,3 +321,21 @@ def get_next_url(request, default):
     if 'next' in request.REQUEST and check_next_url(request.REQUEST['next']) is not None:
         next = request.REQUEST['next']
     return next
+
+
+def api_occurrences(request):
+    utc=pytz.UTC
+    start = utc.localize(datetime.datetime.utcfromtimestamp(float(request.GET.get('start'))))
+    end = utc.localize(datetime.datetime.utcfromtimestamp(float(request.GET.get('end'))))
+    calendar = get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))
+    response_data =[]
+    for event in calendar.events.filter(start__gte=start, end__lte=end):
+        occurrences = event.get_occurrences(start, end)
+        for occurrence in occurrences:
+            response_data.append({
+                "id": occurrence.id,
+                "title": occurrence.title,
+                "start": occurrence.start.isoformat(),
+                "end": occurrence.end.isoformat(),
+            })
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
