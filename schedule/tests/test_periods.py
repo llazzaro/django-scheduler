@@ -368,3 +368,15 @@ class TestAwareYear(TestCase):
         self.assertEqual(self.year.tzinfo, self.timezone)
         self.assertEqual(start, self.year.start)
         self.assertEqual(end, self.year.end)
+
+class TestStrftimeRefactor(TestCase):
+    """
+        Test for the refactor of strftime
+    """
+    def test_years_before_1900(self):
+        d = datetime.date(year=1899, month=1, day=1)
+        m = Month([], d)
+        try:
+            m.name()
+        except ValueError as value_error:
+            self.fail(value_error)

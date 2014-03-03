@@ -70,7 +70,11 @@ def calendar_by_periods(request, calendar_slug, periods=None, template_name="sch
 
     """
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
-    date = coerce_date_dict(request.GET)
+    try:
+        date = coerce_date_dict(request.GET)
+    except ValueError:
+        raise Http404
+
     if date:
         try:
             date = datetime.datetime(**date)
