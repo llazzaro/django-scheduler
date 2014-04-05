@@ -1,5 +1,4 @@
 import datetime
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 import pytz
@@ -9,7 +8,6 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from schedule.models import Event, Rule, Calendar, EventRelation
-from schedule.periods import Period, Day
 
 
 class TestEvent(TestCase):
@@ -31,7 +29,7 @@ class TestEvent(TestCase):
                 'title': title,
                 'start': start,
                 'end': end,
-                'end_recurring_period' : end_recurring,
+                'end_recurring_period': end_recurring,
                 'rule': rule,
                 'calendar': cal
                })
@@ -75,7 +73,7 @@ class TestEvent(TestCase):
 
         cal = Calendar(name="MyCal")
         cal.save()
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency="WEEKLY")
         rule.save()
 
         recurring_event = self.__create_recurring_event(

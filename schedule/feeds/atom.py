@@ -27,7 +27,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-
+import re
 from xml.sax.saxutils import XMLGenerator
 from django.utils import timezone
 
@@ -54,7 +54,7 @@ class SimplerXMLGenerator(XMLGenerator):
 
 ## based on django.utils.feedgenerator.rfc3339_date
 def rfc3339_date(date):
-    return date.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return '%s-%s-%sT%s:%s:%sZ' % (date.year, date.month, date.day, date.hour, date.minute, date.second)
 
 
 
@@ -63,7 +63,7 @@ def get_tag_uri(url, date):
     "Creates a TagURI. See http://diveintomark.org/archives/2004/05/28/howto-atom-id"
     tag = re.sub('^http://', '', url)
     if date is not None:
-        tag = re.sub('/', ',%s:/' % date.strftime('%Y-%m-%d'), tag, 1)
+        tag = re.sub('/', ',%s-%s-%s:/' % (date.year, date.month, date.day), tag, 1)
     tag = re.sub('#', '/', tag)
     return 'tag:' + tag
 

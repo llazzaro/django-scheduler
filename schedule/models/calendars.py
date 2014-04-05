@@ -84,7 +84,7 @@ class CalendarManager(models.Manager):
             calendar.create_relation(obj, distinction)
             return calendar
 
-    def get_calendars_for_object(self, obj, distinction = None):
+    def get_calendars_for_object(self, obj, distinction=None):
         """
         This function allows you to get calendars for a specific object
 
@@ -97,6 +97,7 @@ class CalendarManager(models.Manager):
         else:
             dist_q = Q()
         return self.filter(dist_q, Q(calendarrelation__object_id=obj.id, calendarrelation__content_type=ct))
+
 
 class Calendar(models.Model):
     '''
@@ -134,7 +135,7 @@ class Calendar(models.Model):
     '''
 
     name = models.CharField(_("name"), max_length=200)
-    slug = models.SlugField(_("slug"),max_length=200)
+    slug = models.SlugField(_("slug"), max_length=200)
     objects = CalendarManager()
 
     class Meta:
@@ -190,11 +191,11 @@ class CalendarRelationManager(models.Manager):
         ct = ContentType.objects.get_for_model(type(content_object))
         object_id = content_object.id
         cr = CalendarRelation(
-            content_type = ct,
-            object_id = object_id,
-            calendar = calendar,
-            distinction = distinction,
-            content_object = content_object
+            content_type=ct,
+            object_id=object_id,
+            calendar=calendar,
+            distinction=distinction,
+            content_object=content_object
         )
         cr.save()
         return cr
@@ -227,7 +228,7 @@ class CalendarRelation(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
-    distinction = models.CharField(_("distinction"), max_length = 20, null=True)
+    distinction = models.CharField(_("distinction"), max_length=20, null=True)
     inheritable = models.BooleanField(_("inheritable"), default=True)
 
     objects = CalendarRelationManager()

@@ -9,35 +9,37 @@ from schedule.periods import weekday_names, weekday_abbrs
 
 register = template.Library()
 
-@register.inclusion_tag("schedule/_month_table.html",  takes_context=True)
-def month_table(context,  calendar, month, size="regular", shift=None):
+
+@register.inclusion_tag("schedule/_month_table.html", takes_context=True)
+def month_table(context, calendar, month, size="regular", shift=None):
     if shift:
         if shift == -1:
             month = month.prev()
         if shift == 1:
             month = month.next()
     if size == "small":
-        context['day_names']  = weekday_abbrs
+        context['day_names'] = weekday_abbrs
     else:
-        context['day_names']  = weekday_names
+        context['day_names'] = weekday_names
     context['calendar'] = calendar
     context['month'] = month
     context['size'] = size
     return context
 
-@register.inclusion_tag("schedule/_day_cell.html",  takes_context=True)
-def day_cell(context,  calendar, day, month, size="regular" ):
+
+@register.inclusion_tag("schedule/_day_cell.html", takes_context=True)
+def day_cell(context, calendar, day, month, size="regular"):
     context.update({
-        'calendar' : calendar,
-        'day' : day,
-        'month' : month,
-        'size' : size
+        'calendar': calendar,
+        'day': day,
+        'month': month,
+        'size': size
     })
     return context
 
 
 @register.inclusion_tag("schedule/_daily_table.html", takes_context=True)
-def daily_table( context, day, width, width_slot, height, start=8, end=20, increment=30):
+def daily_table(context, day, width, width_slot, height, start=8, end=20, increment=30):
     """
       Display a nice table with occurrences and action buttons.
       Arguments:
@@ -69,18 +71,20 @@ def daily_table( context, day, width, width_slot, height, start=8, end=20, incre
     context['height'] = height
     return context
 
+
 @register.inclusion_tag("schedule/_event_title.html", takes_context=True)
-def title(context, occurrence ):
+def title(context, occurrence):
     context.update({
-        'occurrence' : occurrence,
+        'occurrence': occurrence,
     })
     return context
 
+
 @register.inclusion_tag("schedule/_event_options.html", takes_context=True)
-def options(context, occurrence ):
+def options(context, occurrence):
     context.update({
-        'occurrence' : occurrence,
-        'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
+        'occurrence': occurrence,
+        'MEDIA_URL': getattr(settings, "MEDIA_URL"),
     })
     context['view_occurrence'] = occurrence.get_absolute_url()
     user = context['request'].user
@@ -94,19 +98,21 @@ def options(context, occurrence ):
         context['edit_event'] = context['delete_event'] = ''
     return context
 
+
 @register.inclusion_tag("schedule/_create_event_options.html", takes_context=True)
-def create_event_url(context, calendar, slot ):
-    context.update ( {
-        'calendar' : calendar,
-        'MEDIA_URL' : getattr(settings, "MEDIA_URL"),
+def create_event_url(context, calendar, slot):
+    context.update({
+        'calendar': calendar,
+        'MEDIA_URL': getattr(settings, "MEDIA_URL"),
     })
     lookup_context = {
         'calendar_slug': calendar.slug,
     }
-    context['create_event_url'] ="%s%s" % (
-        reverse( "calendar_create_event", kwargs=lookup_context),
+    context['create_event_url'] = "%s%s" % (
+        reverse("calendar_create_event", kwargs=lookup_context),
         querystring_for_date(slot))
     return context
+
 
 class CalendarNode(template.Node):
     def __init__(self, content_object, distinction, context_var, create=False):
@@ -119,6 +125,7 @@ class CalendarNode(template.Node):
         context[self.context_var] = Calendar.objects.get_calendar_for_object(self.content_object.resolve(context), self.distinction)
         return ''
 
+
 def do_get_calendar_for_object(parser, token):
     contents = token.split_contents()
     if len(contents) == 4:
@@ -130,6 +137,7 @@ def do_get_calendar_for_object(parser, token):
         raise template.TemplateSyntaxError, "%r tag follows form %r <content_object> as <context_var>" % (token.contents.split()[0], token.contents.split()[0])
     return CalendarNode(content_object, distinction, context_var)
 
+
 class CreateCalendarNode(template.Node):
     def __init__(self, content_object, distinction, context_var, name):
         self.content_object = template.Variable(content_object)
@@ -138,8 +146,9 @@ class CreateCalendarNode(template.Node):
         self.name = name
 
     def render(self, context):
-        context[self.context_var] = Calendar.objects.get_or_create_calendar_for_object(self.content_object.resolve(context), self.distinction, name = self.name)
+        context[self.context_var] = Calendar.objects.get_or_create_calendar_for_object(self.content_object.resolve(context), self.distinction, name=self.name)
         return ''
+
 
 def do_get_or_create_calendar_for_object(parser, token):
     contents = token.split_contents()
@@ -148,19 +157,19 @@ def do_get_or_create_calendar_for_object(parser, token):
         obj = contents[1]
         if 'by' in contents:
             by_index = contents.index('by')
-            distinction = contents[by_index+1]
+            distinction = contents[by_index + 1]
         else:
             distinction = None
         if 'named' in contents:
             named_index = contents.index('named')
-            name = contents[named_index+1]
+            name = contents[named_index + 1]
             if name[0] == name[-1]:
                 name = name[1:-1]
         else:
             name = None
         if 'as' in contents:
             as_index = contents.index('as')
-            context_var = contents[as_index+1]
+            context_var = contents[as_index + 1]
         else:
             raise template.TemplateSyntaxError, "%r tag requires an a context variable: %r <content_object> [named <calendar name>] [by <distinction>] as <context_var>" % (token.split_contents()[0], token.split_contents()[0])
     else:
@@ -170,6 +179,7 @@ def do_get_or_create_calendar_for_object(parser, token):
 register.tag('get_calendar', do_get_calendar_for_object)
 register.tag('get_or_create_calendar', do_get_or_create_calendar_for_object)
 
+
 @register.simple_tag
 def querystring_for_date(date, num=6):
     query_string = '?'
@@ -178,36 +188,41 @@ def querystring_for_date(date, num=6):
     query_string += '&'.join(qs_parts[:num]) % qs_vars[:num]
     return query_string
 
+
 @register.simple_tag
 def prev_url(target, slug, period):
     return '%s%s' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-            querystring_for_date(period.prev().start))
+        querystring_for_date(period.prev().start))
+
 
 @register.simple_tag
 def next_url(target, slug, period):
     return '%s%s' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-            querystring_for_date(period.next().start))
+        querystring_for_date(period.next().start))
+
 
 @register.inclusion_tag("schedule/_prevnext.html")
-def prevnext( target, slug, period, fmt=None):
+def prevnext(target, slug, period, fmt=None):
     if fmt is None:
         fmt = settings.DATE_FORMAT
     context = {
-        'slug' : slug,
-        'period' : period,
+        'slug': slug,
+        'period': period,
         'period_name': format(period.start, fmt),
-        'target':target,
+        'target': target,
     }
     return context
 
+
 @register.inclusion_tag("schedule/_detail.html")
-def detail( occurrence ):
+def detail(occurrence):
     context = {
-        'occurrence' : occurrence,
+        'occurrence': occurrence,
     }
     return context
+
 
 def _cook_occurrences(period, occs, width, height):
     """ Prepare occurrences to be displayed.
@@ -246,13 +261,13 @@ def _cook_occurrences(period, occs, width, height):
     # calculate position and dimensions
     for o in occs:
         # number of overlapping occurrences
-        o.max = len([n for n in occs if not(n.end<=o.start or n.start>=o.end)])
+        o.max = len([n for n in occs if not(n.end <= o.start or n.start >= o.end)])
     for o in occs:
         o.cls = o.data['class']
         o.real_start = max(o.start, period.start)
         o.real_end = min(o.end, period.end)
         # number of "columns" is a minimum number of overlaps for each overlapping group
-        o.max = min([n.max for n in occs if not(n.end<=o.start or n.start>=o.end)] or [1])
+        o.max = min([n.max for n in occs if not(n.end <= o.start or n.start >= o.end)] or [1])
         w = int(width / (o.max))
         o.width = w - 2
         o.left = w * o.level
@@ -273,7 +288,7 @@ def _cook_slots(period, increment, width, height):
         height - height of the table (px)
     """
     tdiff = datetime.timedelta(minutes=increment)
-    num = (period.end - period.start).seconds/tdiff.seconds
+    num = (period.end - period.start).seconds / tdiff.seconds
     s = period.start
     slots = []
     for i in range(num):
@@ -283,6 +298,7 @@ def _cook_slots(period, increment, width, height):
         slots.append(sl)
         s = s + tdiff
     return slots
+
 
 @register.simple_tag
 def hash_occurrence(occ):

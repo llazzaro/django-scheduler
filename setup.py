@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
+
 setup(
     name='django-scheduler',
     version='0.7.1',
@@ -39,6 +40,7 @@ setup(
         'vobject>=0.8.1c',
         'South==0.8.4',
         'django-annoying==0.7.9',
+        'coverage==3.6',
     ],
     license='BSD',
     test_suite="schedule.tests",
