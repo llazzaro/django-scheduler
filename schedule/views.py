@@ -26,7 +26,7 @@ def calendar(request, calendar_slug, template='schedule/calendar.html'):
     This view returns a calendar.  This view should be used if you are
     interested in the meta data of a calendar, not if you want to display a
     calendar.  It is suggested that you use calendar_by_periods if you would
-    like to display a calendar.
+    like to display a   calendar.
 
     Context Variables:
 
@@ -254,7 +254,7 @@ def create_or_edit_event(request, calendar_slug, event_id=None, next=None, templ
 
     calendar = get_object_or_404(Calendar, slug=calendar_slug)
 
-    form = form_class(data=request.POST or None, instance=instance, hour24=True, initial=initial_data)
+    form = form_class(data=request.POST or None, instance=instance, initial=initial_data)
 
     if form.is_valid():
         event = form.save(commit=False)

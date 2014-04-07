@@ -104,7 +104,7 @@ class TestUrls(TestCase):
         self.client.login(username="admin", password="admin")
         self.response = self.client.get(reverse("calendar_create_event",
                                       kwargs={"calendar_slug": 'example'}), {})
-        print self.response
+
         self.assertEqual(self.response.status_code, 200)
 
         self.response = self.client.post(reverse("calendar_create_event",

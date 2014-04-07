@@ -49,7 +49,13 @@ class Period(object):
             return point_in_time.astimezone(pytz.utc)
         if tzinfo is not None:
             return tzinfo.localize(point_in_time).astimezone(pytz.utc)
-        return pytz.utc.localize(point_in_time)
+        if settings.USE_TZ:
+            return pytz.utc.localize(point_in_time)
+        else:
+            if timezone.is_aware(point_in_time):
+                return timezone.make_naive(point_in_time, pytz.utc)
+            else:
+                return point_in_time
 
     def __eq__(self, period):
         return self.utc_start == period.utc_start and self.utc_end == period.utc_end and self.events == period.events
