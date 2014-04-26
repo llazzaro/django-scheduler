@@ -10,10 +10,12 @@ install:
 #  - pip install -q Django==$DJANGO --use-mirrors
   - pip install -r schedule/requirements.txt --use-mirrors
   - pip install -e . --use-mirrors
-script:
-  - python setup.py develop
-  - python schedule/manage.py syncdb --noinput
-  - python schedule/manage.py migrate schedule
-  - python schedule/manage.py loaddata schedule
-  - python schedule/manage.py test
 
+before_script:
+    - pip install python-coveralls coverage
+script:
+  - coverage run runtests.py
+
+after_success:
+  # Submit data from .coverage to coveralls on success
+  - coveralls

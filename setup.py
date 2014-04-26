@@ -43,5 +43,5 @@ setup(
         'coverage==3.6',
     ],
     license='BSD',
-    test_suite="schedule.tests",
+    test_suite='runtests.runtests',
 )
