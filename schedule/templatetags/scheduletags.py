@@ -185,7 +185,7 @@ def querystring_for_date(date, num=6):
     query_string = '?'
     qs_parts = ['year=%d', 'month=%d', 'day=%d', 'hour=%d', 'minute=%d', 'second=%d']
     qs_vars = (date.year, date.month, date.day, date.hour, date.minute, date.second)
-    query_string += '&'.join(qs_parts[:num]) % qs_vars[:num]
+    query_string += '&amp;'.join(qs_parts[:num]) % qs_vars[:num]
     return query_string
 
 
