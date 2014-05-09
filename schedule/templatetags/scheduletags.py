@@ -3,6 +3,8 @@ from django.conf import settings
 from django import template
 from django.core.urlresolvers import reverse
 from django.utils.dateformat import format
+from django.utils.html import conditional_escape
+from django.utils.safestring import mark_safe
 from schedule.conf.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC
 from schedule.models import Calendar
 from schedule.periods import weekday_names, weekday_abbrs
@@ -181,12 +183,17 @@ register.tag('get_or_create_calendar', do_get_or_create_calendar_for_object)
 
 
 @register.simple_tag
-def querystring_for_date(date, num=6):
+@register.filter(needs_autoescape=True)
+def querystring_for_date(date, num=6, autoescape=None):
+    if autoescape:
+        esc = conditional_escape
+    else:
+        esc = lambda x: x
     query_string = '?'
     qs_parts = ['year=%d', 'month=%d', 'day=%d', 'hour=%d', 'minute=%d', 'second=%d']
     qs_vars = (date.year, date.month, date.day, date.hour, date.minute, date.second)
-    query_string += '&'.join(qs_parts[:num]) % qs_vars[:num]
-    return query_string
+    query_string += esc('&'.join(qs_parts[:num]) % qs_vars[:num])
+    return mark_safe(query_string)
 
 
 @register.simple_tag

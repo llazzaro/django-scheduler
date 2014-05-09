@@ -5,13 +5,13 @@
 
 {% include "schedule/_dialogs.html" %}
 <div class="navigation">
-  <a href="{% url "week_calendar" calendar.slug %}{% querystring_for_date periods.day.start 3 %}">
+  <a href="{% url "week_calendar" calendar.slug %}{% querystring_for_date periods.day.start 3 True %}">
     {% trans "Week" %}
   </a>
-  <a href="{% url "month_calendar" calendar.slug %}{% querystring_for_date periods.day.start 2 %}">
+  <a href="{% url "month_calendar" calendar.slug %}{% querystring_for_date periods.day.start 2 True %}">
     {% trans "Month" %}
   </a>
-  <a href="{% url "year_calendar" calendar.slug %}{% querystring_for_date periods.day.start 1%}">
+  <a href="{% url "year_calendar" calendar.slug %}{% querystring_for_date periods.day.start 1 True %}">
     {% trans "Year" %}
   </a>
 </div>
