@@ -3,11 +3,16 @@ h1. Build Status
 
 h1. Django-scheduler
 
+h2. Online examples
+
+"Online Demo":http://django-scheduler.leonardolazzaro.com
+"Fullcalendar Example":http://django-scheduler.leonardolazzaro.com/fullcalendar/
+
 h2. Information
 
 "Documentation":http://django-scheduler.readthedocs.org/en/latest/
 "Wiki":https://github.com/llazzaro/django-scheduler/wiki
-"Online Demo":http://django-scheduler.leonardolazzaro.com
+
 "Demo Source":https://github.com/llazzaro/django-scheduler-sample
 
 h2. Installation
