@@ -3,7 +3,7 @@ h1. Build Status
 
 h1. Django-scheduler
 
-!http://s15.postimg.org/g5gnixe22/scheduler.jpg!:http://django-scheduler.leonardolazzaro.com/fullcalendar/
+!https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/scheduler.png!:http://django-scheduler.leonardolazzaro.com/fullcalendar/
 
 h2. Online examples
 
