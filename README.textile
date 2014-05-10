@@ -1,11 +1,19 @@
 h1. Build Status
 !https://travis-ci.org/llazzaro/django-scheduler.svg?branch=master!:https://travis-ci.org/llazzaro/django-scheduler !https://travis-ci.org/llazzaro/django-scheduler!  !https://coveralls.io/repos/llazzaro/django-scheduler/badge.png(Coverage Status)!  !https://coveralls.io/r/llazzaro/django-scheduler! !https://gemnasium.com/llazzaro/django-scheduler.png(Dependency Status)! !https://gemnasium.com/llazzaro/django-scheduler! !https://pypip.in/v/django-scheduler/badge.png(Latest PyPI version)! !https://crate.io/packages/django-scheduler! !https://pypip.in/d/django-scheduler/badge.png(umber of PyPI downloads)!  !https://crate.io/packages/django-scheduler!  !https://pypip.in/license/django-scheduler/badge.png! !https://pypip.in/egg/django-scheduler/badge.png! !https://pypip.in/wheel/django-scheduler/badge.png!
 
-
-
 h1. Django-scheduler
 
-A calendaring/scheduling application, featuring:
+h2. Information
+
+"Documentation":http://django-scheduler.readthedocs.org/en/latest/
+"Wiki":https://github.com/llazzaro/django-scheduler/wiki
+"Online Demo":http://django-scheduler.leonardolazzaro.com
+
+h2. Installation
+
+<pre>pip install django-scheduler</pre>
+
+h2. Features
 
  * one-time and recurring events
  * calendar exceptions (occurrences changed or cancelled)
@@ -13,13 +21,6 @@ A calendaring/scheduling application, featuring:
  * relations of events to generic objects
  * ready to use, nice user interface
  * view day, week, month, three months and year
- * project sample which can be launched immediately and reused in your project
-
-See see "wiki page":https://github.com/llazzaro/django-scheduler/wiki for more.
-
-h2. Installation
-
-<pre>pip install django-scheduler</pre>
 
 h2. Configuration
 
