@@ -8,6 +8,7 @@ h2. Information
 "Documentation":http://django-scheduler.readthedocs.org/en/latest/
 "Wiki":https://github.com/llazzaro/django-scheduler/wiki
 "Online Demo":http://django-scheduler.leonardolazzaro.com
+"Demo Source":https://github.com/llazzaro/django-scheduler-sample
 
 h2. Installation
 
