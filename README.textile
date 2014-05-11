@@ -7,7 +7,7 @@ Full Calendar examples
 !https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/scheduler.png!:http://django-scheduler.leonardolazzaro.com/fullcalendar/
 
 Monthly View (static)
-!https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/weekly_view.png!:http://django-scheduler.leonardolazzaro.com/schedule/calendar/month/example/
+!https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/monthly_view.png!:http://django-scheduler.leonardolazzaro.com/schedule/calendar/month/example/
 
 Daily View (static)
 !https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/daily.png!:http://django-scheduler.leonardolazzaro.com/schedule/calendar/daily/example/
