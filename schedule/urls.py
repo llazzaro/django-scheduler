@@ -9,10 +9,6 @@ from schedule.feeds import CalendarICalendar
 from schedule.periods import Year, Month, Week, Day
 from schedule.views import DeleteEventView
 
-info_dict = {
-    'queryset': Calendar.objects.all(),
-}
-
 urlpatterns = patterns(
     '',
     # urls for Calendars
