@@ -112,7 +112,7 @@ def create_event_url(context, calendar, slot):
     }
     context['create_event_url'] = "%s%s" % (
         reverse("calendar_create_event", kwargs=lookup_context),
-        querystring_for_date(slot))
+        querystring_for_date(slot, autoescape=True))
     return context
 
 
@@ -200,14 +200,14 @@ def querystring_for_date(date, num=6, autoescape=None):
 def prev_url(target, slug, period):
     return '%s%s' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-        querystring_for_date(period.prev().start))
+        querystring_for_date(period.prev().start, autoescape=True))
 
 
 @register.simple_tag
 def next_url(target, slug, period):
     return '%s%s' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-        querystring_for_date(period.next().start))
+        querystring_for_date(period.next().start, autoescape=True))
 
 
 @register.inclusion_tag("schedule/_prevnext.html")
