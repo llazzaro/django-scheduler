@@ -6,7 +6,7 @@ from django.utils.html import escape
 from schedule.models import Event, Rule, Calendar
 from schedule.periods import Period, Day
 
-from schedule.templatetags.scheduletags import querystring_for_date, prev_url, next_url, create_event_calendar
+from schedule.templatetags.scheduletags import querystring_for_date, prev_url, next_url, create_event_url
 
 class TestTemplateTags(TestCase):
     def setUp(self):
