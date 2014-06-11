@@ -1,11 +1,11 @@
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy
 from django.core.exceptions import ImproperlyConfigured
 from annoying.functions import get_config
 
 fdow_default = 0  # Sunday
 
 # Look for FIRST_DAY_OF_WEEK as a locale setting
-fdow = ugettext('FIRST_DAY_OF_WEEK')
+fdow = ugettext_lazy('FIRST_DAY_OF_WEEK')
 try:
     FIRST_DAY_OF_WEEK = int(fdow)
 except ValueError:
