@@ -6,6 +6,7 @@ env:
 #  - DJANGO=1.3.4
   - DJANGO=1.5
   - DJANGO=1.6
+  - DJANGO=1.7
 #  - DJANGO=https://github.com/django/django/zipball/master
 install:
 #  - pip install -q Django==$DJANGO --use-mirrors
