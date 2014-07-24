@@ -54,7 +54,6 @@ def daily_table(context, day, width, width_slot, height, start=8, end=20, increm
     """
     user = context['request'].user
     addable = CHECK_EVENT_PERM_FUNC(None, user)
-    CHECK_EVENT_PERM_FUNC(None, user)
     if 'calendar' in context:
         addable &= CHECK_CALENDAR_PERM_FUNC(context['calendar'], user)
     context['addable'] = addable
@@ -90,7 +89,7 @@ def options(context, occurrence):
     })
     context['view_occurrence'] = occurrence.get_absolute_url()
     user = context['request'].user
-    if CHECK_EVENT_PERM_FUNC(occurrence.event, user) and CHECK_EVENT_PERM_FUNC(occurrence.event.calendar, user):
+    if CHECK_EVENT_PERM_FUNC(occurrence.event, user) and CHECK_CALENDAR_PERM_FUNC(occurrence.event.calendar, user):
         context['edit_occurrence'] = occurrence.get_edit_url()
         print context['edit_occurrence']
         context['cancel_occurrence'] = occurrence.get_cancel_url()
