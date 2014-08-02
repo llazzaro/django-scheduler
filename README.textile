@@ -3,19 +3,11 @@ h1. Build Status
 
 h1. Django-scheduler
 
-Full Calendar examples
-!https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/scheduler.png!:http://django-scheduler.leonardolazzaro.com/fullcalendar/
+A calendar app for Django
 
-Monthly View (static)
-!https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/monthly_view.png!:http://django-scheduler.leonardolazzaro.com/schedule/calendar/month/example/
+Please donate here:
+!http://tip4commit.com/projects/882.svg!:http://tip4commit.com/github/llazzaro/django-scheduler
 
-Daily View (static)
-!https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/daily.png!:http://django-scheduler.leonardolazzaro.com/schedule/calendar/daily/example/
-
-h2. Online examples
-
-"Online Demo":http://django-scheduler.leonardolazzaro.com
-"Fullcalendar Example":http://django-scheduler.leonardolazzaro.com/fullcalendar/
 
 h2. Information
 
@@ -46,6 +38,18 @@ add to *INSTALLED_APPS*:
 
 add to *TEMPLATE_CONTEXT_PROCESSORS*:
     <pre>"django.core.context_processors.request"</pre>
+
+h4. screenshots
+
+Full Calendar examples
+!https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/scheduler.png!:http://django-scheduler.leonardolazzaro.com/fullcalendar/
+
+Monthly View (static)
+!https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/monthly_view.png!:http://django-scheduler.leonardolazzaro.com/schedule/calendar/month/example/
+
+Daily View (static)
+!https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/daily.png!:http://django-scheduler.leonardolazzaro.com/schedule/calendar/daily/example/
+
 
 h4. Optional Settings
 
