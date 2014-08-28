@@ -244,7 +244,7 @@ msgstr "Удалить событие"
 #: templates/profiles/schedule.html:45
 #, python-format
 msgid "You haven't added any <a href=\"%(add_event_url)s\">event</a> yet."
-msgstr "Вы еще не добавилини одного <a href=\"%(add_event_url)s\">события</a>."
+msgstr "Вы еще не добавили ни одного <a href=\"%(add_event_url)s\">события</a>."
 
 #: templates/profiles/schedule.html:49
 msgid "Add event"
@@ -376,7 +376,7 @@ msgstr "Лента"
 
 #: templates/schedule/calendar.html:27
 msgid "Now see docstring for schedule.views.calendar"
-msgstr "Смотрите докуемнтацию для schedule.views.calendar"
+msgstr "Смотрите документацию для schedule.views.calendar"
 
 #: templates/schedule/calendar_day.html:9
 msgid "Week"
@@ -441,7 +441,7 @@ msgstr "Удалить"
 
 #: templates/schedule/cancel_occurrence.html:6
 msgid "Are you sure that you really want to cancel this occurrence?"
-msgstr "Вы уверены, что хотите отменить это возникновение события?"
+msgstr "Вы уверены, что хотите отменить это событие?"
 
 #: templates/schedule/cancel_occurrence.html:14
 #: templates/schedule/create_event.html:14
