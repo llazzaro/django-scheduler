@@ -51,7 +51,7 @@ if not CHECK_CALENDAR_PERM_FUNC:
 GET_EVENTS_FUNC = get_config('GET_EVENTS_FUNC', None)
 if not GET_EVENTS_FUNC:
     def get_events(request, calendar):
-        return calendar.event_set.all()
+        return calendar.event_set.prefetch_related('occurrence_set')
 
     GET_EVENTS_FUNC = get_events
 
