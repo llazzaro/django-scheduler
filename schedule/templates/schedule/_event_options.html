@@ -2,8 +2,8 @@
 
 <span class="actions">
 {% if edit_event %}
-<span class="edit">
-{% if occurrence.event.rule %}
+  <span class="edit">
+  {% if occurrence.event.rule %}
     {% if occurrence.id %}
         <a href="#" onclick="openURL('{{ edit_occurrence }}?next={{ here }}', event);">
             <img border="0" src="{% static "schedule/img/pencil.png" %}" alt="{% trans "Edit Event" %}">
@@ -13,16 +13,17 @@
             <img border="0" src="{% static "schedule/img/pencil.png" %}" alt="{% trans "Edit Event" %}">
         </a>
     {% endif %}
-{% else %}
+  {% else %}
     <a href="#" onclick="openURL('{{ edit_event }}?next={{ here }}', event);">
         <img border="0" src="{% static "schedule/img/pencil.png" %}" alt="{% trans "Edit Event" %}">
     </a>
+  {% endif %}
+  </span>
 {% endif %}
-{% endif %}
-</span>
+
 {% if delete_event %}
 <span class="delete">
-{% if occurrence.event.rule %}
+  {% if occurrence.event.rule %}
     {% if occurrence.id %}
         <a href="#" onclick="openURL('{{cancel_occurrence}}?next={{here}}', event);">
             <img border="0" src="{% static "schedule/img/delete.png" %}" alt="{% trans "Delete Event" %}">
@@ -32,11 +33,11 @@
             <img border="0" src="{% static "schedule/img/delete.png" %}" alt="{% trans "Delete Event" %}">
         </a>
     {% endif %}
-{% else %}
-<a href="#" onclick="openURL('{{delete_event}}?next={{here}}', event);">
+  {% else %}
+    <a href="#" onclick="openURL('{{delete_event}}?next={{here}}', event);">
     <img border="0" src="{% static "schedule/img/delete.png" %}" alt="{% trans "Delete Event" %}">
-</a>
-{% endif %}
-{% endif %}
+    </a>
+  {% endif %}
 </span>
+{% endif %}
 </span>

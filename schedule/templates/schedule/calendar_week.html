@@ -16,7 +16,7 @@
 
 <div class="tablewrapper">
     <div class="calendarname">{{ calendar.name }}</div>
-    {% prevnext "week_calendar" calendar.slug periods.week "\Week W, M Y" %}
+    {% prevnext "week_calendar" calendar.slug periods.week "\W\e\ek W, M Y" %}
     <div class="now">
       <a href="{% url "week_calendar" calendar.slug %}">
         {% trans "This week" %}
@@ -28,7 +28,7 @@
   {% for day in periods.week.get_days %}
     <div class="weekday weekday{{forloop.counter}}">
       <div class="weekdayheader">
-        <a href="{% url "day_calendar" calendar.slug %}{% querystring_for_date day.start True %}">
+        <a href="{% url "day_calendar" calendar.slug %}{% querystring_for_date day.start 3 True %}">
           {{day.start|date:"l, d"}}
         </a>
       </div>
