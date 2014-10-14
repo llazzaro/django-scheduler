@@ -325,8 +325,13 @@ def get_next_url(request, default):
 
 def api_occurrences(request):
     utc=pytz.UTC
-    start = utc.localize(datetime.datetime.utcfromtimestamp(float(request.GET.get('start'))))
-    end = utc.localize(datetime.datetime.utcfromtimestamp(float(request.GET.get('end'))))
+    # version 2 of full calendar
+    if '-' in request.GET.get('start'):
+        convert = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d')
+    else:
+        convert = lambda d: datetime.datetime.utcfromtimestamp(float(d))
+    start = utc.localize(convert(request.GET.get('start')))
+    end = utc.localize(convert(request.GET.get('end')))
     calendar = get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))
     response_data =[]
     for event in calendar.events.filter(start__gte=start, end__lte=end):
