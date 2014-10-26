@@ -86,7 +86,14 @@ def calendar_by_periods(request, calendar_slug, periods=None, template_name="sch
     else:
         date = timezone.now()
     event_list = GET_EVENTS_FUNC(request, calendar)
-    period_objects = dict([(period.__name__.lower(), period(event_list, date)) for period in periods])
+    local_timezone = request.session.setdefault('django_timezone', 'UTC')
+    local_timezone = pytz.timezone(local_timezone)
+    period_objects = {} 
+    for period in periods:
+        if period.__name__.lower() == 'year':
+            period_objects[period.__name__.lower()] = period(event_list, date, None, local_timezone) 
+        else:
+            period_objects[period.__name__.lower()] = period(event_list, date, None, None, local_timezone)
     return render_to_response(template_name, {
         'date': date,
         'periods': period_objects,
