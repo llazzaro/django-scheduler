@@ -244,11 +244,12 @@ def _cook_occurrences(period, occs, width, height):
     """
     last = {}
     # find out which occurrences overlap
+    display_occs = []
     for o in occs:
         o.data = period.classify_occurrence(o)
         if not o.data:
-            occs.remove(o)
             continue
+        display_occs.append(o)
         o.level = -1
         o.max = 0
         if not last:
@@ -265,10 +266,10 @@ def _cook_occurrences(period, occs, width, height):
                 last[k] = o
                 o.level = k
     # calculate position and dimensions
-    for o in occs:
+    for o in display_occs:
         # number of overlapping occurrences
         o.max = len([n for n in occs if not(n.end <= o.start or n.start >= o.end)])
-    for o in occs:
+    for o in display_occs:
         o.cls = o.data['class']
         o.real_start = max(o.start, period.start)
         o.real_end = min(o.end, period.end)
@@ -280,7 +281,7 @@ def _cook_occurrences(period, occs, width, height):
         o.top = int(height * (float((o.real_start - period.start).seconds) / (period.end - period.start).seconds))
         o.height = int(height * (float((o.real_end - o.real_start).seconds) / (period.end - period.start).seconds))
         o.height = min(o.height, height - o.top) # trim what extends beyond the area
-    return occs
+    return display_occs
 
 
 def _cook_slots(period, increment, width, height):
