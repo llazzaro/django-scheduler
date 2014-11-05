@@ -274,7 +274,7 @@ def _cook_occurrences(period, occs, width, height):
         o.real_start = max(o.start, period.start)
         o.real_end = min(o.end, period.end)
         # number of "columns" is a minimum number of overlaps for each overlapping group
-        o.max = min([n.max for n in occs if not(n.end <= o.start or n.start >= o.end)] or [1])
+        o.max = min([n.max for n in display_occs if not(n.end <= o.start or n.start >= o.end)] or [1])
         w = int(width / (o.max))
         o.width = w - 2
         o.left = w * o.level
