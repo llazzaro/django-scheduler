@@ -135,6 +135,7 @@ class Event(models.Model):
                 end = self.end_recurring_period
             rule = self.get_rrule_object()
 	    o_starts = []
+	    o_starts.append(rule.between(start, end, inc=True))
 	    o_starts.append(rule.between(start - (difference/2), end - (difference/2), inc=True))
 	    o_starts.append(rule.between(start - difference, end - difference, inc=True))
 	    for occ in o_starts:
