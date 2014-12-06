@@ -37,7 +37,7 @@ setup(
         'python-dateutil>=2.1',
         'pytz>=2013.9',
         'six>=1.3.0',
-        'vobject>=0.8.1c',
+        'icalendar>=3.8.4',
         'South>=0.8.4',
         'django-annoying>=0.7.9',
         'coverage>=3.6',
