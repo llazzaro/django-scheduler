@@ -134,16 +134,16 @@ class Event(models.Model):
             if self.end_recurring_period and self.end_recurring_period < end:
                 end = self.end_recurring_period
             rule = self.get_rrule_object()
-	    o_starts = []
-	    o_starts.append(rule.between(start, end, inc=True))
-	    o_starts.append(rule.between(start - (difference/2), end - (difference/2), inc=True))
-	    o_starts.append(rule.between(start - difference, end - difference, inc=True))
-	    for occ in o_starts:
-	        for o_start in occ:
-		    o_end = o_start + difference
-		    occurrence = self._create_occurrence(o_start, o_end)
-		    if occurrence not in occurrences:
-		        occurrences.append(occurrence)
+            o_starts = []
+            o_starts.append(rule.between(start, end, inc=True))
+            o_starts.append(rule.between(start - (old_div(difference,2)), end - (old_div(difference,2)), inc=True))
+            o_starts.append(rule.between(start - difference, end - difference, inc=True))
+            for occ in o_starts:
+                for o_start in occ:
+                    o_end = o_start + difference
+                    occurrence = self._create_occurrence(o_start, o_end)
+                    if occurrence not in occurrences:
+                        occurrences.append(occurrence)
             return occurrences
         else:
             # check if event is in the period
