@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import datetime
 from django.conf import settings
 from django import template
@@ -18,7 +21,7 @@ def month_table(context, calendar, month, size="regular", shift=None):
         if shift == -1:
             month = month.prev()
         if shift == 1:
-            month = month.next()
+            month = next(month)
     if size == "small":
         context['day_names'] = weekday_abbrs
     else:
@@ -274,11 +277,11 @@ def _cook_occurrences(period, occs, width, height):
         o.real_end = min(o.end, period.end)
         # number of "columns" is a minimum number of overlaps for each overlapping group
         o.max = min([n.max for n in display_occs if not(n.end <= o.start or n.start >= o.end)] or [1])
-        w = int(width / (o.max))
+        w = int(old_div(width, (o.max)))
         o.width = w - 2
         o.left = w * o.level
-        o.top = int(height * (float((o.real_start - period.start).seconds) / (period.end - period.start).seconds))
-        o.height = int(height * (float((o.real_end - o.real_start).seconds) / (period.end - period.start).seconds))
+        o.top = int(height * (old_div(float((o.real_start - period.start).seconds), (period.end - period.start).seconds)))
+        o.height = int(height * (old_div(float((o.real_end - o.real_start).seconds), (period.end - period.start).seconds)))
         o.height = min(o.height, height - o.top) # trim what extends beyond the area
     return display_occs
 
@@ -294,13 +297,13 @@ def _cook_slots(period, increment, width, height):
         height - height of the table (px)
     """
     tdiff = datetime.timedelta(minutes=increment)
-    num = (period.end - period.start).seconds / tdiff.seconds
+    num = old_div((period.end - period.start).seconds, tdiff.seconds)
     s = period.start
     slots = []
     for i in range(num):
         sl = period.get_time_slot(s, s + tdiff)
-        sl.top = int(height / float(num)) * i
-        sl.height = int(height / float(num))
+        sl.top = int(old_div(height, float(num))) * i
+        sl.height = int(old_div(height, float(num)))
         slots.append(sl)
         s = s + tdiff
     return slots

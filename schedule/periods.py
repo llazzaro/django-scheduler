@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 import pytz
 import datetime
 import calendar as standardlib_calendar
@@ -145,7 +147,7 @@ class Period(object):
         period = self.create_sub_period(cls)
         while period.start < self.end:
             yield self.create_sub_period(cls, period.start, tzinfo)
-            period = period.next()
+            period = next(period)
 
     @property
     def start(self):

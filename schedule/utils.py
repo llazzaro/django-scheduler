@@ -1,3 +1,4 @@
+from builtins import object
 from functools import wraps
 import pytz
 import heapq
@@ -36,7 +37,7 @@ class EventListManager(object):
 
         for generator in generators:
             try:
-                heapq.heappush(occurrences, (generator.next(), generator))
+                heapq.heappush(occurrences, (next(generator), generator))
             except StopIteration:
                 pass
 
@@ -47,10 +48,10 @@ class EventListManager(object):
             generator = occurrences[0][1]
 
             try:
-                next = heapq.heapreplace(occurrences, (generator.next(), generator))[0]
+                next_occurence = heapq.heapreplace(occurrences, (next(generator), generator))[0]
             except StopIteration:
-                next = heapq.heappop(occurrences)[0]
-            yield occ_replacer.get_occurrence(next)
+                next_occurence = heapq.heappop(occurrences)[0]
+            yield occ_replacer.get_occurrence(next_occurence)
 
 
 class OccurrenceReplacer(object):
@@ -82,7 +83,7 @@ class OccurrenceReplacer(object):
         """
         Return persisted occurrences which are now in the period
         """
-        return [occ for key, occ in self.lookup.items() if (occ.start < end and occ.end >= start and not occ.cancelled)]
+        return [occ for key, occ in list(self.lookup.items()) if (occ.start < end and occ.end >= start and not occ.cancelled)]
 
 
 def check_event_permissions(function):

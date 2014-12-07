@@ -1,3 +1,7 @@
+from __future__ import division
+from past.builtins import cmp
+from past.utils import old_div
+from builtins import object
 # -*- coding: utf-8 -*-
 from django.conf import settings as django_settings
 import pytz
@@ -43,7 +47,7 @@ class Event(models.Model):
     calendar = models.ForeignKey(Calendar, null=True, blank=True, verbose_name=_("calendar"))
     objects = EventManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _('event')
         verbose_name_plural = _('events')
         app_label = 'schedule'
@@ -168,7 +172,7 @@ class Event(models.Model):
         date_iter = iter(rule)
         difference = self.end - self.start
         while True:
-            o_start = date_iter.next()
+            o_start = next(date_iter)
             if o_start > self.end_recurring_period:
                 raise StopIteration
             o_end = o_start + difference
@@ -183,8 +187,8 @@ class Event(models.Model):
         occ_replacer = OccurrenceReplacer(self.occurrence_set.all())
         generator = self._occurrences_after_generator(after)
         while True:
-            next = generator.next()
-            yield occ_replacer.get_occurrence(next)
+            next_occurence = next(generator)
+            yield occ_replacer.get_occurrence(next_occurence)
 
 
 class EventRelationManager(models.Manager):
@@ -333,7 +337,7 @@ class EventRelation(models.Model):
 
     objects = EventRelationManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
         app_label = 'schedule'
@@ -354,7 +358,7 @@ class Occurrence(models.Model):
     created_on = models.DateTimeField(_("created on"), auto_now_add=True)
     updated_on = models.DateTimeField(_("updated on"), auto_now=True)
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
         app_label = 'schedule'

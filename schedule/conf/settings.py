@@ -1,3 +1,4 @@
+from builtins import str
 from django.utils.translation import ugettext_lazy
 from django.core.exceptions import ImproperlyConfigured
 from annoying.functions import get_config

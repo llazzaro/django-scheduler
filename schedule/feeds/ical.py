@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import icalendar
 
 from django.http import HttpResponse
@@ -23,7 +25,7 @@ class ICalendarFeed(object):
         cal.add('prodid', '-// django-scheduler //')
         cal.add('version', '2.0')
 
-        for item in self.items():
+        for item in list(self.items()):
             event = icalendar.Event()
 
             for vkey, key in EVENT_ITEMS:

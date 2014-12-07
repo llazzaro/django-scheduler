@@ -1,3 +1,4 @@
+from builtins import object
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from schedule.models import Event, Occurrence
@@ -25,12 +26,12 @@ class EventForm(SpanForm):
                                                help_text=_(u"This date is ignored for one time only events."),
                                                required=False)
 
-    class Meta:
+    class Meta(object):
         model = Event
         exclude = ('creator', 'created_on', 'calendar')
 
 
 class OccurrenceForm(SpanForm):
-    class Meta:
+    class Meta(object):
         model = Occurrence
         exclude = ('original_start', 'original_end', 'event', 'cancelled')
