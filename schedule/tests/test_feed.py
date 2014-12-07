@@ -10,10 +10,10 @@ class Testatom(TestCase):
         date = datetime.datetime(2014, 2, 25, 19, 30, 40, 573234)
         result = rfc3339_date(date)
         expected = '2014-2-25T19:30:40Z'
-        self.assertEquals(result, expected)
+        self.assertEqual(result, expected)
 
     def test_get_tag_uri(self):
         date = datetime.datetime(2014, 2, 25, 19, 30, 40, 573234)
         result = get_tag_uri('/sarasa/', date)
         expected = 'tag:,2014-2-25:/sarasa/'
-        self.assertEquals(result, expected)
+        self.assertEqual(result, expected)
