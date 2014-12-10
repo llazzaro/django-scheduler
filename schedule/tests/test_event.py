@@ -123,6 +123,7 @@ class TestEvent(TestCase):
                                     rule,
                                     cal
                 )
+        recurring_event.save()
         occurrences = recurring_event.get_occurrences(
                                     start=datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc),
                                     end=datetime.datetime(2008, 1, 20, 0, 0, tzinfo=pytz.utc))
