@@ -208,7 +208,7 @@ def prev_url(target, slug, period):
 def next_url(target, slug, period):
     return '%s%s' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-        querystring_for_date(period.next().start, autoescape=True))
+        querystring_for_date(next(period).start, autoescape=True))
 
 
 @register.inclusion_tag("schedule/_prevnext.html")
