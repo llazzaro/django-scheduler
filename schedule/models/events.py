@@ -1,6 +1,4 @@
 from __future__ import division
-from past.builtins import cmp
-from past.utils import old_div
 from builtins import object
 # -*- coding: utf-8 -*-
 from django.conf import settings as django_settings
@@ -140,7 +138,7 @@ class Event(models.Model):
             rule = self.get_rrule_object()
             o_starts = []
             o_starts.append(rule.between(start, end, inc=True))
-            o_starts.append(rule.between(start - (old_div(difference,2)), end - (old_div(difference,2)), inc=True))
+            o_starts.append(rule.between(start - (difference // 2), end - (difference // 2), inc=True))
             o_starts.append(rule.between(start - difference, end - difference, inc=True))
             for occ in o_starts:
                 for o_start in occ:
