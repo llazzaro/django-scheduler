@@ -1,3 +1,5 @@
+from builtins import zip
+from builtins import range
 import datetime
 import pytz
 
@@ -249,7 +251,7 @@ class TestOccurrencePool(TestCase):
         end = datetime.datetime(2008, 1, 5, 10, 0, tzinfo=pytz.utc)
         parent_period = Period(Event.objects.all(), start, end)
         period = Period(parent_period.events, start, end, parent_period.get_persisted_occurrences(), parent_period.occurrences)
-        self.assertEquals(parent_period.occurrences, period.occurrences)
+        self.assertEqual(parent_period.occurrences, period.occurrences)
 
 
 class TestAwareDay(TestCase):

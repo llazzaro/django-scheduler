@@ -55,17 +55,17 @@ class TestEvent(TestCase):
         event_two.save()
         occurrences_two = event_two.get_occurrences(datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
                                                     datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc))
-        self.assertEquals(1, len(occurrences_two))
+        self.assertEqual(1, len(occurrences_two))
 
         occurrences_one = event_one.get_occurrences(datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
                                                     datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc))
-        self.assertEquals(0, len(occurrences_one))
+        self.assertEqual(0, len(occurrences_one))
 
     def test_recurring_event_get_occurrences(self):
         recurring_event = Event(**self.recurring_data)
         occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc),
                                                       end=datetime.datetime(2008, 1, 20, 0, 0, tzinfo=pytz.utc))
-        self.assertEquals(["%s to %s" % (o.start, o.end) for o in occurrences],
+        self.assertEqual(["%s to %s" % (o.start, o.end) for o in occurrences],
                           ['2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00',
                            '2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00'])
 
@@ -102,13 +102,13 @@ class TestEvent(TestCase):
                                     datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
                                     datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc))
 
-        self.assertEquals(1, len(occurrences_two))
+        self.assertEqual(1, len(occurrences_two))
 
         occurrences_one = event_one.get_occurrences(
                                     datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
                                     datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc))
 
-        self.assertEquals(0, len(occurrences_one))
+        self.assertEqual(0, len(occurrences_one))
 
     def test_recurring_event_get_occurrences(self):
         cal = Calendar(name="MyCal")
@@ -123,11 +123,12 @@ class TestEvent(TestCase):
                                     rule,
                                     cal
                 )
+        recurring_event.save()
         occurrences = recurring_event.get_occurrences(
                                     start=datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc),
                                     end=datetime.datetime(2008, 1, 20, 0, 0, tzinfo=pytz.utc))
 
-        self.assertEquals(["%s to %s" %(o.start, o.end) for o in occurrences],
+        self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrences],
                 ['2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00', '2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00'])
 
     def test_recurring_event_get_occurrences_after(self):
@@ -222,7 +223,7 @@ class TestEvent(TestCase):
 
 
         occurrence = event.get_occurrence(start)
-        self.assertEquals(occurrence.start, start)
+        self.assertEqual(occurrence.start, start)
 
     def test_occurences_after_with_no_params(self):
 
@@ -235,9 +236,9 @@ class TestEvent(TestCase):
                             cal)
 
         occurrences = list(event.occurrences_after())
-        self.assertEquals(len(occurrences), 1)
-        self.assertEquals(occurrences[0].start, start)
-        self.assertEquals(occurrences[0].end, start + datetime.timedelta(hours=1))
+        self.assertEqual(len(occurrences), 1)
+        self.assertEqual(occurrences[0].start, start)
+        self.assertEqual(occurrences[0].end, start + datetime.timedelta(hours=1))
 
 
     def test_occurences_with_recurrent_event_end_recurring_period_edge_case(self):
@@ -255,12 +256,12 @@ class TestEvent(TestCase):
                             rule,
                             cal)
         occurrences = list(event.occurrences_after())
-        self.assertEquals(len(occurrences), 11)
+        self.assertEqual(len(occurrences), 11)
 
     def test_get_for_object(self):
         user = User.objects.create_user('john', 'lennon@thebeatles.com', 'johnpassword')
         event_relations = list(Event.objects.get_for_object(user, 'owner', inherit=False))
-        self.assertEquals(len(event_relations), 0)
+        self.assertEqual(len(event_relations), 0)
 
         rule = Rule(frequency = "DAILY")
         rule.save()
@@ -274,12 +275,12 @@ class TestEvent(TestCase):
                )
         event.save()
         events = list(Event.objects.get_for_object(user, 'owner', inherit=False))
-        self.assertEquals(len(events), 0)
+        self.assertEqual(len(events), 0)
         EventRelation.objects.create_relation(event, user, 'owner')
 
         events = list(Event.objects.get_for_object(user, 'owner', inherit=False))
-        self.assertEquals(len(events), 1)
-        self.assertEquals(event, events[0])
+        self.assertEqual(len(events), 1)
+        self.assertEqual(event, events[0])
 
     def test_get_absolute(self):
         cal = Calendar(name='MyCal')
@@ -296,7 +297,7 @@ class TestEvent(TestCase):
                             cal)
         event.save()
         url = event.get_absolute_url()
-        self.assertEquals(reverse('event', kwargs={'event_id': event.id}), url)
+        self.assertEqual(reverse('event', kwargs={'event_id': event.id}), url)
 
     def test_(self):
         pass

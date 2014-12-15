@@ -41,6 +41,7 @@ setup(
         'South>=0.8.4',
         'django-annoying>=0.7.9',
         'coverage>=3.6',
+        'future>=0.14.2',
     ],
     license='BSD',
     test_suite='runtests.runtests',

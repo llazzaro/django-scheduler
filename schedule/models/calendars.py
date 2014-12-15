@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 # -*- coding: utf-8 -*-
 import pytz
 from django.contrib.contenttypes import generic
@@ -29,7 +31,7 @@ class CalendarManager(models.Manager):
         >>> try:
         ...     Calendar.objects.get_calendar_for_object(user)
         ... except Calendar.DoesNotExist:
-        ...     print "failed"
+        ...     print("failed")
         ...
         failed
 
@@ -52,7 +54,7 @@ class CalendarManager(models.Manager):
         >>> try:
         ...     Calendar.objects.get_calendar_for_object(user)
         ... except AssertionError:
-        ...     print "failed"
+        ...     print("failed")
         ...
         failed
         """
@@ -76,7 +78,7 @@ class CalendarManager(models.Manager):
             return self.get_calendar_for_object(obj, distinction)
         except Calendar.DoesNotExist:
             if name is None:
-                calendar = Calendar(name=unicode(obj))
+                calendar = Calendar(name=str(obj))
             else:
                 calendar = Calendar(name=name)
             calendar.slug = slugify(calendar.name)
@@ -138,7 +140,7 @@ class Calendar(models.Model):
     slug = models.SlugField(_("slug"), max_length=200)
     objects = CalendarManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _('calendar')
         verbose_name_plural = _('calendar')
         app_label = 'schedule'
@@ -233,7 +235,7 @@ class CalendarRelation(models.Model):
 
     objects = CalendarRelationManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _('calendar relation')
         verbose_name_plural = _('calendar relations')
         app_label = 'schedule'

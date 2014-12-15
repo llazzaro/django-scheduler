@@ -3,4 +3,5 @@
 *.pyc
 /project_sample/project_sample.db
 /docs/_build/
-django_schedule.egg-info
+django_scheduler.egg-info
+.coverage

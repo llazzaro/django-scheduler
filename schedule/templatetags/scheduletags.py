@@ -1,3 +1,5 @@
+from __future__ import division
+from builtins import range
 import datetime
 from django.conf import settings
 from django import template
@@ -18,7 +20,7 @@ def month_table(context, calendar, month, size="regular", shift=None):
         if shift == -1:
             month = month.prev()
         if shift == 1:
-            month = month.next()
+            month = next(month)
     if size == "small":
         context['day_names'] = weekday_abbrs
     else:
@@ -91,7 +93,6 @@ def options(context, occurrence):
     user = context['request'].user
     if CHECK_EVENT_PERM_FUNC(occurrence.event, user) and CHECK_CALENDAR_PERM_FUNC(occurrence.event.calendar, user):
         context['edit_occurrence'] = occurrence.get_edit_url()
-        print context['edit_occurrence']
         context['cancel_occurrence'] = occurrence.get_cancel_url()
         context['delete_event'] = reverse('delete_event', args=(occurrence.event.id,))
         context['edit_event'] = reverse('edit_event', args=(occurrence.event.calendar.slug, occurrence.event.id,))
@@ -135,7 +136,7 @@ def do_get_calendar_for_object(parser, token):
     elif len(contents) == 5:
         tag_name, content_object, distinction, _, context_var = token.split_contents()
     else:
-        raise template.TemplateSyntaxError, "%r tag follows form %r <content_object> as <context_var>" % (token.contents.split()[0], token.contents.split()[0])
+        raise template.TemplateSyntaxError("%r tag follows form %r <content_object> as <context_var>" % (token.contents.split()[0], token.contents.split()[0]))
     return CalendarNode(content_object, distinction, context_var)
 
 
@@ -172,9 +173,9 @@ def do_get_or_create_calendar_for_object(parser, token):
             as_index = contents.index('as')
             context_var = contents[as_index + 1]
         else:
-            raise template.TemplateSyntaxError, "%r tag requires an a context variable: %r <content_object> [named <calendar name>] [by <distinction>] as <context_var>" % (token.split_contents()[0], token.split_contents()[0])
+            raise template.TemplateSyntaxError("%r tag requires an a context variable: %r <content_object> [named <calendar name>] [by <distinction>] as <context_var>" % (token.split_contents()[0], token.split_contents()[0]))
     else:
-        raise template.TemplateSyntaxError, "%r tag follows form %r <content_object> [named <calendar name>] [by <distinction>] as <context_var>" % (token.split_contents()[0], token.split_contents()[0])
+        raise template.TemplateSyntaxError("%r tag follows form %r <content_object> [named <calendar name>] [by <distinction>] as <context_var>" % (token.split_contents()[0], token.split_contents()[0]))
     return CreateCalendarNode(obj, distinction, context_var, name)
 
 register.tag('get_calendar', do_get_calendar_for_object)
@@ -206,7 +207,7 @@ def prev_url(target, slug, period):
 def next_url(target, slug, period):
     return '%s%s' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-        querystring_for_date(period.next().start, autoescape=True))
+        querystring_for_date(next(period).start, autoescape=True))
 
 
 @register.inclusion_tag("schedule/_prevnext.html")
@@ -275,11 +276,11 @@ def _cook_occurrences(period, occs, width, height):
         o.real_end = min(o.end, period.end)
         # number of "columns" is a minimum number of overlaps for each overlapping group
         o.max = min([n.max for n in display_occs if not(n.end <= o.start or n.start >= o.end)] or [1])
-        w = int(width / (o.max))
+        w = width // o.max
         o.width = w - 2
         o.left = w * o.level
-        o.top = int(height * (float((o.real_start - period.start).seconds) / (period.end - period.start).seconds))
-        o.height = int(height * (float((o.real_end - o.real_start).seconds) / (period.end - period.start).seconds))
+        o.top = int(height * ((o.real_start - period.start).seconds / (period.end - period.start).seconds))
+        o.height = int(height * ((o.real_end - o.real_start).seconds / (period.end - period.start).seconds))
         o.height = min(o.height, height - o.top) # trim what extends beyond the area
     return display_occs
 
@@ -295,13 +296,13 @@ def _cook_slots(period, increment, width, height):
         height - height of the table (px)
     """
     tdiff = datetime.timedelta(minutes=increment)
-    num = (period.end - period.start).seconds / tdiff.seconds
+    num = (period.end - period.start).seconds // tdiff.seconds
     s = period.start
     slots = []
     for i in range(num):
         sl = period.get_time_slot(s, s + tdiff)
-        sl.top = int(height / float(num)) * i
-        sl.height = int(height / float(num))
+        sl.top = height // num * i
+        sl.height = height // num
         slots.append(sl)
         s = s + tdiff
     return slots

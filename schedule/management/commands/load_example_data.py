@@ -10,40 +10,40 @@ class Command(NoArgsCommand):
         from schedule.models import Event
         from schedule.models import Rule
 
-        print "checking for existing data ..."
+        print("checking for existing data ...")
         try:
             cal=Calendar.objects.get(name="Example Calendar")
-            print "It looks like you already have loaded this sample data, quitting."
+            print("It looks like you already have loaded this sample data, quitting.")
             import sys
             sys.exit(1)
         except Calendar.DoesNotExist:
-            print "Sample data not found in db."
-            print "Install it..."
+            print("Sample data not found in db.")
+            print("Install it...")
 
-        print "Create Example Calendar ..."
+        print("Create Example Calendar ...")
         cal=Calendar(name="Example Calendar", slug="example")
         cal.save()
-        print "The Example Calendar is created."
-        print "Do we need to install the most common rules?"
+        print("The Example Calendar is created.")
+        print("Do we need to install the most common rules?")
         try:
             rule=Rule.objects.get(name="Daily")
         except Rule.DoesNotExist:
-            print "Need to install the basic rules"
+            print("Need to install the basic rules")
             rule=Rule(frequency="YEARLY", name="Yearly", description="will recur once every Year")
             rule.save()
-            print "YEARLY recurrence created"
+            print("YEARLY recurrence created")
             rule=Rule(frequency="MONTHLY", name="Monthly", description="will recur once every Month")
             rule.save()
-            print "Monthly recurrence created"
+            print("Monthly recurrence created")
             rule=Rule(frequency="WEEKLY", name="Weekly", description="will recur once every Week")
             rule.save()
-            print "Weekly recurrence created"
+            print("Weekly recurrence created")
             rule=Rule(frequency="DAILY", name="Daily", description="will recur once every Day")
             rule.save()
-            print "Daily recurrence created"
-        print "Rules installed."
+            print("Daily recurrence created")
+        print("Rules installed.")
 
-        print "Create some events"
+        print("Create some events")
         rule=Rule.objects.get(frequency="WEEKLY")
         data={
             'title': 'Exercise',

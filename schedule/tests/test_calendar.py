@@ -24,14 +24,14 @@ class TestCalendar(TestCase):
 
     def test_get_recent_events_without_events_is_empty(self):
         calendar = Calendar()
-        self.assertEquals(list(calendar.get_recent()), [])
+        self.assertEqual(list(calendar.get_recent()), [])
 
     def test_get_recent_events_with_events_return_the_event(self):
         pass
 
     def test_occurrences_after_without_events_is_empty(self):
         calendar = Calendar()
-        self.assertEquals(list(calendar.occurrences_after(timezone.now())), [])
+        self.assertEqual(list(calendar.occurrences_after(timezone.now())), [])
 
     def test_occurrences_after_with_events_after_returns_events(self):
         calendar = Calendar()
@@ -41,9 +41,9 @@ class TestCalendar(TestCase):
         event = self.__create_event(start_after, end_after)
         calendar.events.add(event)
         occurrences = list(calendar.occurrences_after(timezone.now()))
-        self.assertEquals(len(occurrences), 1)
-        self.assertEquals(occurrences[0].start, start_after)
-        self.assertEquals(occurrences[0].end, end_after)
+        self.assertEqual(len(occurrences), 1)
+        self.assertEqual(occurrences[0].start, start_after)
+        self.assertEqual(occurrences[0].end, end_after)
 
     def test_occurrences_after_with_events_before_returns_empty(self):
         calendar = Calendar()
@@ -53,12 +53,12 @@ class TestCalendar(TestCase):
         event = self.__create_event(start_after, end_after)
         calendar.events.add(event)
         occurrences = list(calendar.occurrences_after(timezone.now()))
-        self.assertEquals(occurrences, [])
-#        self.assertEquals(list(calendar.occurrences_after(timezone.now())), [])
+        self.assertEqual(occurrences, [])
+#        self.assertEqual(list(calendar.occurrences_after(timezone.now())), [])
 
 #    def test_get_absolute_url(self):
 #        calendar = Calendar()
-#        self.assertEquals(calendar.get_absolute_url(), '')
+#        self.assertEqual(calendar.get_absolute_url(), '')
 
     def test_get_calendar_for_object(self):
         calendar = Calendar(name='My Cal')
@@ -67,7 +67,7 @@ class TestCalendar(TestCase):
         rule.save()
         calendar.create_relation(rule)
         result = Calendar.objects.get_calendar_for_object(rule)
-        self.assertEquals(result.name, 'My Cal')
+        self.assertEqual(result.name, 'My Cal')
 
     def test_get_calendar_for_object_without_calendars(self):
         with self.assertRaises(Calendar.DoesNotExist):
@@ -94,9 +94,9 @@ class TestCalendar(TestCase):
         rule = Rule()
         rule.save()
         calendar = Calendar.objects.get_or_create_calendar_for_object(rule, name='My Cal')
-        self.assertEquals(calendar.name, 'My Cal')
+        self.assertEqual(calendar.name, 'My Cal')
         calendar_from_rule = Calendar.objects.get_calendars_for_object(rule)[0]
-        self.assertEquals(calendar, calendar_from_rule)
+        self.assertEqual(calendar, calendar_from_rule)
 
     def test_get_or_create_calendar_for_object_withouth_name(self):
         """
@@ -106,7 +106,7 @@ class TestCalendar(TestCase):
         rule.save()
         calendar = Calendar.objects.get_or_create_calendar_for_object(rule)
         calendar_from_rule = Calendar.objects.get_calendars_for_object(rule)[0]
-        self.assertEquals(calendar, calendar_from_rule)
+        self.assertEqual(calendar, calendar_from_rule)
 
     def test_get_calendars_for_object_without_calendars(self):
         rule = Rule()
@@ -115,7 +115,7 @@ class TestCalendar(TestCase):
         rule = Rule()
         rule.save()
         calendars = list(Calendar.objects.get_calendars_for_object(rule, distinction='owner'))
-        self.assertEquals(len(calendars), 0)
+        self.assertEqual(len(calendars), 0)
 
     def test_calendar_absolute_and_event_url(self):
         """

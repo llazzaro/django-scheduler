@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 #
 # django-atompub by James Tauber <http://jtauber.com/>
 # http://code.google.com/p/django-atompub/

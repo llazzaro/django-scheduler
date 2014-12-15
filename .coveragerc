@@ -1,2 +1,5 @@
 [run]
 source = schedule
+
+[report]
+omit = */migrations/*,*/south_migrations/*,schedule/tests/*
