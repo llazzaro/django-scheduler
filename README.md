@@ -45,59 +45,54 @@ Features
 Configuration
 ========
 
-edit your *settings.py*
+edit your `settings.py`
 
-add to *INSTALLED_APPS*:
+add to `INSTALLED_APPS`:
 
-    ```python
-    'schedule'
-    ```
+```python
+'schedule'
+```
 
-add to *TEMPLATE_CONTEXT_PROCESSORS*:
+add to `TEMPLATE_CONTEXT_PROCESSORS`:
 
 ```python
 "django.core.context_processors.request"
 ```
 
-
-
 Full Calendar examples
 ======
 
+![Full calendar](https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/scheduler.png)
 
-[<img src="https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/scheduler.png"](http://django-scheduler.leonardolazzaro.com/fullcalendar/)
+![Monthly view (static)](https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/monthly_view.png)
 
-Monthly View (static)
-[https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/monthly_view.png](http://django-scheduler.leonardolazzaro.com/schedule/calendar/month/example/)
-
-Daily View (static)
-[https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/daily.png](http://django-scheduler.leonardolazzaro.com/schedule/calendar/daily/example/)
+![Daily view (static)](https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/daily.png)
 
 
 Optional Settings
 ========
 
-*FIRST_DAY_OF_WEEK*
+### FIRST_DAY_OF_WEEK
 
 This setting determines which day of the week your calendar begins on if your locale doesn't already set it. Default is 0, which is Sunday.
 
-*OCCURRENCE_CANCEL_REDIRECT*
+### OCCURRENCE_CANCEL_REDIRECT
 
-This setting controls the behavior of :func:`Views.get_next_url`. If set, all calendar modifications will redirect here (unless there is a `next` set in the request.)
+This setting controls the behavior of `Views.get_next_url`. If set, all calendar modifications will redirect here (unless there is a `next` set in the request.)
 
-*SHOW_CANCELLED_OCCURRENCES*
+### SHOW_CANCELLED_OCCURRENCES
 
-This setting controls the behavior of :func:`Period.classify_occurence`. If True, then occurences that have been cancelled will be displayed with a css class of canceled, otherwise they won't appear at all.
+This setting controls the behavior of `Period.classify_occurence`. If True, then occurences that have been cancelled will be displayed with a css class of canceled, otherwise they won't appear at all.
 
 Defaults to False
 
-*CHECK_PERMISSION_FUNC*
+### CHECK_PERMISSION_FUNC
 
 _deprecated_
 
-Should be replaced with CHECK_EVENT_PERM_FUNC
+Should be replaced with `CHECK_EVENT_PERM_FUNC`
 
-*CHECK_EVENT_PERM_FUNC*
+### CHECK_EVENT_PERM_FUNC
 
 This setting controls the callable used to determine if a user has permission to edit an event or occurrence. The callable must take the object (event) and the user and return a boolean.
 
@@ -109,7 +104,7 @@ Default:
 
 If ob is None, then the function is checking for permission to add new events
 
-*CHECK_CALENDAR_PERM_FUNC*
+### CHECK_CALENDAR_PERM_FUNC
 
 This setting controls the callable used to determine if a user has permission to add, update or delete an events in specific calendar. The callable must take the object (calendar) and the user and return a boolean.
 
@@ -119,7 +114,7 @@ Default:
         return user.is_authenticated()
 ```
 
-*GET_EVENTS_FUNC*
+### GET_EVENTS_FUNC
 
 This setting controls the callable that gets all events for calendar display. The callable must take the request and the calendar and return a `QuerySet` of events. Modifying this setting allows you to pull events from multiple calendars or to filter events based on permissions
 
