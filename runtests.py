@@ -1,13 +1,15 @@
 #!/usr/bin/env python
+import os
+import sys
+
+import django
 from django.conf import settings
-settings.configure(
-    INSTALLED_APPS=('schedule', 'django.contrib.contenttypes', 'django.contrib.auth'),
-    DATABASES={
-        'default': {'ENGINE': 'django.db.backends.sqlite3'}
-    })
+from django.test.utils import get_runner
 
-from django.test.utils import setup_test_environment
-setup_test_environment()
-
-from django.core.management import call_command
-call_command('test', 'schedule')
+if __name__ == "__main__":
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
+    django.setup()
+    TestRunner = get_runner(settings)
+    test_runner = TestRunner()
+    failures = test_runner.run_tests(["tests"])
+    sys.exit(bool(failures))
