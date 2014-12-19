@@ -51,11 +51,10 @@ class Event(models.Model):
         app_label = 'schedule'
 
     def __unicode__(self):
-        date_format = u'%s' % ugettext("DATE_FORMAT")
         return ugettext('%(title)s: %(start)s - %(end)s') % {
             'title': self.title,
-            'start': date(self.start, date_format),
-            'end': date(self.end, date_format),
+            'start': date(self.start, django_settings.DATE_FORMAT),
+            'end': date(self.end, django_settings.DATE_FORMAT),
         }
 
     def get_absolute_url(self):
@@ -430,8 +429,8 @@ class Occurrence(models.Model):
 
     def __unicode__(self):
         return ugettext("%(start)s to %(end)s") % {
-            'start': self.start,
-            'end': self.end,
+            'start': date(self.start, django_settings.DATE_FORMAT),
+            'end': date(self.end, django_settings.DATE_FORMAT)
         }
 
     def __lt__(self, other):

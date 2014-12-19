@@ -4,8 +4,8 @@ import datetime
 import pytz
 
 from django.test import TestCase
+from django.conf import settings
 
-from schedule.conf.settings import FIRST_DAY_OF_WEEK
 from schedule.models import Event, Rule, Calendar
 from schedule.periods import Period, Month, Day, Year, Week
 
@@ -98,7 +98,7 @@ class TestMonth(TestCase):
         weeks = self.month.get_weeks()
         actuals = [(week.start, week.end) for week in weeks]
 
-        if FIRST_DAY_OF_WEEK == 0:
+        if settings.FIRST_DAY_OF_WEEK == 0:
             expecteds = [
                 (datetime.datetime(2008, 1, 27, 0, 0, tzinfo=pytz.utc),
                  datetime.datetime(2008, 2, 3, 0, 0, tzinfo=pytz.utc)),
@@ -134,7 +134,7 @@ class TestMonth(TestCase):
         days = week.get_days()
         actuals = [(len(day.occurrences), day.start,day.end) for day in days]
 
-        if FIRST_DAY_OF_WEEK == 0:
+        if settings.FIRST_DAY_OF_WEEK == 0:
             expecteds = [
                 (
                     0,

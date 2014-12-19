@@ -3,13 +3,6 @@
 Settings
 ========
 
-.. _ref-settings-first-day-of-week:
-
-FIRST_DAY_OF_WEEK
------------------
-
-This setting determines which day of the week your calendar begins on if your locale doesn't already set it. Default is 0, which is Sunday.
-
 .. _ref-settings-OCCURRENCE_CANCEL_REDIRECT:
 
 OCCURRENCE_CANCEL_REDIRECT
