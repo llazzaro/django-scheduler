@@ -17,7 +17,7 @@ An occurrence is an instance of an event.  If we have an event and it is Weekly 
 What does persisted Occurrences mean?
 -------------------------------------
 
-Occurrences are generated programatically. This is because we can not store all of the occurrences in the database, because there could be infinite occurrences. But we still want to be able to persist data about occurrences. Like, canceling an occurrence, moving an occurrence, storing a list of attendees with the occurrence.  This is done lazily. An occurrence is generated programatically until it needs to be saved to the database. When you use any function to get an occurrence, it will be completely transparent whether it was generated programatically or whether it is persisted (except that persisted ones will have a ``pk``).  Just treat them like they are persisted and you shouldn't run into any trouble.
+Occurrences are generated programatically. This is because we can not store all of the occurrences in the database, because there could be infinite occurrences. But we still want to be able to persist data about occurrences. Like, canceling an occurrence, moving an occurrence, storing a list of attendees with the occurrence.  This is done lazily. An occurrence is generated programatically until it needs to be saved to the database. When you use any function to get an occurrence, it will be completely transparent whether it was generated programatically or whether it is persisted (expect that persisted ones will have a ``pk``).  Just treat them like they are persisted and you shouldn't run into any trouble.
 
 What is a Rule?
 ---------------
