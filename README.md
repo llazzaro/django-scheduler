@@ -25,6 +25,7 @@ Information
 
 [Documentation](http://django-scheduler.readthedocs.org/en/latest/)
 [Wiki](https://github.com/llazzaro/django-scheduler/wiki)
+[Sample Project](https://github.com/llazzaro/django-scheduler-sample)
 
 
 Installation
