@@ -15,7 +15,7 @@ Period Base Class
 This is the base class from which all other periods inherit.  It contains all
 of the base functionality for retrieving occurrences.  It is instantiated with
 a list of events, a start date, and an end date. *The start date is inclusive,
-the end date is exclusive.* ie [start, end)
+the end date is exclusive.* i.e. [start, end)
 
 >>> p = Period(datetime.datetime(2008,4,1,0,0))
 
@@ -35,7 +35,7 @@ This method is for getting the occurrences from the list of passed in events. It
 ``classify_occurrence(occurrence)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You use this method to determine how the Occurrence ``occurrence`` relates to the period. This method returns a dictionary. The keys are ``"class"`` and ``"occurrence"``.  The class key returns a a number from 0 to 3 and the occurrence key returns the occurrence.
+You use this method to determine how the Occurrence ``occurrence`` relates to the period. This method returns a dictionary. The keys are ``"class"`` and ``"occurrence"``.  The class key returns a number from 0 to 3 and the occurrence key returns the occurrence.
 
 Classes:
 
@@ -68,7 +68,7 @@ This method returns whether there are any occurrences in this period
 Year
 ----
 
-The year period is instaniated with a list of events and a date or datetime object. It will resemble the year in which that date exists. 
+The year period is instantiated with a list of events and a date or datetime object. It will resemble the year in which that date exists. 
 
 >>> p = Year(events, datetime.datetime(2008,4,1))
 >>> p.start
@@ -85,7 +85,7 @@ This function returns 12 Month objects which resemble the 12 months in the Year 
 Month
 -----
 
-The Month period is instantiated with a list of events and a date or  datetime object.  It resembles the month that contains the date or datetime object that was passed in.
+The Month period is instantiated with a list of events and a date or datetime object.  It resembles the month that contains the date or datetime object that was passed in.
 
 >>> p = Month(events, datetime.datetime(2008,4,4))
 >>> p.start
@@ -97,8 +97,7 @@ datetime.datetime(2008, 5, 1, 0, 0)
 ``get_weeks()``
 ~~~~~~~~~~~~~~~
 
-This method returns a list of Week objects that occur at all during that month.  The week does not have to be fully encapsulated in the month just have
-exist in the month at all
+This method returns a list of Week objects that occur at all during that month.  The week does not have to be fully encapsulated in the month, just has to exist in the month at all.
 
 ``get_days()``
 ~~~~~~~~~~~~~~
@@ -113,7 +112,7 @@ This method returns a specific day in a year given its day number.
 Week
 ----
 
-The Week period is instantiated with a list of events and a date or  datetime object.  It resembles the week that contains the date or datetime object that was passed in.
+The Week period is instantiated with a list of events and a date or datetime object.  It resembles the week that contains the date or datetime object that was passed in.
 
 >>> p = Week(events, datetime.datetime(2008,4,1))
 >>> p.start
@@ -130,7 +129,7 @@ This method returns the 7 Day objects that represent the days in a Week period.
 Day
 ---
 
-The Day period is instantiated with a list of events and a date or  datetime object.  It resembles the day that contains the date or datetime object that was passed in.
+The Day period is instantiated with a list of events and a date or datetime object.  It resembles the day that contains the date or datetime object that was passed in.
 
 >>> p = Day(events, datetime.datetime(2008,4,1))
 >>> p.start
