@@ -22,7 +22,7 @@ This setting controls the behavior of :func:`Views.get_next_url`. If set, all ca
 SHOW_CANCELLED_OCCURRENCES
 --------------------------
 
-This setting controls the behavior of :func:`Period.classify_occurence`. If True, then occurences that have been cancelled will be displayed with a css class of canceled, otherwise they won't appear at all.
+This setting controls the behavior of :func:`Period.classify_occurence`. If True, then occurrences that have been cancelled will be displayed with a css class of canceled, otherwise they won't appear at all.
 
 Defaults to False
 
@@ -40,7 +40,7 @@ Should be replaced with CHECK_EVENT_PERM_FUNC
 CHECK_EVENT_PERM_FUNC
 ---------------------
 
-This setting controls the callable used to determine if a user has permission to edit an event or occurance. The callable must take the object (event) and the user and return a boolean.
+This setting controls the callable used to determine if a user has permission to edit an event or occurrence. The callable must take the object (event) and the user and return a boolean.
 
 example::
 
@@ -54,7 +54,7 @@ If ob is None, then the function is checking for permission to add new events.
 CHECK_CALENDAR_PERM_FUNC
 ---------------------
 
-This setting controls the callable used to determine if a user has permission to add, update or delete an events in specific calendar. The callable must take the object (calendar) and the user and return a boolean.
+This setting controls the callable used to determine if a user has permission to add, update or delete events in a specific calendar. The callable must take the object (calendar) and the user and return a boolean.
 
 example::
 
@@ -67,7 +67,7 @@ example::
 GET_EVENTS_FUNC
 ---------------
 
-This setting controls the callable that gets all events for calendar display. The callable must take the request and the calendar and return a `QuerySet` of events. Modifying this setting allows you to pull events from multiple calendars or to filter events based on permissions
+This setting controls the callable that gets all events for calendar display. The callable must take the request and the calendar and return a `QuerySet` of events. Modifying this setting allows you to pull events from multiple calendars or to filter events based on permissions.
 
 example::
 

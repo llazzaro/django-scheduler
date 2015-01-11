@@ -12,19 +12,19 @@ Required Arguments
 ------------------
 
 ``request``
-    As always the request object
+    As always the request object.
 
 ``calendar_slug``
-    The slug of the calendar to be displayed
+    The slug of the calendar to be displayed.
 
 Optional Arguments
 ------------------
 
 ``template_name``
     default
-        'schedule/calendar.html'
-    
-    This is the template that will be rendered
+        'schedule/calendar.html'.
+
+    This is the template that will be rendered.
 
 Context Variables
 -----------------
@@ -37,32 +37,32 @@ calendar_by_period
 
 This view is for getting a calendar, but also getting periods with that
 calendar.  Which periods you get, is designated with the list periods. You
-can designate which date you the periods to be initialized to by passing
-a date in request.GET. See the template tag ``query_string_for_date``
+can designate which date you want the periods to be initialized to by passing
+a date in request.GET. See the template tag ``query_string_for_date``.
 
 Required Arguments
 ------------------
 
 ``request``
-    As always the request object
+    As always the request object.
 
 ``calendar_slug``
-    The slug of the calendar to be displayed
+    The slug of the calendar to be displayed.
 
 Optional Arguments
 ------------------
 
 ``template_name``
     default
-        'schedule/calendar_by_period    .html'
+        'schedule/calendar_by_period.html'
     
-    This is the template that will be rendered
+    This is the template that will be rendered.
 
 ``periods``
     default
         ``[]``
     
-    This is a list of Period Subclasses that designates which periods you would like to instantiate and put in the context
+    This is a list of Period Subclasses that designates which periods you would like to instantiate and put in the context.
     
 Context Variables
 -----------------
@@ -89,14 +89,14 @@ Context Variables
     This is the Calendar that is designated by the ``calendar_slug``.
 
 ``weekday_names``
-    This is for convenience. It returns the local names of weekedays for
+    This is for convenience. It returns the local names of weekdays for
     internationalization.
 
 event
 =====
 
 This view is for showing an event. It is important to remember that an 
-event is not an occurrence.  Events define a set of reccurring occurrences.
+event is not an occurrence.  Events define a set of recurring occurrences.
 If you would like to display an occurrence (a single instance of a 
 recurring event) use ``occurrence``.
 
@@ -116,7 +116,7 @@ Optional Arguments
     default
         'schedule/calendar_by_period.html'
     
-    This is the template that will be rendered
+    This is the template that will be rendered.
 
 
 
@@ -124,7 +124,7 @@ Context Variables
 -----------------
 
 ``event``
-    This is the event designated by the event_id
+    This is the event designated by the event_id.
 
 ``back_url``
     this is the url that referred to this view.
@@ -139,12 +139,12 @@ Required Arguments
 ------------------
 
 ``request``
-    As always the request object
+    As always the request object.
 
 ``event_id``
-    the id of the event that produces the occurrence
+    the id of the event that produces the occurrence.
 
-from here you need a way to distinguish the occurrence and that involves
+From here you need a way to distinguish the occurrence and that involves
 
 ``occurrence_id``
     if its persisted
@@ -179,7 +179,7 @@ Context Variables
     the occurrence to be displayed
 
 ``back_url``
-    the url from which this request was refered
+    the url from which this request was referred
 
 edit_occurrence
 ===============
@@ -195,7 +195,7 @@ Required Arguments
 ``event_id``
     the id for the event
 
-from here you need a way to distinguish the occurrence and that involves
+From here you need a way to distinguish the occurrence and that involves
 
 ``occurrence_id``
     the id of the occurrence if its persisted
@@ -216,23 +216,21 @@ Optional Arguments
     default
         'schedule/calendar_by_period.html'
     
-    This is the template that will be rendered
-
-
+    This is the template that will be rendered.
 
 Context Variables
 -----------------
 
 ``form``
-    an instance of OccurrenceForm to be displayed
+    an instance of OccurrenceForm to be displayed.
 
 ``occurrence``
-    an instance of the occurrence being modified
+    an instance of the occurrence being modified.
 
 cancel_occurrence
 =================
 
-This view is used to cancel and occurrence. It is worth noting that canceling an occurrence doesn't stop it from being in occurrence lists or being persisted, it just changes the ``cancelled`` flag on the instance. It is import to check this flag when listing occurrences.
+This view is used to cancel an occurrence. It is worth noting that cancelling an occurrence doesn't stop it from being in occurrence lists or being persisted, it just changes the ``cancelled`` flag on the instance. It is important to check this flag when listing occurrences.
 
 Also if this view is requested via POST, it will cancel the event and redirect. If this view is accessed via a GET request it will display a confirmation page.
 
@@ -240,9 +238,9 @@ Required Arguments
 ------------------
 
 ``request``
-    As always the request object
+    As always the request object.
 
-from here you need a way to distinguish the occurrence and that involves
+From here you need a way to distinguish the occurrence and that involves
 
 ``occurrence_id``
     if its persisted
@@ -263,19 +261,19 @@ Optional Arguments
     default
         'schedule/calendar_by_period.html'
     
-    This is the template that will be rendered, if this view is accessed via GET
+    This is the template that will be rendered, if this view is accessed via GET.
 
 ``next``
     default
         the event detail page of ``occurrence.event``
     
-    This is the url you wish to be redirected to after a successful cancelation
+    This is the url you wish to be redirected to after a successful cancelation.
 
 Context Variables
 -----------------
 
 ``occurrence``
-    an instance of the occurrence being modified
+    An instance of the occurrence being modified.
 
 create_or_edit_event
 ====================
@@ -286,7 +284,7 @@ Required Arguments
 ------------------
 
 ``request``
-    As always the request object
+    As always the request object.
 
 ``calendar_id``
     This is the calendar id of the event being created or edited.
@@ -299,10 +297,10 @@ Optional Arguments
     default
         'schedule/calendar_by_period.html'
     
-    This is the template that will be rendered
+    This is the template that will be rendered.
 
 ``event_id``
-    if you are editing an event, you need to pass in the id of the event, so that the form can be pre-propagated with the correct information and also so save works correctly
+    If you are editing an event, you need to pass in the id of the event, so that the form can be pre-propagated with the correct information and so also save works correctly.
 
 ``next``
     The url to redirect to upon successful completion or edition.
@@ -311,10 +309,10 @@ Context Variables
 -----------------
 
 ``form``
-    an instance of EventForm to be displayed.
+    An instance of EventForm to be displayed.
 
 ``calendar``
-    a Calendar with id=calendar_id
+    A Calendar with id=calendar_id.
 
 delete_event
 ============
@@ -325,10 +323,10 @@ Required Arguments
 ------------------
 
 ``request``
-    As always the request object
+    As always the request object.
 
 ``event_id``
-    the id of the event to be deleted.
+    The id of the event to be deleted.
 
 
 Optional Arguments
@@ -338,19 +336,19 @@ Optional Arguments
     default
         'schedule/calendar_by_period.html'
     
-    This is the template that will be rendered
+    This is the template that will be rendered.
 
 ``next``
-    The url to redirect to after successful deletion
+    The url to redirect to after successful deletion.
 
 ``login_required``
     default
         ``True``
     
-    if you want to require a login before deletion happens you can set that here
+    If you want to require a login before deletion happens you can set that here.
 
 Context Variables
 -----------------
 
 ``object``
-    The event object to be deleted
+    The event object to be deleted.
