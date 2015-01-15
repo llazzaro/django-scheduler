@@ -279,10 +279,10 @@ def _cook_occurrences(period, occs, width, height):
         w = width // o.max
         o.width = w - 2
         o.left = w * o.level
-        range = (period.end - period.start).seconds
-        if range:
-            o.top = int(height * ((o.real_start - period.start).seconds / range))
-            o.height = int(height * ((o.real_end - o.real_start).seconds / range))
+        diff_in_seconds = (period.end - period.start).seconds
+        if diff_in_seconds:
+            o.top = int(height * ((o.real_start - period.start).seconds / diff_in_seconds))
+            o.height = int(height * ((o.real_end - o.real_start).seconds / diff_in_seconds))
         else:
             o.top = int(height * ((o.real_start - period.start).seconds / (24*60*60)))
             o.height = int(height * ((o.real_end - o.real_start).seconds / (24*60*60)))
