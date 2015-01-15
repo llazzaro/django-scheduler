@@ -279,9 +279,14 @@ def _cook_occurrences(period, occs, width, height):
         w = width // o.max
         o.width = w - 2
         o.left = w * o.level
-        o.top = int(height * ((o.real_start - period.start).seconds / (period.end - period.start).seconds))
-        o.height = int(height * ((o.real_end - o.real_start).seconds / (period.end - period.start).seconds))
-        o.height = min(o.height, height - o.top) # trim what extends beyond the area
+        diff_in_seconds = (period.end - period.start).seconds
+        if diff_in_seconds:
+            o.top = int(height * ((o.real_start - period.start).seconds / diff_in_seconds))
+            o.height = int(height * ((o.real_end - o.real_start).seconds / diff_in_seconds))
+        else:
+            o.top = int(height * ((o.real_start - period.start).seconds / (24*60*60)))
+            o.height = int(height * ((o.real_end - o.real_start).seconds / (24*60*60)))
+        o.height = min(o.height, height - o.top)  # trim what extends beyond the area
     return display_occs
 
 
@@ -296,7 +301,10 @@ def _cook_slots(period, increment, width, height):
         height - height of the table (px)
     """
     tdiff = datetime.timedelta(minutes=increment)
-    num = (period.end - period.start).seconds // tdiff.seconds
+    if (period.end - period.start).seconds:
+        num = (period.end - period.start).seconds // tdiff.seconds
+    else:
+        num = 24  # hours in a day
     s = period.start
     slots = []
     for i in range(num):
