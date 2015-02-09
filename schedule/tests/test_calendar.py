@@ -129,4 +129,3 @@ class TestCalendar(TestCase):
         abs_url = calendar.get_absolute_url()
         calendar.add_event_url()
         relation = CalendarRelation.objects.create_relation(calendar, rule)
-        relation.__unicode__()
