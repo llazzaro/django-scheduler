@@ -6,15 +6,15 @@ import calendar as standardlib_calendar
 
 from django.conf import settings
 from django.template.defaultfilters import date as date_filter
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
-from schedule.conf.settings import FIRST_DAY_OF_WEEK, SHOW_CANCELLED_OCCURRENCES
+from schedule.conf.settings import SHOW_CANCELLED_OCCURRENCES
 from schedule.models import Occurrence
 from django.utils import timezone
 
 weekday_names = []
 weekday_abbrs = []
-if FIRST_DAY_OF_WEEK == 1:
+if settings.FIRST_DAY_OF_WEEK == 1:
     # The calendar week starts on Monday
     for i in range(7):
         weekday_names.append(WEEKDAYS[i])
@@ -313,7 +313,7 @@ class Week(Period):
         # Adjust the start datetime to midnight of the week datetime
         naive_start = datetime.datetime.combine(week, datetime.time.min)
         # Adjust the start datetime to Monday or Sunday of the current week
-        if FIRST_DAY_OF_WEEK == 1:
+        if settings.FIRST_DAY_OF_WEEK == 1:
             # The week begins on Monday
             sub_days = naive_start.isoweekday() - 1
         else:
@@ -337,7 +337,7 @@ class Week(Period):
         return start, end
 
     def __unicode__(self):
-        date_format = u'l, %s' % ugettext("DATE_FORMAT")
+        date_format = u'l, %s' % settings.DATE_FORMAT
         return ugettext('Week: %(start)s-%(end)s') % {
             'start': date_filter(self.start, date_format),
             'end': date_filter(self.end, date_format),
@@ -372,7 +372,7 @@ class Day(Period):
         return start, end
 
     def __unicode__(self):
-        date_format = u'l, %s' % ugettext("DATE_FORMAT")
+        date_format = u'l, %s' % settings.DATE_FORMAT
         return ugettext('Day: %(start)s-%(end)s') % {
             'start': date_filter(self.start, date_format),
             'end': date_filter(self.end, date_format),
