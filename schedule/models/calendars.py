@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from builtins import str
 from builtins import object
 # -*- coding: utf-8 -*-
@@ -12,6 +13,7 @@ from django.template.defaultfilters import slugify
 import datetime
 from schedule.utils import EventListManager
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 
 
 class CalendarManager(models.Manager):
@@ -101,6 +103,7 @@ class CalendarManager(models.Manager):
         return self.filter(dist_q, Q(calendarrelation__object_id=obj.id, calendarrelation__content_type=ct))
 
 
+@python_2_unicode_compatible
 class Calendar(models.Model):
     '''
     This is for grouping events so that batch relations can be made to all
@@ -145,7 +148,7 @@ class Calendar(models.Model):
         verbose_name_plural = _('calendar')
         app_label = 'schedule'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -203,6 +206,7 @@ class CalendarRelationManager(models.Manager):
         return cr
 
 
+@python_2_unicode_compatible
 class CalendarRelation(models.Model):
     '''
     This is for relating data to a Calendar, and possible all of the events for
@@ -240,5 +244,5 @@ class CalendarRelation(models.Model):
         verbose_name_plural = _('calendar relations')
         app_label = 'schedule'
 
-    def __unicode__(self):
-        return u'%s - %s' % (self.calendar, self.content_object)
+    def __str__(self):
+        return '%s - %s' % (self.calendar, self.content_object)

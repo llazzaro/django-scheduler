@@ -1,9 +1,11 @@
+from __future__ import unicode_literals
 from builtins import str
 from builtins import object
 from dateutil.rrule import DAILY, MONTHLY, WEEKLY, YEARLY, HOURLY, MINUTELY, SECONDLY
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import python_2_unicode_compatible
 
 freqs = (("YEARLY", _("Yearly")),
          ("MONTHLY", _("Monthly")),
@@ -14,6 +16,7 @@ freqs = (("YEARLY", _("Yearly")),
          ("SECONDLY", _("Secondly")))
 
 
+@python_2_unicode_compatible
 class Rule(models.Model):
     """
     This defines a rule by which an event will recur.  This is defined by the
@@ -84,6 +87,6 @@ class Rule(models.Model):
                 param_dict.append(param)
         return dict(param_dict)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human readable string for Rule"""
         return 'Rule %s params %s' % (self.name, self.params)

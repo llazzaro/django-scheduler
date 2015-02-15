@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from builtins import range
 from builtins import object
 import pytz
@@ -5,8 +6,8 @@ import datetime
 import calendar as standardlib_calendar
 
 from django.conf import settings
+from django.utils.encoding import python_2_unicode_compatible
 from django.template.defaultfilters import date as date_filter
-from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
 from schedule.conf.settings import SHOW_CANCELLED_OCCURRENCES
 from schedule.models import Occurrence
@@ -162,6 +163,7 @@ class Period(object):
         return self.utc_end.replace(tzinfo=None)
 
 
+@python_2_unicode_compatible
 class Year(Period):
     def __init__(self, events, date=None, parent_persisted_occurrences=None, tzinfo=pytz.utc):
         self.tzinfo = self._get_tzinfo(tzinfo)
@@ -197,10 +199,11 @@ class Year(Period):
 
         return start, end
 
-    def __unicode__(self):
+    def __str__(self):
         return self.start.year
 
 
+@python_2_unicode_compatible
 class Month(Period):
     """
     The month period has functions for retrieving the week periods within this period
@@ -267,7 +270,7 @@ class Month(Period):
 
         return start, end
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name()
 
     def name(self):
@@ -277,6 +280,7 @@ class Month(Period):
         return self.start.year
 
 
+@python_2_unicode_compatible
 class Week(Period):
     """
     The Week period that has functions for retrieving Day periods within it
@@ -336,14 +340,15 @@ class Week(Period):
 
         return start, end
 
-    def __unicode__(self):
-        date_format = u'l, %s' % settings.DATE_FORMAT
+    def __str__(self):
+        date_format = 'l, %s' % settings.DATE_FORMAT
         return ugettext('Week: %(start)s-%(end)s') % {
             'start': date_filter(self.start, date_format),
             'end': date_filter(self.end, date_format),
         }
 
 
+@python_2_unicode_compatible
 class Day(Period):
     def __init__(self, events, date=None, parent_persisted_occurrences=None,
                  occurrence_pool=None, tzinfo=pytz.utc):
@@ -371,8 +376,8 @@ class Day(Period):
 
         return start, end
 
-    def __unicode__(self):
-        date_format = u'l, %s' % settings.DATE_FORMAT
+    def __str__(self):
+        date_format = 'l, %s' % settings.DATE_FORMAT
         return ugettext('Day: %(start)s-%(end)s') % {
             'start': date_filter(self.start, date_format),
             'end': date_filter(self.end, date_format),
