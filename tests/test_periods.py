@@ -6,6 +6,7 @@ import pytz
 from django.test import TestCase
 from django.conf import settings
 
+from django.conf import settings
 from schedule.models import Event, Rule, Calendar
 from schedule.periods import Period, Month, Day, Year, Week
 

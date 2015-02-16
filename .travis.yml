@@ -3,16 +3,13 @@ python:
   - "2.7"
   - "3.4"
 env:
-  - DJANGO=1.7.1
+  - DJANGO=1.7.4
 install:
   - pip install -e . --use-mirrors
   - pip install -r requirements.txt --use-mirrors
   - pip install -q Django==$DJANGO --use-mirrors
 script:
-  - python setup.py develop
-  - python schedule/manage.py migrate
-  - python schedule/manage.py loaddata schedule
-  - python schedule/manage.py test
+  - coverage run runtests.py
   - coverage report -m
 after_success:
   - coveralls --verbose
