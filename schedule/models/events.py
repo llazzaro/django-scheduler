@@ -1,5 +1,6 @@
 from __future__ import division, unicode_literals
-from builtins import object
+from six.moves.builtins import object
+from six import with_metaclass
 # -*- coding: utf-8 -*-
 from django.conf import settings as django_settings
 import pytz
@@ -7,6 +8,7 @@ from dateutil import rrule
 
 from django.contrib.contenttypes import generic
 from django.db import models
+from django.db.models.base import ModelBase
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -19,6 +21,7 @@ from schedule.conf import settings
 from schedule.models.rules import Rule
 from schedule.models.calendars import Calendar
 from schedule.utils import OccurrenceReplacer
+from schedule.utils import get_model_bases
 
 
 class EventManager(models.Manager):
@@ -27,7 +30,7 @@ class EventManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class Event(models.Model):
+class Event(with_metaclass(ModelBase, *get_model_bases())):
     '''
     This model stores meta data for a date.  You can relate this data to many
     other models.
@@ -311,7 +314,7 @@ class EventRelationManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class EventRelation(models.Model):
+class EventRelation(with_metaclass(ModelBase, *get_model_bases())):
     '''
     This is for relating data to an Event, there is also a distinction, so that
     data can be related in different ways.  A good example would be, if you have
@@ -347,7 +350,7 @@ class EventRelation(models.Model):
 
 
 @python_2_unicode_compatible
-class Occurrence(models.Model):
+class Occurrence(with_metaclass(ModelBase, *get_model_bases())):
     event = models.ForeignKey(Event, verbose_name=_("event"))
     title = models.CharField(_("title"), max_length=255, blank=True, null=True)
     description = models.TextField(_("description"), blank=True, null=True)

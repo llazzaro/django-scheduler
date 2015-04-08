@@ -1,5 +1,5 @@
-from builtins import zip
-from builtins import range
+from six.moves.builtins import zip
+from six.moves.builtins import range
 import datetime
 import pytz
 
