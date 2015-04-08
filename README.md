@@ -126,3 +126,9 @@ Default:
     get_events(request, calendar):
         return calendar.event_set.all()
 ```
+
+### SCHEDULER_BASE_CLASSES
+
+This setting allows for custom base classes to be used on all models. Useful for adding fields, managers, or other elements. 
+
+Defaults to django.db.models.Model
