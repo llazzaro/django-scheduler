@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
-from builtins import range
-from builtins import object
+from six.moves.builtins import range
+from six.moves.builtins import object
 import pytz
 import datetime
 import calendar as standardlib_calendar
@@ -177,7 +177,8 @@ class Year(Period):
 
     def next_year(self):
         return Year(self.events, self.end, tzinfo=self.tzinfo)
-    __next__ = next_year
+    next = __next__ = next_year
+    
 
     def prev_year(self):
         start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day)
@@ -232,7 +233,7 @@ class Month(Period):
 
     def next_month(self):
         return Month(self.events, self.end, tzinfo=self.tzinfo)
-    __next__ = next_month
+    next = __next__ = next_month
 
     def prev_month(self):
         start = (self.start - datetime.timedelta(days=1)).replace(day=1, tzinfo=self.tzinfo)
@@ -300,7 +301,7 @@ class Week(Period):
 
     def next_week(self):
         return Week(self.events, self.end, tzinfo=self.tzinfo)
-    __next__ = next_week
+    next = __next__ = next_week
 
     def current_month(self):
         return Month(self.events, self.start, tzinfo=self.tzinfo)
@@ -389,7 +390,7 @@ class Day(Period):
 
     def next_day(self):
         return Day(self.events, self.end, tzinfo=self.tzinfo)
-    __next__ = next_day
+    next = __next__ = next_day
 
     def current_year(self):
         return Year(self.events, self.start, tzinfo=self.tzinfo)

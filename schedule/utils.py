@@ -1,4 +1,4 @@
-from builtins import object
+from six.moves.builtins import object
 from functools import wraps
 import pytz
 import heapq
@@ -6,6 +6,7 @@ from annoying.functions import get_object_or_None
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils import timezone
+from django.utils.module_loading import import_string
 from schedule.conf.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC
 
 
@@ -137,4 +138,13 @@ def coerce_date_dict(date_dict):
         except KeyError:
             break
     return modified and ret_val or {}
+
+def get_model_bases():
+    from django.conf import settings
+    from django.db.models import Model
+    baseStrings = getattr(settings, 'SCHEDULER_BASE_CLASSES', None)
+    if baseStrings is None:
+        return [Model]
+    else:
+        return [import_string(x) for x in baseStrings]
 

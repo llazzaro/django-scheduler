@@ -1,4 +1,4 @@
-from builtins import str
+from six.moves.builtins import str
 from schedule.models import Calendar
 from django.contrib.syndication.views import Feed, FeedDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist

@@ -1,17 +1,20 @@
 from __future__ import unicode_literals
-from builtins import str
-from builtins import object
+from six.moves.builtins import str
+from six.moves.builtins import object
+from six import with_metaclass
 # -*- coding: utf-8 -*-
+
 import pytz
 from django.contrib.contenttypes import generic
 from django.db import models
+from django.db.models.base import ModelBase
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.template.defaultfilters import slugify
 import datetime
-from schedule.utils import EventListManager
+from schedule.utils import EventListManager, get_model_bases
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -104,7 +107,7 @@ class CalendarManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class Calendar(models.Model):
+class Calendar(with_metaclass(ModelBase, *get_model_bases())):
     '''
     This is for grouping events so that batch relations can be made to all
     events.  An example would be a project calendar.
@@ -207,7 +210,7 @@ class CalendarRelationManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class CalendarRelation(models.Model):
+class CalendarRelation(with_metaclass(ModelBase, *get_model_bases())):
     '''
     This is for relating data to a Calendar, and possible all of the events for
     that calendar, there is also a distinction, so that the same type or kind of
