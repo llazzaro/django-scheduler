@@ -1,4 +1,4 @@
-from builtins import str
+from six.moves.builtins import str
 from django.core.exceptions import ImproperlyConfigured
 from annoying.functions import get_config
 

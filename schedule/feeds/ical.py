@@ -1,5 +1,5 @@
-from builtins import str
-from builtins import object
+from six.moves.builtins import str
+from six.moves.builtins import object
 import icalendar
 
 from django.http import HttpResponse

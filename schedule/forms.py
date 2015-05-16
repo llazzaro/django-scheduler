@@ -1,4 +1,4 @@
-from builtins import object
+from six.moves.builtins import object
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from schedule.models import Event, Occurrence
