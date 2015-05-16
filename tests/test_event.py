@@ -22,17 +22,17 @@ class TestEvent(TestCase):
                 'start': start,
                 'end': end,
                 'calendar': cal
-               })
+        })
 
     def __create_recurring_event(self, title, start, end, end_recurring, rule, cal):
-         return Event(**{
+        return Event(**{
                 'title': title,
                 'start': start,
                 'end': end,
                 'end_recurring_period': end_recurring,
                 'rule': rule,
                 'calendar': cal
-               })
+        })
 
     def test_edge_case_events(self):
         cal = Calendar(name="MyCal")
@@ -76,7 +76,7 @@ class TestEvent(TestCase):
         rule = Rule(frequency="WEEKLY")
         rule.save()
 
-        recurring_event = self.__create_recurring_event(
+        self.__create_recurring_event(
                     'Recurrent event test get_occurrence',
                     datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
                     datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
@@ -89,13 +89,13 @@ class TestEvent(TestCase):
                 datetime.datetime(2013, 1, 5, 8, 0, tzinfo=pytz.utc),
                 datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
                 cal
-               )
+        )
         event_two = self.__create_event(
                 'Edge case event test two',
                 datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
                 datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc),
                 cal
-               )
+        )
         event_one.save()
         event_two.save()
         occurrences_two = event_two.get_occurrences(
@@ -110,9 +110,9 @@ class TestEvent(TestCase):
 
         self.assertEqual(0, len(occurrences_one))
 
-    def test_recurring_event_get_occurrences(self):
+    def test_recurring_event_get_occurrences_2(self):
         cal = Calendar(name="MyCal")
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency="WEEKLY")
         rule.save()
 
         recurring_event = self.__create_recurring_event(
@@ -135,7 +135,7 @@ class TestEvent(TestCase):
 
         cal = Calendar(name="MyCal")
         cal.save()
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency="WEEKLY")
         rule.save()
         recurring_event= self.__create_recurring_event(
                     'Recurrent event test get_occurrence',
@@ -157,7 +157,7 @@ class TestEvent(TestCase):
 
         cal = Calendar(name="MyCal")
         cal.save()
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency="WEEKLY")
         rule.save()
 
         event = self.__create_recurring_event(
@@ -179,7 +179,7 @@ class TestEvent(TestCase):
         # this only test if the TypeError is raised
         cal = Calendar(name="MyCal")
         cal.save()
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency="WEEKLY")
         rule.save()
 
         event = self.__create_recurring_event(
@@ -197,7 +197,7 @@ class TestEvent(TestCase):
     def test_prevent_type_error_when_comparing_dates_when_tz_off(self):
         cal = Calendar(name="MyCal")
         cal.save()
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency="WEEKLY")
         rule.save()
 
         event = self.__create_recurring_event(
@@ -221,7 +221,6 @@ class TestEvent(TestCase):
                             start + datetime.timedelta(hours=1),
                             cal)
 
-
         occurrence = event.get_occurrence(start)
         self.assertEqual(occurrence.start, start)
 
@@ -240,12 +239,11 @@ class TestEvent(TestCase):
         self.assertEqual(occurrences[0].start, start)
         self.assertEqual(occurrences[0].end, start + datetime.timedelta(hours=1))
 
-
     def test_occurences_with_recurrent_event_end_recurring_period_edge_case(self):
 
         cal = Calendar(name='MyCal')
 
-        rule = Rule(frequency = "DAILY")
+        rule = Rule(frequency="DAILY")
         rule.save()
         start = timezone.now() + datetime.timedelta(days=1)
         event = self.__create_recurring_event(
@@ -263,7 +261,7 @@ class TestEvent(TestCase):
         event_relations = list(Event.objects.get_for_object(user, 'owner', inherit=False))
         self.assertEqual(len(event_relations), 0)
 
-        rule = Rule(frequency = "DAILY")
+        rule = Rule(frequency="DAILY")
         rule.save()
         cal = Calendar(name='MyCal')
         cal.save()
@@ -272,7 +270,7 @@ class TestEvent(TestCase):
                 datetime.datetime(2013, 1, 5, 8, 0, tzinfo=pytz.utc),
                 datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
                 cal
-               )
+        )
         event.save()
         events = list(Event.objects.get_for_object(user, 'owner', inherit=False))
         self.assertEqual(len(events), 0)
@@ -285,7 +283,7 @@ class TestEvent(TestCase):
     def test_get_absolute(self):
         cal = Calendar(name='MyCal')
         cal.save()
-        rule = Rule(frequency = "DAILY")
+        rule = Rule(frequency="DAILY")
         rule.save()
         start = timezone.now() + datetime.timedelta(days=1)
         event = self.__create_recurring_event(
@@ -301,6 +299,7 @@ class TestEvent(TestCase):
 
     def test_(self):
         pass
+
 
 class TestEventRelationManager(TestCase):
 

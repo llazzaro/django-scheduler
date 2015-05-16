@@ -189,6 +189,7 @@ class Event(models.Model):
 
 class EventRelationManager(models.Manager):
     '''
+    >>> import datetime
     >>> EventRelation.objects.all().delete()
     >>> CalendarRelation.objects.all().delete()
     >>> data = {
