@@ -31,6 +31,8 @@ if not CHECK_CALENDAR_PERM_FUNC:
 
     CHECK_CALENDAR_PERM_FUNC = check_calendar_permission
 
+CALENDAR_VIEW_PERM = get_config('CALENDAR_VIEW_PERM', False)
+
 # Callable used to customize the event list given for a calendar and user
 # (e.g. all events on that calendar, those events plus another calendar's events,
 # or the events filtered based on user permissions)
