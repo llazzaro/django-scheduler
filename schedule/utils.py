@@ -8,9 +8,9 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from schedule.conf.settings import (
-    CHECK_EVENT_PERM_FUNC, 
-    CHECK_CALENDAR_PERM_FUNC,
-    CALENDAR_VIEW_PERM)
+        CHECK_EVENT_PERM_FUNC, 
+        CHECK_CALENDAR_PERM_FUNC,
+        CALENDAR_VIEW_PERM)
 
 
 class EventListManager(object):
@@ -133,10 +133,8 @@ def check_calendar_permissions(function):
             allowed = CHECK_CALENDAR_PERM_FUNC(calendar, user)
             if not allowed:
                 return HttpResponseRedirect(settings.LOGIN_URL)
-
             # all checks passed
-            return function(request, *args, **kwargs)
-        return False
+        return function(request, *args, **kwargs)
 
     return decorator
 
