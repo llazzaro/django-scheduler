@@ -1,16 +1,13 @@
 import pytz
 import datetime
 
-from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.test import Client
 
 from schedule.models.calendars import Calendar
 from schedule.models.events import Event
 from schedule.models.rules import Rule
-from schedule import utils
 
 from schedule.views import check_next_url, coerce_date_dict
 
@@ -109,13 +106,12 @@ class TestUrls(TestCase):
 
         self.response = self.client.post(reverse("calendar_create_event",
                                        kwargs={"calendar_slug": 'example'}),
-                               {'description': 'description',
-                                'title': 'title',
-                                'end_recurring_period_1': '10:22:00', 'end_recurring_period_0': '2008-10-30',
-                                'end_recurring_period_2': 'AM',
-                                'end_1': '10:22:00', 'end_0': '2008-10-30', 'end_2': 'AM',
-                                'start_0': '2008-10-30', 'start_1': '09:21:57', 'start_2': 'AM'
-                               })
+                                       {'description': 'description',
+                                        'title': 'title',
+                                        'end_recurring_period_1': '10:22:00', 'end_recurring_period_0': '2008-10-30',
+                                        'end_recurring_period_2': 'AM',
+                                        'end_1': '10:22:00', 'end_0': '2008-10-30', 'end_2': 'AM',
+                                        'start_0': '2008-10-30', 'start_1': '09:21:57', 'start_2': 'AM'})
         self.assertEqual(self.response.status_code, 302)
 
         highest_event_id = self.highest_event_id
