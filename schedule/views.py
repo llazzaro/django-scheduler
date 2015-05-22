@@ -229,7 +229,8 @@ class EditEventView(UpdateView):
     def form_valid(self, form): 
         event = form.save(commit=False)
         event.save()
-        next = get_next_url(self.request, None)
+        next = None or reverse('event', args=[event.id])
+        next = get_next_url(self.request, next)
         return HttpResponseRedirect(next)
 
 class CreateEventView(CreateView):
@@ -263,7 +264,8 @@ class CreateEventView(CreateView):
         event.creator = self.request.user
         event.calendar = get_object_or_404(Calendar, slug=self.kwargs['calendar_slug'])
         event.save()
-        next = get_next_url(self.request, None)
+        next = None or reverse('event', args=[event.id])
+        next = get_next_url(self.request, next)
         return HttpResponseRedirect(next)
 
 class DeleteEventView(DeleteView):
