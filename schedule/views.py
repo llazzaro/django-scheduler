@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import DeleteView
+from django.views.generic import UpdateView, CreateView
 
 from schedule.conf.settings import GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT
 from schedule.forms import EventForm, OccurrenceForm
@@ -153,7 +154,6 @@ def occurrence(request, event_id, template_name="schedule/occurrence.html", *arg
         'back_url': back_url,
     }, context_instance=RequestContext(request))
 
-
 @check_event_permissions
 def edit_occurrence(request, event_id, template_name="schedule/edit_occurrence.html", *args, **kwargs):
     event, occurrence = get_occurrence(event_id, *args, **kwargs)
@@ -212,79 +212,59 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None
         raise Http404
     return event, occurrence
 
+class EditEventView(UpdateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'schedule/create_event.html'
 
-@check_event_permissions
-def create_or_edit_event(request, calendar_slug, event_id=None, next=None, template_name='schedule/create_event.html', form_class=EventForm):
-    """
-    This function, if it receives a GET request or if given an invalid form in a
-    POST request it will generate the following response
+    def get_object(self):
+        return get_object_or_404(Event, id=self.kwargs['event_id'])
 
-    Template:
-        schedule/create_event.html
+    @method_decorator(login_required)
+    @method_decorator(check_event_permissions)
+    def dispatch(self, *args, **kwargs): 
+        self.event_id = kwargs['event_id'] 
+        return super(EditEventView, self).dispatch(*args, **kwargs) 
 
-    Context Variables:
-
-    form:
-        an instance of EventForm
-
-    calendar:
-        a Calendar with id=calendar_id
-
-    if this function gets a GET request with ``year``, ``month``, ``day``,
-    ``hour``, ``minute``, and ``second`` it will auto fill the form, with
-    the date specifed in the GET being the start and 30 minutes from that
-    being the end.
-
-    If this form receives an event_id it will edit the event with that id, if it
-    recieves a calendar_id and it is creating a new event it will add that event
-    to the calendar with the id calendar_id
-
-    If it is given a valid form in a POST request it will redirect with one of
-    three options, in this order
-
-    # Try to find a 'next' GET variable
-    # If the key word argument redirect is set
-    # Lastly redirect to the event detail of the recently create event
-    """
-    date = coerce_date_dict(request.GET)
-    initial_data = None
-    if date:
-        try:
-            start = datetime.datetime(**date)
-            initial_data = {
-                "start": start,
-                "end": start + datetime.timedelta(minutes=30)
-            }
-        except TypeError:
-            raise Http404
-        except ValueError:
-            raise Http404
-
-    instance = None
-    if event_id is not None:
-        instance = get_object_or_404(Event, id=event_id)
-
-    calendar = get_object_or_404(Calendar, slug=calendar_slug)
-
-    form = form_class(data=request.POST or None, instance=instance, initial=initial_data)
-
-    if form.is_valid():
+    def form_valid(self, form): 
         event = form.save(commit=False)
-        if instance is None:
-            event.creator = request.user
-            event.calendar = calendar
         event.save()
-        next = next or reverse('event', args=[event.id])
-        next = get_next_url(request, next)
+        next = get_next_url(self.request, None)
         return HttpResponseRedirect(next)
 
-    next = get_next_url(request, next)
-    return render_to_response(template_name, {
-        "form": form,
-        "calendar": calendar,
-        "next": next
-    }, context_instance=RequestContext(request))
+class CreateEventView(CreateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'schedule/create_event.html'
 
+    def get_initial(self):
+        date = coerce_date_dict(self.request.GET)
+        initial_data = None
+        if date:
+            try:
+                start = datetime.datetime(**date)
+                initial_data = {
+                    "start": start,
+                    "end": start + datetime.timedelta(minutes=30)
+                }
+            except TypeError:
+                raise Http404
+            except ValueError:
+                raise Http404
+        return initial_data
+
+    @method_decorator(login_required)
+    @method_decorator(check_event_permissions)
+    def dispatch(self, *args, **kwargs): 
+        return super(CreateEventView, self).dispatch(*args, **kwargs) 
+
+    def form_valid(self, form): 
+        event = form.save(commit=False)
+        event.creator = self.request.user
+        event.calendar = get_object_or_404(Calendar, slug=self.kwargs['calendar_slug'])
+        event.save()
+        next = get_next_url(self.request, None)
+        return HttpResponseRedirect(next)
 
 class DeleteEventView(DeleteView):
     template_name = 'schedule/delete_event.html'

@@ -7,7 +7,7 @@ from schedule.models import Calendar
 from schedule.feeds import UpcomingEventsFeed
 from schedule.feeds import CalendarICalendar
 from schedule.periods import Year, Month, Week, Day
-from schedule.views import DeleteEventView
+from schedule.views import DeleteEventView, EditEventView, CreateEventView
 
 urlpatterns = patterns(
     '',
@@ -54,10 +54,10 @@ urlpatterns = patterns(
 
     # Event Urls
     url(r'^event/create/(?P<calendar_slug>[-\w]+)/$',
-        'schedule.views.create_or_edit_event',
+        EditEventView.as_view(),
         name='calendar_create_event'),
     url(r'^event/edit/(?P<calendar_slug>[-\w]+)/(?P<event_id>\d+)/$',
-        'schedule.views.create_or_edit_event',
+        CreateEventView.as_view(),
         name='edit_event'),
     url(r'^event/(?P<event_id>\d+)/$',
         'schedule.views.event',
