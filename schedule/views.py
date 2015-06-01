@@ -212,13 +212,36 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None
         raise Http404
     return event, occurrence
 
-class EditEventView(UpdateView):
+class EventMixin(object):
+    def get_success_url(self):
+        """
+        After the event is deleted there are three options for redirect, tried in
+        this order:
+
+        # Try to find a 'next' GET variable
+        # If the key word argument redirect is set
+        # Lastly redirect to the event detail of the recently create event
+        """
+        cal_slug = self.kwargs['calendar_slug']
+        if self.object:
+            cal_slug = self.object.calendar.slug
+        next = self.kwargs.get('next') or reverse('day_calendar', args=[cal_slug])
+        next = get_next_url(self.request, next)
+        return next
+
+class EditEventView(EventMixin, UpdateView):
     model = Event
+    pk_url_kwarg = 'event_id'
     form_class = EventForm
     template_name = 'schedule/create_event.html'
 
     def get_object(self):
         return get_object_or_404(Event, id=self.kwargs['event_id'])
+
+    def get_context_data(self, **kwargs):
+        ctx = super(EditEventView, self).get_context_data(**kwargs)
+        ctx['next'] = self.get_success_url()
+        return ctx
 
     @method_decorator(login_required)
     @method_decorator(check_event_permissions)
@@ -226,14 +249,14 @@ class EditEventView(UpdateView):
         self.event_id = kwargs['event_id'] 
         return super(EditEventView, self).dispatch(*args, **kwargs) 
 
-    def form_valid(self, form): 
-        event = form.save(commit=False)
-        event.save()
-        next = None or reverse('event', args=[event.id])
-        next = get_next_url(self.request, next)
-        return HttpResponseRedirect(next)
+    #def form_valid(self, form): 
+    #    event = form.save(commit=False)
+    #    event.save()
+    #    next = None or reverse('event', args=[event.id])
+    #    next = get_next_url(self.request, next)
+    #    return HttpResponseRedirect(next)
 
-class CreateEventView(CreateView):
+class CreateEventView(EventMixin, CreateView):
     model = Event
     form_class = EventForm
     template_name = 'schedule/create_event.html'
@@ -254,6 +277,11 @@ class CreateEventView(CreateView):
                 raise Http404
         return initial_data
 
+    def get_context_data(self, **kwargs):
+        ctx = super(CreateEventView, self).get_context_data(**kwargs)
+        ctx['next'] = self.get_success_url()
+        return ctx
+
     @method_decorator(login_required)
     @method_decorator(check_event_permissions)
     def dispatch(self, *args, **kwargs): 
@@ -268,7 +296,7 @@ class CreateEventView(CreateView):
         next = get_next_url(self.request, next)
         return HttpResponseRedirect(next)
 
-class DeleteEventView(DeleteView):
+class DeleteEventView(EventMixin, DeleteView):
     template_name = 'schedule/delete_event.html'
     pk_url_kwarg = 'event_id'
     model = Event
@@ -277,19 +305,6 @@ class DeleteEventView(DeleteView):
         ctx = super(DeleteEventView, self).get_context_data(**kwargs)
         ctx['next'] = self.get_success_url()
         return ctx
-
-    def get_success_url(self):
-        """
-        After the event is deleted there are three options for redirect, tried in
-        this order:
-
-        # Try to find a 'next' GET variable
-        # If the key word argument redirect is set
-        # Lastly redirect to the event detail of the recently create event
-        """
-        next = self.kwargs.get('next') or reverse('day_calendar', args=[self.object.calendar.slug])
-        next = get_next_url(self.request, next)
-        return next
 
     ## Override dispatch to apply the permission decorator
     @method_decorator(login_required)

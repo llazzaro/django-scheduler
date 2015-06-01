@@ -54,10 +54,10 @@ urlpatterns = patterns(
 
     # Event Urls
     url(r'^event/create/(?P<calendar_slug>[-\w]+)/$',
-        EditEventView.as_view(),
+        CreateEventView.as_view(),
         name='calendar_create_event'),
     url(r'^event/edit/(?P<calendar_slug>[-\w]+)/(?P<event_id>\d+)/$',
-        CreateEventView.as_view(),
+        EditEventView.as_view(),
         name='edit_event'),
     url(r'^event/(?P<event_id>\d+)/$',
         'schedule.views.event',
