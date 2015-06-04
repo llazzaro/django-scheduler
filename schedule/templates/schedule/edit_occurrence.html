@@ -11,7 +11,6 @@
   </table>
   <br/>
   <input type="submit" value="{% trans "Save" %}">
-  <input type="button" value="{% trans "Cancel" %}" onclick="window.location='{{next}}'"/>
-  <input type="hidden" name="next" value="{{next|default:""}}"/>
+  <input type="submit" name="cancel" value="Cancel" />
 </form>
 {% endblock %}
