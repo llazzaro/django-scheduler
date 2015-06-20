@@ -6,7 +6,7 @@ from django.conf import settings as django_settings
 import pytz
 from dateutil import rrule
 
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import fields
 from django.db import models
 from django.db.models.base import ModelBase
 from django.db.models import Q
@@ -333,7 +333,7 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases())):
     event = models.ForeignKey(Event, verbose_name=_("event"))
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = fields.GenericForeignKey('content_type', 'object_id')
     distinction = models.CharField(_("distinction"), max_length=20, null=True)
 
     objects = EventRelationManager()
