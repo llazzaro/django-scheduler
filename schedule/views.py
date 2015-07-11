@@ -14,7 +14,10 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
-from django.views.generic.edit import DeleteView
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.detail import SingleObjectMixin, DetailView
+from django.views.generic.edit import (
+        UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
 
 from schedule.conf.settings import GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT
 from schedule.forms import EventForm, OccurrenceForm
@@ -22,174 +25,171 @@ from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
 from schedule.utils import check_event_permissions, check_calendar_permissions, coerce_date_dict
 
-@check_calendar_permissions
-def calendar(request, calendar_slug, template='schedule/calendar.html'):
-    """
-    This view returns a calendar.  This view should be used if you are
-    interested in the meta data of a calendar, not if you want to display a
-    calendar.  It is suggested that you use calendar_by_periods if you would
-    like to display a   calendar.
+class CalendarViewPermissionMixin(object):
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(CalendarViewPermissionMixin, cls).as_view(**initkwargs)
+        return check_calendar_permissions(view)
 
-    Context Variables:
+class EventEditPermissionMixin(object):
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(EventEditPermissionMixin, cls).as_view(**initkwargs)
+        return check_event_permissions(view)
 
-    ``calendar``
-        The Calendar object designated by the ``calendar_slug``.
-    """
-    calendar = get_object_or_404(Calendar, slug=calendar_slug)
-    return render_to_response(template, {
-        "calendar": calendar,
-    }, context_instance=RequestContext(request))
+class TemplateKwargMixin(TemplateResponseMixin):
+    def get_template_names(self):
+        if 'template_name' in self.kwargs:
+            return [self.kwargs['template_name']]
+        else:
+            return super(TemplateKwargMixin, self).get_template_names()
 
-@check_calendar_permissions
-def calendar_by_periods(request, calendar_slug, periods=None, template_name="schedule/calendar_by_period.html"):
-    """
-    This view is for getting a calendar, but also getting periods with that
-    calendar.  Which periods you get, is designated with the list periods. You
-    can designate which date you the periods to be initialized to by passing
-    a date in request.GET. See the template tag ``query_string_for_date``
+class CancelButtonMixin(object):
+    def post(self, request, *args, **kwargs):
+        next = kwargs.get('next', None)
+        self.success_url = get_next_url(request, next)
+        if "cancel" in request.POST:
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return super(CancelButtonMixin, self).post(request, *args, **kwargs)
 
-    Context Variables
+class CalendarMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
+    model = Calendar
+    slug_url_kwarg = 'calendar_slug'
 
-    ``date``
-        This was the date that was generated from the query string.
+class CalendarView(CalendarMixin, DetailView):
+    template_name = 'schedule/calendar.html'
+    
+class CalendarByPeriodsView(CalendarMixin, DetailView):
+    template_name = 'schedule/calendar_by_period.html'
 
-    ``periods``
-        this is a dictionary that returns the periods from the list you passed
-        in.  If you passed in Month and Day, then your dictionary would look
-        like this
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(request, **kwargs)
+        return self.render_to_response(context)
 
-        {
-            'month': <schedule.periods.Month object>
-            'day':   <schedule.periods.Day object>
-        }
-
-        So in the template to access the Day period in the context you simply
-        use ``periods.day``.
-
-    ``calendar``
-        This is the Calendar that is designated by the ``calendar_slug``.
-
-    ``weekday_names``
-        This is for convenience. It returns the local names of weekedays for
-        internationalization.
-
-    """
-    calendar = get_object_or_404(Calendar, slug=calendar_slug)
-    try:
-        date = coerce_date_dict(request.GET)
-    except ValueError:
-        raise Http404
-
-    if date:
+    def get_context_data(self, request, **kwargs):
+        context = super(CalendarByPeriodsView, self).get_context_data(**kwargs)
+        calendar = self.object
+        periods = kwargs.get('periods', None)
         try:
-            date = datetime.datetime(**date)
+            date = coerce_date_dict(request.GET)
         except ValueError:
             raise Http404
-    else:
-        date = timezone.now()
-    event_list = GET_EVENTS_FUNC(request, calendar)
-
-    if 'django_timezone' in request.session:
-        local_timezone = pytz.timezone(request.session['django_timezone'])
-    else:
-        local_timezone = timezone.get_default_timezone()
-    period_objects = {} 
-    for period in periods:
-        if period.__name__.lower() == 'year':
-            period_objects[period.__name__.lower()] = period(event_list, date, None, local_timezone) 
+        if date:
+            try:
+                date = datetime.datetime(**date)
+            except ValueError:
+                raise Http404
         else:
-            period_objects[period.__name__.lower()] = period(event_list, date, None, None, local_timezone)
-    return render_to_response(template_name, {
-        'date': date,
-        'periods': period_objects,
-        'calendar': calendar,
-        'weekday_names': weekday_names,
-        'here': quote(request.get_full_path()),
-    }, context_instance=RequestContext(request), )
+            date = timezone.now()
+        event_list = GET_EVENTS_FUNC(request, calendar)
 
+        if 'django_timezone' in self.request.session:
+            local_timezone = pytz.timezone(request.session['django_timezone'])
+        else:
+            local_timezone = timezone.get_default_timezone()
+        period_objects = {} 
+        for period in periods:
+            if period.__name__.lower() == 'year':
+                period_objects[period.__name__.lower()] = period(event_list, date, None, local_timezone) 
+            else:
+                period_objects[period.__name__.lower()] = period(event_list, date, None, None, local_timezone)
 
-def event(request, event_id, template_name="schedule/event.html"):
-    """
-    This view is for showing an event. It is important to remember that an
-    event is not an occurrence.  Events define a set of reccurring occurrences.
-    If you would like to display an occurrence (a single instance of a
-    recurring event) use occurrence.
+        context.update({
+            'date': date,
+            'periods': period_objects,
+            'calendar': calendar,
+            'weekday_names': weekday_names,
+            'here': quote(request.get_full_path()),
+        })
+        return context
 
-    Context Variables:
+class OccurrenceMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
+    model = Occurrence
+    pk_url_kwarg = 'occurrence_id'
+    form_class = OccurrenceForm
 
-    event
-        This is the event designated by the event_id
+class OccurrenceEditMixin(EventEditPermissionMixin, OccurrenceMixin, CancelButtonMixin):
+    def get_initial(self):
+        initial_data = super(OccurrenceEditMixin, self).get_initial()
+        event, self.object = get_occurrence(**self.kwargs)
+        return initial_data
 
-    back_url
-        this is the url that referred to this view.
-    """
-    event = get_object_or_404(Event, id=event_id)
-    return render(request, template_name, {
-        "event": event,
-        "back_url": None,
-    })
+class OccurrenceView(OccurrenceMixin, DetailView):
+    template_name = 'schedule/occurrence.html'
 
+class OccurrencePreview(OccurrenceMixin, ModelFormMixin, ProcessFormView):
+    template_name = 'schedule/occurrence.html'
 
-def occurrence(request, event_id, template_name="schedule/occurrence.html", *args, **kwargs):
-    """
-    This view is used to display an occurrence.
+    def get_context_data(self, **kwargs):
+        context = super(OccurrencePreview, self).get_context_data()
+        context = {
+            'event': self.object.event,
+            'occurrence': self.object,
+        }
+        return context
 
-    Context Variables:
+class EditOccurrenceView(OccurrenceEditMixin, UpdateView):
+    template_name = 'schedule/edit_occurrence.html'
 
-    ``event``
-        the event that produces the occurrence
+class CreateOccurrenceView(OccurrenceEditMixin, CreateView):
+    template_name = 'schedule/edit_occurrence.html'
 
-    ``occurrence``
-        the occurrence to be displayed
+class CancelOccurrenceView(OccurrenceEditMixin, ModelFormMixin, ProcessFormView):
+    template_name = 'schedule/cancel_occurrence.html'
 
-    ``back_url``
-        the url from which this request was refered
-    """
-    event, occurrence = get_occurrence(event_id, *args, **kwargs)
-    back_url = request.META.get('HTTP_REFERER', None)
-    return render_to_response(template_name, {
-        'event': event,
-        'occurrence': occurrence,
-        'back_url': back_url,
-    }, context_instance=RequestContext(request))
+    def post(self, request, *args, **kwargs):
+        event, occurrence = get_occurrence(**kwargs)
+        self.success_url = kwargs.get('next',
+                        get_next_url(request, event.get_absolute_url()))
+        if "cancel" not in request.POST:
+            occurrence.cancel()
+        return HttpResponseRedirect(self.success_url)
 
+class EventMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
+    model = Event
+    pk_url_kwarg = 'event_id'
 
-@check_event_permissions
-def edit_occurrence(request, event_id, template_name="schedule/edit_occurrence.html", *args, **kwargs):
-    event, occurrence = get_occurrence(event_id, *args, **kwargs)
-    next = kwargs.get('next', None)
-    form = OccurrenceForm(data=request.POST or None, instance=occurrence)
-    if form.is_valid():
-        occurrence = form.save(commit=False)
-        occurrence.event = event
-        occurrence.save()
-        next = next or get_next_url(request, occurrence.get_absolute_url())
-        return HttpResponseRedirect(next)
-    next = next or get_next_url(request, occurrence.get_absolute_url())
-    return render_to_response(template_name, {
-        'form': form,
-        'occurrence': occurrence,
-        'next': next,
-    }, context_instance=RequestContext(request))
+class EventEditMixin(EventEditPermissionMixin, EventMixin, CancelButtonMixin):
+    pass
 
+class EventView(EventMixin, DetailView):
+    template_name = 'schedule/event.html'
 
-@check_event_permissions
-def cancel_occurrence(request, event_id, template_name='schedule/cancel_occurrence.html', *args, **kwargs):
-    """
-    This view is used to cancel an occurrence. If it is called with a POST it
-    will cancel the view. If it is called with a GET it will ask for
-    conformation to cancel.
-    """
-    event, occurrence = get_occurrence(event_id, *args, **kwargs)
-    next = kwargs.get('next', None) or get_next_url(request, event.get_absolute_url())
-    if request.method != "POST":
-        return render_to_response(template_name, {
-            "occurrence": occurrence,
-            "next": next,
-        }, context_instance=RequestContext(request))
-    occurrence.cancel()
-    return HttpResponseRedirect(next)
+class EditEventView(EventEditMixin, UpdateView):
+    form_class = EventForm
+    template_name = 'schedule/create_event.html'
 
+class CreateEventView(EventEditMixin, CreateView):
+    form_class = EventForm
+    template_name = 'schedule/create_event.html'
+
+    def get_initial(self):
+        date = coerce_date_dict(self.request.GET)
+        initial_data = None
+        if date:
+            try:
+                start = datetime.datetime(**date)
+                initial_data = {
+                    "start": start,
+                    "end": start + datetime.timedelta(minutes=30)
+                }
+            except TypeError:
+                raise Http404
+            except ValueError:
+                raise Http404
+        return initial_data
+
+    def form_valid(self, form): 
+        event = form.save(commit=False)
+        event.creator = self.request.user
+        event.calendar = get_object_or_404(Calendar, slug=self.kwargs['calendar_slug'])
+        event.save()
+        return HttpResponseRedirect(event.get_absolute_url())
+
+class DeleteEventView(EventEditMixin, DeleteView):
+    template_name = 'schedule/delete_event.html'
 
 def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None, hour=None, minute=None, second=None):
     """
@@ -212,110 +212,6 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None
         raise Http404
     return event, occurrence
 
-
-@check_event_permissions
-def create_or_edit_event(request, calendar_slug, event_id=None, next=None, template_name='schedule/create_event.html', form_class=EventForm):
-    """
-    This function, if it receives a GET request or if given an invalid form in a
-    POST request it will generate the following response
-
-    Template:
-        schedule/create_event.html
-
-    Context Variables:
-
-    form:
-        an instance of EventForm
-
-    calendar:
-        a Calendar with id=calendar_id
-
-    if this function gets a GET request with ``year``, ``month``, ``day``,
-    ``hour``, ``minute``, and ``second`` it will auto fill the form, with
-    the date specifed in the GET being the start and 30 minutes from that
-    being the end.
-
-    If this form receives an event_id it will edit the event with that id, if it
-    recieves a calendar_id and it is creating a new event it will add that event
-    to the calendar with the id calendar_id
-
-    If it is given a valid form in a POST request it will redirect with one of
-    three options, in this order
-
-    # Try to find a 'next' GET variable
-    # If the key word argument redirect is set
-    # Lastly redirect to the event detail of the recently create event
-    """
-    date = coerce_date_dict(request.GET)
-    initial_data = None
-    if date:
-        try:
-            start = datetime.datetime(**date)
-            initial_data = {
-                "start": start,
-                "end": start + datetime.timedelta(minutes=30)
-            }
-        except TypeError:
-            raise Http404
-        except ValueError:
-            raise Http404
-
-    instance = None
-    if event_id is not None:
-        instance = get_object_or_404(Event, id=event_id)
-
-    calendar = get_object_or_404(Calendar, slug=calendar_slug)
-
-    form = form_class(data=request.POST or None, instance=instance, initial=initial_data)
-
-    if form.is_valid():
-        event = form.save(commit=False)
-        if instance is None:
-            event.creator = request.user
-            event.calendar = calendar
-        event.save()
-        next = next or reverse('event', args=[event.id])
-        next = get_next_url(request, next)
-        return HttpResponseRedirect(next)
-
-    next = get_next_url(request, next)
-    return render_to_response(template_name, {
-        "form": form,
-        "calendar": calendar,
-        "next": next
-    }, context_instance=RequestContext(request))
-
-
-class DeleteEventView(DeleteView):
-    template_name = 'schedule/delete_event.html'
-    pk_url_kwarg = 'event_id'
-    model = Event
-
-    def get_context_data(self, **kwargs):
-        ctx = super(DeleteEventView, self).get_context_data(**kwargs)
-        ctx['next'] = self.get_success_url()
-        return ctx
-
-    def get_success_url(self):
-        """
-        After the event is deleted there are three options for redirect, tried in
-        this order:
-
-        # Try to find a 'next' GET variable
-        # If the key word argument redirect is set
-        # Lastly redirect to the event detail of the recently create event
-        """
-        next = self.kwargs.get('next') or reverse('day_calendar', args=[self.object.calendar.slug])
-        next = get_next_url(self.request, next)
-        return next
-
-    ## Override dispatch to apply the permission decorator
-    @method_decorator(login_required)
-    @method_decorator(check_event_permissions)
-    def dispatch(self, request, *args, **kwargs):
-        return super(DeleteEventView, self).dispatch(request, *args, **kwargs)
-
-
 def check_next_url(next):
     """
     Checks to make sure the next url is not redirecting to another page.
@@ -324,7 +220,6 @@ def check_next_url(next):
     if not next or '://' in next:
         return None
     return next
-
 
 def get_next_url(request, default):
     next = default
