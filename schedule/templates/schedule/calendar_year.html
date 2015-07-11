@@ -3,7 +3,7 @@
 {% block body %}
 <div class="tablewrapper">
     <div class="calendarname">{{ calendar.name }}</div>
-    {% prevnext "year_calendar" calendar.slug periods.year "Y" %}
+    {% prevnext "year_calendar" calendar periods.year "Y" %}
     <table align="center">
     <tr>
     {% for month in periods.year.get_months %}

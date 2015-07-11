@@ -5,7 +5,7 @@
 {% include "schedule/_dialogs.html" %}
 <div class="tablewrapper">
   <div class="calendarname">{{ calendar.name }}</div>
-  {% prevnext "month_calendar" calendar.slug periods.month "F Y"%}
+  {% prevnext "month_calendar" calendar periods.month "F Y"%}
   <div class="now">
     <a href="{% url "month_calendar" calendar.slug %}">
       {% trans "This month" %}

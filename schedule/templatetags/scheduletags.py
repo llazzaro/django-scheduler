@@ -7,7 +7,9 @@ from django.core.urlresolvers import reverse
 from django.utils.dateformat import format
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from schedule.conf.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC
+from django.utils import timezone
+
+from schedule.conf.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC, SCHEDULER_PREVNEXT_LIMIT_SECONDS
 from schedule.models import Calendar
 from schedule.periods import weekday_names, weekday_abbrs
 
@@ -196,25 +198,38 @@ def querystring_for_date(date, num=6, autoescape=None):
 
 
 @register.simple_tag
-def prev_url(target, slug, period):
-    return '%s%s' % (
+def prev_url(target, calendar, period):
+    now = timezone.now()
+    delta = now - period.prev().start
+    slug = calendar.slug
+    if delta.total_seconds() > SCHEDULER_PREVNEXT_LIMIT_SECONDS:
+        return ''
+
+    return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-left" /></a>' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
         querystring_for_date(period.prev().start, autoescape=True))
 
 
 @register.simple_tag
-def next_url(target, slug, period):
-    return '%s%s' % (
+def next_url(target, calendar, period):
+    now = timezone.now()
+    slug = calendar.slug
+
+    delta = period.next().start - now
+    if delta.total_seconds() > SCHEDULER_PREVNEXT_LIMIT_SECONDS:
+        return ''
+
+    return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-right" /></a>' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-        querystring_for_date(next(period).start, autoescape=True))
+        querystring_for_date(period.next().start, autoescape=True))
 
 
 @register.inclusion_tag("schedule/_prevnext.html")
-def prevnext(target, slug, period, fmt=None):
+def prevnext(target, calendar, period, fmt=None):
     if fmt is None:
         fmt = settings.DATE_FORMAT
     context = {
-        'slug': slug,
+        'calendar': calendar,
         'period': period,
         'period_name': format(period.start, fmt),
         'target': target,
