@@ -6,6 +6,7 @@ import datetime
 import calendar as standardlib_calendar
 
 from django.conf import settings
+from django.utils.translation import ugettext
 from django.utils.encoding import python_2_unicode_compatible
 from django.template.defaultfilters import date as date_filter
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
@@ -178,7 +179,6 @@ class Year(Period):
     def next_year(self):
         return Year(self.events, self.end, tzinfo=self.tzinfo)
     next = __next__ = next_year
-    
 
     def prev_year(self):
         start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day)
@@ -186,7 +186,7 @@ class Year(Period):
     prev = prev_year
 
     def _get_year_range(self, year):
-        #If tzinfo is not none get the local start of the year and convert it to utc.
+        # If tzinfo is not none get the local start of the year and convert it to utc.
         naive_start = datetime.datetime(year.year, datetime.datetime.min.month, datetime.datetime.min.day)
         naive_end = datetime.datetime(year.year + 1, datetime.datetime.min.month, datetime.datetime.min.day)
 
@@ -254,7 +254,7 @@ class Month(Period):
     def _get_month_range(self, month):
         year = month.year
         month = month.month
-        #If tzinfo is not none get the local start of the month and convert it to utc.
+        # If tzinfo is not none get the local start of the month and convert it to utc.
         naive_start = datetime.datetime.min.replace(year=year, month=month)
         if month == 12:
             naive_end = datetime.datetime.min.replace(month=1, year=year + 1, day=1)

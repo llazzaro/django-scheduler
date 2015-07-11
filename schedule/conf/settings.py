@@ -1,5 +1,3 @@
-from six.moves.builtins import str
-from django.core.exceptions import ImproperlyConfigured
 from annoying.functions import get_config
 
 AUTH_USER_MODEL = get_config('AUTH_USER_MODEL')
@@ -40,7 +38,7 @@ CALENDAR_VIEW_PERM = get_config('CALENDAR_VIEW_PERM', False)
 GET_EVENTS_FUNC = get_config('GET_EVENTS_FUNC', None)
 if not GET_EVENTS_FUNC:
     def get_events(request, calendar):
-        return calendar.event_set.prefetch_related('occurrence_set','rule')
+        return calendar.event_set.prefetch_related('occurrence_set', 'rule')
 
     GET_EVENTS_FUNC = get_events
 

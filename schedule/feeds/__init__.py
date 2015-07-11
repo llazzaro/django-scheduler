@@ -4,9 +4,9 @@ from django.contrib.syndication.views import Feed, FeedDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from schedule.feeds.ical import ICalendarFeed
-from django.http import HttpResponse
-import datetime, itertools
+import itertools
 from django.utils import timezone
+
 
 class UpcomingEventsFeed(Feed):
     feed_id = "upcoming"

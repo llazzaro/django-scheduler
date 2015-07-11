@@ -8,7 +8,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from schedule.conf.settings import (
-        CHECK_EVENT_PERM_FUNC, 
+        CHECK_EVENT_PERM_FUNC,
         CHECK_CALENDAR_PERM_FUNC,
         CALENDAR_VIEW_PERM)
 
@@ -116,6 +116,7 @@ def check_event_permissions(function):
 
     return decorator
 
+
 def check_calendar_permissions(function):
     @wraps(function)
     def decorator(request, *args, **kwargs):
@@ -137,6 +138,7 @@ def check_calendar_permissions(function):
         return function(request, *args, **kwargs)
 
     return decorator
+
 
 def coerce_date_dict(date_dict):
     """
@@ -163,12 +165,11 @@ def coerce_date_dict(date_dict):
             break
     return modified and ret_val or {}
 
+
 def get_model_bases():
-    from django.conf import settings
     from django.db.models import Model
     baseStrings = getattr(settings, 'SCHEDULER_BASE_CLASSES', None)
     if baseStrings is None:
         return [Model]
     else:
         return [import_string(x) for x in baseStrings]
-
