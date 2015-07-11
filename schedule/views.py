@@ -5,6 +5,7 @@ import pytz
 import datetime
 from urllib.parse import quote
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -206,6 +207,22 @@ class CreateEventView(EventEditMixin, CreateView):
 class DeleteEventView(EventEditMixin, DeleteView):
     template_name = 'schedule/delete_event.html'
 
+    def get_context_data(self, **kwargs):
+        ctx = super(DeleteEventView, self).get_context_data(**kwargs)
+        ctx['next'] = self.get_success_url()
+        return ctx
+
+    def get_success_url(self):
+        """
+        After the event is deleted there are three options for redirect, tried in
+        this order:
+        # Try to find a 'next' GET variable
+        # If the key word argument redirect is set
+        # Lastly redirect to the event detail of the recently create event
+        """
+        next = self.kwargs.get('next') or reverse('day_calendar', args=[self.object.calendar.slug])
+        next = get_next_url(self.request, next)
+        return next
 
 def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None, hour=None, minute=None, second=None):
     """
