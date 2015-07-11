@@ -17,8 +17,6 @@ Donate bitcoins to this project.
 
         BTC: 13BeXBBjM3PPtp8YvKFvgfXdqgZC19YX23
 
-[<img src="http://tip4commit.com/projects/882.svg">](http://tip4commit.com/github/llazzaro/django-scheduler)
-
 
 Information
 ========
