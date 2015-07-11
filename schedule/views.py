@@ -220,9 +220,10 @@ class DeleteEventView(EventEditMixin, DeleteView):
         # If the key word argument redirect is set
         # Lastly redirect to the event detail of the recently create event
         """
-        next = self.kwargs.get('next') or reverse('day_calendar', args=[self.object.calendar.slug])
-        next = get_next_url(self.request, next)
-        return next
+        next_url = self.kwargs.get('next') or reverse('day_calendar', args=[self.object.calendar.slug])
+        next_url = get_next_url(self.request, next_url)
+        return next_url
+
 
 def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None, hour=None, minute=None, second=None):
     """
