@@ -54,22 +54,29 @@ add to `TEMPLATE_CONTEXT_PROCESSORS`:
 
 Add staticfinder to STATICFILES_FINDERS:
 
-```'djangobower.finders.BowerFinder',
+```
+'djangobower.finders.BowerFinder',
 ```
 
 Specify path to components root (you need to use absolute path):
-```BOWER_COMPONENTS_ROOT = '/PROJECT_ROOT/components/'```
+```
+BOWER_COMPONENTS_ROOT = '/PROJECT_ROOT/components/'
+```
 
 Add the following required Bower dependencies for scheduler:
 
-```BOWER_INSTALLED_APPS = (
+```
+BOWER_INSTALLED_APPS = (
     'jquery',
     'bootstrap'
-)```
+)
+```
 
 Last step, install bower dependencies with:
 
-```./manage.py bower install```
+```
+./manage.py bower install
+```
 
 
 Features
@@ -155,3 +162,12 @@ Default:
 This setting allows for custom base classes to be used on all models. Useful for adding fields, managers, or other elements.
 
 Defaults to django.db.models.Model
+
+
+### SCHEDULER_PREVNEXT_LIMIT_SECONDS
+
+This settings allows to set the upper and lower limit in calendars navigation.
+Value is in seconds.
+
+Default (two years):
+62208000
