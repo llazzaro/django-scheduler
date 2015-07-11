@@ -6,16 +6,11 @@ import datetime
 from urllib.parse import quote
 
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.http import HttpResponseRedirect, Http404
-from django.template import RequestContext
-from django.core.urlresolvers import reverse
-from django.shortcuts import render
-from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateResponseMixin
-from django.views.generic.detail import SingleObjectMixin, DetailView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
         UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
 
@@ -25,17 +20,20 @@ from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
 from schedule.utils import check_event_permissions, check_calendar_permissions, coerce_date_dict
 
+
 class CalendarViewPermissionMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(CalendarViewPermissionMixin, cls).as_view(**initkwargs)
         return check_calendar_permissions(view)
 
+
 class EventEditPermissionMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(EventEditPermissionMixin, cls).as_view(**initkwargs)
         return check_event_permissions(view)
+
 
 class TemplateKwargMixin(TemplateResponseMixin):
     def get_template_names(self):
@@ -44,22 +42,26 @@ class TemplateKwargMixin(TemplateResponseMixin):
         else:
             return super(TemplateKwargMixin, self).get_template_names()
 
+
 class CancelButtonMixin(object):
     def post(self, request, *args, **kwargs):
-        next = kwargs.get('next', None)
-        self.success_url = get_next_url(request, next)
+        next_url = kwargs.get('next', None)
+        self.success_url = get_next_url(request, next_url)
         if "cancel" in request.POST:
             return HttpResponseRedirect(self.success_url)
         else:
             return super(CancelButtonMixin, self).post(request, *args, **kwargs)
 
+
 class CalendarMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
     model = Calendar
     slug_url_kwarg = 'calendar_slug'
 
+
 class CalendarView(CalendarMixin, DetailView):
     template_name = 'schedule/calendar.html'
-    
+
+
 class CalendarByPeriodsView(CalendarMixin, DetailView):
     template_name = 'schedule/calendar_by_period.html'
 
@@ -89,10 +91,10 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
             local_timezone = pytz.timezone(request.session['django_timezone'])
         else:
             local_timezone = timezone.get_default_timezone()
-        period_objects = {} 
+        period_objects = {}
         for period in periods:
             if period.__name__.lower() == 'year':
-                period_objects[period.__name__.lower()] = period(event_list, date, None, local_timezone) 
+                period_objects[period.__name__.lower()] = period(event_list, date, None, local_timezone)
             else:
                 period_objects[period.__name__.lower()] = period(event_list, date, None, None, local_timezone)
 
@@ -105,10 +107,12 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
         })
         return context
 
+
 class OccurrenceMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
     model = Occurrence
     pk_url_kwarg = 'occurrence_id'
     form_class = OccurrenceForm
+
 
 class OccurrenceEditMixin(EventEditPermissionMixin, OccurrenceMixin, CancelButtonMixin):
     def get_initial(self):
@@ -116,8 +120,10 @@ class OccurrenceEditMixin(EventEditPermissionMixin, OccurrenceMixin, CancelButto
         event, self.object = get_occurrence(**self.kwargs)
         return initial_data
 
+
 class OccurrenceView(OccurrenceMixin, DetailView):
     template_name = 'schedule/occurrence.html'
+
 
 class OccurrencePreview(OccurrenceMixin, ModelFormMixin, ProcessFormView):
     template_name = 'schedule/occurrence.html'
@@ -130,11 +136,14 @@ class OccurrencePreview(OccurrenceMixin, ModelFormMixin, ProcessFormView):
         }
         return context
 
+
 class EditOccurrenceView(OccurrenceEditMixin, UpdateView):
     template_name = 'schedule/edit_occurrence.html'
 
+
 class CreateOccurrenceView(OccurrenceEditMixin, CreateView):
     template_name = 'schedule/edit_occurrence.html'
+
 
 class CancelOccurrenceView(OccurrenceEditMixin, ModelFormMixin, ProcessFormView):
     template_name = 'schedule/cancel_occurrence.html'
@@ -147,19 +156,24 @@ class CancelOccurrenceView(OccurrenceEditMixin, ModelFormMixin, ProcessFormView)
             occurrence.cancel()
         return HttpResponseRedirect(self.success_url)
 
+
 class EventMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
     model = Event
     pk_url_kwarg = 'event_id'
 
+
 class EventEditMixin(EventEditPermissionMixin, EventMixin, CancelButtonMixin):
     pass
+
 
 class EventView(EventMixin, DetailView):
     template_name = 'schedule/event.html'
 
+
 class EditEventView(EventEditMixin, UpdateView):
     form_class = EventForm
     template_name = 'schedule/create_event.html'
+
 
 class CreateEventView(EventEditMixin, CreateView):
     form_class = EventForm
@@ -181,15 +195,17 @@ class CreateEventView(EventEditMixin, CreateView):
                 raise Http404
         return initial_data
 
-    def form_valid(self, form): 
+    def form_valid(self, form):
         event = form.save(commit=False)
         event.creator = self.request.user
         event.calendar = get_object_or_404(Calendar, slug=self.kwargs['calendar_slug'])
         event.save()
         return HttpResponseRedirect(event.get_absolute_url())
 
+
 class DeleteEventView(EventEditMixin, DeleteView):
     template_name = 'schedule/delete_event.html'
+
 
 def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None, hour=None, minute=None, second=None):
     """
@@ -212,22 +228,24 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None
         raise Http404
     return event, occurrence
 
-def check_next_url(next):
+
+def check_next_url(next_url):
     """
     Checks to make sure the next url is not redirecting to another page.
     Basically it is a minimal security check.
     """
-    if not next or '://' in next:
+    if not next_url or '://' in next_url:
         return None
-    return next
+    return next_url
+
 
 def get_next_url(request, default):
-    next = default
+    next_url = default
     if OCCURRENCE_CANCEL_REDIRECT:
-        next = OCCURRENCE_CANCEL_REDIRECT
+        next_url = OCCURRENCE_CANCEL_REDIRECT
     if 'next' in request.REQUEST and check_next_url(request.REQUEST['next']) is not None:
-        next = request.REQUEST['next']
-    return next
+        next_url = request.REQUEST['next']
+    return next_url
 
 
 def api_occurrences(request):
