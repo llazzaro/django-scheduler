@@ -123,7 +123,7 @@ class CalendarNode(template.Node):
         self.context_var = context_var
 
     def render(self, context):
-        calendar = Calendar.objects.get_calendar_for_object(self.content_object.resolve(context), self.distinction)
+        Calendar.objects.get_calendar_for_object(self.content_object.resolve(context), self.distinction)
         context[self.context_var] = Calendar.objects.get_calendar_for_object(self.content_object.resolve(context), self.distinction)
         return ''
 
@@ -155,7 +155,6 @@ class CreateCalendarNode(template.Node):
 def do_get_or_create_calendar_for_object(parser, token):
     contents = token.split_contents()
     if len(contents) > 2:
-        tag_name = contents[0]
         obj = contents[1]
         if 'by' in contents:
             by_index = contents.index('by')
@@ -284,8 +283,8 @@ def _cook_occurrences(period, occs, width, height):
             o.top = int(height * ((o.real_start - period.start).seconds / diff_in_seconds))
             o.height = int(height * ((o.real_end - o.real_start).seconds / diff_in_seconds))
         else:
-            o.top = int(height * ((o.real_start - period.start).seconds / (24*60*60)))
-            o.height = int(height * ((o.real_end - o.real_start).seconds / (24*60*60)))
+            o.top = int(height * ((o.real_start - period.start).seconds / (24 * 60 * 60)))
+            o.height = int(height * ((o.real_end - o.real_start).seconds / (24 * 60 * 60)))
         o.height = min(o.height, height - o.top)  # trim what extends beyond the area
     return display_occs
 
