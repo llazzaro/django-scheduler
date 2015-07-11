@@ -13,8 +13,7 @@ Django Scheduler
 
 A calendar app for Django
 
-Donate bitcoins to this project or make commits and get tips for it.
-If your commit is accepted by a project maintainer and there are bitcoins on its balance, you will get a tip!
+Donate bitcoins to this project.
 
         BTC: 13BeXBBjM3PPtp8YvKFvgfXdqgZC19YX23
 
