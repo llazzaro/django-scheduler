@@ -3,9 +3,6 @@ import os
 
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
-
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -82,6 +79,7 @@ STATICFILES_DIRS = (
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
+    'djangobower.finders.BowerFinder',
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
@@ -125,6 +123,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
+    'djangobower',
     'schedule',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
@@ -190,3 +189,8 @@ NOSE_ARGS = [
     '--with-coverage',
     '--cover-package=schedule',
 ]
+
+BOWER_INSTALLED_APPS = (
+    'jquery',
+    'bootstrap',
+)

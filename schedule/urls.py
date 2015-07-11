@@ -2,14 +2,16 @@ try:
     from django.conf.urls import patterns, url
 except ImportError:
     from django.conf.urls.defaults import patterns, url
+
+from django.conf import settings
 from django.views.generic.list import ListView
 from schedule.models import Calendar
 from schedule.feeds import UpcomingEventsFeed
 from schedule.feeds import CalendarICalendar
 from schedule.periods import Year, Month, Week, Day
 from schedule.views import (
-        CalendarByPeriodsView, CalendarView, EventView, 
-        OccurrenceView, EditOccurrenceView, DeleteEventView, 
+        CalendarByPeriodsView, CalendarView, EventView,
+        OccurrenceView, EditOccurrenceView, DeleteEventView,
         EditEventView, CreateEventView, OccurrencePreview,
         CreateOccurrenceView, CancelOccurrenceView)
 
@@ -81,7 +83,7 @@ urlpatterns = patterns(
         EditOccurrenceView.as_view(),
         name="edit_occurrence"),
 
-    #urls for unpersisted occurrences
+    # urls for unpersisted occurrences
     url(r'^occurrence/(?P<event_id>\d+)/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/(?P<hour>\d+)/(?P<minute>\d+)/(?P<second>\d+)/$',
         OccurrencePreview.as_view(),
         name="occurrence_by_date"),
@@ -92,11 +94,20 @@ urlpatterns = patterns(
         CreateOccurrenceView.as_view(),
         name="edit_occurrence_by_date"),
 
-    #feed urls
+    # feed urls
     url(r'^feed/calendar/upcoming/(.*)/$', UpcomingEventsFeed(), name='upcoming_events_feed'),
     url(r'^ical/calendar/(.*)/$', CalendarICalendar(), name='calendar_ical'),
-    #api urls
+    # api urls
     url(r'^api/occurrences', 'schedule.views.api_occurrences', name='api_occurences'),
 
     url(r'^$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns(
+        '',
+        url(
+            r'^static/(?P<path>.*)$',
+            'django.views.static.serve',
+            {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
+    )

@@ -33,8 +33,44 @@ Installation
 ========
 
 ```bash
+npm install -g bower
 pip install django-scheduler
 ```
+
+edit your `settings.py`
+
+add to `INSTALLED_APPS`:
+
+```python
+'schedule',
+'djangobower',
+```
+
+add to `TEMPLATE_CONTEXT_PROCESSORS`:
+
+```python
+"django.core.context_processors.request"
+```
+
+Add staticfinder to STATICFILES_FINDERS:
+
+```'djangobower.finders.BowerFinder',
+```
+
+Specify path to components root (you need to use absolute path):
+```BOWER_COMPONENTS_ROOT = '/PROJECT_ROOT/components/'```
+
+Add the following required Bower dependencies for scheduler:
+
+```BOWER_INSTALLED_APPS = (
+    'jquery',
+    'bootstrap'
+)```
+
+Last step, install bower dependencies with:
+
+```./manage.py bower install```
+
 
 Features
 ========
@@ -48,20 +84,6 @@ Features
 
 Configuration
 ========
-
-edit your `settings.py`
-
-add to `INSTALLED_APPS`:
-
-```python
-'schedule'
-```
-
-add to `TEMPLATE_CONTEXT_PROCESSORS`:
-
-```python
-"django.core.context_processors.request"
-```
 
 Full Calendar examples
 ======
@@ -130,6 +152,6 @@ Default:
 
 ### SCHEDULER_BASE_CLASSES
 
-This setting allows for custom base classes to be used on all models. Useful for adding fields, managers, or other elements. 
+This setting allows for custom base classes to be used on all models. Useful for adding fields, managers, or other elements.
 
 Defaults to django.db.models.Model
