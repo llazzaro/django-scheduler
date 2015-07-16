@@ -39,6 +39,8 @@ setup(
         'icalendar>=3.8.4',
         'django-annoying>=0.8.0',
         'future>=0.14.2',
+        'django-bower==5.0.4',
+        'django-compressor==1.5',
     ],
     license='BSD',
     test_suite='runtests.runtests',

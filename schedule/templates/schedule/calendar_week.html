@@ -5,7 +5,7 @@
 
 {% include "schedule/_dialogs.html" %}
 
-<div class="navigation">
+<div class="row row-centered">
   <a href="{% url "month_calendar" calendar.slug %}{% querystring_for_date periods.week.start 2 True %}">
     {% trans "Month" %}
   </a>
@@ -14,8 +14,8 @@
   </a>
 </div>
 
-<div class="tablewrapper">
-    <div class="calendarname">{{ calendar.name }}</div>
+<div class="row row-centered">
+    <div>{{ calendar.name }}</div>
     {% prevnext "week_calendar" calendar periods.week "\W\e\ek W, M Y" %}
     <div class="now">
       <a href="{% url "week_calendar" calendar.slug %}">
@@ -24,21 +24,19 @@
     </div>
 </div>
 
-<div id="week">
+<div class="row row-centered">
   {% for day in periods.week.get_days %}
-    <div class="weekday weekday{{forloop.counter}}">
-      <div class="weekdayheader">
+    <div class="col-md-3">
+      <div class="row row-centered">
         <a href="{% url "day_calendar" calendar.slug %}{% querystring_for_date day.start 3 True %}">
           {{day.start|date:"l, d"}}
         </a>
       </div>
-      <div class="weekdaytable">
       {% if forloop.first %}
-          {% daily_table day 230 80 600 9 21 %}
+          {% daily_table day %}
       {% else %}
-          {% daily_table day 150 15 600 9 21 %}
+          {% daily_table day %}
       {% endif %}
-      </div>
     </div>
   {% endfor %}
 </div>
