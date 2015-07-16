@@ -16,6 +16,7 @@ from django.utils import timezone
 
 weekday_names = []
 weekday_abbrs = []
+
 if settings.FIRST_DAY_OF_WEEK == 1:
     # The calendar week starts on Monday
     for i in range(7):
