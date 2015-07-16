@@ -60,10 +60,8 @@ def daily_table(context, day, start=8, end=20, increment=30):
     context['addable'] = addable
 
     day_part = day.get_time_slot(day.start + datetime.timedelta(hours=start), day.start + datetime.timedelta(hours=end))
-    occurrences = day_part.get_occurrences()
     # get slots to display on the left
     slots = _cook_slots(day_part, increment)
-    context['occurrences'] = occurrences
     context['slots'] = slots
     return context
 
