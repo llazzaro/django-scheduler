@@ -18,6 +18,8 @@ from schedule.utils import EventListManager, get_model_bases
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
+from schedule.utils import object_content_type
+
 
 class CalendarManager(models.Manager):
     """
@@ -98,7 +100,7 @@ class CalendarManager(models.Manager):
         If distinction is set it will filter out any relation that doesnt have
         that distinction.
         """
-        ct = ContentType.objects.get_for_model(type(obj))
+        ct = object_content_type(obj)
         if distinction:
             dist_q = Q(calendarrelation__distinction=distinction)
         else:
@@ -196,7 +198,7 @@ class CalendarRelationManager(models.Manager):
         Creates a relation between calendar and content_object.
         See CalendarRelation for help on distinction and inheritable
         """
-        ct = ContentType.objects.get_for_model(type(content_object))
+        ct = object_content_type(content_object)
         object_id = content_object.id
         cr = CalendarRelation(
             content_type=ct,
