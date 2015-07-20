@@ -3,13 +3,13 @@
 
 {% block body %}
 <div class="navigation">
-  <a href="{% url "day_calendar" event.calendar.slug %}{% querystring_for_date event.start 3 True %}">
+  <a class="btn btn-primary gradient" href="{% url "day_calendar" event.calendar.slug %}{% querystring_for_date event.start 3 True %}">
     {% trans "Day" %}
   </a>
-  <a href="{% url "month_calendar" event.calendar.slug %}{% querystring_for_date event.start 2 True %}">
+  <a class="btn btn-primary gradient" href="{% url "month_calendar" event.calendar.slug %}{% querystring_for_date event.start 2 True %}">
     {% trans "Month" %}
   </a>
-  <a href="{% url "year_calendar" event.calendar.slug %}{% querystring_for_date event.start 1 True %}">
+  <a class="btn btn-primary gradient" href="{% url "year_calendar" event.calendar.slug %}{% querystring_for_date event.start 1 True %}">
     {% trans "Year" %}
   </a>
 </div>
@@ -17,20 +17,20 @@
 <div class="event_actions" align="center">
   {% if back_url %}
   <a href="{{ back_url }}">
-    <img border="0" src="{% static "schedule/img/left_mod.png" %}" alt="{% trans "Back" %}"/>
+    <span class="glyphicon glyphicon-circle-arrow-left"></span>
   </a>
   &nbsp;
   {% endif %}
   <a href="{% url "edit_event" event.calendar.slug event.id %}">
-    <img border="0" src="{% static "schedule/img/pencil.png" %}" alt="{% trans "Change" %}"/>
+    Edit <span class="glyphicon glyphicon-pencil"></span>
   </a>
   &nbsp;
   <a href="{% url "delete_event" event.id %}">
-    <img border="0" src="{% static "schedule/img/delete.png" %}" alt="{% trans "Delete" %}"/>
+    Delete <span class="glyphicon glyphicon-remove"></span>
   </a>
 </div>
 <h2 align="center">{{event.title}}</h2>
-<table align="center">
+<table align="center" class="table table-hover">
 <tr>
 <td>{% trans "Starts" %}</td>
 <td>{% blocktrans with event.start|date:_("DATETIME_FORMAT") as start_date %}{{ start_date }}{% endblocktrans %}</td>
