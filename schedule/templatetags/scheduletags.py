@@ -122,10 +122,10 @@ class CalendarNode(template.Node):
 def do_get_calendar_for_object(parser, token):
     contents = token.split_contents()
     if len(contents) == 4:
-        tag_name, content_object, _, context_var = contents
+        _, content_object, _, context_var = contents
         distinction = None
     elif len(contents) == 5:
-        tag_name, content_object, distinction, _, context_var = token.split_contents()
+        _, content_object, distinction, _, context_var = token.split_contents()
     else:
         raise template.TemplateSyntaxError("%r tag follows form %r <content_object> as <context_var>" % (token.contents.split()[0], token.contents.split()[0]))
     return CalendarNode(content_object, distinction, context_var)

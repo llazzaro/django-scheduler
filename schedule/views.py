@@ -118,7 +118,7 @@ class OccurrenceMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
 class OccurrenceEditMixin(EventEditPermissionMixin, OccurrenceMixin, CancelButtonMixin):
     def get_initial(self):
         initial_data = super(OccurrenceEditMixin, self).get_initial()
-        event, self.object = get_occurrence(**self.kwargs)
+        _, self.object = get_occurrence(**self.kwargs)
         return initial_data
 
 

@@ -2,6 +2,7 @@ from django.db.models.signals import pre_save
 
 from schedule.models import Event, Calendar
 
+
 def optional_calendar(sender, **kwargs):
     event = kwargs.pop('instance')
 
@@ -9,7 +10,7 @@ def optional_calendar(sender, **kwargs):
         return True
     if not event.calendar:
         try:
-            calendar = Calendar._default_manager.get(name='default')
+            calendar = Calendar.objects.get(name='default')
         except Calendar.DoesNotExist:
             calendar = Calendar(name='default', slug='default')
             calendar.save()

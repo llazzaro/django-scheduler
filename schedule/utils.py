@@ -88,7 +88,7 @@ class OccurrenceReplacer(object):
         """
         Return persisted occurrences which are now in the period
         """
-        return [occ for key, occ in list(self.lookup.items()) if (occ.start < end and occ.end >= start and not occ.cancelled)]
+        return [occ for _, occ in list(self.lookup.items()) if (occ.start < end and occ.end >= start and not occ.cancelled)]
 
 
 def check_event_permissions(function):
