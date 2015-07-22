@@ -32,7 +32,6 @@ setup(
                  'Topic :: Utilities'],
     install_requires=[
         'Django>=1.7',
-        'argparse==1.1',
         'python-dateutil>=2.1',
         'pytz>=2013.9',
         'six>=1.3.0',
