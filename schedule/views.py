@@ -329,7 +329,7 @@ def api_move_or_resize_by_code(request):
 
     return HttpResponse(json.dumps(resp))
 
-def select_create(request):
+def api_select_create(request):
     if request.method == 'POST':
         calendar_slug = request.POST.get('calendar_slug')
         start = dateutil.parser.parse(request.POST.get('start'))
