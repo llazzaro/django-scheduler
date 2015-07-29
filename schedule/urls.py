@@ -57,6 +57,9 @@ urlpatterns = patterns(
         CalendarView.as_view(),
         name="calendar_home",
         ),
+    url(r'^fullcalendar/(?P<calendar_slug>[-\w]+)/$',
+        FullCalendarView.as_view(), 
+        name='fullcalendar'),
 
     # Event Urls
     url(r'^event/create/(?P<calendar_slug>[-\w]+)/$',
@@ -97,6 +100,7 @@ urlpatterns = patterns(
     # feed urls
     url(r'^feed/calendar/upcoming/(.*)/$', UpcomingEventsFeed(), name='upcoming_events_feed'),
     url(r'^ical/calendar/(.*)/$', CalendarICalendar(), name='calendar_ical'),
+    
     # api urls
     url(r'^api/occurrences', 'schedule.views.api_occurrences', name='api_occurences'),
     url(r'^api/move_or_resize/$', 
