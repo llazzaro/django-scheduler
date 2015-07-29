@@ -3,8 +3,10 @@ standard_library.install_aliases()
 import json
 import pytz
 import datetime
+import dateutil.parser
 from urllib.parse import quote
 
+from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -62,6 +64,22 @@ class CalendarMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
 
 class CalendarView(CalendarMixin, DetailView):
     template_name = 'schedule/calendar.html'
+
+
+class FullCalendarView(CalendarMixin, DetailView):
+    template_name="fullcalendar.html"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(FullCalendarView, self).get_context_data()
+        context = {
+            'calendar_slug': kwargs.get('calendar_slug'),
+        }
+        return context
 
 
 class CalendarByPeriodsView(CalendarMixin, DetailView):

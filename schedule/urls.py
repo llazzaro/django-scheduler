@@ -13,7 +13,7 @@ from schedule.views import (
         CalendarByPeriodsView, CalendarView, EventView,
         OccurrenceView, EditOccurrenceView, DeleteEventView,
         EditEventView, CreateEventView, OccurrencePreview,
-        CreateOccurrenceView, CancelOccurrenceView)
+        CreateOccurrenceView, CancelOccurrenceView, FullCalendarView)
 
 urlpatterns = patterns(
     '',
