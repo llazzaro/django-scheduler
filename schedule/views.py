@@ -329,7 +329,7 @@ def api_move_or_resize_by_code(request):
         resize = bool(request.POST.get('resize', False))
         resp = {}
 
-        if existed:
+        if not existed:
             event_id = request.POST.get('event_id')
             event = Event.objects.get(id=event_id)
             if not resize:
