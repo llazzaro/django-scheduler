@@ -99,6 +99,12 @@ urlpatterns = patterns(
     url(r'^ical/calendar/(.*)/$', CalendarICalendar(), name='calendar_ical'),
     # api urls
     url(r'^api/occurrences', 'schedule.views.api_occurrences', name='api_occurences'),
+    url(r'^api/move_or_resize/$', 
+        'schedule.views.api_move_or_resize_by_code',
+        name='api_move_or_resize'),
+    url(r'^api/select_create/$', 
+        'schedule.views.api_select_create',
+        name='api_select_create'),
 
     url(r'^$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
 )
