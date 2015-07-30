@@ -84,14 +84,14 @@ $(document).ready(function() {
         eventRender: function(event, element) {
             var s = element[0].className;
             if(s.indexOf("fc-day-grid-event") < 0){
-                title = element.children().find( '.fc-title' );
+                title = element.children().find( '.fc-time' );
                 var edit_url = "{% url 'edit_event' calendar_slug 12345 %}".replace(/12345/, event.event_id);
-                title.append("<a href='"+ edit_url + 
-                    "'> <button type='button' class='btn btn-primary btn-sm pull-right'><span class='glyphicon glyphicon-pencil'></span></button></a>");
-
+                var edit_button = "<a href='"+ edit_url + 
+                    "'> <button type='button' class='btn btn-primary btn-sm pull-right'><span class='glyphicon glyphicon-pencil'></span></button></a>"
                 var delete_url = "{% url 'delete_event' 12345 %}".replace(/12345/, event.event_id);
-                title.append("<a href='"+ delete_url + 
-                    "'> <button type='button' class='btn btn-primary btn-sm pull-right'><span class='glyphicon glyphicon-trash'></span></button></a>");
+                var delete_button = "<a href='"+ delete_url + 
+                    "'> <button type='button' class='btn btn-primary btn-sm pull-right'><span class='glyphicon glyphicon-trash'></span></button></a>"
+                title.prepend(edit_button + delete_button + '<br>');
             }
         },
         dayClick: function(date, allDay, jsEvent, view) {
