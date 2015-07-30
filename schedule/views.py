@@ -324,24 +324,24 @@ def api_occurrences(request):
 def api_move_or_resize_by_code(request):
     if request.method == 'POST':
         id = request.POST.get('id')
-        existed = request.POST.get('existed')
+        existed = (request.POST.get('existed') == 'true')
         dt = datetime.timedelta(minutes=int(request.POST.get('delta')))
         resize = bool(request.POST.get('resize', False))
         resp = {}
 
-        if not existed:
+        if existed:
+            occurrence = Occurrence.objects.get(id=id)
+            if not resize:
+                occurrence.move(occurrence.start + dt, occurrence.end + dt)
+            else:
+                occurrence.move(occurrence.start, occurrence.end + dt)
+        else:
             event_id = request.POST.get('event_id')
             event = Event.objects.get(id=event_id)
             if not resize:
                 event.start += dt
             event.end = event.end + dt
             event.save()
-        else:
-            occurrence = Occurrence.objects.get(id=id)
-            if not resize:
-                occurrence.move(occurrence.start + dt, occurrence.end + dt)
-            else:
-                occurrence.move(occurrence.start, occurrence.end + dt)
 
         resp['status'] = "OK"
 
