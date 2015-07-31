@@ -3,8 +3,10 @@ standard_library.install_aliases()
 import json
 import pytz
 import datetime
+import dateutil.parser
 from urllib.parse import quote
 
+from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -15,7 +17,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
         UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
 
-from schedule.conf.settings import GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT
+from schedule.conf.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
+                                    EVENT_NAME_PLACEHOLDER)
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
@@ -61,6 +64,22 @@ class CalendarMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
 
 class CalendarView(CalendarMixin, DetailView):
     template_name = 'schedule/calendar.html'
+
+
+class FullCalendarView(CalendarMixin, DetailView):
+    template_name="fullcalendar.html"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(FullCalendarView, self).get_context_data()
+        context = {
+            'calendar_slug': kwargs.get('calendar_slug'),
+        }
+        return context
 
 
 class CalendarByPeriodsView(CalendarMixin, DetailView):
@@ -277,13 +296,72 @@ def api_occurrences(request):
     end = utc.localize(convert(request.GET.get('end')))
     calendar = get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))
     response_data =[]
-    for event in calendar.events.filter(start__gte=start, end__lte=end):
+    if Occurrence.objects.all().count() > 0:
+        i = Occurrence.objects.latest('id').id + 1
+    else:
+        i = 1
+    event_list = calendar.events.filter(start__lte=end).filter(
+        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True) )
+    for event in event_list:
         occurrences = event.get_occurrences(start, end)
         for occurrence in occurrences:
+            if occurrence.id:
+                occurrence_id = occurrence.id
+                existed = True
+            else:
+                occurrence_id = i + occurrence.event.id
+                existed = False
             response_data.append({
-                "id": occurrence.id,
+                "id": occurrence_id,
                 "title": occurrence.title,
                 "start": occurrence.start.isoformat(),
                 "end": occurrence.end.isoformat(),
+                "existed" : existed,
+                "event_id" : occurrence.event.id,
             })
     return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+def api_move_or_resize_by_code(request):
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        existed = (request.POST.get('existed') == 'true')
+        dt = datetime.timedelta(minutes=int(request.POST.get('delta')))
+        resize = bool(request.POST.get('resize', False))
+        resp = {}
+
+        if existed:
+            occurrence = Occurrence.objects.get(id=id)
+            if not resize:
+                occurrence.move(occurrence.start + dt, occurrence.end + dt)
+            else:
+                occurrence.move(occurrence.start, occurrence.end + dt)
+        else:
+            event_id = request.POST.get('event_id')
+            event = Event.objects.get(id=event_id)
+            if not resize:
+                event.start += dt
+            event.end = event.end + dt
+            event.save()
+
+        resp['status'] = "OK"
+
+    return HttpResponse(json.dumps(resp))
+
+def api_select_create(request):
+    if request.method == 'POST':
+        calendar_slug = request.POST.get('calendar_slug')
+        start = dateutil.parser.parse(request.POST.get('start'))
+        end = dateutil.parser.parse(request.POST.get('end'))
+
+        calendar = Calendar.objects.get(slug=calendar_slug)
+        event = Event.objects.create(
+                                        start=start,
+                                        end=end,
+                                        title=EVENT_NAME_PLACEHOLDER,
+                                        calendar=calendar,
+                                    )
+
+        resp = {}
+        resp['status'] = "OK"
+
+    return HttpResponse(json.dumps(resp))

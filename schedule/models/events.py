@@ -62,6 +62,18 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             'end': date(self.end, django_settings.DATE_FORMAT),
         }
 
+    @property
+    def seconds(self):
+        return (self.end - self.start).total_seconds()
+
+    @property
+    def minutes(self):
+        return float(self.seconds) / 60
+
+    @property
+    def hours(self):
+        return float(self.seconds) / 3600
+        
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
@@ -325,10 +337,10 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases())):
     object_id: the id of the generic object
     content_object: the generic foreign key to the generic object
     distinction: a string representing a distinction of the relation, User could
-    have a 'veiwer' relation and an 'owner' relation for example.
+    have a 'viewer' relation and an 'owner' relation for example.
 
     DISCLAIMER: while this model is a nice out of the box feature to have, it
-    may not scale well.  If you use this keep that in mindself.
+    may not scale well.  If you use this keep that in mind.
     '''
     event = models.ForeignKey(Event, verbose_name=_("event"))
     content_type = models.ForeignKey(ContentType)

@@ -46,3 +46,6 @@ if not GET_EVENTS_FUNC:
 OCCURRENCE_CANCEL_REDIRECT = get_config('OCCURRENCE_CANCEL_REDIRECT', None)
 
 SCHEDULER_PREVNEXT_LIMIT_SECONDS = get_config('SCHEDULER_PREVNEXT_LIMIT_SECONDS', 62208000)  # two years
+
+#This name is used when a new event is created through selecting in fullcalendar
+EVENT_NAME_PLACEHOLDER = get_config('EVENT_NAME_PLACEHOLDER', 'Event Name')
