@@ -184,7 +184,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         difference = self.end - self.start
         while True:
             o_start = next(date_iter)
-            if o_start > self.end_recurring_period:
+            if self.end_recurring_period and o_start > self.end_recurring_period:
                 raise StopIteration
             o_end = o_start + difference
             if o_end > after:
@@ -192,14 +192,25 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
     def occurrences_after(self, after=None):
         """
-        returns a generator that produces occurrences after the datetime
+        returns a generator that produces occurences after the datetime
         ``after``.  Includes all of the persisted Occurrences.
         """
+        if after is None:
+            after = timezone.now()
         occ_replacer = OccurrenceReplacer(self.occurrence_set.all())
         generator = self._occurrences_after_generator(after)
+        trickies = list(self.occurrence_set.filter(original_start__lte=after, start__gte=after).order_by('start'))
         while True:
-            next_occurence = next(generator)
-            yield occ_replacer.get_occurrence(next_occurence)
+            nomore = False
+            try:
+                nxt = next(generator)
+            except StopIteration:
+                nxt = None
+            if (len(trickies) > 0 and (nxt == None or nxt.start > trickies[0].start)):
+                yield trickies.pop(0)
+            if (nxt == None):
+                raise StopIteration
+            yield occ_replacer.get_occurrence(nxt)
 
 
 class EventRelationManager(models.Manager):
