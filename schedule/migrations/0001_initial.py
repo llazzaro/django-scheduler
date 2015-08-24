@@ -8,7 +8,7 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0001_initial'),
+        ('contenttypes', '0002_remove_content_type_name'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Calendar',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
                 ('name', models.CharField(max_length=200, verbose_name='name')),
                 ('slug', models.SlugField(max_length=200, verbose_name='slug')),
             ],
@@ -24,14 +24,13 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'calendar',
                 'verbose_name': 'calendar',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CalendarRelation',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
                 ('object_id', models.IntegerField()),
-                ('distinction', models.CharField(null=True, max_length=20, verbose_name='distinction')),
+                ('distinction', models.CharField(max_length=20, null=True, verbose_name='distinction')),
                 ('inheritable', models.BooleanField(default=True, verbose_name='inheritable')),
                 ('calendar', models.ForeignKey(to='schedule.Calendar', verbose_name='calendar')),
                 ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
@@ -40,34 +39,33 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'calendar relations',
                 'verbose_name': 'calendar relation',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Event',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
                 ('start', models.DateTimeField(verbose_name='start')),
                 ('end', models.DateTimeField(help_text='The end time must be later than the start time.', verbose_name='end')),
                 ('title', models.CharField(max_length=255, verbose_name='title')),
                 ('description', models.TextField(blank=True, null=True, verbose_name='description')),
                 ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='created on')),
                 ('updated_on', models.DateTimeField(auto_now=True, verbose_name='updated on')),
-                ('end_recurring_period', models.DateTimeField(blank=True, null=True, help_text='This date is ignored for one time only events.', verbose_name='end recurring period')),
-                ('calendar', models.ForeignKey(blank=True, null=True, to='schedule.Calendar', verbose_name='calendar')),
-                ('creator', models.ForeignKey(blank=True, null=True, related_name='creator', verbose_name='creator', to=settings.AUTH_USER_MODEL)),
+                ('end_recurring_period', models.DateTimeField(blank=True, help_text='This date is ignored for one time only events.', null=True, verbose_name='end recurring period')),
+                ('color_event', models.CharField(blank=True, max_length=10, null=True, verbose_name='Color event')),
+                ('calendar', models.ForeignKey(verbose_name='calendar', blank=True, to='schedule.Calendar', null=True)),
+                ('creator', models.ForeignKey(related_name='creator', verbose_name='creator', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
                 'verbose_name_plural': 'events',
                 'verbose_name': 'event',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='EventRelation',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
                 ('object_id', models.IntegerField()),
-                ('distinction', models.CharField(null=True, max_length=20, verbose_name='distinction')),
+                ('distinction', models.CharField(max_length=20, null=True, verbose_name='distinction')),
                 ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
                 ('event', models.ForeignKey(to='schedule.Event', verbose_name='event')),
             ],
@@ -75,13 +73,12 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'event relations',
                 'verbose_name': 'event relation',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Occurrence',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
-                ('title', models.CharField(blank=True, null=True, max_length=255, verbose_name='title')),
+                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
+                ('title', models.CharField(blank=True, max_length=255, null=True, verbose_name='title')),
                 ('description', models.TextField(blank=True, null=True, verbose_name='description')),
                 ('start', models.DateTimeField(verbose_name='start')),
                 ('end', models.DateTimeField(verbose_name='end')),
@@ -96,27 +93,24 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'occurrences',
                 'verbose_name': 'occurrence',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Rule',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
                 ('name', models.CharField(max_length=32, verbose_name='name')),
                 ('description', models.TextField(verbose_name='description')),
-                ('frequency', models.CharField(max_length=10, choices=[('YEARLY', 'Yearly'), ('MONTHLY', 'Monthly'), ('WEEKLY', 'Weekly'), ('DAILY', 'Daily'), ('HOURLY', 'Hourly'), ('MINUTELY', 'Minutely'), ('SECONDLY', 'Secondly')], verbose_name='frequency')),
+                ('frequency', models.CharField(choices=[('YEARLY', 'Yearly'), ('MONTHLY', 'Monthly'), ('WEEKLY', 'Weekly'), ('DAILY', 'Daily'), ('HOURLY', 'Hourly'), ('MINUTELY', 'Minutely'), ('SECONDLY', 'Secondly')], max_length=10, verbose_name='frequency')),
                 ('params', models.TextField(blank=True, null=True, verbose_name='params')),
             ],
             options={
                 'verbose_name_plural': 'rules',
                 'verbose_name': 'rule',
             },
-            bases=(models.Model,),
         ),
         migrations.AddField(
             model_name='event',
             name='rule',
-            field=models.ForeignKey(blank=True, null=True, to='schedule.Rule', verbose_name='rule', help_text="Select '----' for a one time only event."),
-            preserve_default=True,
+            field=models.ForeignKey(help_text="Select '----' for a one time only event.", verbose_name='rule', blank=True, to='schedule.Rule', null=True),
         ),
     ]

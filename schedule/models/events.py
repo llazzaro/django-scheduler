@@ -49,6 +49,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
                                                 help_text=_("This date is ignored for one time only events."))
     calendar = models.ForeignKey(Calendar, null=True, blank=True, verbose_name=_("calendar"))
     objects = EventManager()
+    color_event = models.CharField(_("Color event"), null=True, blank=True, max_length=10)
 
     class Meta(object):
         verbose_name = _('event')
