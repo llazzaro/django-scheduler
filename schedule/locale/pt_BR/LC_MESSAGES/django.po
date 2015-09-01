@@ -7,36 +7,36 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-20 16:05-0300\n"
-"PO-Revision-Date: 2015-08-20 17:06-0300\n"
+"POT-Creation-Date: 2015-08-24 09:00-0300\n"
+"PO-Revision-Date: 2015-08-24 09:11-0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"Last-Translator: \n"
-"Language-Team: \n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: .\forms.py:8 .\models\events.py:38 .\models\events.py:367
+#: .\forms.py:9 .\models\events.py:38 .\models\events.py:368
 msgid "start"
 msgstr "início"
 
-#: .\forms.py:10 .\models\events.py:39 .\models\events.py:368
+#: .\forms.py:11 .\models\events.py:39 .\models\events.py:369
 msgid "end"
 msgstr "término"
 
-#: .\forms.py:12 .\forms.py:17
+#: .\forms.py:13 .\forms.py:18
 msgid "The end time must be later than start time."
 msgstr "Data de término deve ser maior que data de início."
 
-#: .\forms.py:25
+#: .\forms.py:26
 msgid "End recurring period"
 msgstr "Fim de período recorrente"
 
-#: .\forms.py:26 .\models\events.py:49
+#: .\forms.py:27 .\models\events.py:49
 msgid "This date is ignored for one time only events."
-msgstr "Esta data é ignorada para eventos apenas uma vez."
+msgstr "Esta data é ignorada para eventos únicos."
 
 #: .\models\calendars.py:147 .\models\rules.py:53
 msgid "name"
@@ -51,7 +51,7 @@ msgstr ""
 msgid "calendar"
 msgstr "calendário"
 
-#: .\models\calendars.py:242 .\models\events.py:349
+#: .\models\calendars.py:242 .\models\events.py:350
 msgid "distinction"
 msgstr "distinção"
 
@@ -71,11 +71,11 @@ msgstr "relações de calendário"
 msgid "The end time must be later than the start time."
 msgstr "Data de término deve ser maior que data de início."
 
-#: .\models\events.py:40 .\models\events.py:365
+#: .\models\events.py:40 .\models\events.py:366
 msgid "title"
 msgstr "título"
 
-#: .\models\events.py:41 .\models\events.py:366 .\models\rules.py:54
+#: .\models\events.py:41 .\models\events.py:367 .\models\rules.py:54
 msgid "description"
 msgstr "descrição"
 
@@ -83,11 +83,11 @@ msgstr "descrição"
 msgid "creator"
 msgstr "criador"
 
-#: .\models\events.py:44 .\models\events.py:372
+#: .\models\events.py:44 .\models\events.py:373
 msgid "created on"
 msgstr "criado em"
 
-#: .\models\events.py:45 .\models\events.py:373
+#: .\models\events.py:45 .\models\events.py:374
 msgid "updated on"
 msgstr "atualizado em"
 
@@ -97,54 +97,58 @@ msgstr "regra"
 
 #: .\models\events.py:47
 msgid "Select '----' for a one time only event."
-msgstr "Selecione '----' para um único evento."
+msgstr "Selecione '----' para um evento único."
 
 #: .\models\events.py:48
 msgid "end recurring period"
 msgstr "Fim de período recorrente"
 
-#: .\models\events.py:54 .\models\events.py:345 .\models\events.py:364
+#: .\models\events.py:52
+msgid "Color event"
+msgstr "Cor do evento"
+
+#: .\models\events.py:55 .\models\events.py:346 .\models\events.py:365
 msgid "event"
 msgstr "Evento"
 
-#: .\models\events.py:55
+#: .\models\events.py:56
 msgid "events"
 msgstr "Eventos"
 
-#: .\models\events.py:59
+#: .\models\events.py:60
 #, python-format
 msgid "%(title)s: %(start)s - %(end)s"
 msgstr ""
 
-#: .\models\events.py:354
+#: .\models\events.py:355
 msgid "event relation"
 msgstr "relação de evento"
 
-#: .\models\events.py:355
+#: .\models\events.py:356
 msgid "event relations"
 msgstr "relações de eventos"
 
-#: .\models\events.py:369
+#: .\models\events.py:370
 msgid "cancelled"
 msgstr "cancelado"
 
-#: .\models\events.py:370
+#: .\models\events.py:371
 msgid "original start"
 msgstr "início original"
 
-#: .\models\events.py:371
+#: .\models\events.py:372
 msgid "original end"
 msgstr "final original"
 
-#: .\models\events.py:376
+#: .\models\events.py:377
 msgid "occurrence"
 msgstr "ocorrência"
 
-#: .\models\events.py:377
+#: .\models\events.py:378
 msgid "occurrences"
 msgstr "ocorrências"
 
-#: .\models\events.py:448
+#: .\models\events.py:449
 #, python-format
 msgid "%(start)s to %(end)s"
 msgstr "%(start)s para %(end)s"
