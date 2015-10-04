@@ -73,7 +73,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
     @property
     def hours(self):
         return float(self.seconds) / 3600
-        
+
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
@@ -302,7 +302,7 @@ class EventRelationManager(models.Manager):
             )
         else:
             inherit_q = Q()
-        event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id), Q(eventrelation__content_type=ct))
+        event_q = Q(dist_q, eventrelation__object_id=content_object.id, eventrelation__content_type=ct)
         return Event.objects.filter(inherit_q | event_q)
 
     def create_relation(self, event, content_object, distinction=None):
@@ -310,11 +310,7 @@ class EventRelationManager(models.Manager):
         Creates a relation between event and content_object.
         See EventRelation for help on distinction.
         """
-        ct = ContentType.objects.get_for_model(type(content_object))
-        object_id = content_object.id
         er = EventRelation(
-            content_type=ct,
-            object_id=object_id,
             event=event,
             distinction=distinction,
             content_object=content_object
