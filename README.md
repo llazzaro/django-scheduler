@@ -98,6 +98,9 @@ Full Calendar examples
 
 ![Daily view (static)](https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/daily.png)
 
+Metrics
+========
+[![Throughput Graph](https://graphs.waffle.io/llazzaro/django-scheduler/throughput.svg)](https://waffle.io/llazzaro/django-scheduler/metrics)
 
 Optional Settings
 ========
