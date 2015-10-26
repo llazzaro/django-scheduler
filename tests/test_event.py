@@ -348,16 +348,16 @@ class TestEvent(TestCase):
 
         # Event start and end are UTC because that is what is coming
         # from the database
-        tzinfo = pytz.timezone('Europe/Helsinki')
         event = self.__create_recurring_event(
                     'Recurrent event test get_occurrence',
-                    datetime.datetime(2014, 3, 21, 8, 0, tzinfo=tzinfo),
-                    datetime.datetime(2014, 3, 21, 9, 0, tzinfo=tzinfo),
-                    datetime.datetime(2014, 4, 11, 0, 0, tzinfo=tzinfo),
+                    datetime.datetime(2014, 3, 21, 6, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2014, 3, 21, 8, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2014, 4, 11, 0, 0, tzinfo=pytz.utc),
                     rule,
                     cal,
                     )
         event.save()
+        tzinfo = pytz.timezone('Europe/Helsinki')
         start = tzinfo.localize(datetime.datetime(2014, 3, 28, 8, 0)) # +2
         occurrence = event.get_occurrence(start)
         self.assertEqual(occurrence.start, start)
