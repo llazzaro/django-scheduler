@@ -201,14 +201,13 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         generator = self._occurrences_after_generator(after)
         trickies = list(self.occurrence_set.filter(original_start__lte=after, start__gte=after).order_by('start'))
         while True:
-            nomore = False
             try:
                 nxt = next(generator)
             except StopIteration:
                 nxt = None
-            if (len(trickies) > 0 and (nxt == None or nxt.start > trickies[0].start)):
+            if (len(trickies) > 0 and (nxt is None or nxt.start > trickies[0].start)):
                 yield trickies.pop(0)
-            if (nxt == None):
+            if (nxt is None):
                 raise StopIteration
             yield occ_replacer.get_occurrence(nxt)
 
