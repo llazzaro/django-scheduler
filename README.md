@@ -32,6 +32,7 @@ Installation
 ```bash
 npm install -g bower
 pip install django-scheduler
+pip install django-bower
 ```
 
 edit your `settings.py`
