@@ -362,6 +362,10 @@ class Day(Period):
                                   parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def _get_day_range(self, date):
+
+        if self.tzinfo is not None and timezone.is_aware(date):
+            date = date.astimezone(self.tzinfo)
+
         if isinstance(date, datetime.datetime):
             date = date.date()
 
