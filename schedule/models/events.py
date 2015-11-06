@@ -74,7 +74,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
     @property
     def hours(self):
         return float(self.seconds) / 3600
-        
+
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
@@ -185,7 +185,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         difference = self.end - self.start
         while True:
             o_start = next(date_iter)
-            if o_start > self.end_recurring_period:
+            if self.end_recurring_period and o_start > self.end_recurring_period:
                 raise StopIteration
             o_end = o_start + difference
             if o_end > after:
@@ -193,14 +193,24 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
     def occurrences_after(self, after=None):
         """
-        returns a generator that produces occurrences after the datetime
+        returns a generator that produces occurences after the datetime
         ``after``.  Includes all of the persisted Occurrences.
         """
+        if after is None:
+            after = timezone.now()
         occ_replacer = OccurrenceReplacer(self.occurrence_set.all())
         generator = self._occurrences_after_generator(after)
+        trickies = list(self.occurrence_set.filter(original_start__lte=after, start__gte=after).order_by('start'))
         while True:
-            next_occurence = next(generator)
-            yield occ_replacer.get_occurrence(next_occurence)
+            try:
+                nxt = next(generator)
+            except StopIteration:
+                nxt = None
+            if (len(trickies) > 0 and (nxt is None or nxt.start > trickies[0].start)):
+                yield trickies.pop(0)
+            if (nxt is None):
+                raise StopIteration
+            yield occ_replacer.get_occurrence(nxt)
 
 
 class EventRelationManager(models.Manager):
@@ -303,7 +313,7 @@ class EventRelationManager(models.Manager):
             )
         else:
             inherit_q = Q()
-        event_q = Q(dist_q, Q(eventrelation__object_id=content_object.id), Q(eventrelation__content_type=ct))
+        event_q = Q(dist_q, eventrelation__object_id=content_object.id, eventrelation__content_type=ct)
         return Event.objects.filter(inherit_q | event_q)
 
     def create_relation(self, event, content_object, distinction=None):
@@ -311,11 +321,7 @@ class EventRelationManager(models.Manager):
         Creates a relation between event and content_object.
         See EventRelation for help on distinction.
         """
-        ct = ContentType.objects.get_for_model(type(content_object))
-        object_id = content_object.id
         er = EventRelation(
-            content_type=ct,
-            object_id=object_id,
             event=event,
             distinction=distinction,
             content_object=content_object
