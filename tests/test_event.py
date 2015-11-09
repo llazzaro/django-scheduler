@@ -168,6 +168,34 @@ class TestEvent(TestCase):
         #occurrence2 = recurring_event.occurrences_after(datetime.datetime(2008, 1, 5, tzinfo=pytz.utc)).next()
         #self.assertEqual(occurrence, occurrence2)
 
+    def test_recurring_event_with_moved_get_occurrences_after(self):
+
+        cal = Calendar(name="MyCal")
+        cal.save()
+        rule = Rule(frequency="WEEKLY")
+        rule.save()
+        recurring_event= self.__create_recurring_event(
+                    'Recurrent event test get_occurrence',
+                    datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+                    rule,
+                    cal,
+                    )
+
+        recurring_event.save()
+        occurrence = recurring_event.get_occurrence(datetime.datetime(2008, 1, 12, 8, 0, tzinfo=pytz.utc))
+        occurrence.move(
+          datetime.datetime(2008, 1, 15, 8, 0, tzinfo=pytz.utc),
+          datetime.datetime(2008, 1, 15, 9, 0, tzinfo=pytz.utc))
+        gen = recurring_event.occurrences_after(
+          datetime.datetime(2008, 1, 14, 8, 0, tzinfo=pytz.utc))
+        occurrence2 = next(gen)
+        #    end = datetime.datetime(2008, 1, 6, tzinfo=pytz.utc))
+        #occurrence = occurrences[0]
+        #occurrence2 = recurring_event.occurrences_after(datetime.datetime(2008, 1, 5, tzinfo=pytz.utc)).next()
+        self.assertEqual(occurrence, occurrence2)
+
     def test_recurring_event_get_occurrence(self):
 
         cal = Calendar(name="MyCal")
