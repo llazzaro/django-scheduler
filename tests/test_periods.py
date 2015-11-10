@@ -224,6 +224,33 @@ class TestDay(TestCase):
         self.assertEqual( period.start, slot_start )
         self.assertEqual( period.end, slot_end )
 
+    def test_get_day_range(self):
+        # This test exercises the case where a Day object is initiatized with
+        # no date, which causes the Day constructor to call timezone.now(),
+        # which always uses UTC.  This can cause a problem if the desired TZ
+        # is not UTC, because the _get_day_range method typecasts the
+        # tz-aware datetime to a naive datetime.
+
+        # To simulate this case, we will create a NY tz date, localize that
+        # date to UTC, then create a Day object with the UTC date and NY TZ
+
+        NY = pytz.timezone('America/New_York')
+        user_wall_time = datetime.datetime(2015, 11, 4, 21, 30, tzinfo=NY)
+        timezone_now = user_wall_time.astimezone(pytz.utc)
+
+        test_day = Day(
+            events=Event.objects.all(),
+            date=timezone_now,
+            tzinfo=NY)
+
+        expected_start = datetime.datetime(2015, 11, 4, 5, 00, tzinfo=pytz.utc)
+        expected_end = datetime.datetime(2015, 11, 5, 5, 00, tzinfo=pytz.utc)
+
+        self.assertEqual( test_day.start, expected_start)
+        self.assertEqual( test_day.end, expected_end)
+
+
+
 
 class TestOccurrencePool(TestCase):
 
