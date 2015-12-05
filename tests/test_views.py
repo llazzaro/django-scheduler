@@ -9,7 +9,7 @@ from schedule.models.calendars import Calendar
 from schedule.models.events import Event
 from schedule.models.rules import Rule
 
-from schedule.views import check_next_url, coerce_date_dict
+from schedule.views import coerce_date_dict
 
 
 class TestViews(TestCase):
@@ -38,12 +38,6 @@ class TestViews(TestCase):
 
 
 class TestViewUtils(TestCase):
-    def test_check_next_url(self):
-        url = "http://thauber.com"
-        self.assertTrue(check_next_url(url) is None)
-        url = "/hello/world/"
-        self.assertEqual(url, check_next_url(url))
-
     def test_coerce_date_dict(self):
         self.assertEqual(
             coerce_date_dict({'year': '2008', 'month': '4', 'day': '2', 'hour': '4', 'minute': '4', 'second': '4'}),
