@@ -1,10 +1,11 @@
 try:
-    from django.conf.urls import patterns, url
+    from django.conf.urls import url
 except ImportError:
-    from django.conf.urls.defaults import patterns, url
+    from django.conf.urls.defaults import url
 
 from django.conf import settings
 from django.views.generic.list import ListView
+from django.views.static import serve
 from schedule.models import Calendar
 from schedule.feeds import UpcomingEventsFeed
 from schedule.feeds import CalendarICalendar
@@ -13,10 +14,10 @@ from schedule.views import (
         CalendarByPeriodsView, CalendarView, EventView,
         OccurrenceView, EditOccurrenceView, DeleteEventView,
         EditEventView, CreateEventView, OccurrencePreview,
-        CreateOccurrenceView, CancelOccurrenceView, FullCalendarView)
+        CreateOccurrenceView, CancelOccurrenceView, FullCalendarView, 
+        api_select_create, api_move_or_resize_by_code, api_occurrences)
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     # urls for Calendars
     url(r'^calendar/$',
         ListView.as_view(queryset=Calendar.objects.all(),
@@ -102,22 +103,21 @@ urlpatterns = patterns(
     url(r'^ical/calendar/(.*)/$', CalendarICalendar(), name='calendar_ical'),
     
     # api urls
-    url(r'^api/occurrences', 'schedule.views.api_occurrences', name='api_occurences'),
+    url(r'^api/occurrences', api_occurrences, name='api_occurences'),
     url(r'^api/move_or_resize/$', 
-        'schedule.views.api_move_or_resize_by_code',
+        api_move_or_resize_by_code,
         name='api_move_or_resize'),
     url(r'^api/select_create/$', 
-        'schedule.views.api_select_create',
+        api_select_create,
         name='api_select_create'),
 
     url(r'^$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
-)
+]
 
 if settings.DEBUG:
-    urlpatterns += patterns(
-        '',
+    urlpatterns += [
         url(
             r'^static/(?P<path>.*)$',
-            'django.views.static.serve',
+            serve,
             {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
-    )
+    ]
