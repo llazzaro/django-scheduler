@@ -1,4 +1,3 @@
-
 import datetime
 import pytz
 
@@ -15,12 +14,11 @@ class TestCalendar(TestCase):
 
     def __create_event(self, start, end):
         data = {
-                'title': 'Recent Event',
-                'start': start,
-                'end': end
-            }
-        return Event(**data)
-
+            'title': 'Recent Event',
+            'start': start,
+            'end': end
+        }
+        return Event.objects.create(**data)
 
     def test_get_recent_events_without_events_is_empty(self):
         calendar = Calendar()
