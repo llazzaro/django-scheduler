@@ -2,7 +2,7 @@ import json
 import pytz
 import datetime
 import dateutil.parser
-from six.moves.urllib.parse import quote
+from django.utils.six.moves.urllib.parse import quote
 
 from django.db.models import Q
 from django.core.urlresolvers import reverse

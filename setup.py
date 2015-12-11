@@ -34,7 +34,6 @@ setup(
         'Django>=1.7',
         'python-dateutil>=2.1',
         'pytz>=2013.9',
-        'six>=1.3.0',
         'icalendar>=3.8.4',
         'django-annoying>=0.8.0',
     ],
