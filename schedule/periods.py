@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
-from six.moves.builtins import range
-from six.moves.builtins import object
+from django.utils.six.moves.builtins import range
 import pytz
 import datetime
 import calendar as standardlib_calendar

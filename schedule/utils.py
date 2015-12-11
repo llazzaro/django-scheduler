@@ -1,4 +1,3 @@
-from six.moves.builtins import object
 from functools import wraps
 import pytz
 import heapq

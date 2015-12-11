@@ -1,5 +1,4 @@
-from six.moves.builtins import str
-from six.moves.builtins import object
+from django.utils.six.moves.builtins import str
 #
 # django-atompub by James Tauber <http://jtauber.com/>
 # http://code.google.com/p/django-atompub/

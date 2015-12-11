@@ -1,6 +1,5 @@
 from __future__ import division, unicode_literals
-from six.moves.builtins import object
-from six import with_metaclass
+from django.utils.six import with_metaclass
 # -*- coding: utf-8 -*-
 from django.conf import settings as django_settings
 import pytz

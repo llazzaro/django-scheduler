@@ -1,5 +1,5 @@
 from __future__ import division
-from six.moves.builtins import range
+from django.utils.six.moves.builtins import range
 import datetime
 from django.conf import settings
 from django import template
