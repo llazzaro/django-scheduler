@@ -3,14 +3,14 @@
 
 {% block body %}
 <b>{% trans "Create or change event. All fields are required." %}</b>
-<br/><br/>
+<br><br>
 <form action="" method="post">
   {% csrf_token %}
   <table>
     {{ form.as_table }}
   </table>
-  <br/>
+  <br>
   <input type="submit" value="{% trans "Save" %}">
-  <input type="submit" name="cancel" value="Cancel" />
+  <input type="submit" name="cancel" value="Cancel">
 </form>
 {% endblock %}

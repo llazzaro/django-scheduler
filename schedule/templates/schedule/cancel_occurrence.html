@@ -8,8 +8,8 @@
 <form action="" method="post">{% csrf_token %}
   <h2>{{ occurrence.title }}</h2>
   <strong>From</strong> {{ occurrence.start|date:_("DATETIME_FORMAT") }}
-  <strong>to</strong> {{ occurrence.end|date:_("DATETIME_FORMAT") }} <br/>
-  <input type="submit" value="Confirm" />
-  <input type="submit" name="cancel" value="Cancel" />
+  <strong>to</strong> {{ occurrence.end|date:_("DATETIME_FORMAT") }}<br>
+  <input type="submit" value="Confirm">
+  <input type="submit" name="cancel" value="Cancel">
 </form>
 {% endblock %}
