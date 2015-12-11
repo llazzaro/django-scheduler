@@ -1,10 +1,8 @@
-from future import standard_library
-standard_library.install_aliases()
 import json
 import pytz
 import datetime
 import dateutil.parser
-from urllib.parse import quote
+from six.moves.urllib.parse import quote
 
 from django.db.models import Q
 from django.core.urlresolvers import reverse

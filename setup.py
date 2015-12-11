@@ -37,7 +37,6 @@ setup(
         'six>=1.3.0',
         'icalendar>=3.8.4',
         'django-annoying>=0.8.0',
-        'future>=0.14.2',
     ],
     license='BSD',
     test_suite='runtests.runtests',
