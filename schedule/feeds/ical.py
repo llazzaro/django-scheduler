@@ -1,5 +1,4 @@
 from django.utils.six.moves.builtins import str
-from django.utils.six.moves.builtins import object
 import icalendar
 
 from django.http import HttpResponse

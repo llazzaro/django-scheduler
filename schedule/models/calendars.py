@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from django.utils.six.moves.builtins import str
-from django.utils.six.moves.builtins import object
 from django.utils.six import with_metaclass
 # -*- coding: utf-8 -*-
 
