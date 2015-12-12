@@ -1,7 +1,5 @@
-from django.conf import settings
 from django.conf.urls import url
 from django.views.generic.list import ListView
-from django.views.static import serve
 from schedule.models import Calendar
 from schedule.feeds import UpcomingEventsFeed
 from schedule.feeds import CalendarICalendar
@@ -109,11 +107,3 @@ urlpatterns = [
 
     url(r'^$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += [
-        url(
-            r'^static/(?P<path>.*)$',
-            serve,
-            {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
-    ]
