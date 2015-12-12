@@ -1,11 +1,9 @@
 import datetime
-import pytz
 
 from django.test import TestCase
 from django.utils import timezone
 
-from schedule.models import Event, Rule, Calendar, Occurrence, CalendarRelation
-from schedule.periods import Period, Day
+from schedule.models import Event, Rule, Calendar, CalendarRelation
 
 class TestCalendar(TestCase):
 
