@@ -1,9 +1,5 @@
-try:
-    from django.conf.urls import url
-except ImportError:
-    from django.conf.urls.defaults import url
-
 from django.conf import settings
+from django.conf.urls import url
 from django.views.generic.list import ListView
 from django.views.static import serve
 from schedule.models import Calendar
