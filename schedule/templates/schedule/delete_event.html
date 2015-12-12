@@ -6,7 +6,7 @@
 {% trans "Are you sure that you really want to delete it?" %}
 
 <form action="" method="post">{% csrf_token %}
-    <input type="submit" value="Confirm" />
-    <input type="submit" name="cancel" value="Cancel" />
+    <input type="submit" value="Confirm">
+    <input type="submit" name="cancel" value="Cancel">
 </form>
 {% endblock %}

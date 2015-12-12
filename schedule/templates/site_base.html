@@ -1,13 +1,13 @@
 {% load i18n static %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" xml:lang="{{ LANGUAGE_CODE }}" lang="{{ LANGUAGE_CODE }}">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <title>{% if site_name %}{{ site_name }} : {% endif %}{% block head_title %}{% endblock %}</title>
-        <link rel="stylesheet" href="{% static "bootstrap/dist/css/bootstrap.css" %}" type="text/css" media="screen" />
+        <link rel="stylesheet" href="{% static "bootstrap/dist/css/bootstrap.css" %}" type="text/css" media="screen">
         <script type="text/javascript" src="{% static "jquery/dist/jquery.js" %}"></script>
         <script type="text/javascript" src="{% static "bootstrap/dist/js/bootstrap.js" %}"></script>
-        <link rel="stylesheet" href="{% static "schedule.css" %}" type="text/css" media="screen" />
+        <link rel="stylesheet" href="{% static "schedule.css" %}" type="text/css" media="screen">
         {% block extra_head %}
         {% endblock %}
     </head>
