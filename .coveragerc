@@ -2,4 +2,4 @@
 source = schedule
 
 [report]
-omit = tests/*,*/migrations/*,*/south_migrations/*,schedule/models/__init__.py,schedule/management/*,schedule/admin.py,schedule/manage.py,schedule/settings.py
+omit = tests/*,*/migrations/*,schedule/models/__init__.py,schedule/management/*,schedule/admin.py
