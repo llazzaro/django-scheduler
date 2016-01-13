@@ -80,7 +80,13 @@ class OccurrenceReplacer(object):
             occ)
 
     def has_occurrence(self, occ):
-        return (occ.event, occ.original_start, occ.original_end) in self.lookup
+        try:
+            return (occ.event, occ.original_start, occ.original_end) in self.lookup
+        except TypeError:
+            if not self.lookup:
+                return False
+            else:
+                raise TypeError('A problem with checking if a persisted occurence exists has occured!')
 
     def get_additional_occurrences(self, start, end):
         """
