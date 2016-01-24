@@ -31,7 +31,6 @@ Installation
 
 ```bash
 pip install django-scheduler
-pip install django-bower
 ```
 
 edit your `settings.py`
@@ -47,7 +46,6 @@ add to `TEMPLATE_CONTEXT_PROCESSORS`:
 ```python
 "django.core.context_processors.request"
 ```
-
 
 Static assets
 =============
