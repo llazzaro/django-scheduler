@@ -3,7 +3,6 @@ from django.utils.six.moves.builtins import str
 from django.utils.six import with_metaclass
 # -*- coding: utf-8 -*-
 
-import pytz
 from django.contrib.contenttypes import fields
 from django.db import models
 from django.db.models.base import ModelBase
@@ -12,7 +11,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.template.defaultfilters import slugify
-import datetime
 from schedule.utils import EventListManager, get_model_bases
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
@@ -166,16 +164,13 @@ class Calendar(with_metaclass(ModelBase, *get_model_bases())):
         """
         CalendarRelation.objects.create_relation(self, obj, distinction, inheritable)
 
-    def get_recent(self, amount=5, in_datetime=datetime.datetime.now, tzinfo=pytz.utc):
+    def get_recent(self, amount=5):
         """
         This shortcut function allows you to get events that have started
         recently.
 
         amount is the amount of events you want in the queryset. The default is
         5.
-
-        in_datetime is the datetime you want to check against.  It defaults to
-        datetime.datetime.now
         """
         return self.events.order_by('-start').filter(start__lt=timezone.now())[:amount]
 

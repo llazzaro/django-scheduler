@@ -1,5 +1,4 @@
 from functools import wraps
-import pytz
 import heapq
 from annoying.functions import get_object_or_None
 from django.http import HttpResponseRedirect
@@ -22,7 +21,7 @@ class EventListManager(object):
     def __init__(self, events):
         self.events = events
 
-    def occurrences_after(self, after=None, tzinfo=pytz.utc):
+    def occurrences_after(self, after=None):
         """
         It is often useful to know what the next occurrence is given a list of
         events.  This function produces a generator that yields the
