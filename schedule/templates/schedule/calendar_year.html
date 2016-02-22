@@ -8,7 +8,7 @@
       {% for month in periods.year.get_months %}
         <div class="col-md-3">
           <div class="row row-centered">
-            <button class="btn btn-custom active" href="{% url "month_calendar" calendar.slug %}{% querystring_for_date month.start 2 True %}">{{month.name}}</button>
+            <button class="btn btn-custom active" href="{% url "month_calendar" calendar.slug %}{% querystring_for_date month.start 2 %}">{{month.name}}</button>
           </div>
           <div>
             {% month_table calendar month "small" %}

@@ -16,10 +16,10 @@
   </div>
 </div>
 <div class="row row-centered">
-  <a href="{% url "tri_month_calendar" calendar.slug %}{% querystring_for_date periods.month.start 2 True %}">
+  <a href="{% url "tri_month_calendar" calendar.slug %}{% querystring_for_date periods.month.start 2 %}">
     {% trans "Three Month Calendar" %}
   </a>
-  <a href="{% url "year_calendar" calendar.slug %}{% querystring_for_date periods.month.start 1 True %}">
+  <a href="{% url "year_calendar" calendar.slug %}{% querystring_for_date periods.month.start 1 %}">
     {% trans "Full Year Calendar" %}
   </a>
 </div>

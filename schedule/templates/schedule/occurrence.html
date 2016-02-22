@@ -3,10 +3,10 @@
 
 {% block body %}
 <div class="navigation">
-  <a href="{% url "day_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 True %}">
+  <a href="{% url "day_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 %}">
     {% trans "Day" %}
   </a>
-  <a href="{% url "month_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 True %}">
+  <a href="{% url "month_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 %}">
     {% trans "Month" %}
   </a>
 </div>

@@ -5,9 +5,9 @@ from django.conf import settings
 from django import template
 from django.core.urlresolvers import reverse
 from django.utils.dateformat import format
-from django.utils.html import conditional_escape
-from django.utils.safestring import mark_safe
+from django.utils.html import escape
 from django.utils import timezone
+from django.utils.six.moves.urllib.parse import urlencode
 
 from schedule.conf.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC, SCHEDULER_PREVNEXT_LIMIT_SECONDS
 from schedule.models import Calendar
@@ -103,7 +103,7 @@ def create_event_url(context, calendar, slot):
     }
     context['create_event_url'] = "%s%s" % (
         reverse("calendar_create_event", kwargs=lookup_context),
-        querystring_for_date(slot, autoescape=True))
+        querystring_for_date(slot))
     return context
 
 
@@ -173,17 +173,21 @@ register.tag('get_or_create_calendar', do_get_or_create_calendar_for_object)
 
 
 @register.simple_tag
-@register.filter(needs_autoescape=True)
-def querystring_for_date(date, num=6, autoescape=None):
-    if autoescape:
-        esc = conditional_escape
-    else:
-        esc = lambda x: x
-    query_string = '?'
-    qs_parts = ['year=%d', 'month=%d', 'day=%d', 'hour=%d', 'minute=%d', 'second=%d']
-    qs_vars = (date.year, date.month, date.day, date.hour, date.minute, date.second)
-    query_string += esc('&'.join(qs_parts[:num]) % qs_vars[:num])
-    return mark_safe(query_string)
+def querystring_for_date(date, num=6):
+    qs_parts = [
+        ('year', date.year),
+        ('month', date.month),
+        ('day', date.day),
+        ('hour', date.hour),
+        ('minute', date.minute),
+        ('second', date.second),
+    ]
+    query_string = '?' + urlencode(qs_parts[:num])
+    # For compatibility with older Django versions, escape the
+    # output. Starting with Django 1.9, simple_tags are automatically
+    # passed through conditional_escape(). See:
+    # https://docs.djangoproject.com/en/1.9/releases/1.9/#simple-tag-now-wraps-tag-output-in-conditional-escape
+    return escape(query_string)
 
 
 @register.simple_tag
@@ -196,7 +200,7 @@ def prev_url(target, calendar, period):
 
     return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-        querystring_for_date(period.prev().start, autoescape=True))
+        querystring_for_date(period.prev().start))
 
 
 @register.simple_tag
@@ -210,7 +214,7 @@ def next_url(target, calendar, period):
 
     return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-        querystring_for_date(period.next().start, autoescape=True))
+        querystring_for_date(period.next().start))
 
 
 @register.inclusion_tag("schedule/_prevnext.html")

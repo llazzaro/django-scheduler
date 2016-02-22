@@ -39,7 +39,7 @@ class TestTemplateTags(TestCase):
 
     def test_querystring_for_datetime(self):
         date = datetime.datetime(datetime.datetime.now().year, 1, 1, 0, 0, 0)
-        query_string = querystring_for_date(date, autoescape=True)
+        query_string = querystring_for_date(date)
         self.assertEqual(escape('?year={0}&month=1&day=1&hour=0&minute=0&second=0'.format(datetime.datetime.now().year)),
             query_string)
 
