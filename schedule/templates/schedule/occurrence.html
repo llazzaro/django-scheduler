@@ -1,36 +1,24 @@
-{% extends "base.html" %}
+{% extends "schedule/base.html" %}
 {% load i18n staticfiles scheduletags %}
 
 {% block body %}
 <div class="navigation">
-  <a class="btn btn-primary gradient" href="{% url "day_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 True %}">
+  <a href="{% url "day_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 True %}">
     {% trans "Day" %}
   </a>
-  <a class="btn btn-primary gradient" href="{% url "month_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 True %}">
+  <a href="{% url "month_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 True %}">
     {% trans "Month" %}
   </a>
-  <a class="btn btn-primary gradient" href="{% url "year_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 1 True %}">
-    {% trans "Year" %}
-  </a>
 </div>
-
 <div class="event_actions" align="center">
-  {% if back_url %}
-  <a href="{{ back_url }}">
-    <span class="glyphicon glyphicon-circle-arrow-left"></span>
-  </a>
-  &nbsp;
-  {% endif %}
-  <a href="{{occurrence.get_edit_url}}">
-    Edit <span class="glyphicon glyphicon-pencil"></span>
-  </a>
-  &nbsp;
-  <a href="{{occurrence.get_cancel_url}}">
-    Delete <span class="glyphicon glyphicon-remove"></span>
-  </a>
+	{% if back_url %}
+	<a href="{{ back_url }}"><img border="0" src="{% static "schedule/img/left_mod.png" %}" alt="{% trans "Back" %}"></a> &nbsp;
+	{% endif %}
+	<a href="{{occurrence.get_edit_url}}"><img border="0" src="{% static "schedule/img/pencil.png" %}" alt="{% trans "Change" %}"></a> &nbsp;
+	<a href="{{occurrence.get_cancel_url}}"><img border="0" src="{% static "schedule/img/delete.png" %}" alt="{% trans "Cancel" %}"></a>
 </div>
 <h2 align="center">{{occurrence.title}}</h2>
-<table align="center" class="table table-hover">
+<table align="center">
 <tr>
 <td>{% trans "Starts" %}</td>
 <td>{% blocktrans with occurrence.start|date:_("DATETIME_FORMAT") as start_date %}{{ start_date }}{% endblocktrans %}</td>
@@ -39,18 +27,15 @@
 <td>{% trans "Ends" %}</td>
 <td>{% blocktrans with occurrence.end|date:_("DATETIME_FORMAT") as end_date %}{{ end_date }}{% endblocktrans %}</td>
 </tr>
-<tr>
-<td>{% trans "Reoccurs" %}</td>
 {% if occurrence.event.rule %}
-<td>{{ occurrence.event.rule.name }} {% trans "until" %} {% blocktrans with occurrence.event.end_recurring_period|date:_("DATETIME_FORMAT") as end_recurring_date %}{{ end_recurring_date }}{% endblocktrans %}</td>
-{% else %}
-<td>{% trans "Never. This is a 'one time only' event." %}</td>
+<tr>
+<td>{% trans "Reoccurs" %}</td><td>{{event.rule}}</td>
+</tr>
 {% endif %}
-</tr></table>
+</table>
 {% if occurrence.description %}
 <h3>{% trans "Description" %}</h3>
 <p>{{occurrence.description}}</p>
 {% endif %}
 
 {% endblock %}
-
