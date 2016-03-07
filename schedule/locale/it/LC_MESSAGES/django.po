@@ -1,0 +1,191 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-01-06 10:15-0400\n"
+"PO-Revision-Date: 2015-09-22 17:07+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: it\n"
+"X-Generator: Poedit 1.8.4\n"
+
+#: forms.py:18
+msgid "AM"
+msgstr ""
+
+#: forms.py:18
+msgid "PM"
+msgstr ""
+
+#: forms.py:57
+msgid "The end time must be later than start time."
+msgstr "L'orario finale deve essere successivo a quello iniziale."
+
+#: forms.py:58 models.py:300
+msgid "This date is ignored for one time only events."
+msgstr "Questa data è ignorata per gli eventi non ricorrenti."
+
+#: models.py:15
+msgid "Yearly"
+msgstr "Annualmente"
+
+#: models.py:16
+msgid "Monthly"
+msgstr "Mensilmente"
+
+#: models.py:17
+msgid "Weekly"
+msgstr "Settimanalmente"
+
+#: models.py:18
+msgid "Daily"
+msgstr "Giornalmente"
+
+#: models.py:19
+msgid "Hourly"
+msgstr ""
+
+#: models.py:20
+msgid "Minutely"
+msgstr ""
+
+#: models.py:21
+msgid "Secondly"
+msgstr ""
+
+#: models.py:52 models.py:491
+msgid "name"
+msgstr "nome"
+
+#: models.py:53 models.py:296
+msgid "description"
+msgstr "descrizione"
+
+#: models.py:54
+msgid "frequency"
+msgstr "frequenza"
+
+#: models.py:55
+msgid "params"
+msgstr "parametri"
+
+#: models.py:58 models.py:299
+msgid "rule"
+msgstr "regola"
+
+#: models.py:59
+msgid "rules"
+msgstr "regole"
+
+#: models.py:293
+msgid "start"
+msgstr ""
+
+#: models.py:294
+msgid "end"
+msgstr ""
+
+#: models.py:294
+msgid "The end time must be later than the start time."
+msgstr "L'orario finale deve essere successivo a quello iniziale."
+
+#: models.py:295
+msgid "title"
+msgstr "titolo"
+
+#: models.py:297
+msgid "creator"
+msgstr "autore"
+
+#: models.py:298
+msgid "created on"
+msgstr "creato il"
+
+#: models.py:299
+msgid "Select '----' for a one time only event."
+msgstr "Seleziona '----' per gli eventi non ricorrenti."
+
+#: models.py:300
+msgid "end recurring period"
+msgstr "fine del period ricorrente"
+
+#: models.py:305 models.py:754
+msgid "event"
+msgstr "evento"
+
+#: models.py:306 models.py:493
+msgid "events"
+msgstr "eventi"
+
+#: models.py:309 periods.py:163 periods.py:216 periods.py:232
+msgid "DATE_FORMAT"
+msgstr ""
+
+#: models.py:310
+#, python-format
+msgid "%(title)s: %(start)s-%(end)s"
+msgstr ""
+
+#: models.py:492
+msgid "slug"
+msgstr ""
+
+#: models.py:498 models.py:499 models.py:589
+msgid "calendar"
+msgstr "calendario"
+
+#: models.py:593 models.py:758
+msgid "distinction"
+msgstr "distinzione"
+
+#: models.py:594
+msgid "inheritable"
+msgstr "ereditabile"
+
+#: models.py:599
+msgid "calendar relation"
+msgstr "relazione calendario"
+
+#: models.py:600
+msgid "calendar relations"
+msgstr "relazioni calendario"
+
+#: models.py:763
+msgid "event relation"
+msgstr "relazione evento"
+
+#: models.py:764
+msgid "event relations"
+msgstr "relazioni evento"
+
+#: occurrence.py:14
+#, python-format
+msgid "%(start)s to %(end)s"
+msgstr ""
+
+#: periods.py:10
+msgid "FIRST_DAY_OF_WEEK"
+msgstr ""
+
+#: periods.py:164
+#, python-format
+msgid "Month: %(start)s-%(end)s"
+msgstr ""
+
+#: periods.py:217
+#, python-format
+msgid "Week: %(start)s-%(end)s"
+msgstr ""
+
+#: periods.py:233
+#, python-format
+msgid "Day: %(start)s-%(end)s"
+msgstr ""

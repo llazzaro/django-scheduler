@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
-from six.moves.builtins import str
-from six.moves.builtins import object
-from six import with_metaclass
+from django.utils.six.moves.builtins import str
+from django.utils.six import with_metaclass
 from dateutil.rrule import DAILY, MONTHLY, WEEKLY, YEARLY, HOURLY, MINUTELY, SECONDLY
 
 from django.db import models

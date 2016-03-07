@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
-from six.moves.builtins import str
-from six.moves.builtins import object
-from six import with_metaclass
+from django.utils.six.moves.builtins import str
+from django.utils.six import with_metaclass
 # -*- coding: utf-8 -*-
 
 import pytz
@@ -17,8 +16,6 @@ import datetime
 from schedule.utils import EventListManager, get_model_bases
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
-
-from schedule.utils import object_content_type
 
 
 class CalendarManager(models.Manager):
@@ -100,12 +97,12 @@ class CalendarManager(models.Manager):
         If distinction is set it will filter out any relation that doesnt have
         that distinction.
         """
-        ct = object_content_type(obj)
+        ct = ContentType.objects.get_for_model(obj)
         if distinction:
             dist_q = Q(calendarrelation__distinction=distinction)
         else:
             dist_q = Q()
-        return self.filter(dist_q, Q(calendarrelation__object_id=obj.id, calendarrelation__content_type=ct))
+        return self.filter(dist_q, calendarrelation__object_id=obj.id, calendarrelation__content_type=ct)
 
 
 @python_2_unicode_compatible
@@ -198,11 +195,7 @@ class CalendarRelationManager(models.Manager):
         Creates a relation between calendar and content_object.
         See CalendarRelation for help on distinction and inheritable
         """
-        ct = object_content_type(content_object)
-        object_id = content_object.id
         cr = CalendarRelation(
-            content_type=ct,
-            object_id=object_id,
             calendar=calendar,
             distinction=distinction,
             content_object=content_object

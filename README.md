@@ -2,13 +2,13 @@ Django Scheduler
 ========
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/llazzaro/django-scheduler?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 [<img src="https://img.shields.io/travis/llazzaro/django-scheduler.svg">](https://travis-ci.org/llazzaro/django-scheduler)
 [![Code Health](https://landscape.io/github/llazzaro/django-scheduler/master/landscape.svg?style=flat)](https://landscape.io/github/llazzaro/django-scheduler/master)
 [<img src="https://img.shields.io/coveralls/llazzaro/django-scheduler.svg">](https://coveralls.io/r/llazzaro/django-scheduler)
 [<img src="https://img.shields.io/pypi/v/django-scheduler.svg">](https://pypi.python.org/pypi/django-scheduler)
 [<img src="https://pypip.in/d/django-scheduler/badge.png">](https://pypi.python.org/pypi/django-scheduler)
 [<img src="https://pypip.in/license/django-scheduler/badge.png">](https://github.com/llazzaro/django-scheduler/blob/master/LICENSE.txt)
+[![Documentation Status](http://readthedocs.org/projects/django-scheduler/badge/?version=latest)](http://django-scheduler.readthedocs.org/en/latest/?badge=latest)
 
 
 A calendar app for Django
@@ -30,7 +30,6 @@ Installation
 ========
 
 ```bash
-npm install -g bower
 pip install django-scheduler
 ```
 
@@ -40,7 +39,6 @@ add to `INSTALLED_APPS`:
 
 ```python
 'schedule',
-'djangobower',
 ```
 
 add to `TEMPLATE_CONTEXT_PROCESSORS`:
@@ -49,18 +47,42 @@ add to `TEMPLATE_CONTEXT_PROCESSORS`:
 "django.core.context_processors.request"
 ```
 
-Add staticfinder to STATICFILES_FINDERS:
+Static assets
+=============
+
+Django Scheduler relies on [jQuery](https://jquery.com/) and
+[Bootstrap](https://getbootstrap.com/) to provide its user
+interface. If you don't need help with adding these to your Django
+project, you can skip the next step where we will show you how to add
+them to your Django project.
+
+```bash
+npm install -g bower
+pip install django-bower
+```
+
+edit your `settings.py`
+
+add to `INSTALLED_APPS`:
+
+```python
+'djangobower',
+```
+
+Add staticfinder to `STATICFILES_FINDERS`:
 
 ```
 'djangobower.finders.BowerFinder',
 ```
 
-Specify path to components root (you need to use absolute path):
+Specify the path to the components root (you need to use an absolute
+path):
+
 ```
 BOWER_COMPONENTS_ROOT = '/PROJECT_ROOT/components/'
 ```
 
-Add the following required Bower dependencies for scheduler:
+Add the following Bower dependencies for scheduler:
 
 ```
 BOWER_INSTALLED_APPS = (
@@ -98,6 +120,9 @@ Full Calendar examples
 
 ![Daily view (static)](https://raw.githubusercontent.com/llazzaro/django-scheduler-sample/master/daily.png)
 
+Metrics
+========
+[![Throughput Graph](https://graphs.waffle.io/llazzaro/django-scheduler/throughput.svg)](https://waffle.io/llazzaro/django-scheduler/metrics)
 
 Optional Settings
 ========

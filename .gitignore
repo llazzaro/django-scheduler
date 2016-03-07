@@ -1,7 +1,8 @@
 *.swp
 *~
 *.pyc
-/project_sample/project_sample.db
+/.coverage
+/.eggs/
+/dist/
+/django_scheduler.egg-info/
 /docs/_build/
-django_scheduler.egg-info
-.coverage

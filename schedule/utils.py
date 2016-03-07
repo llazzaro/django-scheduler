@@ -1,9 +1,7 @@
-from six.moves.builtins import object
 from functools import wraps
 import pytz
 import heapq
 from annoying.functions import get_object_or_None
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils import timezone
@@ -82,7 +80,13 @@ class OccurrenceReplacer(object):
             occ)
 
     def has_occurrence(self, occ):
-        return (occ.event, occ.original_start, occ.original_end) in self.lookup
+        try:
+            return (occ.event, occ.original_start, occ.original_end) in self.lookup
+        except TypeError:
+            if not self.lookup:
+                return False
+            else:
+                raise TypeError('A problem with checking if a persisted occurence exists has occured!')
 
     def get_additional_occurrences(self, start, end):
         """
@@ -174,10 +178,3 @@ def get_model_bases():
         return [Model]
     else:
         return [import_string(x) for x in baseStrings]
-
-
-def object_content_type(obj):
-    obj.pk  # try to wake up the object in case it is a SimpleLazyObject
-    obj_type = type(obj._wrapped) if hasattr(obj, '_wrapped') else type(obj)
-    ct = ContentType.objects.get_for_model(obj_type)
-    return ct

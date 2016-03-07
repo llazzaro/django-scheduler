@@ -1,10 +1,8 @@
-from future import standard_library
-standard_library.install_aliases()
 import json
 import pytz
 import datetime
 import dateutil.parser
-from urllib.parse import quote
+from django.utils.six.moves.urllib.parse import quote
 
 from django.db.models import Q
 from django.core.urlresolvers import reverse
@@ -16,6 +14,7 @@ from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
         UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
+from django.utils.http import is_safe_url
 
 from schedule.conf.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
                                     EVENT_NAME_PLACEHOLDER)
@@ -266,22 +265,13 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None
     return event, occurrence
 
 
-def check_next_url(next_url):
-    """
-    Checks to make sure the next url is not redirecting to another page.
-    Basically it is a minimal security check.
-    """
-    if not next_url or '://' in next_url:
-        return None
-    return next_url
-
-
 def get_next_url(request, default):
     next_url = default
     if OCCURRENCE_CANCEL_REDIRECT:
         next_url = OCCURRENCE_CANCEL_REDIRECT
-    if 'next' in request.REQUEST and check_next_url(request.REQUEST['next']) is not None:
-        next_url = request.REQUEST['next']
+    _next_url = request.GET.get('next') if request.method in ['GET', 'HEAD'] else request.POST.get('next')
+    if _next_url and is_safe_url(url=_next_url, host=request.get_host()):
+        next_url = _next_url
     return next_url
 
 
@@ -318,6 +308,7 @@ def api_occurrences(request):
                 "end": occurrence.end.isoformat(),
                 "existed" : existed,
                 "event_id" : occurrence.event.id,
+                "color" : occurrence.event.color_event,
             })
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 

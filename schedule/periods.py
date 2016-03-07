@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
-from six.moves.builtins import range
-from six.moves.builtins import object
+from django.utils.six.moves.builtins import range
 import pytz
 import datetime
 import calendar as standardlib_calendar
@@ -362,6 +361,11 @@ class Day(Period):
                                   parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def _get_day_range(self, date):
+
+        # localize the date before we typecast to naive dates
+        if self.tzinfo is not None and timezone.is_aware(date):
+            date = date.astimezone(self.tzinfo)
+
         if isinstance(date, datetime.datetime):
             date = date.date()
 

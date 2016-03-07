@@ -46,13 +46,13 @@ class TestTemplateTags(TestCase):
     def test_prev_url(self):
         query_string = prev_url('month_calendar', self.cal, self.day)
         url_params = escape('/calendar/month/MyCalSlug/?year={0}&month=2&day=6&hour=0&minute=0&second=0'.format(datetime.datetime.now().year))
-        expected = ('<a href="{0}"><span class="glyphicon glyphicon-circle-arrow-left" /></a>'.format(url_params))
+        expected = ('<a href="{0}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>'.format(url_params))
         self.assertEqual(query_string, expected)
 
     def test_next_url(self):
         query_string = next_url('month_calendar', self.cal, self.day)
         url_params = escape('/calendar/month/MyCalSlug/?year={0}&month=2&day=8&hour=0&minute=0&second=0'.format(datetime.datetime.now().year))
-        expected = ('<a href="{0}"><span class="glyphicon glyphicon-circle-arrow-right" /></a>'.format(url_params))
+        expected = ('<a href="{0}"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>'.format(url_params))
         self.assertEqual(query_string, expected)
 
     def test_next_url_upper_limit(self):

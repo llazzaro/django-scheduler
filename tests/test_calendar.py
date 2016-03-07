@@ -1,12 +1,9 @@
-
 import datetime
-import pytz
 
 from django.test import TestCase
 from django.utils import timezone
 
-from schedule.models import Event, Rule, Calendar, Occurrence, CalendarRelation
-from schedule.periods import Period, Day
+from schedule.models import Event, Rule, Calendar, CalendarRelation
 
 class TestCalendar(TestCase):
 
@@ -15,12 +12,11 @@ class TestCalendar(TestCase):
 
     def __create_event(self, start, end):
         data = {
-                'title': 'Recent Event',
-                'start': start,
-                'end': end
-            }
-        return Event(**data)
-
+            'title': 'Recent Event',
+            'start': start,
+            'end': end
+        }
+        return Event.objects.create(**data)
 
     def test_get_recent_events_without_events_is_empty(self):
         calendar = Calendar()

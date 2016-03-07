@@ -1,5 +1,5 @@
 from __future__ import division
-from six.moves.builtins import range
+from django.utils.six.moves.builtins import range
 import datetime
 from django.conf import settings
 from django import template
@@ -194,7 +194,7 @@ def prev_url(target, calendar, period):
     if delta.total_seconds() > SCHEDULER_PREVNEXT_LIMIT_SECONDS:
         return ''
 
-    return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-left" /></a>' % (
+    return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
         querystring_for_date(period.prev().start, autoescape=True))
 
@@ -208,7 +208,7 @@ def next_url(target, calendar, period):
     if delta.total_seconds() > SCHEDULER_PREVNEXT_LIMIT_SECONDS:
         return ''
 
-    return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-right" /></a>' % (
+    return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
         querystring_for_date(period.next().start, autoescape=True))
 
