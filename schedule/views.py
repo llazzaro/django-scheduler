@@ -26,8 +26,6 @@ from schedule.utils import (check_event_permissions,
     check_calendar_permissions, coerce_date_dict, 
     check_occurrence_permissions)
 
-from Scheduler.permissions import event_change_permissions
-
 
 class CalendarViewPermissionMixin(object):
     @classmethod
@@ -357,7 +355,7 @@ def api_move_or_resize_by_code(request):
             if not resize:
                 event.start += dt
             event.end = event.end + dt
-            if event_change_permissions(event, request.user):
+            if CHECK_EVENT_PERM_FUNC(event, request.user):
                 event.save()
                 resp['status'] = "OK"
     return HttpResponse(json.dumps(resp))
