@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+{% load i18n staticfiles scheduletags admin_static wpadmin_tags log %}
+{% load static from staticfiles %}
+
+{% block head_title %}Calendar Admin: {{ object.name }}{% endblock %}
+{% block tab_id %}id='home_tab'{% endblock %}
+{% block extrahead %}
+	<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-ui.js" %}"></script> 
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    {% include "fullcalendar_script.html" %}
+{% endblock %}
+
+{% block content %}
+<div id='calendar'></div>
+{% endblock %}
