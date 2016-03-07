@@ -17,6 +17,7 @@ from schedule.utils import EventListManager, get_model_bases
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
+from schedule.conf.settings import USE_FULLCALENDAR
 
 class CalendarManager(models.Manager):
     """
@@ -183,6 +184,8 @@ class Calendar(with_metaclass(ModelBase, *get_model_bases())):
         return EventListManager(self.events.all()).occurrences_after(date)
 
     def get_absolute_url(self):
+        if USE_FULLCALENDAR:
+            return reverse('fullcalendar', kwargs={'calendar_slug': self.slug})
         return reverse('calendar_home', kwargs={'calendar_slug': self.slug})
 
     def add_event_url(self):
