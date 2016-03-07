@@ -1,8 +1,10 @@
+from future import standard_library
+standard_library.install_aliases()
 import json
 import pytz
 import datetime
 import dateutil.parser
-from django.utils.six.moves.urllib.parse import quote
+from urllib.parse import quote
 
 from django.db.models import Q
 from django.core.urlresolvers import reverse
@@ -14,14 +16,20 @@ from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
         UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
-from django.utils.http import is_safe_url
 
 from schedule.conf.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
                                     EVENT_NAME_PLACEHOLDER)
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
-from schedule.utils import check_event_permissions, check_calendar_permissions, coerce_date_dict
+from schedule.utils import (check_event_permissions, 
+    check_calendar_permissions, coerce_date_dict, 
+    check_occurrence_permissions)
+from schedule.conf.settings import (GET_EVENTS_FUNC, 
+    OCCURRENCE_CANCEL_REDIRECT, EVENT_NAME_PLACEHOLDER, 
+    CHECK_EVENT_PERM_FUNC, CHECK_OCCURRENCE_PERM_FUNC)
+
+from Scheduler.permissions import event_change_permissions
 
 
 class CalendarViewPermissionMixin(object):
@@ -36,6 +44,12 @@ class EventEditPermissionMixin(object):
     def as_view(cls, **initkwargs):
         view = super(EventEditPermissionMixin, cls).as_view(**initkwargs)
         return check_event_permissions(view)
+
+class OccurrenceEditPermissionMixin(object):
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(OccurrenceEditPermissionMixin, cls).as_view(**initkwargs)
+        return check_occurrence_permissions(view)
 
 
 class TemplateKwargMixin(TemplateResponseMixin):
@@ -133,7 +147,7 @@ class OccurrenceMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
     form_class = OccurrenceForm
 
 
-class OccurrenceEditMixin(EventEditPermissionMixin, OccurrenceMixin, CancelButtonMixin):
+class OccurrenceEditMixin(OccurrenceEditPermissionMixin, OccurrenceMixin, CancelButtonMixin):
     def get_initial(self):
         initial_data = super(OccurrenceEditMixin, self).get_initial()
         _, self.object = get_occurrence(**self.kwargs)
@@ -238,7 +252,7 @@ class DeleteEventView(EventEditMixin, DeleteView):
         # If the key word argument redirect is set
         # Lastly redirect to the event detail of the recently create event
         """
-        next_url = self.kwargs.get('next') or reverse('day_calendar', args=[self.object.calendar.slug])
+        next_url = self.kwargs.get('next') or reverse('fullcalendar', args=[self.object.calendar.slug])
         next_url = get_next_url(self.request, next_url)
         return next_url
 
@@ -265,16 +279,25 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None
     return event, occurrence
 
 
+def check_next_url(next_url):
+    """
+    Checks to make sure the next url is not redirecting to another page.
+    Basically it is a minimal security check.
+    """
+    if not next_url or '://' in next_url:
+        return None
+    return next_url
+
+
 def get_next_url(request, default):
     next_url = default
     if OCCURRENCE_CANCEL_REDIRECT:
         next_url = OCCURRENCE_CANCEL_REDIRECT
-    _next_url = request.GET.get('next') if request.method in ['GET', 'HEAD'] else request.POST.get('next')
-    if _next_url and is_safe_url(url=_next_url, host=request.get_host()):
-        next_url = _next_url
+    if 'next' in request.REQUEST and check_next_url(request.REQUEST['next']) is not None:
+        next_url = request.REQUEST['next']
     return next_url
 
-
+@check_calendar_permissions
 def api_occurrences(request):
     utc=pytz.UTC
     # version 2 of full calendar
@@ -308,10 +331,10 @@ def api_occurrences(request):
                 "end": occurrence.end.isoformat(),
                 "existed" : existed,
                 "event_id" : occurrence.event.id,
-                "color" : occurrence.event.color_event,
             })
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@check_calendar_permissions
 def api_move_or_resize_by_code(request):
     if request.method == 'POST':
         id = request.POST.get('id')
@@ -319,25 +342,28 @@ def api_move_or_resize_by_code(request):
         dt = datetime.timedelta(minutes=int(request.POST.get('delta')))
         resize = bool(request.POST.get('resize', False))
         resp = {}
+        resp['status'] = "PERMISSION DENIED"
 
         if existed:
             occurrence = Occurrence.objects.get(id=id)
+            occurrence.end += dt
             if not resize:
-                occurrence.move(occurrence.start + dt, occurrence.end + dt)
-            else:
-                occurrence.move(occurrence.start, occurrence.end + dt)
+                occurrence.start += dt
+            if CHECK_OCCURRENCE_PERM_FUNC(occurrence, request.user):
+                occurrence.save()
+                resp['status'] = "OK"
         else:
             event_id = request.POST.get('event_id')
             event = Event.objects.get(id=event_id)
             if not resize:
                 event.start += dt
             event.end = event.end + dt
-            event.save()
-
-        resp['status'] = "OK"
-
+            if event_change_permissions(event, request.user):
+                event.save()
+                resp['status'] = "OK"
     return HttpResponse(json.dumps(resp))
 
+@check_calendar_permissions
 def api_select_create(request):
     if request.method == 'POST':
         calendar_slug = request.POST.get('calendar_slug')

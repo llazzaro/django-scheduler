@@ -2,15 +2,15 @@ from functools import wraps
 import pytz
 import heapq
 from annoying.functions import get_object_or_None
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.conf import settings
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from schedule.conf.settings import (
         CHECK_EVENT_PERM_FUNC,
         CHECK_CALENDAR_PERM_FUNC,
+        CHECK_OCCURRENCE_PERM_FUNC,
         CALENDAR_VIEW_PERM)
-
 
 class EventListManager(object):
     """
@@ -95,55 +95,113 @@ class OccurrenceReplacer(object):
         return [occ for _, occ in list(self.lookup.items()) if (occ.start < end and occ.end >= start and not occ.cancelled)]
 
 
+def get_occurrence(request, *args, **kwargs):
+    from schedule.models import Occurrence
+    occurrence = None
+    if 'occurrence_id' in kwargs:
+        occurrence = get_object_or_None(Occurrence, 
+            id=kwargs['occurrence_id'])
+    elif request.GET:
+        occurrence = get_object_or_None(Occurrence, 
+            id=request.GET.get('occurrence_id', None))
+    elif request.POST:
+        occurrence = get_object_or_None(Occurrence, 
+            id=request.POST.get('occurrence_id', None))
+    return occurrence
+
+def get_event(occurrence, request, *args, **kwargs):
+    from schedule.models import Event
+    event = None
+    if occurrence:
+        event = occurrence.event
+    elif 'event_id' in kwargs:
+        event = get_object_or_None(Event, 
+            id=kwargs['event_id'])
+    elif request.GET:
+        event = get_object_or_None(Event, 
+            id=request.GET.get('event_id', None))
+    elif request.POST:
+        event = get_object_or_None(Event, 
+            id=request.POST.get('event_id', None))
+    return event
+
+def get_calendar(event, request, *args, **kwargs):
+    from schedule.models import Calendar
+    calendar = None
+    if event:
+        calendar = event.calendar
+    elif 'calendar_slug' in kwargs:
+        calendar = get_object_or_None(Calendar, 
+            slug=kwargs['calendar_slug'])
+    elif request.GET:
+        calendar = get_object_or_None(Calendar, 
+            slug=request.GET.get('calendar_slug', None))
+    elif request.POST:
+        calendar = get_object_or_None(Calendar, 
+            slug=request.POST.get('calendar_slug', None))
+    return calendar
+
+def get_objects(request, *args, **kwargs):
+    occurrence = get_occurrence(request, *args, **kwargs)
+    event = get_event(occurrence, request, *args, **kwargs)
+    calendar = get_calendar(event, request, *args, **kwargs)
+    return occurrence, event, calendar
+
+def check_occurrence_permissions(function):
+    @wraps(function)
+    def decorator(request, *args, **kwargs):
+        from schedule.models import Event, Calendar, Occurrence
+        user = request.user
+        if not user:
+            return HttpResponseRedirect(settings.LOGIN_URL)
+        occurrence, event, calendar = get_objects(request, *args, **kwargs)
+        if calendar and event:
+            allowed = (CHECK_EVENT_PERM_FUNC(event, user) and \
+                CHECK_CALENDAR_PERM_FUNC(calendar, user) and \
+                CHECK_OCCURRENCE_PERM_FUNC(occurrence, user))
+            if not allowed:
+                return HttpResponseRedirect(settings.LOGIN_URL)
+            # all checks passed
+            return function(request, *args, **kwargs)
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    return decorator
+
 def check_event_permissions(function):
     @wraps(function)
     def decorator(request, *args, **kwargs):
-        from schedule.models import Event, Calendar
+        from schedule.models import Event, Calendar, Occurrence
         user = request.user
-        # check event permission
-        event = get_object_or_None(Event, pk=kwargs.get('event_id', None))
-        allowed = CHECK_EVENT_PERM_FUNC(event, user)
-        if not allowed:
+        if not user:
             return HttpResponseRedirect(settings.LOGIN_URL)
-
-        # check calendar permissions
-        calendar = None
-        if event:
-            calendar = event.calendar
-        elif 'calendar_slug' in kwargs:
-            calendar = Calendar.objects.get(slug=kwargs['calendar_slug'])
-        allowed = CHECK_CALENDAR_PERM_FUNC(calendar, user)
-        if not allowed:
-            return HttpResponseRedirect(settings.LOGIN_URL)
-
-        # all checks passed
-        return function(request, *args, **kwargs)
-
+        occurrence, event, calendar = get_objects(request, *args, **kwargs)
+        if calendar:
+            allowed = (CHECK_EVENT_PERM_FUNC(event, user) and \
+                CHECK_CALENDAR_PERM_FUNC(calendar, user))
+            if not allowed:
+                return HttpResponseRedirect(settings.LOGIN_URL)
+            # all checks passed
+            return function(request, *args, **kwargs)
+        return HttpResponseNotFound('<h1>Page not found</h1>')
     return decorator
-
 
 def check_calendar_permissions(function):
     @wraps(function)
     def decorator(request, *args, **kwargs):
         if CALENDAR_VIEW_PERM:
-            from schedule.models import Event, Calendar
+            from schedule.models import Event, Calendar, Occurrence
             user = request.user
-            # check event permission
-            event = get_object_or_None(Event, pk=kwargs.get('event_id', None))
-            # check calendar permissions
-            calendar = None
-            if event:
-                calendar = event.calendar
-            elif 'calendar_slug' in kwargs:
-                calendar = Calendar.objects.get(slug=kwargs['calendar_slug'])
-            allowed = CHECK_CALENDAR_PERM_FUNC(calendar, user)
-            if not allowed:
+            if not user:
                 return HttpResponseRedirect(settings.LOGIN_URL)
-            # all checks passed
+            occurrence, event, calendar = get_objects(request, *args, **kwargs)
+            if calendar:
+                allowed = CHECK_CALENDAR_PERM_FUNC(calendar, user)
+                if not allowed:
+                    return HttpResponseRedirect(settings.LOGIN_URL)
+                # all checks passed
+                return function(request, *args, **kwargs)
+            return HttpResponseNotFound('<h1>Page not found</h1>')
         return function(request, *args, **kwargs)
-
     return decorator
-
 
 def coerce_date_dict(date_dict):
     """
