@@ -1,10 +1,8 @@
-from future import standard_library
-standard_library.install_aliases()
 import json
 import pytz
 import datetime
 import dateutil.parser
-from urllib.parse import quote
+from django.utils.six.moves.urllib.parse import quote
 
 from django.db.models import Q
 from django.core.urlresolvers import reverse
@@ -16,18 +14,17 @@ from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
         UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
+from django.utils.http import is_safe_url
 
 from schedule.conf.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
-                                    EVENT_NAME_PLACEHOLDER)
+                                    EVENT_NAME_PLACEHOLDER, CHECK_EVENT_PERM_FUNC, 
+                                    CHECK_OCCURRENCE_PERM_FUNC, USE_FULLCALENDAR)
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
 from schedule.utils import (check_event_permissions, 
     check_calendar_permissions, coerce_date_dict, 
     check_occurrence_permissions)
-from schedule.conf.settings import (GET_EVENTS_FUNC, 
-    OCCURRENCE_CANCEL_REDIRECT, EVENT_NAME_PLACEHOLDER, 
-    CHECK_EVENT_PERM_FUNC, CHECK_OCCURRENCE_PERM_FUNC)
 
 from Scheduler.permissions import event_change_permissions
 
@@ -252,7 +249,8 @@ class DeleteEventView(EventEditMixin, DeleteView):
         # If the key word argument redirect is set
         # Lastly redirect to the event detail of the recently create event
         """
-        next_url = self.kwargs.get('next') or reverse('fullcalendar', args=[self.object.calendar.slug])
+        url_val = 'day_calendar' if USE_FULLCALENDAR else 'fullcalendar'
+        next_url = self.kwargs.get('next') or reverse(url_val, args=[self.object.calendar.slug])
         next_url = get_next_url(self.request, next_url)
         return next_url
 
@@ -293,8 +291,9 @@ def get_next_url(request, default):
     next_url = default
     if OCCURRENCE_CANCEL_REDIRECT:
         next_url = OCCURRENCE_CANCEL_REDIRECT
-    if 'next' in request.REQUEST and check_next_url(request.REQUEST['next']) is not None:
-        next_url = request.REQUEST['next']
+    _next_url = request.GET.get('next') if request.method in ['GET', 'HEAD'] else request.POST.get('next')
+    if _next_url and is_safe_url(url=_next_url, host=request.get_host()):
+        next_url = _next_url
     return next_url
 
 @check_calendar_permissions
