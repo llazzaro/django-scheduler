@@ -247,7 +247,7 @@ class DeleteEventView(EventEditMixin, DeleteView):
         # If the key word argument redirect is set
         # Lastly redirect to the event detail of the recently create event
         """
-        url_val = 'day_calendar' if USE_FULLCALENDAR else 'fullcalendar'
+        url_val = 'fullcalendar' if USE_FULLCALENDAR else 'day_calendar'
         next_url = self.kwargs.get('next') or reverse(url_val, args=[self.object.calendar.slug])
         next_url = get_next_url(self.request, next_url)
         return next_url
