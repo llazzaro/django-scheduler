@@ -7,7 +7,7 @@
   {% else %}
     <td>
   {% endif %}
-  <a href="{% url "day_calendar" calendar.slug %}{% querystring_for_date day.start 3 True %}">
+  <a href="{% url "day_calendar" calendar.slug %}{% querystring_for_date day.start 3 %}">
     <strong>{{day.start.day}}</strong>
   </a>
   {% ifnotequal size "small" %}
