@@ -2,7 +2,6 @@ from __future__ import division, unicode_literals
 from django.utils.six import with_metaclass
 # -*- coding: utf-8 -*-
 from django.conf import settings as django_settings
-import pytz
 from dateutil import rrule
 
 from django.contrib.contenttypes import fields
@@ -167,7 +166,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             else:
                 return []
 
-    def _occurrences_after_generator(self, after=None, tzinfo=pytz.utc):
+    def _occurrences_after_generator(self, after=None):
         """
         returns a generator that produces unpresisted occurrences after the
         datetime ``after``.
