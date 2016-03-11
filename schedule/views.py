@@ -4,7 +4,7 @@ import datetime
 import dateutil.parser
 from django.utils.six.moves.urllib.parse import quote
 
-from django.db.models import Q
+from django.db.models import Q, F
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -142,7 +142,7 @@ class OccurrenceMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
     form_class = OccurrenceForm
 
 
-class OccurrenceEditMixin(OccurrenceEditPermissionMixin, OccurrenceMixin, CancelButtonMixin):
+class OccurrenceEditMixin(CancelButtonMixin, OccurrenceEditPermissionMixin, OccurrenceMixin):
     def get_initial(self):
         initial_data = super(OccurrenceEditMixin, self).get_initial()
         _, self.object = get_occurrence(**self.kwargs)
@@ -190,7 +190,7 @@ class EventMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
     pk_url_kwarg = 'event_id'
 
 
-class EventEditMixin(EventEditPermissionMixin, EventMixin, CancelButtonMixin):
+class EventEditMixin(CancelButtonMixin, EventEditPermissionMixin, EventMixin):
     pass
 
 
@@ -201,6 +201,22 @@ class EventView(EventMixin, DetailView):
 class EditEventView(EventEditMixin, UpdateView):
     form_class = EventForm
     template_name = 'schedule/create_event.html'
+
+    def form_valid(self, form):
+        event = form.save(commit=False)
+        old_event = Event.objects.get(pk=event.pk)
+        dts = datetime.timedelta(minutes=
+            int((event.start-old_event.start).total_seconds() / 60)
+        )
+        dte = datetime.timedelta(minutes=
+            int((event.end-old_event.end).total_seconds() / 60)
+        )
+        event.occurrence_set.all().update(
+            original_start=F('original_start') + dts,
+            original_end=F('original_end') + dte,
+        )
+        event.save()
+        return super(EditEventView, self).form_valid(form)
 
 
 class CreateEventView(EventEditMixin, CreateView):
@@ -352,11 +368,18 @@ def api_move_or_resize_by_code(request):
         else:
             event_id = request.POST.get('event_id')
             event = Event.objects.get(id=event_id)
+            dts = 0
+            dte = dt
             if not resize:
                 event.start += dt
+                dts = dt
             event.end = event.end + dt
             if CHECK_EVENT_PERM_FUNC(event, request.user):
                 event.save()
+                event.occurrence_set.all().update(
+                    original_start=F('original_start') + dts,
+                    original_end=F('original_end') + dte,
+                )
                 resp['status'] = "OK"
     return HttpResponse(json.dumps(resp))
 
