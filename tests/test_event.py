@@ -254,6 +254,30 @@ class TestEvent(TestCase):
         naive_date = datetime.datetime(2008, 1, 20, 0, 0)
         self.assertIsNone(event.get_occurrence(naive_date))
 
+    # FIXME: This test gives an error
+    '''
+    @override_settings(USE_TZ=False)
+    def test_get_occurrences_when_tz_off(self):
+        cal = Calendar(name="MyCal")
+        rule = Rule(frequency = "WEEKLY")
+        rule.save()
+
+        recurring_event = self.__create_recurring_event(
+                                    'Recurring event test',
+                                    datetime.datetime(2008, 1, 5, 8, 0),
+                                    datetime.datetime(2008, 1, 5, 9, 0),
+                                    datetime.datetime(2008, 5, 5, 0, 0),
+                                    rule,
+                                    cal
+                )
+        #occurrences = recurring_event.get_occurrences(
+                                    #start=datetime.datetime(2008, 1, 12, 0, 0),
+                                    #end=datetime.datetime(2008, 1, 20, 0, 0))
+
+        #self.assertEquals(["%s to %s" %(o.start, o.end) for o in occurrences],
+                #['2008-01-12 08:00:00 to 2008-01-12 09:00:00', '2008-01-19 08:00:00 to 2008-01-19 09:00:00'])
+    '''
+
     def test_event_get_ocurrence(self):
 
         cal = Calendar(name='MyCal')
@@ -342,6 +366,34 @@ class TestEvent(TestCase):
         event.save()
         url = event.get_absolute_url()
         self.assertEqual(reverse('event', kwargs={'event_id': event.id}), url)
+
+    @override_settings(TIME_ZONE='Europe/Helsinki')
+    def test_recurring_event_get_occurrence_in_timezone(self):
+        cal = Calendar(name="MyCal")
+        cal.save()
+        rule = Rule(frequency = "WEEKLY")
+        rule.save()
+
+        # Event start and end are UTC because that is what is coming
+        # from the database
+        event = self.__create_recurring_event(
+                    'Recurrent event test get_occurrence',
+                    datetime.datetime(2014, 3, 21, 6, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2014, 3, 21, 8, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2014, 4, 11, 0, 0, tzinfo=pytz.utc),
+                    rule,
+                    cal,
+                    )
+        event.save()
+        tzinfo = pytz.timezone('Europe/Helsinki')
+        start = tzinfo.localize(datetime.datetime(2014, 3, 28, 8, 0)) # +2
+        occurrence = event.get_occurrence(start)
+        self.assertEqual(occurrence.start, start)
+        occurrence.save()
+        # DST change on March 30th from +2 to +3
+        start = tzinfo.localize(datetime.datetime(2014, 4, 4, 8, 0)) # +3
+        occurrence = event.get_occurrence(start)
+        self.assertEqual(occurrence.start, start)
 
     def test_(self):
         pass
