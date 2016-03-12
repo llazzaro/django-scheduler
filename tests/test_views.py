@@ -11,6 +11,7 @@ from schedule.models.rules import Rule
 
 from schedule.views import coerce_date_dict
 
+from schedule.conf.settings import USE_FULLCALENDAR
 
 class TestViews(TestCase):
     fixtures = ['schedule.json']
@@ -129,7 +130,11 @@ class TestUrls(TestCase):
         # Load the deletion page
         self.response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(self.response.context['next'],
+        if USE_FULLCALENDAR:
+            self.assertEqual(self.response.context['next'],
+                         reverse('fullcalendar', args=[Event.objects.get(id=1).calendar.slug]))
+        else:
+            self.assertEqual(self.response.context['next'],
                          reverse('day_calendar', args=[Event.objects.get(id=1).calendar.slug]))
 
         # Delete the event
