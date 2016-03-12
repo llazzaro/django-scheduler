@@ -92,7 +92,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
     @property
     def hours(self):
         return float(self.seconds) / 3600
-        
+
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
@@ -133,15 +133,20 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         final_occurrences += occ_replacer.get_additional_occurrences(start, end)
         return final_occurrences
 
-    def get_rrule_object(self):
+    def get_rrule_object(self, tzinfo):
         if self.rule is not None:
             params, empty = self._event_params()
             frequency = self.rule.rrule_frequency()
+            if timezone.is_naive(self.start):
+                dtstart = self.start
+            else:
+                dtstart = tzinfo.normalize(self.start).replace(tzinfo=None)
+
             if not empty:
-                return rrule.rrule(frequency, dtstart=self.start, **params)
+                return rrule.rrule(frequency, dtstart=dtstart, **params)
             else:
                 year = self.start.year - 1
-                return rrule.rrule(frequency, dtstart=self.start, until=self.start.replace(year=year))
+                return rrule.rrule(frequency, dtstart=dtstart, until=self.start.replace(year=year))
 
     def _create_occurrence(self, start, end=None):
         if end is None:
@@ -149,17 +154,24 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         return Occurrence(event=self, start=start, end=end, original_start=start, original_end=end)
 
     def get_occurrence(self, date):
-        if timezone.is_naive(date) and django_settings.USE_TZ:
+        use_naive = timezone.is_naive(date)
+        tzinfo = timezone.utc
+        if timezone.is_naive(date):
             date = timezone.make_aware(date, timezone.utc)
-        rule = self.get_rrule_object()
+        if date.tzinfo:
+            tzinfo = date.tzinfo
+        rule = self.get_rrule_object(tzinfo)
         if rule:
-            next_occurrence = rule.after(date, inc=True)
+            next_occurrence = rule.after(tzinfo.normalize(date).replace(tzinfo=None), inc=True)
+            next_occurrence = tzinfo.localize(next_occurrence)
         else:
             next_occurrence = self.start
         if next_occurrence == date:
             try:
                 return Occurrence.objects.get(event=self, original_start=date)
             except Occurrence.DoesNotExist:
+                if use_naive:
+                    next_occurrence = timezone.make_naive(next_occurrence, tzinfo)
                 return self._create_occurrence(next_occurrence)
 
     def _get_occurrence_list(self, start, end):
@@ -168,16 +180,29 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         """
         difference = (self.end - self.start)
         if self.rule is not None:
+            use_naive = timezone.is_naive(start)
+
+            # Use the timezone from the start date
+            tzinfo = timezone.utc
+            if start.tzinfo:
+                tzinfo = start.tzinfo
+
             occurrences = []
             if self.end_recurring_period and self.end_recurring_period < end:
                 end = self.end_recurring_period
-            rule = self.get_rrule_object()
+
+            rule = self.get_rrule_object(tzinfo)
+            start = (start - difference).replace(tzinfo=None)
+            end = (end - difference).replace(tzinfo=None)
             o_starts = []
             o_starts.append(rule.between(start, end, inc=True))
             o_starts.append(rule.between(start - (difference // 2), end - (difference // 2), inc=True))
             o_starts.append(rule.between(start - difference, end - difference, inc=True))
             for occ in o_starts:
                 for o_start in occ:
+                    o_start = tzinfo.localize(o_start)
+                    if use_naive:
+                        o_start = timezone.make_naive(o_start, tzinfo)
                     o_end = o_start + difference
                     occurrence = self._create_occurrence(o_start, o_end)
                     if occurrence not in occurrences:
@@ -196,9 +221,12 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         datetime ``after``.
         """
 
+        tzinfo = timezone.utc
         if after is None:
             after = timezone.now()
-        rule = self.get_rrule_object()
+        elif not timezone.is_naive(after):
+            tzinfo = after.tzinfo
+        rule = self.get_rrule_object(tzinfo)
         if rule is None:
             if self.end > after:
                 yield self._create_occurrence(self.start, self.end)
@@ -207,6 +235,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         difference = self.end - self.start
         while True:
             o_start = next(date_iter)
+            o_start = tzinfo.localize(o_start)
             if self.end_recurring_period and o_start > self.end_recurring_period:
                 raise StopIteration
             o_end = o_start + difference
@@ -218,7 +247,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         returns a generator that produces occurrences after the datetime
         ``after``.  Includes all of the persisted Occurrences.
         """
-        if after is None:       
+        if after is None:
             after = timezone.now()
         occ_replacer = OccurrenceReplacer(self.occurrence_set.all())
         generator = self._occurrences_after_generator(after)
