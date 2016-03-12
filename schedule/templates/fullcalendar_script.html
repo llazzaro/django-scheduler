@@ -1,0 +1,238 @@
+{% load scheduletags %}
+
+<link rel='stylesheet' type='text/css' href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.min.css' />
+<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js'></script>
+<script type='text/javascript' src='http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js'></script>
+<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.js'></script>
+<script type='text/javascript'>
+$(document).ready(function() {
+
+    function getEventViewURL(event){
+        if (event.existed){
+            if("{{ request.get_full_path }}".indexOf("/admin") != 0){
+                var view_url = "{% url 'occurrence' 12345 6789 %}".replace(/12345/, event.event_id).replace(/6789/, event.id);
+            }
+            else{
+                var view_url = "{% url 'admin:Scheduler_sessionoccurrencemodifier_change' 12345 %}".replace(/12345/, event.id)
+            }
+        }
+        else {
+            if("{{ request.get_full_path }}".indexOf("/admin") != 0){
+                var view_url = "{% url 'event' 12345 %}".replace(/12345/, event.event_id);
+            }
+            else{
+                var view_url = "{% url 'admin:Scheduler_sessionscheduler_change' 12345 %}".replace(/12345/, event.event_id)
+            }
+        }
+        return view_url;
+    }
+
+    function setModalProperties(type, event){
+        if(type == 'edit'){
+            var tYPE = 'Edit';
+            var all_url = "{% url 'edit_event' calendar_slug 12345 %}".replace(/12345/, event.event_id);
+            if (event.existed){
+                var this_url = "{% url 'edit_occurrence' 12345 6789 %}".replace(/12345/, event.event_id).replace(/6789/, event.id);
+            }
+            else{
+                var this_url = "{% url 'edit_occurrence_by_date' 123 234 345 456 567 678 789 %}".replace(
+                        /123/, event.event_id).replace(
+                        /234/, event.year).replace(
+                        /345/, event.month).replace(
+                        /456/, event.day).replace(
+                        /567/, event.hour).replace(
+                        /678/, event.minute).replace(
+                        /789/, event.second);
+            }
+        }
+        else if(type == 'delete'){
+            var tYPE = 'Delete';
+            var all_url = "{% url 'delete_event' 12345 %}".replace(/12345/, event.event_id);
+            if (event.existed){
+                var this_url = "{% url 'cancel_occurrence' 12345 6789 %}".replace(/12345/, event.event_id).replace(/6789/, event.id);
+            }
+            else{
+                var this_url = "{% url 'cancel_occurrence_by_date' 123 234 345 456 567 678 789 %}".replace(
+                        /123/, event.event_id).replace(
+                        /234/, event.year).replace(
+                        /345/, event.month).replace(
+                        /456/, event.day).replace(
+                        /567/, event.hour).replace(
+                        /678/, event.minute).replace(
+                        /789/, event.second);
+            }
+        }
+        
+        $('#allevent').attr('href', all_url);
+        $('#thisevent').attr('href', this_url);
+        $('#editordelete').html(type);
+        $('#EditorDelete').html(tYPE);
+    }
+    
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    var date = new Date();
+    var d = date.getDate();
+    var m = date.getMonth();
+    var y = date.getFullYear();
+
+    $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        editable: true,
+        eventLimit: true, // allow 'more' link when too many events
+        selectable: true, //Allows a user to highlight multiple days or timeslots by clicking and dragging.
+        selectHelper: true,
+        events: "{% url 'api_occurences' %}?calendar_slug={{calendar_slug}}",
+        loading: function(bool) {
+            if (bool) {
+                $('#loading').show();
+            }else{
+                $('#loading').hide();
+            }
+        },
+        eventRender: function(event, element) {
+            var s = element[0].className;
+            if(s.indexOf("fc-day-grid-event") < 0){
+                title = element.children().find( '.fc-title' );
+                title.html('<a href="' + getEventViewURL(event) +
+                    '">' + title.html() + '</a>')
+                if(event.editable && "{{ request.get_full_path }}".indexOf("/admin") != 0){
+                    time = element.children().find( '.fc-time' );
+                    var edit_button = document.createElement("button");
+                    var edit_icon = document.createElement("span");
+                    edit_button.className = 'btn btn-default btn-sm pull-right edit_event';
+                    edit_button.onclick = function(jsEvent){
+                        jsEvent.preventDefault();
+                        setModalProperties('edit', event);
+                    };
+                    edit_button.setAttribute('data-toggle', 'modal');
+                    edit_button.setAttribute('data-target', '#eventModal');
+                    edit_icon.className = 'glyphicon glyphicon-pencil';
+                    edit_button.appendChild(edit_icon);
+
+                    var delete_button = document.createElement("button");
+                    var delete_icon = document.createElement("span");
+                    delete_button.className = 'btn btn-default btn-sm pull-right delete_event';
+                    delete_button.onclick = function(jsEvent){
+                        jsEvent.preventDefault();
+                        setModalProperties('delete', event);
+                    };
+                    delete_button.setAttribute('data-toggle', 'modal');
+                    delete_button.setAttribute('data-target', '#eventModal');
+                    delete_icon.className = 'glyphicon glyphicon-trash'
+                    delete_button.appendChild(delete_icon);
+
+                    time.prepend( '<br>' );
+                    time.prepend( delete_button );
+                    time.prepend( edit_button );
+                }
+            }
+        },
+        dayClick: function(date, allDay, jsEvent, view) {
+                    if (allDay) {       
+                        $('#calendar').fullCalendar('changeView', 'agendaWeek');
+                        $("#calendar").fullCalendar('gotoDate', date);
+                    }
+                },
+        eventDrop: function(event,delta,revertFunc) {
+            $.ajax({
+                    type: 'POST',
+                    url: "{% url 'api_move_or_resize' %}",
+                    dataType: 'json',
+                    data : {
+                        'id': event.id,
+                        'event_id' : event.event_id,
+                        'existed' : event.existed,
+                        'delta' : delta.asMinutes(),
+                    },
+                    success : function(result) {
+                        if (result.success) $('#feedback input').attr('value', ''); 
+                        $('#calendar').fullCalendar('refetchEvents');
+                        },
+                    error : function(req, status, error) {
+                        console.log(error);
+                    }
+                });
+            return false;
+        },
+        eventResize: function(event,delta,revertFunc) {
+            $.ajax({
+                    type: 'POST',
+                    url: "{% url 'api_move_or_resize' %}",
+                    dataType: 'json',
+                    data : {
+                        'id': event.id,
+                        'event_id' : event.event_id,
+                        'existed' : event.existed,
+                        'delta' : delta.asMinutes(),
+                        'resize' : true,
+                    },
+                    success : function(result) {
+                        if (result.success) $('#feedback input').attr('value', ''); 
+                        $('#calendar').fullCalendar('refetchEvents');
+                        },
+                    error : function(req, status, error) {
+                        console.log(error);
+                    }
+                });
+            return false;
+        },
+        select: function( start, end, jsEvent, view  ) {
+            if(jsEvent.toElement.className == 'fc-bg'){
+                console.log('{{calendar_slug}}');
+                $.ajax({
+                        type: 'POST',
+                        url: "{% url 'api_select_create' %}",
+                        dataType: 'json',
+                        data : {
+                            'start': start.toISOString(),
+                            'end' : end.toISOString(),
+                            'calendar_slug' : '{{calendar_slug}}',
+                        },
+                        success : function(result) {
+                            console.log(result);
+                            if (result.success) $('#feedback input').attr('value', ''); 
+                            $('#calendar').fullCalendar('refetchEvents');
+                            },
+                        error : function(req, status, error) {
+                            console.log(error);
+                        }
+                    });
+                $('#calendar').fullCalendar('unselect');
+                return false;
+            }
+        }
+    });
+});
+</script>

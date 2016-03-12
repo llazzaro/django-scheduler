@@ -20,6 +20,16 @@ if not CHECK_EVENT_PERM_FUNC:
 
     CHECK_EVENT_PERM_FUNC = check_event_permission
 
+# Callable used to check if a user has edit permissions to occurrence
+CHECK_OCCURRENCE_PERM_FUNC = get_config('CHECK_OCCURRENCE_PERM_FUNC', None)
+
+if not CHECK_OCCURRENCE_PERM_FUNC:
+    def check_occurrence_permission(ob, user):
+        return CHECK_EVENT_PERM_FUNC(ob.event, user)
+    CHECK_OCCURRENCE_PERM_FUNC = check_occurrence_permission
+
+CALENDAR_VIEW_PERM = get_config('CALENDAR_VIEW_PERM', False)
+
 # Callable used to check if a user has edit permissions to calendar
 CHECK_CALENDAR_PERM_FUNC = get_config('CHECK_CALENDAR_PERM_FUNC', None)
 
@@ -46,6 +56,8 @@ if not GET_EVENTS_FUNC:
 OCCURRENCE_CANCEL_REDIRECT = get_config('OCCURRENCE_CANCEL_REDIRECT', None)
 
 SCHEDULER_PREVNEXT_LIMIT_SECONDS = get_config('SCHEDULER_PREVNEXT_LIMIT_SECONDS', 62208000)  # two years
+
+USE_FULLCALENDAR = get_config('USE_FULLCALENDAR', False)
 
 #This name is used when a new event is created through selecting in fullcalendar
 EVENT_NAME_PLACEHOLDER = get_config('EVENT_NAME_PLACEHOLDER', 'Event Name')
