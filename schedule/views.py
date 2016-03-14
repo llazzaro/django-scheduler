@@ -115,10 +115,7 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
             date = timezone.now()
         event_list = GET_EVENTS_FUNC(request, calendar)
 
-        if 'django_timezone' in self.request.session:
-            local_timezone = pytz.timezone(request.session['django_timezone'])
-        else:
-            local_timezone = timezone.get_default_timezone()
+        local_timezone = timezone.get_current_timezone()
         period_objects = {}
         for period in periods:
             if period.__name__.lower() == 'year':
