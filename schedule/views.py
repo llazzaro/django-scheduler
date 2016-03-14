@@ -121,10 +121,7 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
             local_timezone = timezone.get_default_timezone()
         period_objects = {}
         for period in periods:
-            if period.__name__.lower() == 'year':
-                period_objects[period.__name__.lower()] = period(event_list, date, None, local_timezone)
-            else:
-                period_objects[period.__name__.lower()] = period(event_list, date, None, None, local_timezone)
+            period_objects[period.__name__.lower()] = period(event_list, date, tzinfo=local_timezone)
 
         context.update({
             'date': date,
