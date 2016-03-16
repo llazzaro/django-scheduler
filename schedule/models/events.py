@@ -32,15 +32,16 @@ freq_dict_order = {
     'SECONDLY': 6
 }
 param_dict_order = {
-    'byyearday' : 1,
-    'bymonth' : 1,
-    'bymonthday' : 2,
-    'byweekno' : 2,
-    'byweekday' : 3,
-    'byhour' : 4,
-    'byminute' : 5,
-    'bysecond' : 6
+    'byyearday': 1,
+    'bymonth': 1,
+    'bymonthday': 2,
+    'byweekno': 2,
+    'byweekday': 3,
+    'byhour': 4,
+    'byminute': 5,
+    'bysecond': 6
 }
+
 
 class EventManager(models.Manager):
     def get_for_object(self, content_object, distinction=None, inherit=True):
@@ -267,14 +268,14 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
     def event_start_params(self):
         start = self.start
         params = {
-            'byyearday' : start.timetuple().tm_yday,
-            'bymonth' : start.month,
-            'bymonthday' : start.day,
-            'byweekno' : start.isocalendar()[1],
-            'byweekday' : start.weekday(),
-            'byhour' : start.hour,
-            'byminute' : start.minute,
-            'bysecond' : start.second
+            'byyearday': start.timetuple().tm_yday,
+            'bymonth': start.month,
+            'bymonthday': start.day,
+            'byweekno': start.isocalendar()[1],
+            'byweekday': start.weekday(),
+            'byhour': start.hour,
+            'byminute': start.minute,
+            'bysecond': start.second
         }
         return params
 
@@ -291,14 +292,14 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         event_params = {}
 
         for param in rule_params:
-            #start date influences rule params
+            # start date influences rule params
             if (param in param_dict_order and param_dict_order[param] > freq_order and
                     param in start_params):
                 sp = start_params[param]
                 if sp == rule_params[param] or sp in rule_params[param]:
                     event_params[param] = [sp]
                 else:
-                    event_params = {'count' : 0}
+                    event_params = {'count': 0}
                     empty = True
                     break
             else:
@@ -336,7 +337,6 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             elif self.end_recurring_period:
                 occ = None
                 occ_generator = self._occurrences_after_generator(self.start)
-                #occ_generator = iter(self.get_rrule_object())
                 for occ in occ_generator:
                     pass
                 return occ.end
@@ -606,4 +606,5 @@ class Occurrence(with_metaclass(ModelBase, *get_model_bases())):
 
     def __eq__(self, other):
         return (isinstance(other, Occurrence) and
-            self.original_start == other.original_start and self.original_end == other.original_end)
+                self.original_start == other.original_start and
+                self.original_end == other.original_end)

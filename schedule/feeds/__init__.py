@@ -25,7 +25,8 @@ class UpcomingEventsFeed(Feed):
         return obj.get_absolute_url()
 
     def items(self, obj):
-        return itertools.islice(obj.occurrences_after(timezone.now()),
+        return itertools.islice(
+            obj.occurrences_after(timezone.now()),
             getattr(settings, "FEED_LIST_LENGTH", 10))
 
     def item_id(self, item):

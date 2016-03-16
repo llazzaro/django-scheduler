@@ -40,5 +40,5 @@ class EventAdminForm(forms.ModelForm):
         exclude = []
         model = Event
         widgets = {
-          'color_event': SpectrumColorPicker,
+            'color_event': SpectrumColorPicker,
         }

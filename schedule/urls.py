@@ -5,11 +5,11 @@ from schedule.feeds import UpcomingEventsFeed
 from schedule.feeds import CalendarICalendar
 from schedule.periods import Year, Month, Week, Day
 from schedule.views import (
-        CalendarByPeriodsView, CalendarView, EventView,
-        OccurrenceView, EditOccurrenceView, DeleteEventView,
-        EditEventView, CreateEventView, OccurrencePreview,
-        CreateOccurrenceView, CancelOccurrenceView, FullCalendarView, 
-        api_select_create, api_move_or_resize_by_code, api_occurrences)
+    CalendarByPeriodsView, CalendarView, EventView,
+    OccurrenceView, EditOccurrenceView, DeleteEventView,
+    EditEventView, CreateEventView, OccurrencePreview,
+    CreateOccurrenceView, CancelOccurrenceView, FullCalendarView,
+    api_select_create, api_move_or_resize_by_code, api_occurrences)
 
 urlpatterns = [
     # urls for Calendars
@@ -53,7 +53,7 @@ urlpatterns = [
         name="calendar_home",
         ),
     url(r'^fullcalendar/(?P<calendar_slug>[-\w]+)/$',
-        FullCalendarView.as_view(), 
+        FullCalendarView.as_view(),
         name='fullcalendar'),
 
     # Event Urls
@@ -95,13 +95,13 @@ urlpatterns = [
     # feed urls
     url(r'^feed/calendar/upcoming/(.*)/$', UpcomingEventsFeed(), name='upcoming_events_feed'),
     url(r'^ical/calendar/(.*)/$', CalendarICalendar(), name='calendar_ical'),
-    
+
     # api urls
     url(r'^api/occurrences', api_occurrences, name='api_occurences'),
-    url(r'^api/move_or_resize/$', 
+    url(r'^api/move_or_resize/$',
         api_move_or_resize_by_code,
         name='api_move_or_resize'),
-    url(r'^api/select_create/$', 
+    url(r'^api/select_create/$',
         api_select_create,
         name='api_select_create'),
 

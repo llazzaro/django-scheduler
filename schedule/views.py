@@ -13,17 +13,19 @@ from django.http import HttpResponseRedirect, Http404
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
-        UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
+    UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
 from django.utils.http import is_safe_url
 
 from schedule.conf.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
-                                    EVENT_NAME_PLACEHOLDER, CHECK_EVENT_PERM_FUNC, 
+                                    EVENT_NAME_PLACEHOLDER, CHECK_EVENT_PERM_FUNC,
                                     CHECK_OCCURRENCE_PERM_FUNC, USE_FULLCALENDAR)
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
-from schedule.utils import (check_event_permissions, 
-    check_calendar_permissions, coerce_date_dict, 
+from schedule.utils import (
+    check_event_permissions,
+    check_calendar_permissions,
+    coerce_date_dict,
     check_occurrence_permissions)
 
 
@@ -39,6 +41,7 @@ class EventEditPermissionMixin(object):
     def as_view(cls, **initkwargs):
         view = super(EventEditPermissionMixin, cls).as_view(**initkwargs)
         return check_event_permissions(view)
+
 
 class OccurrenceEditPermissionMixin(object):
     @classmethod
@@ -75,7 +78,7 @@ class CalendarView(CalendarMixin, DetailView):
 
 
 class FullCalendarView(CalendarMixin, DetailView):
-    template_name="fullcalendar.html"
+    template_name = "fullcalendar.html"
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -170,8 +173,9 @@ class CancelOccurrenceView(OccurrenceEditMixin, ModelFormMixin, ProcessFormView)
 
     def post(self, request, *args, **kwargs):
         event, occurrence = get_occurrence(**kwargs)
-        self.success_url = kwargs.get('next',
-                        get_next_url(request, event.get_absolute_url()))
+        self.success_url = kwargs.get(
+            'next',
+            get_next_url(request, event.get_absolute_url()))
         if "cancel" not in request.POST:
             occurrence.cancel()
         return HttpResponseRedirect(self.success_url)
@@ -197,11 +201,11 @@ class EditEventView(EventEditMixin, UpdateView):
     def form_valid(self, form):
         event = form.save(commit=False)
         old_event = Event.objects.get(pk=event.pk)
-        dts = datetime.timedelta(minutes=
-            int((event.start-old_event.start).total_seconds() / 60)
+        dts = datetime.timedelta(
+            minutes=int((event.start - old_event.start).total_seconds() / 60)
         )
-        dte = datetime.timedelta(minutes=
-            int((event.end-old_event.end).total_seconds() / 60)
+        dte = datetime.timedelta(
+            minutes=int((event.end - old_event.end).total_seconds() / 60)
         )
         event.occurrence_set.all().update(
             original_start=F('original_start') + dts,
@@ -305,9 +309,10 @@ def get_next_url(request, default):
         next_url = _next_url
     return next_url
 
+
 @check_calendar_permissions
 def api_occurrences(request):
-    utc=pytz.UTC
+    utc = pytz.UTC
     # version 2 of full calendar
     if '-' in request.GET.get('start'):
         convert = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d')
@@ -316,13 +321,13 @@ def api_occurrences(request):
     start = utc.localize(convert(request.GET.get('start')))
     end = utc.localize(convert(request.GET.get('end')))
     calendar = get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))
-    response_data =[]
+    response_data = []
     if Occurrence.objects.all().count() > 0:
         i = Occurrence.objects.latest('id').id + 1
     else:
         i = 1
     event_list = calendar.events.filter(start__lte=end).filter(
-        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True) )
+        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True))
     for event in event_list:
         occurrences = event.get_occurrences(start, end)
         for occurrence in occurrences:
@@ -337,10 +342,11 @@ def api_occurrences(request):
                 "title": occurrence.title,
                 "start": occurrence.start.isoformat(),
                 "end": occurrence.end.isoformat(),
-                "existed" : existed,
-                "event_id" : occurrence.event.id,
+                "existed": existed,
+                "event_id": occurrence.event.id,
             })
     return HttpResponse(json.dumps(response_data), content_type="application/json")
+
 
 @check_calendar_permissions
 def api_move_or_resize_by_code(request):
@@ -378,6 +384,7 @@ def api_move_or_resize_by_code(request):
                 resp['status'] = "OK"
     return HttpResponse(json.dumps(resp))
 
+
 @check_calendar_permissions
 def api_select_create(request):
     if request.method == 'POST':
@@ -386,12 +393,12 @@ def api_select_create(request):
         end = dateutil.parser.parse(request.POST.get('end'))
 
         calendar = Calendar.objects.get(slug=calendar_slug)
-        event = Event.objects.create(
-                                        start=start,
-                                        end=end,
-                                        title=EVENT_NAME_PLACEHOLDER,
-                                        calendar=calendar,
-                                    )
+        Event.objects.create(
+            start=start,
+            end=end,
+            title=EVENT_NAME_PLACEHOLDER,
+            calendar=calendar,
+        )
 
         resp = {}
         resp['status'] = "OK"
