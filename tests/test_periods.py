@@ -223,6 +223,14 @@ class TestDay(TestCase):
         self.assertEqual( period.start, slot_start )
         self.assertEqual( period.end, slot_end )
 
+    def test_time_slot_with_dst(self):
+        tzinfo = pytz.timezone('America/Vancouver')
+        slot_start = datetime.datetime(2016, 3, 13, 0, 0, tzinfo=tzinfo)
+        slot_end = datetime.datetime(2016, 3, 14, 0, 0, tzinfo=tzinfo)
+        period = self.day.get_time_slot(slot_start, slot_end)
+        self.assertEqual(period.start, slot_start)
+        self.assertEqual(period.end, slot_end)
+
     def test_get_day_range(self):
         # This test exercises the case where a Day object is initiatized with
         # no date, which causes the Day constructor to call timezone.now(),
