@@ -6,7 +6,8 @@ from django.utils.html import escape
 from schedule.models import Event, Rule, Calendar
 from schedule.periods import Period, Day
 
-from schedule.templatetags.scheduletags import querystring_for_date, prev_url, next_url, create_event_url
+from schedule.templatetags.scheduletags import querystring_for_date, prev_url, \
+    next_url, create_event_url, _cook_slots
 
 
 class TestTemplateTags(TestCase):
@@ -70,3 +71,23 @@ class TestTemplateTags(TestCase):
         query_string = create_event_url(context, self.cal, slot.start)
         expected = ('/event/create/MyCalSlug/?year={0}&month=1&day=4&hour=7&minute=0&second=0'.format(datetime.datetime.now().year))
         self.assertEqual(query_string['create_event_url'], escape(expected))
+
+    def test_all_day_event_cook_slots(self):
+        cal = Calendar(name='MyCal', slug='MyCalSlug')
+        cal.save()
+        start = datetime.datetime(
+            datetime.datetime.now().year, 1, 5, 0, 0, tzinfo=pytz.utc)
+        end = datetime.datetime(
+            datetime.datetime.now().year, 1, 6, 0, 0, tzinfo=pytz.utc)
+        data = {
+            'title': 'All Day Event',
+            'start': start,
+            'end': end,
+            'calendar': self.cal,
+        }
+        event = Event(**data)
+        event.save()
+        period = Day([event], start, end)
+
+        slots = _cook_slots(period, 60)
+        self.assertEqual(len(slots), 24)
