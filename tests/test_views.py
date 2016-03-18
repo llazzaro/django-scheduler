@@ -82,7 +82,7 @@ class TestUrls(TestCase):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context[0]["calendar"].name,
                          "Example Calendar")
-        month = self.response.context[0]["periods"]['month']
+        month = self.response.context[0]["period"]
         self.assertEqual((month.start, month.end),
                          (datetime.datetime(2000, 11, 1, 0, 0, tzinfo=pytz.utc),
                           datetime.datetime(2000, 12, 1, 0, 0, tzinfo=pytz.utc)))
