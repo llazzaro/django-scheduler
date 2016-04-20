@@ -16,7 +16,9 @@
 
 <div class="row row-centered">
     <div>{{ calendar.name }}</div>
+    {% autoescape off %}
     {% prevnext "week_calendar" calendar periods.week "\W\e\ek W, M Y" %}
+    {% endautoescape %}
     <div class="now">
       <a href="{% url "week_calendar" calendar.slug %}">
         {% trans "This week" %}
