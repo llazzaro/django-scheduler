@@ -17,7 +17,9 @@
 </div>
 <div class="row row-centered">
     <h1>{{ calendar.name }}</h1>
+    {% autoescape off%}
     {% prevnext "day_calendar" calendar periods.day "l, F d, Y" %}
+    {% endautoescape %}
     <div class="now">
       <a class="btn btn-primary gradient" href="{% url "day_calendar" calendar.slug %}">
         {% trans "Today" %}
