@@ -73,7 +73,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
     @property
     def hours(self):
         return float(self.seconds) / 3600
-        
+
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
@@ -167,10 +167,11 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             else:
                 return []
 
-    def _occurrences_after_generator(self, after=None, tzinfo=pytz.utc):
+    def _occurrences_after_generator(self, after=None, tzinfo=pytz.utc, max_occurences=None):
         """
         returns a generator that produces unpresisted occurrences after the
-        datetime ``after``.
+        datetime ``after``. (Optionally) This generator will return up to
+        ``max_occurences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
 
         if after is None:
@@ -182,21 +183,28 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             raise StopIteration
         date_iter = iter(rule)
         difference = self.end - self.start
+        loop_counter = 0
         while True:
             o_start = next(date_iter)
-            if o_start > self.end_recurring_period:
+            if (
+                (self.end_recurring_period is not None and o_start > self.end_recurring_period)
+                or (max_occurences is not None and max_occurences <= loop_counter)
+                ):
                 raise StopIteration
             o_end = o_start + difference
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)
 
-    def occurrences_after(self, after=None):
+            loop_counter += 1
+
+    def occurrences_after(self, after=None, max_occurences=None):
         """
         returns a generator that produces occurrences after the datetime
-        ``after``.  Includes all of the persisted Occurrences.
+        ``after``.  Includes all of the persisted Occurrences. (Optionally) This generator will return up to
+        ``max_occurences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
         occ_replacer = OccurrenceReplacer(self.occurrence_set.all())
-        generator = self._occurrences_after_generator(after)
+        generator = self._occurrences_after_generator(after, max_occurences=max_occurences)
         while True:
             next_occurence = next(generator)
             yield occ_replacer.get_occurrence(next_occurence)
