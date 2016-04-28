@@ -101,7 +101,7 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
     def get_context_data(self, request, **kwargs):
         context = super(CalendarByPeriodsView, self).get_context_data(**kwargs)
         calendar = self.object
-        periods = kwargs.get('periods', None)
+        period_class = kwargs['period']
         try:
             date = coerce_date_dict(request.GET)
         except ValueError:
@@ -116,13 +116,11 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
         event_list = GET_EVENTS_FUNC(request, calendar)
 
         local_timezone = timezone.get_current_timezone()
-        period_objects = {}
-        for period in periods:
-            period_objects[period.__name__.lower()] = period(event_list, date, tzinfo=local_timezone)
+        period = period_class(event_list, date, tzinfo=local_timezone)
 
         context.update({
             'date': date,
-            'periods': period_objects,
+            'period': period,
             'calendar': calendar,
             'weekday_names': weekday_names,
             'here': quote(request.get_full_path()),
