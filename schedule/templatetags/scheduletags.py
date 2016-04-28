@@ -243,10 +243,8 @@ def _cook_slots(period, increment):
         increment - slot size in minutes
     """
     tdiff = datetime.timedelta(minutes=increment)
-    if (period.end - period.start).seconds:
-        num = (period.end - period.start).seconds // tdiff.seconds
-    else:
-        num = 24  # hours in a day
+    num = int((period.end - period.start).total_seconds()) \
+        // int(tdiff.total_seconds())
     s = period.start
     slots = []
     for i in range(num):
