@@ -261,7 +261,9 @@ class DeleteEventView(EventEditMixin, DeleteView):
         return next_url
 
 
-def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None, hour=None, minute=None, second=None):
+def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
+                   day=None, hour=None, minute=None, second=None,
+                   tzinfo=pytz.utc):
     """
     Because occurrences don't have to be persisted, there must be two ways to
     retrieve them. both need an event, but if its persisted the occurrence can
@@ -275,7 +277,8 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None, day=None
     elif(all((year, month, day, hour, minute, second))):
         event = get_object_or_404(Event, id=event_id)
         occurrence = event.get_occurrence(
-            datetime.datetime(int(year), int(month), int(day), int(hour), int(minute), int(second)))
+            datetime.datetime(int(year), int(month), int(day), int(hour),
+                              int(minute), int(second), tzinfo=tzinfo))
         if occurrence is None:
             raise Http404
     else:
