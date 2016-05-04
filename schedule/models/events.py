@@ -218,7 +218,8 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
     def _occurrences_after_generator(self, after=None):
         """
         returns a generator that produces unpresisted occurrences after the
-        datetime ``after``.
+        datetime ``after``. (Optionally) This generator will return up to
+        ``max_occurences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
 
         tzinfo = timezone.utc
@@ -233,6 +234,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             raise StopIteration
         date_iter = iter(rule)
         difference = self.end - self.start
+        loop_counter = 0
         while True:
             o_start = next(date_iter)
             o_start = tzinfo.localize(o_start)
@@ -242,10 +244,13 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)
 
-    def occurrences_after(self, after=None):
+            loop_counter += 1
+
+    def occurrences_after(self, after=None, max_occurences=None):
         """
         returns a generator that produces occurrences after the datetime
-        ``after``.  Includes all of the persisted Occurrences.
+        ``after``.  Includes all of the persisted Occurrences. (Optionally) This generator will return up to
+        ``max_occurences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
         if after is None:
             after = timezone.now()

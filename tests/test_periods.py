@@ -257,8 +257,6 @@ class TestDay(TestCase):
         self.assertEqual( test_day.end, expected_end)
 
 
-
-
 class TestOccurrencePool(TestCase):
 
     def setUp(self):
