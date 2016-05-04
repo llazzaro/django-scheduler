@@ -231,15 +231,14 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         if rule is None:
             if self.end > after:
                 yield self._create_occurrence(self.start, self.end)
-            raise StopIteration
+            return
         date_iter = iter(rule)
         difference = self.end - self.start
         loop_counter = 0
-        while True:
-            o_start = next(date_iter)
+        for o_start in date_iter:
             o_start = tzinfo.localize(o_start)
-            if self.end_recurring_period and o_start > self.end_recurring_period:
-                raise StopIteration
+            if self.end_recurring_period and self.end_recurring_period and o_start > self.end_recurring_period:
+                break
             o_end = o_start + difference
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)
@@ -257,15 +256,11 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         occ_replacer = OccurrenceReplacer(self.occurrence_set.all())
         generator = self._occurrences_after_generator(after)
         trickies = list(self.occurrence_set.filter(original_start__lte=after, start__gte=after).order_by('start'))
-        while True:
-            try:
-                nxt = next(generator)
-            except StopIteration:
-                nxt = None
+        for index, nxt in enumerate(generator):
+            if max_occurences and index > max_occurences - 1:
+                break
             if (len(trickies) > 0 and (nxt is None or nxt.start > trickies[0].start)):
                 yield trickies.pop(0)
-            if (nxt is None):
-                raise StopIteration
             yield occ_replacer.get_occurrence(nxt)
 
     @property

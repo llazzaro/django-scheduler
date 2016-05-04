@@ -372,7 +372,7 @@ class TestEvent(TestCase):
                             'Non recurring event test get_occurrence',
                             start,
                             start + datetime.timedelta(hours=1),
-                            None,
+                            start + datetime.timedelta(hours=10),
                             rule,
                             cal)
         event.save()
