@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.utils.dateformat import format
 from django.utils.html import escape
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.six.moves.urllib.parse import urlencode
 
 from schedule.conf.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC, SCHEDULER_PREVNEXT_LIMIT_SECONDS
@@ -198,9 +199,9 @@ def prev_url(target, calendar, period):
     if delta.total_seconds() > SCHEDULER_PREVNEXT_LIMIT_SECONDS:
         return ''
 
-    return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>' % (
+    return mark_safe('<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-        querystring_for_date(period.prev().start))
+        querystring_for_date(period.prev().start)))
 
 
 @register.simple_tag
@@ -212,9 +213,9 @@ def next_url(target, calendar, period):
     if delta.total_seconds() > SCHEDULER_PREVNEXT_LIMIT_SECONDS:
         return ''
 
-    return '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>' % (
+    return mark_safe('<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>' % (
         reverse(target, kwargs=dict(calendar_slug=slug)),
-        querystring_for_date(period.next().start))
+        querystring_for_date(period.next().start)))
 
 
 @register.inclusion_tag("schedule/_prevnext.html")
