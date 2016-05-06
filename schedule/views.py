@@ -315,14 +315,22 @@ def api_occurrences(request):
         convert = lambda d: datetime.datetime.utcfromtimestamp(float(d))
     start = utc.localize(convert(request.GET.get('start')))
     end = utc.localize(convert(request.GET.get('end')))
-    calendar = get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))
+    calendar_slug = request.GET.get('calendar_slug')
+    if calendar_slug:
+        calendars = [get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))]
+    # if no calendar slug is given, get all the calendars
+    else:
+        calendars = Calendar.objects.all()
     response_data =[]
     if Occurrence.objects.all().count() > 0:
         i = Occurrence.objects.latest('id').id + 1
     else:
         i = 1
-    event_list = calendar.events.filter(start__lte=end).filter(
-        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True) )
+    event_list = []
+    for calendar in calendars:
+        # create flat list of events from each calendar
+        event_list += calendar.events.filter(start__lte=end).filter(
+                        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True) )
     for event in event_list:
         occurrences = event.get_occurrences(start, end)
         for occurrence in occurrences:
@@ -339,6 +347,7 @@ def api_occurrences(request):
                 "end": occurrence.end.isoformat(),
                 "existed" : existed,
                 "event_id" : occurrence.event.id,
+                "description" : occurrence.description,
             })
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
