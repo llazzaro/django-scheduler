@@ -315,7 +315,7 @@ def api_occurrences(request):
         convert = lambda d: datetime.datetime.utcfromtimestamp(float(d))
     start = utc.localize(convert(request.GET.get('start')))
     end = utc.localize(convert(request.GET.get('end')))
-    calendar_slug = self.request.GET.get('calendar_slug')
+    calendar_slug = request.GET.get('calendar_slug')
     if calendar_slug:
         calendars = [get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))]
     # if no calendar slug is given, get all the calendars
