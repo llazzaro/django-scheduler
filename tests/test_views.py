@@ -145,3 +145,29 @@ class TestUrls(TestCase):
         self.response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 404)
         self.client.logout()
+
+# TODO: finish this
+    def test_occurences_api(self):
+        # create a calendar and event
+        self.calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
+        self.rule = Rule.objects.create(frequency="DAILY")
+        data = {
+            'title': 'Recent Event',
+            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            'rule': self.rule,
+            'calendar': self.calendar
+        }
+        self.event = Event.objects.create(**data)
+        # test calendar slug
+        self.response = self.client.get(reverse("api_occurences") + \
+                                        "?calendar={}&start={}".format(
+                                            'MyCal',
+                                            datetime.datetime(2008, 1, 5))
+                                        )
+        self.assertEqual(self.response.status_code, 200)
+        # test no calendar slug
+        self.response = self.client.get(reverse("api_occurences"))
+        self.assertEqual(self.response.status_code, 200)
+
