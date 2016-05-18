@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
@@ -305,14 +305,23 @@ def get_next_url(request, default):
         next_url = _next_url
     return next_url
 
+
 @check_calendar_permissions
 def api_occurrences(request):
     utc=pytz.UTC
+    if not request.GET.get('start') or not request.GET.get('end'):
+        return HttpResponseBadRequest('Start and end parameters are required')
     # version 2 of full calendar
+    # TODO: improve this code with date util package
     if '-' in request.GET.get('start'):
-        convert = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d')
+        def convert(ddatetime):
+            if ddatetime:
+                ddatetime = ddatetime.split(' ')[0]
+                return datetime.datetime.strptime(ddatetime, '%Y-%m-%d')
     else:
-        convert = lambda d: datetime.datetime.utcfromtimestamp(float(d))
+        def convert(ddatetime):
+            return datetime.datetime.utcfromtimestamp(float(ddatetime))
+
     start = utc.localize(convert(request.GET.get('start')))
     end = utc.localize(convert(request.GET.get('end')))
     calendar_slug = request.GET.get('calendar_slug')
