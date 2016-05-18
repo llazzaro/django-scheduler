@@ -328,10 +328,14 @@ def api_occurrences(request):
     else:
         calendars = Calendar.objects.all()
     response_data =[]
+    # Algorithm to get an id for the occurrences in fullcalendar (NOT THE SAME AS IN THE DB) which are always unique.
+    # Fullcalendar thinks that all their "events" with the same "event.id" in their system are the same object,
+    #       because it's not really built around the idea of events (generators) and occurrences (their events).
+    # Check the "persisted" boolean value that tells it whether to change the event, using the "event_id" or the occurrence with the specified "id".
+    # for more info https://github.com/llazzaro/django-scheduler/pull/169
+    i = 1
     if Occurrence.objects.all().count() > 0:
         i = Occurrence.objects.latest('id').id + 1
-    else:
-        i = 1
     event_list = []
     for calendar in calendars:
         # create flat list of events from each calendar
@@ -340,12 +344,13 @@ def api_occurrences(request):
     for event in event_list:
         occurrences = event.get_occurrences(start, end)
         for occurrence in occurrences:
+            occurrence_id = i + occurrence.event.id
+            existed = False
+
             if occurrence.id:
                 occurrence_id = occurrence.id
                 existed = True
-            else:
-                occurrence_id = i + occurrence.event.id
-                existed = False
+
             response_data.append({
                 "id": occurrence_id,
                 "title": occurrence.title,
