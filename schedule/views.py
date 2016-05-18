@@ -40,6 +40,7 @@ class EventEditPermissionMixin(object):
         view = super(EventEditPermissionMixin, cls).as_view(**initkwargs)
         return check_event_permissions(view)
 
+
 class OccurrenceEditPermissionMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
@@ -197,12 +198,8 @@ class EditEventView(EventEditMixin, UpdateView):
     def form_valid(self, form):
         event = form.save(commit=False)
         old_event = Event.objects.get(pk=event.pk)
-        dts = datetime.timedelta(minutes=
-            int((event.start-old_event.start).total_seconds() / 60)
-        )
-        dte = datetime.timedelta(minutes=
-            int((event.end-old_event.end).total_seconds() / 60)
-        )
+        dts = datetime.timedelta(minutes=int((event.start - old_event.start).total_seconds() / 60))
+        dte = datetime.timedelta(minutes=int((event.end - old_event.end).total_seconds() / 60))
         event.occurrence_set.all().update(
             original_start=F('original_start') + dts,
             original_end=F('original_end') + dte,
@@ -326,7 +323,7 @@ def api_occurrences(request):
     end = utc.localize(convert(request.GET.get('end')))
     calendar_slug = request.GET.get('calendar_slug')
     if calendar_slug:
-        calendars = [get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))]
+        calendars = [get_object_or_404(Calendar, slug=calendar_slug)]
     # if no calendar slug is given, get all the calendars
     else:
         calendars = Calendar.objects.all()
@@ -339,7 +336,7 @@ def api_occurrences(request):
     for calendar in calendars:
         # create flat list of events from each calendar
         event_list += calendar.events.filter(start__lte=end).filter(
-                        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True) )
+                        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True))
     for event in event_list:
         occurrences = event.get_occurrences(start, end)
         for occurrence in occurrences:
@@ -354,12 +351,13 @@ def api_occurrences(request):
                 "title": occurrence.title,
                 "start": occurrence.start.isoformat(),
                 "end": occurrence.end.isoformat(),
-                "existed" : existed,
-                "event_id" : occurrence.event.id,
-                "color" : occurrence.event.color_event,
-                "description" : occurrence.description,
+                "existed": existed,
+                "event_id": occurrence.event.id,
+                "color": occurrence.event.color_event,
+                "description": occurrence.description,
             })
     return HttpResponse(json.dumps(response_data), content_type="application/json")
+
 
 @check_calendar_permissions
 def api_move_or_resize_by_code(request):
@@ -397,6 +395,7 @@ def api_move_or_resize_by_code(request):
                 resp['status'] = "OK"
     return HttpResponse(json.dumps(resp))
 
+
 @check_calendar_permissions
 def api_select_create(request):
     if request.method == 'POST':
@@ -405,7 +404,7 @@ def api_select_create(request):
         end = dateutil.parser.parse(request.POST.get('end'))
 
         calendar = Calendar.objects.get(slug=calendar_slug)
-        event = Event.objects.create(
+        Event.objects.create(
                                         start=start,
                                         end=end,
                                         title=EVENT_NAME_PLACEHOLDER,
