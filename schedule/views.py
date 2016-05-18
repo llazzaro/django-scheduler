@@ -344,7 +344,7 @@ def api_occurrences(request):
                 occurrence_id = occurrence.id
                 existed = True
             else:
-                occurrence_id = i + occurrence.event.id
+                occurrence_id = i + occurrence.event.id # I don't understand this. How can occurence_id ever be acquired by looking at event id? I can have multiple events with multiple occurences, where the occurence is only set to cancel some days?
                 existed = False
             response_data.append({
                 "id": occurrence_id,
