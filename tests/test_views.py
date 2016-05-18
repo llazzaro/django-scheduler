@@ -145,3 +145,31 @@ class TestUrls(TestCase):
         self.response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 404)
         self.client.logout()
+
+    def test_occurences_api_returns_the_expected_occurences(self):
+        # create a calendar and event
+        self.calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
+        self.rule = Rule.objects.create(frequency="DAILY")
+        data = {
+            'title': 'Recent Event',
+            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            'rule': self.rule,
+            'calendar': self.calendar
+        }
+        self.event = Event.objects.create(**data)
+        # test calendar slug
+        self.response = self.client.get(reverse("api_occurences") +
+                                        "?calendar={}&start={}&end={}".format(
+                                            'MyCal',
+                                            datetime.datetime(2008, 1, 5),
+                                            datetime.datetime(2008, 1, 6)
+                                        ))
+        self.assertEqual(self.response.status_code, 200)
+        expected_content = '[{"start": "2008-01-05T08:00:00+00:00", "end": "2008-01-05T09:00:00+00:00", "description": null, "title": "Recent Event", "event_id": 8, "existed": false, "id": 9, "color": null}]'
+        self.assertEquals(self.response.content, expected_content)
+
+    def test_occurences_api_without_parameters_return_status_400(self):
+        self.response = self.client.get(reverse("api_occurences"))
+        self.assertEqual(self.response.status_code, 400)

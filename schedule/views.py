@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
@@ -17,13 +17,13 @@ from django.views.generic.edit import (
 from django.utils.http import is_safe_url
 
 from schedule.conf.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
-                                    EVENT_NAME_PLACEHOLDER, CHECK_EVENT_PERM_FUNC, 
+                                    EVENT_NAME_PLACEHOLDER, CHECK_EVENT_PERM_FUNC,
                                     CHECK_OCCURRENCE_PERM_FUNC, USE_FULLCALENDAR)
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
-from schedule.utils import (check_event_permissions, 
-    check_calendar_permissions, coerce_date_dict, 
+from schedule.utils import (check_event_permissions,
+    check_calendar_permissions, coerce_date_dict,
     check_occurrence_permissions)
 
 
@@ -305,24 +305,41 @@ def get_next_url(request, default):
         next_url = _next_url
     return next_url
 
+
 @check_calendar_permissions
 def api_occurrences(request):
     utc=pytz.UTC
+    if not request.GET.get('start') or not request.GET.get('end'):
+        return HttpResponseBadRequest('Start and end parameters are required')
     # version 2 of full calendar
+    # TODO: improve this code with date util package
     if '-' in request.GET.get('start'):
-        convert = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d')
+        def convert(ddatetime):
+            if ddatetime:
+                ddatetime = ddatetime.split(' ')[0]
+                return datetime.datetime.strptime(ddatetime, '%Y-%m-%d')
     else:
-        convert = lambda d: datetime.datetime.utcfromtimestamp(float(d))
+        def convert(ddatetime):
+            return datetime.datetime.utcfromtimestamp(float(ddatetime))
+
     start = utc.localize(convert(request.GET.get('start')))
     end = utc.localize(convert(request.GET.get('end')))
-    calendar = get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))
+    calendar_slug = request.GET.get('calendar_slug')
+    if calendar_slug:
+        calendars = [get_object_or_404(Calendar, slug=request.GET.get('calendar_slug'))]
+    # if no calendar slug is given, get all the calendars
+    else:
+        calendars = Calendar.objects.all()
     response_data =[]
     if Occurrence.objects.all().count() > 0:
         i = Occurrence.objects.latest('id').id + 1
     else:
         i = 1
-    event_list = calendar.events.filter(start__lte=end).filter(
-        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True) )
+    event_list = []
+    for calendar in calendars:
+        # create flat list of events from each calendar
+        event_list += calendar.events.filter(start__lte=end).filter(
+                        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True) )
     for event in event_list:
         occurrences = event.get_occurrences(start, end)
         for occurrence in occurrences:
@@ -340,6 +357,7 @@ def api_occurrences(request):
                 "existed" : existed,
                 "event_id" : occurrence.event.id,
                 "color" : occurrence.event.color_event,
+                "description" : occurrence.description,
             })
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
