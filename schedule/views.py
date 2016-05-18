@@ -346,6 +346,11 @@ def api_occurrences(request):
             else:
                 occurrence_id = i + occurrence.event.id
                 existed = False
+            recur_rule = occurrence.event.rule.name \
+                if occurrence.event.rule else None
+            recur_period_end = \
+                occurrence.event.end_recurring_period.isoformat() \
+                if occurrence.event.end_recurring_period else None
             response_data.append({
                 "id": occurrence_id,
                 "title": occurrence.title,
@@ -355,6 +360,11 @@ def api_occurrences(request):
                 "event_id": occurrence.event.id,
                 "color": occurrence.event.color_event,
                 "description": occurrence.description,
+                "rule": recur_rule,
+                "end_recurring_period": recur_period_end,
+                "creator": str(occurrence.event.creator),
+                "calendar": occurrence.event.calendar.slug,
+                "cancelled": occurrence.cancelled,
             })
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
