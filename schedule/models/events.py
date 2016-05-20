@@ -337,7 +337,6 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             elif self.end_recurring_period:
                 occ = None
                 occ_generator = self._occurrences_after_generator(self.start)
-                # occ_generator = iter(self.get_rrule_object())
                 for occ in occ_generator:
                     pass
                 return occ.end
@@ -607,4 +606,5 @@ class Occurrence(with_metaclass(ModelBase, *get_model_bases())):
 
     def __eq__(self, other):
         return (isinstance(other, Occurrence) and
-            self.original_start == other.original_start and self.original_end == other.original_end)
+                self.original_start == other.original_start and
+                self.original_end == other.original_end)
