@@ -61,14 +61,14 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
 
     def rrule_frequency(self):
         compatibiliy_dict = {
-                'DAILY': DAILY,
-                'MONTHLY': MONTHLY,
-                'WEEKLY': WEEKLY,
-                'YEARLY': YEARLY,
-                'HOURLY': HOURLY,
-                'MINUTELY': MINUTELY,
-                'SECONDLY': SECONDLY
-                }
+            'DAILY': DAILY,
+            'MONTHLY': MONTHLY,
+            'WEEKLY': WEEKLY,
+            'YEARLY': YEARLY,
+            'HOURLY': HOURLY,
+            'MINUTELY': MINUTELY,
+            'SECONDLY': SECONDLY
+        }
         return compatibiliy_dict[self.frequency]
 
     def get_params(self):

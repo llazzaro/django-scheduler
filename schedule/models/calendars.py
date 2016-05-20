@@ -17,6 +17,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from schedule.conf.settings import USE_FULLCALENDAR
 
+
 class CalendarManager(models.Manager):
     """
     >>> user1 = User(username='tony')

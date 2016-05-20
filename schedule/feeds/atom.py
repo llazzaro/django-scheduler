@@ -452,8 +452,8 @@ class LegacySyndicationFeed(AtomFeed):
     """
 
     def __init__(self, title, link, description, language=None, author_email=None,
-            author_name=None, author_link=None, subtitle=None, categories=None,
-            feed_url=None, feed_copyright=None):
+                 author_name=None, author_link=None, subtitle=None, categories=None,
+                 feed_url=None, feed_copyright=None):
 
         atom_id = link
         title = title
@@ -478,12 +478,13 @@ class LegacySyndicationFeed(AtomFeed):
 
         # description ignored (as with Atom1Feed)
 
-        AtomFeed.__init__(self, atom_id, title, updated, rights=rights, subtitle=subtitle,
-                authors=authors, categories=categories, links=links, extra_attrs=extra_attrs)
+        AtomFeed.__init__(
+            self, atom_id, title, updated, rights=rights, subtitle=subtitle,
+            authors=authors, categories=categories, links=links, extra_attrs=extra_attrs)
 
     def add_item(self, title, link, description, author_email=None,
-            author_name=None, author_link=None, pubdate=None, comments=None,
-            unique_id=None, enclosure=None, categories=None, item_copyright=None):
+                 author_name=None, author_link=None, pubdate=None, comments=None,
+                 unique_id=None, enclosure=None, categories=None, item_copyright=None):
 
         if unique_id:
             atom_id = unique_id
@@ -510,5 +511,6 @@ class LegacySyndicationFeed(AtomFeed):
         if enclosure:
             links.append({'rel': 'enclosure', 'href': enclosure.url, 'length': enclosure.length, 'type': enclosure.mime_type})
 
-        AtomFeed.add_item(self, atom_id, title, updated, rights=rights, summary=summary,
-                authors=authors, categories=categories, links=links)
+        AtomFeed.add_item(
+            self, atom_id, title, updated, rights=rights, summary=summary,
+            authors=authors, categories=categories, links=links)
