@@ -49,7 +49,7 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
         ** bysecond
         ** byeaster
     """
-    name = models.CharField(_("name"), max_length=32)
+    name = models.CharField(_("name"), max_length=255)
     description = models.TextField(_("description"))
     frequency = models.CharField(_("frequency"), choices=freqs, max_length=10)
     params = models.TextField(_("params"), null=True, blank=True)
@@ -92,4 +92,4 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
 
     def __str__(self):
         """Human readable string for Rule"""
-        return 'Rule %s params %s' % (self.name, self.params)
+        return self.name
