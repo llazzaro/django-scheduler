@@ -1,5 +1,6 @@
-import pytz
 import datetime
+import json
+import pytz
 
 from django.test.utils import override_settings
 from django.test import TestCase
@@ -207,3 +208,70 @@ class TestUrls(TestCase):
         self.assertEqual(self.response.status_code, 200)
         expected_content = '[{"start": "2008-01-05T08:00:00+00:00", "end": "2008-01-05T09:00:00+00:00", "description": null, "title": "Recent Event", "event_id": 8, "existed": false, "id": 10, "color": null}, {"start": "2008-01-06T08:00:00+00:00", "end": "2008-01-06T09:00:00+00:00", "description": null, "title": "Recent Event", "event_id": 8, "existed": false, "id": 10, "color": null}, {"start": "2008-01-07T08:00:00+00:00", "end": "2008-01-07T09:00:00+00:00", "description": null, "title": "Recent Event", "event_id": 8, "existed": false, "id": 10, "color": null}, {"start": "2008-01-07T08:00:00+00:00", "end": "2008-01-07T08:00:00+00:00", "description": "Persisted occ test", "title": "My persisted Occ", "event_id": 8, "existed": true, "id": 1, "color": null}]'
         self.assertEquals(self.response.content, expected_content)
+
+    def test_occurences_api_works_with_and_without_cal_slug(self):
+        # create a calendar and event
+        calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
+        data = {
+            'title': 'Recent Event',
+            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            'calendar': calendar
+        }
+        event = Event.objects.create(**data)
+        # test calendar slug
+        response = self.client.get(reverse('api_occurences'),
+                                         {'start': '2008-01-05',
+                                         'end': '2008-02-05',
+                                         'calendar_slug': event.calendar.slug})
+        self.assertEqual(response.status_code, 200)
+        resp_list = json.loads(response.content.decode('utf-8'))
+        self.assertIn(event.title, [d['title'] for d in resp_list])
+        # test works with no calendar slug
+        response = self.client.get(reverse("api_occurences"),
+                                   {'start': '2008-01-05',
+                                    'end': '2008-02-05'
+                                    })
+        self.assertEqual(response.status_code, 200)
+        resp_list = json.loads(response.content.decode('utf-8'))
+        self.assertIn(event.title, [d['title'] for d in resp_list])
+
+    def test_cal_slug_filters_returned_events(self):
+        calendar1 = Calendar.objects.create(name="MyCal1", slug='MyCalSlug1')
+        calendar2 = Calendar.objects.create(name="MyCal2", slug='MyCalSlug2')
+        data1 = {
+            'title': 'Recent Event 1',
+            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            'calendar': calendar1
+        }
+        data2 = {
+            'title': 'Recent Event 2',
+            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            'calendar': calendar2
+        }
+        event1 = Event.objects.create(**data1)
+        event2 = Event.objects.create(**data2)
+        # Test both present with no cal arg
+        response = self.client.get(reverse("api_occurences"),
+                                   {'start': '2008-01-05',
+                                   'end': '2008-02-05'}
+                                   )
+        self.assertEqual(response.status_code, 200)
+        resp_list = json.loads(response.content.decode('utf-8'))
+        self.assertIn(event1.title, [d['title'] for d in resp_list])
+        self.assertIn(event2.title, [d['title'] for d in resp_list])
+        # test event2 not in event1 response
+        response = self.client.get(reverse("api_occurences"),
+                                    {'start': '2008-01-05',
+                                     'end': '2008-02-05',
+                                     'calendar_slug': event1.calendar.slug}
+                                   )
+        self.assertEqual(response.status_code, 200)
+        resp_list = json.loads(response.content.decode('utf-8'))
+        self.assertIn(event1.title, [d['title'] for d in resp_list])
+        self.assertNotIn(event2.title, [d['title'] for d in resp_list])
