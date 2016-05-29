@@ -87,5 +87,42 @@ class TestOccurrence(TestCase):
         """
         o = Occurrence()
 
+    def test_get_occurrences_non_intersection_returns_empty_occ(self):
+        rule = Rule(frequency="DAILY")
+        rule.save()
+        cal = Calendar(name="MyCal")
+        cal.save()
+        recurring_data = {
+            'title': 'Recent Event',
+            'start': datetime.datetime(2016, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2016, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2016, 8, 5, 0, 0, tzinfo=pytz.utc),
+            'rule': rule,
+            'calendar': cal
+        }
+        recurring_event = Event.objects.create(**recurring_data)
+        occurrences = recurring_event.get_occurrences(start=self.start, end=self.end)
+        self.assertEquals(occurrences, [])
 
+    def test_get_occurrences_is_sorted(self):
+        rule = Rule(frequency="DAILY")
+        rule.save()
+        cal = Calendar(name="MyCal")
+        cal.save()
+        recurring_data = {
+            'title': 'Recent Event',
+            'start': datetime.datetime(2016, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2016, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2016, 8, 5, 0, 0, tzinfo=pytz.utc),
+            'rule': rule,
+            'calendar': cal
+        }
+        recurring_event = Event.objects.create(**recurring_data)
 
+        start = datetime.datetime(2016, 1, 12, 0, 0, tzinfo=pytz.utc)
+        end = datetime.datetime(2016, 1, 27, 0, 0, tzinfo=pytz.utc)
+        occurrences = recurring_event.get_occurrences(start=start, end=end)
+
+        sorted_occurrences = sorted(occurrences, key=lambda occ: occ.start)
+
+        self.assertEquals(occurrences, sorted_occurrences)
