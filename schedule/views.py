@@ -312,12 +312,27 @@ def get_next_url(request, default):
 
 @check_calendar_permissions
 def api_occurrences(request):
-    utc=pytz.UTC
-    if not request.GET.get('start') or not request.GET.get('end'):
-        return HttpResponseBadRequest('Start and end parameters are required')
+    start = request.GET.get('start')
+    end = request.GET.get('end')
+    calendar_slug = request.GET.get('calendar_slug')
+
+    try:
+        response_data = _api_occurrences(start, end, calendar_slug)
+    except (ValueError, Calendar.DoesNotExist) as e:
+        return HttpResponseBadRequest(e)
+
+    return HttpResponse(
+        json.dumps(response_data),
+        content_type="application/json")
+
+
+def _api_occurrences(start, end, calendar_slug):
+    utc = pytz.UTC
+    if not start or not end:
+        raise ValueError('Start and end parameters are required')
     # version 2 of full calendar
     # TODO: improve this code with date util package
-    if '-' in request.GET.get('start'):
+    if '-' in start:
         def convert(ddatetime):
             if ddatetime:
                 ddatetime = ddatetime.split(' ')[0]
@@ -326,19 +341,23 @@ def api_occurrences(request):
         def convert(ddatetime):
             return datetime.datetime.utcfromtimestamp(float(ddatetime))
 
-    start = utc.localize(convert(request.GET.get('start')))
-    end = utc.localize(convert(request.GET.get('end')))
-    calendar_slug = request.GET.get('calendar_slug')
+    start = utc.localize(convert(start))
+    end = utc.localize(convert(end))
     if calendar_slug:
-        calendars = [get_object_or_404(Calendar, slug=calendar_slug)]
+        # will raise DoesNotExist exception if no match
+        calendars = [Calendar.objects.get(slug=calendar_slug)]
     # if no calendar slug is given, get all the calendars
     else:
         calendars = Calendar.objects.all()
-    response_data =[]
-    # Algorithm to get an id for the occurrences in fullcalendar (NOT THE SAME AS IN THE DB) which are always unique.
-    # Fullcalendar thinks that all their "events" with the same "event.id" in their system are the same object,
-    #       because it's not really built around the idea of events (generators) and occurrences (their events).
-    # Check the "persisted" boolean value that tells it whether to change the event, using the "event_id" or the occurrence with the specified "id".
+    response_data = []
+    # Algorithm to get an id for the occurrences in fullcalendar (NOT THE SAME
+    # AS IN THE DB) which are always unique.
+    # Fullcalendar thinks that all their "events" with the same "event.id" in
+    # their system are the same object, because it's not really built around
+    # the idea of events (generators)
+    # and occurrences (their events).
+    # Check the "persisted" boolean value that tells it whether to change the
+    # event, using the "event_id" or the occurrence with the specified "id".
     # for more info https://github.com/llazzaro/django-scheduler/pull/169
     i = 1
     if Occurrence.objects.all().count() > 0:
@@ -347,7 +366,8 @@ def api_occurrences(request):
     for calendar in calendars:
         # create flat list of events from each calendar
         event_list += calendar.events.filter(start__lte=end).filter(
-                        Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True))
+            Q(end_recurring_period__gte=start) |
+            Q(end_recurring_period__isnull=True))
     for event in event_list:
         occurrences = event.get_occurrences(start, end)
         for occurrence in occurrences:
@@ -379,62 +399,90 @@ def api_occurrences(request):
                 "calendar": occurrence.event.calendar.slug,
                 "cancelled": occurrence.cancelled,
             })
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
+    return response_data
 
 
 @check_calendar_permissions
 def api_move_or_resize_by_code(request):
+    response_data = {}
     if request.method == 'POST':
-        id = request.POST.get('id')
-        existed = (request.POST.get('existed') == 'true')
-        dt = datetime.timedelta(minutes=int(request.POST.get('delta')))
+        user = request.user
+        id = request.POST.get(id)
+        existed = bool(request.POST.get('existed') == 'true')
+        delta = datetime.timedelta(minutes=int(request.POST.get('delta')))
         resize = bool(request.POST.get('resize', False))
-        resp = {}
-        resp['status'] = "PERMISSION DENIED"
+        event_id = request.POST.get('event_id', None)
 
-        if existed:
-            occurrence = Occurrence.objects.get(id=id)
-            occurrence.end += dt
-            if not resize:
-                occurrence.start += dt
-            if CHECK_OCCURRENCE_PERM_FUNC(occurrence, request.user):
-                occurrence.save()
-                resp['status'] = "OK"
-        else:
-            event_id = request.POST.get('event_id')
-            event = Event.objects.get(id=event_id)
-            dts = 0
-            dte = dt
-            if not resize:
-                event.start += dt
-                dts = dt
-            event.end = event.end + dt
-            if CHECK_EVENT_PERM_FUNC(event, request.user):
-                event.save()
-                event.occurrence_set.all().update(
-                    original_start=F('original_start') + dts,
-                    original_end=F('original_end') + dte,
-                )
-                resp['status'] = "OK"
-    return HttpResponse(json.dumps(resp))
+        response_data = _api_move_or_resize_by_code(
+            user,
+            id,
+            existed,
+            delta,
+            resize,
+            event_id)
+
+    return HttpResponse(
+        json.dumps(response_data),
+        content_type="application/json")
+
+
+def _api_move_or_resize_by_code(user, id, existed, delta, resize, event_id):
+    response_data = {}
+    response_data['status'] = "PERMISSION DENIED"
+
+    if existed:
+        occurrence = Occurrence.objects.get(id=id)
+        occurrence.end += delta
+        if not resize:
+            occurrence.start += delta
+        if CHECK_OCCURRENCE_PERM_FUNC(occurrence, user):
+            occurrence.save()
+            response_data['status'] = "OK"
+    else:
+        event = Event.objects.get(id=event_id)
+        dts = 0
+        dte = delta
+        if not resize:
+            event.start += delta
+            dts = delta
+        event.end = event.end + delta
+        if CHECK_EVENT_PERM_FUNC(event, user):
+            event.save()
+            event.occurrence_set.all().update(
+                original_start=F('original_start') + dts,
+                original_end=F('original_end') + dte,
+            )
+            response_data['status'] = "OK"
+    return response_data
 
 
 @check_calendar_permissions
 def api_select_create(request):
+    response_data = {}
     if request.method == 'POST':
+        start = request.POST.get('start')
+        end = request.POST.get('end')
         calendar_slug = request.POST.get('calendar_slug')
-        start = dateutil.parser.parse(request.POST.get('start'))
-        end = dateutil.parser.parse(request.POST.get('end'))
 
-        calendar = Calendar.objects.get(slug=calendar_slug)
-        Event.objects.create(
-            start=start,
-            end=end,
-            title=EVENT_NAME_PLACEHOLDER,
-            calendar=calendar,
-        )
+        response_data = _api_select_create(start, end, calendar_slug)
 
-        resp = {}
-        resp['status'] = "OK"
+    return HttpResponse(
+        json.dumps(response_data),
+        content_type="application/json")
 
-    return HttpResponse(json.dumps(resp))
+
+def _api_select_create(start, end, calendar_slug):
+    start = dateutil.parser.parse('start')
+    end = dateutil.parser.parse('end')
+
+    calendar = Calendar.objects.get(slug=calendar_slug)
+    Event.objects.create(
+        start=start,
+        end=end,
+        title=EVENT_NAME_PLACEHOLDER,
+        calendar=calendar,
+    )
+
+    response_data = {}
+    response_data['status'] = "OK"
+    return response_data

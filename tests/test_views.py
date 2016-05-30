@@ -176,6 +176,13 @@ class TestUrls(TestCase):
         self.response = self.client.get(reverse("api_occurences"))
         self.assertEqual(self.response.status_code, 400)
 
+    def test_occurrences_api_without_calendar_slug_return_status_404(self):
+        self.response = self.client.get(reverse("api_occurences"),
+                                        {'start': datetime.datetime(2008, 1, 5),
+                                         'end': datetime.datetime(2008, 1, 6),
+                                         'calendar_slug': 'NoMatch'})
+        self.assertEqual(self.response.status_code, 400)
+
     def test_occurences_api_checks_valid_occurrence_ids(self):
         # create a calendar and event
         self.calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
