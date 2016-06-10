@@ -50,14 +50,6 @@ class OccurrenceEditPermissionMixin(object):
         return check_occurrence_permissions(view)
 
 
-class TemplateKwargMixin(TemplateResponseMixin):
-    def get_template_names(self):
-        if 'template_name' in self.kwargs:
-            return [self.kwargs['template_name']]
-        else:
-            return super(TemplateKwargMixin, self).get_template_names()
-
-
 class CancelButtonMixin(object):
     def post(self, request, *args, **kwargs):
         next_url = kwargs.get('next', None)
@@ -68,7 +60,7 @@ class CancelButtonMixin(object):
             return super(CancelButtonMixin, self).post(request, *args, **kwargs)
 
 
-class CalendarMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
+class CalendarMixin(CalendarViewPermissionMixin):
     model = Calendar
     slug_url_kwarg = 'calendar_slug'
 
@@ -131,7 +123,7 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
         return context
 
 
-class OccurrenceMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
+class OccurrenceMixin(CalendarViewPermissionMixin, TemplateResponseMixin):
     model = Occurrence
     pk_url_kwarg = 'occurrence_id'
     form_class = OccurrenceForm
@@ -181,7 +173,7 @@ class CancelOccurrenceView(OccurrenceEditMixin, ModelFormMixin, ProcessFormView)
         return HttpResponseRedirect(self.success_url)
 
 
-class EventMixin(CalendarViewPermissionMixin, TemplateKwargMixin):
+class EventMixin(CalendarViewPermissionMixin):
     model = Event
     pk_url_kwarg = 'event_id'
 
