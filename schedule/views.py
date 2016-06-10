@@ -72,33 +72,21 @@ class CalendarView(CalendarMixin, DetailView):
 class FullCalendarView(CalendarMixin, DetailView):
     template_name = "fullcalendar.html"
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
-
     def get_context_data(self, **kwargs):
         context = super(FullCalendarView, self).get_context_data()
-        context = {
-            'calendar_slug': kwargs.get('calendar_slug'),
-        }
+        context['calendar_slug'] = self.kwargs.get('calendar_slug')
         return context
 
 
 class CalendarByPeriodsView(CalendarMixin, DetailView):
     template_name = 'schedule/calendar_by_period.html'
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(request, **kwargs)
-        return self.render_to_response(context)
-
-    def get_context_data(self, request, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(CalendarByPeriodsView, self).get_context_data(**kwargs)
         calendar = self.object
-        period_class = kwargs['period']
+        period_class = self.kwargs['period']
         try:
-            date = coerce_date_dict(request.GET)
+            date = coerce_date_dict(self.request.GET)
         except ValueError:
             raise Http404
         if date:
@@ -108,7 +96,7 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
                 raise Http404
         else:
             date = timezone.now()
-        event_list = GET_EVENTS_FUNC(request, calendar)
+        event_list = GET_EVENTS_FUNC(self.request, calendar)
 
         local_timezone = timezone.get_current_timezone()
         period = period_class(event_list, date, tzinfo=local_timezone)
@@ -118,7 +106,7 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
             'period': period,
             'calendar': calendar,
             'weekday_names': weekday_names,
-            'here': quote(request.get_full_path()),
+            'here': quote(self.request.get_full_path()),
         })
         return context
 
