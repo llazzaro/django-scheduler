@@ -1,6 +1,5 @@
 from annoying.functions import get_config
 
-AUTH_USER_MODEL = get_config('AUTH_USER_MODEL')
 # whether to display cancelled occurrences
 # (if they are displayed then they have a css class "cancelled")
 # this controls behaviour of Period.classify_occurrence method
