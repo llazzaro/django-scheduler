@@ -103,11 +103,11 @@ def get_occurrence(request, *args, **kwargs):
     elif request.GET:
         occurrence = get_object_or_None(
             Occurrence,
-            id=request.GET.get('occurrence_id', None))
+            id=request.GET.get('occurrence_id'))
     elif request.POST:
         occurrence = get_object_or_None(
             Occurrence,
-            id=request.POST.get('occurrence_id', None))
+            id=request.POST.get('occurrence_id'))
     return occurrence
 
 
@@ -121,11 +121,11 @@ def get_event(occurrence, request, *args, **kwargs):
     elif request.GET:
         event = get_object_or_None(
             Event,
-            id=request.GET.get('event_id', None))
+            id=request.GET.get('event_id'))
     elif request.POST:
         event = get_object_or_None(
             Event,
-            id=request.POST.get('event_id', None))
+            id=request.POST.get('event_id'))
     return event
 
 
@@ -139,11 +139,11 @@ def get_calendar(event, request, *args, **kwargs):
     elif request.GET:
         calendar = get_object_or_None(
             Calendar,
-            slug=request.GET.get('calendar_slug', None))
+            slug=request.GET.get('calendar_slug'))
     elif request.POST:
         calendar = get_object_or_None(
             Calendar,
-            slug=request.POST.get('calendar_slug', None))
+            slug=request.POST.get('calendar_slug'))
     return calendar
 
 
