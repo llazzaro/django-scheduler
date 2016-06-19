@@ -52,7 +52,7 @@ class OccurrenceEditPermissionMixin(object):
 
 class CancelButtonMixin(object):
     def post(self, request, *args, **kwargs):
-        next_url = kwargs.get('next', None)
+        next_url = kwargs.get('next')
         self.success_url = get_next_url(request, next_url)
         if "cancel" in request.POST:
             return HttpResponseRedirect(self.success_url)
