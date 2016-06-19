@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest
+from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
@@ -379,24 +380,24 @@ def _api_occurrences(start, end, calendar_slug):
     return response_data
 
 
+@require_POST
 @check_calendar_permissions
 def api_move_or_resize_by_code(request):
     response_data = {}
-    if request.method == 'POST':
-        user = request.user
-        id = request.POST.get(id)
-        existed = bool(request.POST.get('existed') == 'true')
-        delta = datetime.timedelta(minutes=int(request.POST.get('delta')))
-        resize = bool(request.POST.get('resize', False))
-        event_id = request.POST.get('event_id', None)
+    user = request.user
+    id = request.POST.get(id)
+    existed = bool(request.POST.get('existed') == 'true')
+    delta = datetime.timedelta(minutes=int(request.POST.get('delta')))
+    resize = bool(request.POST.get('resize', False))
+    event_id = request.POST.get('event_id')
 
-        response_data = _api_move_or_resize_by_code(
-            user,
-            id,
-            existed,
-            delta,
-            resize,
-            event_id)
+    response_data = _api_move_or_resize_by_code(
+        user,
+        id,
+        existed,
+        delta,
+        resize,
+        event_id)
 
     return JsonResponse(response_data)
 
@@ -431,15 +432,15 @@ def _api_move_or_resize_by_code(user, id, existed, delta, resize, event_id):
     return response_data
 
 
+@require_POST
 @check_calendar_permissions
 def api_select_create(request):
     response_data = {}
-    if request.method == 'POST':
-        start = request.POST.get('start')
-        end = request.POST.get('end')
-        calendar_slug = request.POST.get('calendar_slug')
+    start = request.POST.get('start')
+    end = request.POST.get('end')
+    calendar_slug = request.POST.get('calendar_slug')
 
-        response_data = _api_select_create(start, end, calendar_slug)
+    response_data = _api_select_create(start, end, calendar_slug)
 
     return JsonResponse(response_data)
 
