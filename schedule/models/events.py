@@ -482,7 +482,7 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases())):
     '''
     event = models.ForeignKey(Event, verbose_name=_("event"))
     content_type = models.ForeignKey(ContentType)
-    object_id = models.IntegerField()
+    object_id = models.CharField(max_length=32)
     content_object = fields.GenericForeignKey('content_type', 'object_id')
     distinction = models.CharField(_("distinction"), max_length=20, null=True)
 

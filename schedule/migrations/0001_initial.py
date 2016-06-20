@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             name='CalendarRelation',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
-                ('object_id', models.IntegerField()),
+                ('object_id', models.CharField(max_length=32)),
                 ('distinction', models.CharField(null=True, max_length=20, verbose_name='distinction')),
                 ('inheritable', models.BooleanField(default=True, verbose_name='inheritable')),
                 ('calendar', models.ForeignKey(to='schedule.Calendar', verbose_name='calendar')),
