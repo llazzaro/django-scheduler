@@ -33,8 +33,8 @@ class Migration(migrations.Migration):
                 ('object_id', models.IntegerField()),
                 ('distinction', models.CharField(null=True, max_length=20, verbose_name='distinction')),
                 ('inheritable', models.BooleanField(default=True, verbose_name='inheritable')),
-                ('calendar', models.ForeignKey(to='schedule.Calendar', verbose_name='calendar')),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('calendar', models.ForeignKey(to='schedule.Calendar', verbose_name='calendar', on_delete=models.CASCADE)),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'calendar relations',
@@ -53,8 +53,8 @@ class Migration(migrations.Migration):
                 ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='created on')),
                 ('updated_on', models.DateTimeField(auto_now=True, verbose_name='updated on')),
                 ('end_recurring_period', models.DateTimeField(blank=True, null=True, help_text='This date is ignored for one time only events.', verbose_name='end recurring period')),
-                ('calendar', models.ForeignKey(blank=True, null=True, to='schedule.Calendar', verbose_name='calendar')),
-                ('creator', models.ForeignKey(blank=True, null=True, related_name='creator', verbose_name='creator', to=settings.AUTH_USER_MODEL)),
+                ('calendar', models.ForeignKey(blank=True, null=True, to='schedule.Calendar', verbose_name='calendar', on_delete=models.CASCADE)),
+                ('creator', models.ForeignKey(blank=True, null=True, related_name='creator', verbose_name='creator', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'events',
@@ -68,8 +68,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
                 ('object_id', models.IntegerField()),
                 ('distinction', models.CharField(null=True, max_length=20, verbose_name='distinction')),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
-                ('event', models.ForeignKey(to='schedule.Event', verbose_name='event')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
+                ('event', models.ForeignKey(to='schedule.Event', verbose_name='event', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'event relations',
@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
                 ('original_end', models.DateTimeField(verbose_name='original end')),
                 ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='created on')),
                 ('updated_on', models.DateTimeField(auto_now=True, verbose_name='updated on')),
-                ('event', models.ForeignKey(to='schedule.Event', verbose_name='event')),
+                ('event', models.ForeignKey(to='schedule.Event', verbose_name='event', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'occurrences',
@@ -116,7 +116,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='event',
             name='rule',
-            field=models.ForeignKey(blank=True, null=True, to='schedule.Rule', verbose_name='rule', help_text="Select '----' for a one time only event."),
+            field=models.ForeignKey(blank=True, null=True, to='schedule.Rule', verbose_name='rule', help_text="Select '----' for a one time only event.", on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]
