@@ -57,15 +57,30 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
     end = models.DateTimeField(_("end"), help_text=_("The end time must be later than the start time."))
     title = models.CharField(_("title"), max_length=255)
     description = models.TextField(_("description"), null=True, blank=True)
-    creator = models.ForeignKey(django_settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_("creator"),
-                                related_name='creator')
+    creator = models.ForeignKey(
+        django_settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("creator"),
+        related_name='creator')
     created_on = models.DateTimeField(_("created on"), auto_now_add=True)
     updated_on = models.DateTimeField(_("updated on"), auto_now=True)
-    rule = models.ForeignKey(Rule, null=True, blank=True, verbose_name=_("rule"),
-                             help_text=_("Select '----' for a one time only event."))
+    rule = models.ForeignKey(
+        Rule,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("rule"),
+        help_text=_("Select '----' for a one time only event."))
     end_recurring_period = models.DateTimeField(_("end recurring period"), null=True, blank=True,
                                                 help_text=_("This date is ignored for one time only events."))
-    calendar = models.ForeignKey(Calendar, null=True, blank=True, verbose_name=_("calendar"))
+    calendar = models.ForeignKey(
+        Calendar,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("calendar"))
     color_event = models.CharField(_("Color event"), null=True, blank=True, max_length=10)
     objects = EventManager()
 
@@ -480,8 +495,8 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases())):
     DISCLAIMER: while this model is a nice out of the box feature to have, it
     may not scale well.  If you use this keep that in mind.
     '''
-    event = models.ForeignKey(Event, verbose_name=_("event"))
-    content_type = models.ForeignKey(ContentType)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.IntegerField()
     content_object = fields.GenericForeignKey('content_type', 'object_id')
     distinction = models.CharField(_("distinction"), max_length=20, null=True)
@@ -499,7 +514,7 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases())):
 
 @python_2_unicode_compatible
 class Occurrence(with_metaclass(ModelBase, *get_model_bases())):
-    event = models.ForeignKey(Event, verbose_name=_("event"))
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
     title = models.CharField(_("title"), max_length=255, blank=True, null=True)
     description = models.TextField(_("description"), blank=True, null=True)
     start = models.DateTimeField(_("start"))
