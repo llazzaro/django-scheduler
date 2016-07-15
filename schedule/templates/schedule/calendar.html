@@ -1,18 +1,17 @@
 {% extends "base.html" %}
-{% load i18n %}
 {% load scheduletags i18n %}
 
 
 {% block body %}
 
-<h1>Calendar metadata</h1>
+<h1>{% trans "Calendar metadata" %}</h1>
 
-<p>Name: {{calendar.name}}</p>
-<p>Slug: {{calendar.slug}}</p>
-<p>Event count: {{calendar.events.count}}</p>
+<p>{% blocktrans with calendar_name=calendar.name %}Name: {{calendar_name}}{% endblocktrans %}</p>
+<p>{% blocktrans with calendar_slug=calendar.slug %}Slug: {{calendar_slug}}{% endblocktrans %}</p>
+<p>{% blocktrans with events_count %}Event count: {{events_count}}{% endblocktrans %}</p>
 
 <div>
-    <p>See as:</p>
+    <p>{% trans "See as:" %}</p>
     <ul>
         <li><a href="{% url "compact_calendar" calendar.slug %}">{% trans "Small Month" %}</a></li>
         <li><a href="{% url "month_calendar" calendar.slug %}">{% trans "1 Month" %}</a></li>

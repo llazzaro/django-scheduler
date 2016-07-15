@@ -22,11 +22,11 @@
   &nbsp;
   {% endif %}
   <a href="{{occurrence.get_edit_url}}">
-    Edit <span class="glyphicon glyphicon-pencil"></span>
+   {% trans "Edit" %} <span class="glyphicon glyphicon-pencil"></span>
   </a>
   &nbsp;
   <a href="{{occurrence.get_cancel_url}}">
-    Delete <span class="glyphicon glyphicon-remove"></span>
+   {% trans "Delete" %} <span class="glyphicon glyphicon-remove"></span>
   </a>
 </div>
 <h2 align="center">{{occurrence.title}}</h2>
@@ -53,4 +53,3 @@
 {% endif %}
 
 {% endblock %}
-
