@@ -1,4 +1,4 @@
-{% load scheduletags %}
+{% load scheduletags i18n %}
 
 <link rel='stylesheet' type='text/css' href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.min.css' />
 <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js'></script>
@@ -29,7 +29,7 @@ $(document).ready(function() {
 
     function setModalProperties(type, event){
         if(type == 'edit'){
-            var tYPE = 'Edit';
+            var tYPE = '{% trans "Edit" %}';
             var all_url = "{% url 'edit_event' calendar_slug 12345 %}".replace(/12345/, event.event_id);
             if (event.existed){
                 var this_url = "{% url 'edit_occurrence' 12345 6789 %}".replace(/12345/, event.event_id).replace(/6789/, event.id);
@@ -46,7 +46,7 @@ $(document).ready(function() {
             }
         }
         else if(type == 'delete'){
-            var tYPE = 'Delete';
+            var tYPE = '{% trans "Delete" %}';
             var all_url = "{% url 'delete_event' 12345 %}".replace(/12345/, event.event_id);
             if (event.existed){
                 var this_url = "{% url 'cancel_occurrence' 12345 6789 %}".replace(/12345/, event.event_id).replace(/6789/, event.id);

@@ -7,8 +7,10 @@
 
 <form action="" method="post">{% csrf_token %}
   <h2>{{ occurrence.title }}</h2>
-  <strong>From</strong> {{ occurrence.start|date:_("DATETIME_FORMAT") }}
-  <strong>to</strong> {{ occurrence.end|date:_("DATETIME_FORMAT") }}<br>
+  {% blocktrans with start_date=occurrence.start|date:_("DATETIME_FORMAT") end_date=occurrence.end|date:_("DATETIME_FORMAT") %}
+  <strong>From</strong> {{ start_date }}
+  <strong>to</strong> {{ end_date }}<br>
+  {% endblocktrans %}
   <input type="submit" value="Confirm">
   <input type="submit" name="cancel" value="Cancel">
 </form>
