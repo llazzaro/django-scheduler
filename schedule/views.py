@@ -15,6 +15,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
     UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
 from django.utils.http import is_safe_url
+from django.conf import settings
 
 from schedule.conf.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
                                     EVENT_NAME_PLACEHOLDER, CHECK_EVENT_PERM_FUNC,
@@ -305,7 +306,7 @@ def api_occurrences(request):
 
 
 def _api_occurrences(start, end, calendar_slug):
-    utc = pytz.UTC
+    
     if not start or not end:
         raise ValueError('Start and end parameters are required')
     # version 2 of full calendar
@@ -319,8 +320,14 @@ def _api_occurrences(start, end, calendar_slug):
         def convert(ddatetime):
             return datetime.datetime.utcfromtimestamp(float(ddatetime))
 
-    start = utc.localize(convert(start))
-    end = utc.localize(convert(end))
+    start = convert(start)
+    end = convert(end)
+    # If USE_TZ is True, make start and end dates aware in UTC timezone
+    if settings.USE_TZ:
+        utc = pytz.UTC
+        start = utc.localize(start)
+        end = utc.localize(end)
+    
     if calendar_slug:
         # will raise DoesNotExist exception if no match
         calendars = [Calendar.objects.get(slug=calendar_slug)]
