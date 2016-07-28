@@ -208,7 +208,9 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
             rule = self.get_rrule_object(tzinfo)
             start = (start - difference).replace(tzinfo=None)
-            end = (end - difference).replace(tzinfo=None)
+            end = (end - difference)
+            if timezone.is_aware(end):
+                end = tzinfo.normalize(end).replace(tzinfo=None)
             o_starts = []
             o_starts.append(rule.between(start, end, inc=True))
             o_starts.append(rule.between(start - (difference // 2), end - (difference // 2), inc=True))

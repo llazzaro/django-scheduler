@@ -448,6 +448,27 @@ class TestEvent(TestCase):
         occurrence = event.get_occurrence(start)
         self.assertEqual(occurrence.start, start)
 
+    def test_recurring_event_get_occurrence_different_end_timezone(self):
+        end_recurring = datetime.datetime(2016, 7, 30, 11, 0, tzinfo=pytz.utc)
+
+        event = self.__create_recurring_event(
+            'Recurring event with end_reccurring_date in different TZ',
+            datetime.datetime(2016, 7, 25, 10, 0, tzinfo=pytz.utc),
+            datetime.datetime(2016, 7, 25, 11, 0, tzinfo=pytz.utc),
+            end_recurring,
+            Rule.objects.create(frequency="DAILY"),
+            Calendar.objects.create(name='MyCal'),
+        )
+        event.save()
+
+        tzinfo = pytz.timezone('Europe/Athens')
+        occurrences = event.get_occurrences(
+            tzinfo.localize(datetime.datetime(2016, 1, 1, 0, 0)),
+            tzinfo.localize(datetime.datetime(2016, 12, 31, 23, 59)),
+        )
+        self.assertEqual(occurrences[-1].end, end_recurring)
+
+
     def test_(self):
         pass
 
