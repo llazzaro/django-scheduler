@@ -468,6 +468,22 @@ class TestEvent(TestCase):
         )
         self.assertEqual(occurrences[-1].end, end_recurring)
 
+    def test_recurring_event_get_occurrences_multiple_byweekdays(self):
+        # weekly, every Friday and Saturday, for two weeks
+        event = self.__create_recurring_event(
+            'Recurring event with multiple byweekdays in rule params',
+            datetime.datetime(2016, 7, 29, 10, 0, tzinfo=pytz.utc),
+            datetime.datetime(2016, 7, 29, 11, 0, tzinfo=pytz.utc),
+            datetime.datetime(2016, 8, 6, 11, 0, tzinfo=pytz.utc),
+            Rule.objects.create(frequency="WEEKLY", params='byweekday:4,5'),
+            Calendar.objects.create(name='MyCal'),
+        )
+
+        occurrences = event.get_occurrences(
+            datetime.datetime(2016, 1, 1, 0, 0, tzinfo=pytz.utc),
+            datetime.datetime(2016, 12, 31, 23, 59, tzinfo=pytz.utc),
+        )
+        self.assertEqual(len(occurrences), 4)
 
     def test_(self):
         pass
