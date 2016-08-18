@@ -4,9 +4,24 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SECRET_KEY = '_nc9_+ntllx!ptq5tzh96nn^$a#81#auhrdw#8t#+n0#4ig(lz'
 
-TEMPLATE_LOADERS = (
-    'django.template.loaders.app_directories.Loader',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.request',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ]
+        }
+    }
+]
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -32,14 +47,6 @@ INSTALLED_APPS = (
     'tests'
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.request",
-)
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -47,7 +54,6 @@ DATABASES = {
 }
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.7/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -58,6 +64,10 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+]
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
