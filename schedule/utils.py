@@ -44,10 +44,7 @@ class EventListManager(object):
             except StopIteration:
                 pass
 
-        while True:
-            if len(occurrences) == 0:
-                raise StopIteration
-
+        while occurrences:
             generator = occurrences[0][1]
 
             try:
