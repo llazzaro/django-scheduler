@@ -273,7 +273,7 @@ class TestEvent(TestCase):
                                     #start=datetime.datetime(2008, 1, 12, 0, 0),
                                     #end=datetime.datetime(2008, 1, 20, 0, 0))
 
-        #self.assertEquals(["%s to %s" %(o.start, o.end) for o in occurrences],
+        #self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrences],
                 #['2008-01-12 08:00:00 to 2008-01-12 09:00:00', '2008-01-19 08:00:00 to 2008-01-19 09:00:00'])
     '''
 

@@ -57,10 +57,10 @@ class TestPeriod(TestCase):
             ])
 
     def test_has_occurrence(self):
-        self.assert_( self.period.has_occurrences() )
+        self.assertTrue(self.period.has_occurrences())
         slot = self.period.get_time_slot( datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
                                           datetime.datetime(2008, 1, 4, 7, 12, tzinfo=pytz.utc) )
-        self.failIf( slot.has_occurrences() )
+        self.assertFalse(slot.has_occurrences())
 
 
 class TestYear(TestCase):

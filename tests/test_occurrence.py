@@ -102,7 +102,7 @@ class TestOccurrence(TestCase):
         }
         recurring_event = Event.objects.create(**recurring_data)
         occurrences = recurring_event.get_occurrences(start=self.start, end=self.end)
-        self.assertEquals(occurrences, [])
+        self.assertEqual(occurrences, [])
 
     def test_get_occurrences_is_sorted(self):
         rule = Rule(frequency="DAILY")
@@ -125,4 +125,4 @@ class TestOccurrence(TestCase):
 
         sorted_occurrences = sorted(occurrences, key=lambda occ: occ.start)
 
-        self.assertEquals(occurrences, sorted_occurrences)
+        self.assertEqual(occurrences, sorted_occurrences)
