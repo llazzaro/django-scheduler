@@ -19,15 +19,6 @@ This setting controls the behavior of :func:`Period.classify_occurence`. If True
 
 Defaults to False
 
-.. _ref-settings-check-permission-func:
-
-CHECK_PERMISSION_FUNC
----------------------
-
-*deprecated*
-
-Should be replaced with CHECK_EVENT_PERM_FUNC
-
 .. _ref-settings-check-event-perm-func:
 
 CHECK_EVENT_PERM_FUNC
@@ -66,4 +57,3 @@ example::
 
     get_events(request, calendar):
         return calendar.event_set.all()
-

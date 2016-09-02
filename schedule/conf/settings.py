@@ -11,9 +11,6 @@ SHOW_CANCELLED_OCCURRENCES = get_config('SHOW_CANCELLED_OCCURRENCES', False)
 CHECK_EVENT_PERM_FUNC = get_config('CHECK_EVENT_PERM_FUNC', None)
 
 if not CHECK_EVENT_PERM_FUNC:
-    CHECK_EVENT_PERM_FUNC = get_config('CHECK_PERMISSION_FUNC', None)
-
-if not CHECK_EVENT_PERM_FUNC:
     def check_event_permission(ob, user):
         return user.is_authenticated()
 
