@@ -142,12 +142,6 @@ This setting controls the behavior of `Period.classify_occurence`. If True, then
 
 Defaults to False
 
-### CHECK_PERMISSION_FUNC
-
-_deprecated_
-
-Should be replaced with `CHECK_EVENT_PERM_FUNC`
-
 ### CHECK_EVENT_PERM_FUNC
 
 This setting controls the callable used to determine if a user has permission to edit an event or occurrence. The callable must take the object (event) and the user and return a boolean.
