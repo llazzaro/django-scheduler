@@ -12,11 +12,7 @@ from schedule.views import (
     api_select_create, api_move_or_resize_by_code, api_occurrences)
 
 urlpatterns = [
-    # urls for Calendars
-    url(r'^calendar/$',
-        ListView.as_view(queryset=Calendar.objects.all(),
-                         template_name='schedule/calendar_list.html'),
-        name="calendar_list"),
+    url(r'^$', ListView.as_view(model=Calendar), name='calendar_list'),
 
     url(r'^calendar/year/(?P<calendar_slug>[-\w]+)/$',
         CalendarByPeriodsView.as_view(template_name='schedule/calendar_year.html'),
@@ -104,6 +100,4 @@ urlpatterns = [
     url(r'^api/select_create/$',
         api_select_create,
         name='api_select_create'),
-
-    url(r'^$', ListView.as_view(queryset=Calendar.objects.all()), name='schedule'),
 ]
