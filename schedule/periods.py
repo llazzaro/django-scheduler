@@ -9,7 +9,7 @@ from django.utils.translation import ugettext
 from django.utils.encoding import python_2_unicode_compatible
 from django.template.defaultfilters import date as date_filter
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
-from schedule.conf.settings import SHOW_CANCELLED_OCCURRENCES
+from schedule.settings import SHOW_CANCELLED_OCCURRENCES
 from schedule.models import Occurrence
 from django.utils import timezone
 
