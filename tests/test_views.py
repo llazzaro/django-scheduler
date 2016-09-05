@@ -37,8 +37,6 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        self.client.login(username="admin", password="admin")
-
 
 class TestViewUtils(TestCase):
     def test_coerce_date_dict(self):
@@ -116,7 +114,6 @@ class TestUrls(TestCase):
         self.response = self.client.get(reverse("event",
                                       kwargs={"event_id": highest_event_id}), {})
         self.assertEqual(self.response.status_code, 200)
-        self.client.logout()
 
     def test_view_event(self):
         self.response = self.client.get(reverse("event", kwargs={"event_id": 1}), {})
@@ -146,7 +143,6 @@ class TestUrls(TestCase):
         # Since the event is now deleted, we get a 404
         self.response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}), {})
         self.assertEqual(self.response.status_code, 404)
-        self.client.logout()
 
     def test_occurences_api_returns_the_expected_occurences(self):
         # create a calendar and event
