@@ -15,7 +15,7 @@ from schedule.utils import EventListManager, get_model_bases
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
-from schedule.conf.settings import USE_FULLCALENDAR
+from schedule.settings import USE_FULLCALENDAR
 
 
 class CalendarManager(models.Manager):

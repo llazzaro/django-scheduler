@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.conf import settings
 from django.utils import timezone
 from django.utils.module_loading import import_string
-from schedule.conf.settings import (
+from schedule.settings import (
     CHECK_EVENT_PERM_FUNC,
     CHECK_CALENDAR_PERM_FUNC,
     CHECK_OCCURRENCE_PERM_FUNC,

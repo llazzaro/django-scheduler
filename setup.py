@@ -12,7 +12,6 @@ setup(
     url='https://github.com/llazzaro/django-scheduler',
     packages=[
         'schedule',
-        'schedule.conf',
         'schedule.feeds',
         'schedule.management',
         'schedule.management.commands',

@@ -12,7 +12,7 @@ from schedule.models.rules import Rule
 
 from schedule.views import coerce_date_dict
 
-from schedule.conf.settings import USE_FULLCALENDAR
+from schedule.settings import USE_FULLCALENDAR
 
 
 class TestViews(TestCase):

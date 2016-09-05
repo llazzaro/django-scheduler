@@ -17,9 +17,9 @@ from django.views.generic.edit import (
 from django.utils.http import is_safe_url
 from django.conf import settings
 
-from schedule.conf.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
-                                    EVENT_NAME_PLACEHOLDER, CHECK_EVENT_PERM_FUNC,
-                                    CHECK_OCCURRENCE_PERM_FUNC, USE_FULLCALENDAR)
+from schedule.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
+                               EVENT_NAME_PLACEHOLDER, CHECK_EVENT_PERM_FUNC,
+                               CHECK_OCCURRENCE_PERM_FUNC, USE_FULLCALENDAR)
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import Calendar, Occurrence, Event
 from schedule.periods import weekday_names
@@ -306,7 +306,7 @@ def api_occurrences(request):
 
 
 def _api_occurrences(start, end, calendar_slug):
-    
+
     if not start or not end:
         raise ValueError('Start and end parameters are required')
     # version 2 of full calendar
@@ -327,7 +327,7 @@ def _api_occurrences(start, end, calendar_slug):
         utc = pytz.UTC
         start = utc.localize(start)
         end = utc.localize(end)
-    
+
     if calendar_slug:
         # will raise DoesNotExist exception if no match
         calendars = [Calendar.objects.get(slug=calendar_slug)]
