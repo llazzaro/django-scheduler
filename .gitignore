@@ -6,3 +6,4 @@
 /dist/
 /django_scheduler.egg-info/
 /docs/_build/
+.idea/

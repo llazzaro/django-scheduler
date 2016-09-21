@@ -58,6 +58,9 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
         verbose_name = _('rule')
         verbose_name_plural = _('rules')
         app_label = 'schedule'
+        permissions = (
+            ('view_occurrence', _('View Occurrence')),
+        )
 
     def rrule_frequency(self):
         compatibiliy_dict = {

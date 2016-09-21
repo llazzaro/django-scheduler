@@ -149,6 +149,9 @@ class Calendar(with_metaclass(ModelBase, *get_model_bases())):
         verbose_name = _('calendar')
         verbose_name_plural = _('calendar')
         app_label = 'schedule'
+        permissions = (
+            ('view_calendar', _('View Calendar')),
+        )
 
     def __str__(self):
         return self.name
@@ -240,6 +243,9 @@ class CalendarRelation(with_metaclass(ModelBase, *get_model_bases())):
         verbose_name = _('calendar relation')
         verbose_name_plural = _('calendar relations')
         app_label = 'schedule'
+        permissions = (
+            ('view_calendar_relation', _('View Calendar Relation')),
+        )
 
     def __str__(self):
         return '%s - %s' % (self.calendar, self.content_object)
