@@ -1,10 +1,13 @@
-from django.core.management.base import NoArgsCommand
+try:
+    from django.core.management.base import NoArgsCommand as BaseCommand
+except ImportError:
+    from django.core.management.base import BaseCommand
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = "Load some sample data into the db"
 
-    def handle_noargs(self, **options):
+    def handle(self, **options):
         import datetime
         from schedule.models import Calendar
         from schedule.models import Event
