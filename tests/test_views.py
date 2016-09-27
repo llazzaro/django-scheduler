@@ -11,6 +11,7 @@ from schedule.models.events import Event, Occurrence
 from schedule.models.rules import Rule
 
 from schedule.views import coerce_date_dict
+from schedule.views import check_next_url
 
 from schedule.settings import USE_FULLCALENDAR
 
@@ -278,3 +279,15 @@ class TestUrls(TestCase):
         resp_list = json.loads(response.content.decode('utf-8'))
         self.assertIn(event1.title, [d['title'] for d in resp_list])
         self.assertNotIn(event2.title, [d['title'] for d in resp_list])
+
+    def test_check_next_url_valid_case(self):
+        expected = '/calendar/1'
+        res = check_next_url('/calendar/1')
+        self.assertEquals(expected, res)
+
+    def test_check_next_url_invalid_case(self):
+        expected = None
+        res = check_next_url('http://localhost/calendar/1')
+        self.assertEquals(expected, res)
+        res = check_next_url(None)
+        self.assertEquals(expected, res)
