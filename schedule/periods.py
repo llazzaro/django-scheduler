@@ -5,6 +5,7 @@ import datetime
 import calendar as standardlib_calendar
 
 from django.conf import settings
+from django.db.models import prefetch_related_objects
 from django.utils.translation import ugettext
 from django.utils.encoding import python_2_unicode_compatible
 from django.template.defaultfilters import date as date_filter
@@ -77,8 +78,10 @@ class Period(object):
                 if occurrence.start <= self.utc_end and occurrence.end >= self.utc_start:
                     occurrences.append(occurrence)
             return occurrences
+
+        prefetch_related_objects(self.events, 'occurrence_set')
         for event in self.events:
-            event_occurrences = event.get_occurrences(self.start, self.end)
+            event_occurrences = event.get_occurrences(self.start, self.end, clear_prefetch=False)
             occurrences += event_occurrences
         return sorted(occurrences)
 
