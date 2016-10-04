@@ -5,7 +5,11 @@ import datetime
 import calendar as standardlib_calendar
 
 from django.conf import settings
-from django.db.models import prefetch_related_objects
+try:
+    from django.db.models import prefetch_related_objects
+except ImportError:
+    from django.db.models.query import prefetch_related_objects
+
 from django.utils.translation import ugettext
 from django.utils.encoding import python_2_unicode_compatible
 from django.template.defaultfilters import date as date_filter
@@ -79,7 +83,10 @@ class Period(object):
                     occurrences.append(occurrence)
             return occurrences
 
-        prefetch_related_objects(self.events, 'occurrence_set')
+        try:
+            prefetch_related_objects(self.events, 'occurrence_set')
+        except AttributeError:
+            prefetch_related_objects(self.events, ['occurrence_set'])
         for event in self.events:
             event_occurrences = event.get_occurrences(self.start, self.end, clear_prefetch=False)
             occurrences += event_occurrences
