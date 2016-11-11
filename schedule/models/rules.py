@@ -76,7 +76,7 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
         """
         >>> rule = Rule(params = "count:1;bysecond:1;byminute:1,2,4,5")
         >>> rule.get_params()
-        {'count': 1, 'byminute': [1, 2, 4, 5], 'bysecond': 1}
+        {'count': [1], 'byminute': [1, 2, 4, 5], 'bysecond': [1]}
         """
         if self.params is None:
             return {}
