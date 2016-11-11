@@ -1,4 +1,5 @@
 from __future__ import division, unicode_literals
+from django.utils import six
 from django.utils.six import with_metaclass
 # -*- coding: utf-8 -*-
 from django.conf import settings as django_settings
@@ -332,20 +333,17 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         empty = False
 
         event_params = {}
-
-        for param in rule_params:
+        for param, values in six.iteritems(rule_params):
             # start date influences rule params
-            if (param in param_dict_order and param_dict_order[param] > freq_order and
-                    param in start_params):
-                sp = start_params[param]
-                if sp == rule_params[param] or sp in rule_params[param]:
-                    event_params[param] = [sp]
+            if param in param_dict_order and param_dict_order[param] > freq_order and param in start_params:
+                if start_params[param] in values:
+                    event_params[param] = [start_params[param]]
                 else:
                     event_params = {'count': 0}
                     empty = True
                     break
             else:
-                event_params[param] = rule_params[param]
+                event_params[param] = values[0] if len(values) == 1 else values
         return event_params, empty
 
     @property
