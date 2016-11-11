@@ -6,9 +6,9 @@
 
 <h1>{% trans "Calendar metadata" %}</h1>
 
-<p>{% blocktrans with calendar_name=calendar.name %}Name: {{calendar_name}}{% endblocktrans %}</p>
-<p>{% blocktrans with calendar_slug=calendar.slug %}Slug: {{calendar_slug}}{% endblocktrans %}</p>
-<p>{% blocktrans with events_count %}Event count: {{events_count}}{% endblocktrans %}</p>
+<p>{% trans "Name:" %} {{calendar_name}} </p>
+<p>{% trans "Slug:" %} {{calendar_slug}} </p>
+<p>{% trans "Event count:" %} {{events_count}} </p>
 
 <div>
     <p>{% trans "See as:" %}</p>
@@ -19,7 +19,7 @@
         <li><a href="{% url "year_calendar" calendar.slug %}">{% trans "This Year" %}</a></li>
         <li><a href="{% url "week_calendar" calendar.slug %}">{% trans "Weekly" %}</a></li>
         <li><a href="{% url "day_calendar" calendar.slug %}">{% trans "Daily" %}</a></li>
-        <li><a href="/schedule/feed/calendar/upcoming/{{ calendar.id }}/">{% trans "Feed" %}</a></li>
+        <li><a href="{% url "upcoming_events_feed" calendar_id=calendar.id %}">{% trans "Feed" %}</a></li>
     </ul>
 </div>
 
