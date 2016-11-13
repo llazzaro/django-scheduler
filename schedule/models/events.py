@@ -187,8 +187,8 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             if not empty:
                 return rrule.rrule(frequency, dtstart=dtstart, **params)
             else:
-                year = self.start.year - 1
-                return rrule.rrule(frequency, dtstart=dtstart, until=self.start.replace(year=year))
+                year = dtstart.year - 1
+                return rrule.rrule(frequency, dtstart=dtstart, until=dtstart.replace(year=year))
 
     def _create_occurrence(self, start, end=None):
         if end is None:
