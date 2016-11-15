@@ -2,9 +2,9 @@ import datetime
 import json
 import pytz
 
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.utils import six
 
 from schedule.models.calendars import Calendar
 from schedule.models.events import Event, Occurrence
@@ -297,11 +297,11 @@ class TestUrls(TestCase):
         feed_url = reverse('upcoming_events_feed', kwargs={'calendar_id': 1})
         response = self.client.get(feed_url)
         self.assertEquals(response.status_code, 200)
-        expected_feed = '<?xml version="1.0" encoding="utf-8"?>\n<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title></title><link>http://example.com/calendar/example/</link><description></description><atom:link href="http://example.com/feed/calendar/upcoming/1/" rel="self"></atom:link><language>en-us</language><lastBuildDate>'
+        expected_feed = six.b('<?xml version="1.0" encoding="utf-8"?>\n<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title></title><link>http://example.com/calendar/example/</link><description></description><atom:link href="http://example.com/feed/calendar/upcoming/1/" rel="self"></atom:link><language>en-us</language><lastBuildDate>')
         self.assertTrue(expected_feed in response.content)
 
     def test_calendar_view_home(self):
         calendar_view_url = reverse('calendar_home', kwargs={'calendar_slug': 'example'})
         response = self.client.get(calendar_view_url)
         self.assertEquals(response.status_code, 200)
-        self.assertTrue('<a href="/feed/calendar/upcoming/1/">Feed</a>' in response.content)
+        self.assertTrue(six.b('<a href="/feed/calendar/upcoming/1/">Feed</a>') in response.content)
