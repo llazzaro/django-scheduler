@@ -89,7 +89,7 @@ urlpatterns = [
         name="edit_occurrence_by_date"),
 
     # feed urls
-    url(r'^feed/calendar/upcoming/(.*)/$', UpcomingEventsFeed(), name='upcoming_events_feed'),
+    url(r'^feed/calendar/upcoming/(?P<calendar_id>\d+)/$', UpcomingEventsFeed(), name='upcoming_events_feed'),
     url(r'^ical/calendar/(.*)/$', CalendarICalendar(), name='calendar_ical'),
 
     # api urls

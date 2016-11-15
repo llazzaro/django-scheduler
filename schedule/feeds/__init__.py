@@ -1,7 +1,6 @@
 from django.utils.six.moves.builtins import str
 from schedule.models import Calendar
 from django.contrib.syndication.views import Feed, FeedDoesNotExist
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from schedule.feeds.ical import ICalendarFeed
 import itertools
@@ -14,10 +13,8 @@ class UpcomingEventsFeed(Feed):
     def feed_title(self, obj):
         return "Upcoming Events for %s" % obj.name
 
-    def get_object(self, request, bits):
-        if len(bits) != 1:
-            raise ObjectDoesNotExist
-        return Calendar.objects.get(pk=bits[0])
+    def get_object(self, request, calendar_id):
+        return Calendar.objects.get(pk=calendar_id)
 
     def link(self, obj):
         if not obj:
