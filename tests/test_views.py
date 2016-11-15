@@ -297,11 +297,18 @@ class TestUrls(TestCase):
         feed_url = reverse('upcoming_events_feed', kwargs={'calendar_id': 1})
         response = self.client.get(feed_url)
         self.assertEquals(response.status_code, 200)
-        expected_feed = '<?xml version="1.0" encoding="utf-8"?>\n<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title></title><link>http://example.com/calendar/example/</link><description></description><atom:link rel="self" href="http://example.com/feed/calendar/upcoming/1/"></atom:link><language>en-us</language><lastBuildDate>'
-        self.assertTrue(six.b(expected_feed) in response.content)
+        expected_feed = '<?xml version="1.0" encoding="utf-8"?>\n<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title></title><link>http://example.com/calendar/example/</link><description></description><atom:link href="http://example.com/feed/calendar/upcoming/1/" rel="self"></atom:link><language>en-us</language><lastBuildDate>'
+        try:
+            self.assertTrue(expected_feed in response.content)
+        except TypeError:
+            self.assertTrue(six.b(expected_feed) in response.content)
 
     def test_calendar_view_home(self):
         calendar_view_url = reverse('calendar_home', kwargs={'calendar_slug': 'example'})
         response = self.client.get(calendar_view_url)
         self.assertEquals(response.status_code, 200)
-        self.assertTrue(six.b('<a href="/feed/calendar/upcoming/1/">Feed</a>') in response.content)
+        expected = '<a href="/feed/calendar/upcoming/1/">Feed</a>'
+        try:
+            self.assertTrue(expected in response.content)
+        except TypeError:
+            self.assertTrue(six.b('<a href="/feed/calendar/upcoming/1/">Feed</a>') in response.content)
