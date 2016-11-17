@@ -114,7 +114,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
     def get_absolute_url(self):
         return reverse('event', args=[self.id])
 
-    def get_occurrences(self, start, end):
+    def get_occurrences(self, start, end, clear_prefetch=True):
         """
         >>> rule = Rule(frequency = "MONTHLY", name = "Monthly")
         >>> rule.save()
@@ -131,9 +131,35 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
         >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
         []
-`
         """
-        persisted_occurrences = self.occurrence_set.all()
+
+        # Explanation of clear_prefetch:
+        #
+        # Periods, and their subclasses like Week, call
+        # prefetch_related('occurrence_set') on all events in their
+        # purview. This reduces the database queries they make from
+        # len()+1 to 2. However, having a cached occurrence_set on the
+        # Event model instance can sometimes cause Events to have a
+        # different view of the state of occurrences than the Period
+        # managing them.
+        #
+        # E.g., if you create an unsaved occurrence, move it to a
+        # different time [which saves the event], keep a reference to
+        # the moved occurrence, & refetch all occurrences from the
+        # Period without clearing the prefetch cache, you'll end up
+        # with two Occurrences for the same event but different moved
+        # states. It's a complicated scenario, but can happen. (See
+        # tests/test_occurrence.py#test_moved_occurrences, which caught
+        # this bug in the first place.)
+        #
+        # To prevent this, we clear the select_related cache by default
+        # before we call an event's get_occurrences, but allow Period
+        # to override this cache clear since it already fetches all
+        # occurrence_sets via prefetch_related in its get_occurrences.
+        if clear_prefetch:
+            persisted_occurrences = self.occurrence_set.select_related(None).all()
+        else:
+            persisted_occurrences = self.occurrence_set.all()
         occ_replacer = OccurrenceReplacer(persisted_occurrences)
         occurrences = self._get_occurrence_list(start, end)
         final_occurrences = []
