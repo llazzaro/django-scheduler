@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from collections import defaultdict
 from django.utils.six.moves.builtins import str
 from django.utils.six import with_metaclass
 from dateutil.rrule import DAILY, MONTHLY, WEEKLY, YEARLY, HOURLY, MINUTELY, SECONDLY
@@ -75,20 +76,18 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
         """
         >>> rule = Rule(params = "count:1;bysecond:1;byminute:1,2,4,5")
         >>> rule.get_params()
-        {'count': 1, 'byminute': [1, 2, 4, 5], 'bysecond': 1}
+        {'count': [1], 'byminute': [1, 2, 4, 5], 'bysecond': [1]}
         """
         if self.params is None:
             return {}
         params = self.params.split(';')
-        param_dict = []
+        param_dict = defaultdict(list)
         for param in params:
             param = param.split(':')
             if len(param) == 2:
-                param = (str(param[0]), [int(p) for p in param[1].split(',')])
-                if len(param[1]) == 1:
-                    param = (param[0], param[1][0])
-                param_dict.append(param)
-        return dict(param_dict)
+                param = dict([(str(param[0]), [int(p) for p in param[1].split(',')])])
+                param_dict.update(param)
+        return param_dict
 
     def __str__(self):
         """Human readable string for Rule"""

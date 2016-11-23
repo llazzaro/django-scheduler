@@ -9,5 +9,5 @@ class TestPeriod(TestCase):
 
     def test_get_params(self):
         rule = Rule(params = "count:1;bysecond:1;byminute:1,2,4,5")
-        expected =  {'count': 1, 'byminute': [1, 2, 4, 5], 'bysecond': 1}
-        self.assertEqual(rule.get_params(), expected)
+        expected = {'count': [1], 'byminute': [1, 2, 4, 5], 'bysecond': [1]}
+        self.assertDictEqual(rule.get_params(), expected)
