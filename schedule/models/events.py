@@ -53,8 +53,8 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
     This model stores meta data for a date.  You can relate this data to many
     other models.
     '''
-    start = models.DateTimeField(_("start"))
-    end = models.DateTimeField(_("end"), help_text=_("The end time must be later than the start time."))
+    start = models.DateTimeField(_("start"), db_index=True)
+    end = models.DateTimeField(_("end"), db_index=True, help_text=_("The end time must be later than the start time."))
     title = models.CharField(_("title"), max_length=255)
     description = models.TextField(_("description"), null=True, blank=True)
     creator = models.ForeignKey(
@@ -73,7 +73,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         blank=True,
         verbose_name=_("rule"),
         help_text=_("Select '----' for a one time only event."))
-    end_recurring_period = models.DateTimeField(_("end recurring period"), null=True, blank=True,
+    end_recurring_period = models.DateTimeField(_("end recurring period"), null=True, blank=True, db_index=True,
                                                 help_text=_("This date is ignored for one time only events."))
     calendar = models.ForeignKey(
         Calendar,
@@ -88,6 +88,9 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         verbose_name = _('event')
         verbose_name_plural = _('events')
         app_label = 'schedule'
+        index_together = (
+            ('start', 'end'),
+        )
 
     def __str__(self):
         return ugettext('%(title)s: %(start)s - %(end)s') % {
@@ -545,8 +548,8 @@ class Occurrence(with_metaclass(ModelBase, *get_model_bases())):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
     title = models.CharField(_("title"), max_length=255, blank=True, null=True)
     description = models.TextField(_("description"), blank=True, null=True)
-    start = models.DateTimeField(_("start"))
-    end = models.DateTimeField(_("end"))
+    start = models.DateTimeField(_("start"), db_index=True)
+    end = models.DateTimeField(_("end"), db_index=True)
     cancelled = models.BooleanField(_("cancelled"), default=False)
     original_start = models.DateTimeField(_("original start"))
     original_end = models.DateTimeField(_("original end"))
@@ -557,6 +560,9 @@ class Occurrence(with_metaclass(ModelBase, *get_model_bases())):
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
         app_label = 'schedule'
+        index_together = (
+            ('start', 'end'),
+        )
 
     def __init__(self, *args, **kwargs):
         super(Occurrence, self).__init__(*args, **kwargs)
