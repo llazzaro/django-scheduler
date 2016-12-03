@@ -101,7 +101,7 @@ class Period(object):
     occurrences = property(cached_get_sorted_occurrences)
 
     def get_persisted_occurrences(self):
-        if hasattr(self, '_persisted_occurrenes'):
+        if hasattr(self, '_persisted_occurrences'):
             return self._persisted_occurrences
         else:
             self._persisted_occurrences = Occurrence.objects.filter(event__in=self.events)
