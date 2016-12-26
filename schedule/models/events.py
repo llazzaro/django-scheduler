@@ -21,26 +21,6 @@ from schedule.models.calendars import Calendar
 from schedule.utils import OccurrenceReplacer
 from schedule.utils import get_model_bases
 
-freq_dict_order = {
-    'YEARLY': 0,
-    'MONTHLY': 1,
-    'WEEKLY': 2,
-    'DAILY': 3,
-    'HOURLY': 4,
-    'MINUTELY': 5,
-    'SECONDLY': 6
-}
-param_dict_order = {
-    'byyearday': 1,
-    'bymonth': 1,
-    'bymonthday': 2,
-    'byweekno': 2,
-    'byweekday': 3,
-    'byhour': 4,
-    'byminute': 5,
-    'bysecond': 6
-}
-
 
 class EventManager(models.Manager):
     def get_for_object(self, content_object, distinction=None, inherit=True):
@@ -179,18 +159,14 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
     def get_rrule_object(self, tzinfo):
         if self.rule is not None:
-            params, empty = self._event_params()
+            params = self.rule.get_params()
             frequency = self.rule.rrule_frequency()
             if timezone.is_naive(self.start):
                 dtstart = self.start
             else:
                 dtstart = tzinfo.normalize(self.start).replace(tzinfo=None)
 
-            if not empty:
-                return rrule.rrule(frequency, dtstart=dtstart, **params)
-            else:
-                year = self.start.year - 1
-                return rrule.rrule(frequency, dtstart=dtstart, until=self.start.replace(year=year))
+            return rrule.rrule(frequency, dtstart=dtstart, **params)
 
     def _create_occurrence(self, start, end=None):
         if end is None:
@@ -308,86 +284,6 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             if (len(trickies) > 0 and (nxt is None or nxt.start > trickies[0].start)):
                 yield trickies.pop(0)
             yield occ_replacer.get_occurrence(nxt)
-
-    @property
-    def event_start_params(self):
-        start = self.start
-        params = {
-            'byyearday': start.timetuple().tm_yday,
-            'bymonth': start.month,
-            'bymonthday': start.day,
-            'byweekno': start.isocalendar()[1],
-            'byweekday': start.weekday(),
-            'byhour': start.hour,
-            'byminute': start.minute,
-            'bysecond': start.second
-        }
-        return params
-
-    @property
-    def event_rule_params(self):
-        return self.rule.get_params()
-
-    def _event_params(self):
-        freq_order = freq_dict_order[self.rule.frequency]
-        rule_params = self.event_rule_params
-        start_params = self.event_start_params
-        empty = False
-
-        event_params = {}
-
-        for param in rule_params:
-            # start date influences rule params
-            if (param in param_dict_order and param_dict_order[param] > freq_order and
-                    param in start_params):
-                sp = start_params[param]
-                if sp == rule_params[param] or sp in rule_params[param]:
-                    event_params[param] = [sp]
-                else:
-                    event_params = {'count': 0}
-                    empty = True
-                    break
-            else:
-                event_params[param] = rule_params[param]
-        return event_params, empty
-
-    @property
-    def event_params(self):
-        event_params, empty = self._event_params()
-        start = self.effective_start
-        if not start:
-            empty = True
-        elif self.end_recurring_period and start > self.end_recurring_period:
-            empty = True
-        return event_params, empty
-
-    @property
-    def effective_start(self):
-        if self.pk and self.end_recurring_period:
-            occ_generator = self._occurrences_after_generator(self.start)
-            try:
-                return next(occ_generator).start
-            except StopIteration:
-                pass
-        elif self.pk:
-            return self.start
-        return None
-
-    @property
-    def effective_end(self):
-        if self.pk and self.end_recurring_period:
-            params, empty = self.event_params
-            if empty or not self.effective_start:
-                return None
-            elif self.end_recurring_period:
-                occ = None
-                occ_generator = self._occurrences_after_generator(self.start)
-                for occ in occ_generator:
-                    pass
-                return occ.end
-        elif self.pk:
-            return datetime.max
-        return None
 
 
 class EventRelationManager(models.Manager):
