@@ -467,9 +467,6 @@ class TestEvent(TestCase):
         self.assertEqual(occurrences[-1].end, end_recurring)
 
 
-    def test_(self):
-        pass
-
 
 class TestEventRelationManager(TestCase):
 
