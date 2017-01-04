@@ -161,11 +161,11 @@ class TestEvent(TestCase):
                     )
 
         recurring_event.save()
-        # occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 5, tzinfo=pytz.utc),
-        #    end = datetime.datetime(2008, 1, 6, tzinfo=pytz.utc))
-        # occurrence = occurrences[0]
-        # occurrence2 = recurring_event.occurrences_after(datetime.datetime(2008, 1, 5, tzinfo=pytz.utc)).next()
-        # self.assertEqual(occurrence, occurrence2)
+        occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 5, tzinfo=pytz.utc),
+           end = datetime.datetime(2008, 1, 6, tzinfo=pytz.utc))
+        occurrence = occurrences[0]
+        occurrence2 = recurring_event.occurrences_after(datetime.datetime(2008, 1, 5, tzinfo=pytz.utc)).next()
+        self.assertEqual(occurrence, occurrence2)
 
     def test_recurring_event_with_moved_get_occurrences_after(self):
 
@@ -253,8 +253,6 @@ class TestEvent(TestCase):
         naive_date = datetime.datetime(2008, 1, 20, 0, 0)
         self.assertIsNone(event.get_occurrence(naive_date))
 
-    # FIXME: This test gives an error
-    
     @override_settings(USE_TZ=False)
     def test_get_occurrences_when_tz_off(self):
         cal = Calendar(name="MyCal")
