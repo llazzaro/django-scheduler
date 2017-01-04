@@ -220,9 +220,10 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
     def _get_occurrence_list(self, start, end):
         """
-        returns a list of occurrences for this event from start to end.
+        Returns a list of occurrences that fall completely or partially inside
+        the timespan defined by start (inclusive) and end (exclusive)
         """
-        difference = (self.end - self.start)
+        duration = self.end - self.start
         if self.rule is not None:
             use_naive = timezone.is_naive(start)
 
@@ -235,24 +236,36 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             if self.end_recurring_period and self.end_recurring_period < end:
                 end = self.end_recurring_period
 
-            rule = self.get_rrule_object(tzinfo)
-            start = (start - difference).replace(tzinfo=None)
-            end = (end - difference)
+            start_rule = self.get_rrule_object(tzinfo)
+            start = start.replace(tzinfo=None)
             if timezone.is_aware(end):
                 end = tzinfo.normalize(end).replace(tzinfo=None)
+
             o_starts = []
-            o_starts.append(rule.between(start, end, inc=True))
-            o_starts.append(rule.between(start - (difference // 2), end - (difference // 2), inc=True))
-            o_starts.append(rule.between(start - difference, end - difference, inc=True))
-            for occ in o_starts:
-                for o_start in occ:
-                    o_start = tzinfo.localize(o_start)
-                    if use_naive:
-                        o_start = timezone.make_naive(o_start, tzinfo)
-                    o_end = o_start + difference
-                    occurrence = self._create_occurrence(o_start, o_end)
-                    if occurrence not in occurrences:
-                        occurrences.append(occurrence)
+
+            # Occurrences that start before the timespan but ends inside or after timespan
+            closest_start = start_rule.before(start, inc=False)
+            if closest_start is not None and closest_start + duration > start:
+                o_starts.append(closest_start)
+
+            # Occurences that happen between timespan (end-inclusive)
+            occs = start_rule.between(start, end, inc=True)
+            # Occurence that start on the end of timespan is potentially
+            # included above, lets remove it if thats the case
+            if len(occs) > 0:
+                if occs[-1:][0] == end:
+                    occs.pop()
+            # Add the occurrences we found
+            o_starts.extend(occs)
+
+            for o_start in o_starts:
+                o_start = tzinfo.localize(o_start)
+                if use_naive:
+                    o_start = timezone.make_naive(o_start, tzinfo)
+                o_end = o_start + duration
+                occurrence = self._create_occurrence(o_start, o_end)
+                if occurrence not in occurrences:
+                    occurrences.append(occurrence)
             return occurrences
         else:
             # check if event is in the period
