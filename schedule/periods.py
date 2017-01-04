@@ -88,10 +88,6 @@ class Period(object):
         except AttributeError:
             prefetch_related_objects(self.events, ['occurrence_set'])
         for event in self.events:
-            #intersted = datetime.datetime(year=2017, month=1, day=3, hour=23, minute=15, tzinfo=pytz.utc)
-            #if intersted == self.start:
-            #    import ipdb
-            #    ipdb.set_trace()
             event_occurrences = event.get_occurrences(self.start, self.end, clear_prefetch=False)
             occurrences += event_occurrences
         return sorted(occurrences)
