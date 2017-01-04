@@ -223,7 +223,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         Returns a list of occurrences that fall completely or partially inside
         the timespan defined by start (inclusive) and end (exclusive)
         """
-        duration = self.end - self.start
+        duration = (self.end - self.start)
         if self.rule is not None:
             use_naive = timezone.is_naive(start)
 
@@ -243,14 +243,14 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
             o_starts = []
 
-            # Occurrences that start before the timespan but ends inside or after timespan
+            # Occurrences that start before the time span but ends inside or after timespan
             closest_start = start_rule.before(start, inc=False)
             if closest_start is not None and closest_start + duration > start:
                 o_starts.append(closest_start)
-
-            # Occurences that happen between timespan (end-inclusive)
+            
+            # Occurences that happen between time span (end-inclusive)
             occs = start_rule.between(start, end, inc=True)
-            # Occurence that start on the end of timespan is potentially
+            # Occurence that start on the end of time span is potentially
             # included above, lets remove it if thats the case
             if len(occs) > 0:
                 if occs[-1:][0] == end:
