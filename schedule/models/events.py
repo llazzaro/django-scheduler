@@ -254,7 +254,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             # The occurrence that start on the end of the timespan is potentially
             # included above, lets remove if thats the case.
             if len(occs) > 0:
-                if occs[-1:][0] == end:
+                if occs[-1] == end:
                     occs.pop()
             # Add the occurrences found inside timespan
             o_starts.extend(occs)
