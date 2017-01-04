@@ -466,7 +466,55 @@ class TestEvent(TestCase):
         )
         self.assertEqual(occurrences[-1].end, end_recurring)
 
+    @override_settings(USE_TZ=False)
+    def test_get_occurrences_timespan_inside_occurence(self):
+        ''' 
+        Test whether occurences are correctly obtained if selected timespan start
+        and end happen completely inside an occurence.
+        '''
+        cal = Calendar(name="MyCal")
+        rule = Rule(frequency = "WEEKLY")
+        rule.save()
 
+        recurring_event = self.__create_recurring_event(
+                                    'Recurring event test',
+                                    datetime.datetime(2008, 1, 5, 8, 0),
+                                    datetime.datetime(2008, 1, 5, 9, 0),
+                                    datetime.datetime(2008, 5, 5, 0, 0),
+                                    rule,
+                                    cal
+                )
+        occurrences = recurring_event.get_occurrences(
+                                    start=datetime.datetime(2008, 1, 12, 8, 15),
+                                    end=datetime.datetime(2008, 1, 12, 8, 30))
+
+        self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrences],
+                ['2008-01-12 08:00:00 to 2008-01-12 09:00:00'])
+ 
+    @override_settings(USE_TZ=False)
+    def test_get_occurrences_timespan_partially_inside_occurence(self):
+        ''' 
+        Test whether occurences are correctly obtained if selected timespan start
+        outside of timepan but ends inside occurrence.
+        '''
+        cal = Calendar(name="MyCal")
+        rule = Rule(frequency = "WEEKLY")
+        rule.save()
+
+        recurring_event = self.__create_recurring_event(
+                                    'Recurring event test',
+                                    datetime.datetime(2008, 1, 5, 8, 0),
+                                    datetime.datetime(2008, 1, 5, 9, 0),
+                                    datetime.datetime(2008, 5, 5, 0, 0),
+                                    rule,
+                                    cal
+                )
+        occurrences = recurring_event.get_occurrences(
+                                    start=datetime.datetime(2006, 1, 1, 0, 0),
+                                    end=datetime.datetime(2008, 1, 19, 8, 30))
+
+        self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrences],
+                ['2008-01-05 08:00:00 to 2008-01-05 09:00:00', '2008-01-12 08:00:00 to 2008-01-12 09:00:00', '2008-01-19 08:00:00 to 2008-01-19 09:00:00'])
 
 class TestEventRelationManager(TestCase):
 
