@@ -223,8 +223,8 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         Returns a list of occurrences that fall completely or partially inside
         the timespan defined by start (inclusive) and end (exclusive)
         """
-        duration = (self.end - self.start)
         if self.rule is not None:
+            duration = (self.end - self.start)
             use_naive = timezone.is_naive(start)
 
             # Use the timezone from the start date
@@ -232,6 +232,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             if start.tzinfo:
                 tzinfo = start.tzinfo
 
+            # Limit timespan to recurring period
             occurrences = []
             if self.end_recurring_period and self.end_recurring_period < end:
                 end = self.end_recurring_period
@@ -243,21 +244,22 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
             o_starts = []
 
-            # Occurrences that start before the time span but ends inside or after timespan
+            # Occurrences that start before the timespan but ends inside or after timespan
             closest_start = start_rule.before(start, inc=False)
             if closest_start is not None and closest_start + duration > start:
                 o_starts.append(closest_start)
             
-            # Occurences that happen between time span (end-inclusive)
+            # Occurrences starts that happen inside timespan (end-inclusive)
             occs = start_rule.between(start, end, inc=True)
-            # Occurence that start on the end of time span is potentially
-            # included above, lets remove it if thats the case
+            # The occurrence that start on the end of the timespan is potentially
+            # included above, lets remove if thats the case.
             if len(occs) > 0:
                 if occs[-1:][0] == end:
                     occs.pop()
-            # Add the occurrences we found
+            # Add the occurrences found inside timespan
             o_starts.extend(occs)
 
+            # Create the Occurrence objects for the found start dates
             for o_start in o_starts:
                 o_start = tzinfo.localize(o_start)
                 if use_naive:
