@@ -254,7 +254,7 @@ class TestEvent(TestCase):
         self.assertIsNone(event.get_occurrence(naive_date))
 
     # FIXME: This test gives an error
-    '''
+    
     @override_settings(USE_TZ=False)
     def test_get_occurrences_when_tz_off(self):
         cal = Calendar(name="MyCal")
@@ -269,13 +269,13 @@ class TestEvent(TestCase):
                                     rule,
                                     cal
                 )
-        #occurrences = recurring_event.get_occurrences(
-                                    #start=datetime.datetime(2008, 1, 12, 0, 0),
-                                    #end=datetime.datetime(2008, 1, 20, 0, 0))
+        occurrences = recurring_event.get_occurrences(
+                                    start=datetime.datetime(2008, 1, 12, 0, 0),
+                                    end=datetime.datetime(2008, 1, 20, 0, 0))
 
-        #self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrences],
-                #['2008-01-12 08:00:00 to 2008-01-12 09:00:00', '2008-01-19 08:00:00 to 2008-01-19 09:00:00'])
-    '''
+        self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrences],
+                ['2008-01-12 08:00:00 to 2008-01-12 09:00:00', '2008-01-19 08:00:00 to 2008-01-19 09:00:00'])
+    
 
     def test_event_get_ocurrence(self):
 
