@@ -355,7 +355,9 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             if (param in param_dict_order and param_dict_order[param] > freq_order and
                     param in start_params):
                 sp = start_params[param]
-                if sp == rule_params[param] or (hasattr(rule_params[param], '__iter__') and sp in rule_params[param]):
+                if sp == rule_params[param] or (
+                        hasattr(rule_params[param], '__iter__')
+                        and sp in rule_params[param]):
                     event_params[param] = [sp]
                 else:
                     event_params[param] = rule_params[param]
