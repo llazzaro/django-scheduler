@@ -221,7 +221,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         the timespan defined by start (inclusive) and end (exclusive)
         """
         if self.rule is not None:
-            duration = (self.end - self.start)
+            duration = self.end - self.start
             use_naive = timezone.is_naive(start)
 
             # Use the timezone from the start date
@@ -355,9 +355,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             if (param in param_dict_order and param_dict_order[param] > freq_order and
                     param in start_params):
                 sp = start_params[param]
-                if hasattr(rule_params[param], '__iter__') and sp in rule_params[param]:
-                    event_params[param] = [sp]
-                elif sp == rule_params[param]:
+                if sp == rule_params[param] or (hasattr(rule_params[param], '__iter__') and sp in rule_params[param]):
                     event_params[param] = [sp]
                 else:
                     event_params[param] = rule_params[param]
@@ -369,7 +367,6 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
     @property
     def event_params(self):
-        #event_params, empty = self._event_params()
         event_params = self._event_params()
         start = self.effective_start
         if not start:
