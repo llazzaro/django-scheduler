@@ -18,7 +18,6 @@ freqs = (("YEARLY", _("Yearly")),
          ("MINUTELY", _("Minutely")),
          ("SECONDLY", _("Secondly")))
 
-
 @python_2_unicode_compatible
 class Rule(with_metaclass(ModelBase, *get_model_bases())):
     """
@@ -54,6 +53,8 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
     frequency = models.CharField(_("frequency"), choices=freqs, max_length=10)
     params = models.TextField(_("params"), null=True, blank=True)
 
+    _week_days = ('MO', 'TU', 'TH', 'WE', 'FR', 'SA', 'SU')
+
     class Meta(object):
         verbose_name = _('rule')
         verbose_name_plural = _('rules')
@@ -71,6 +72,18 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
         }
         return compatibiliy_dict[self.frequency]
 
+    def _weekday_or_number(self, param):
+        '''
+        Receives a rrule parameter value, returns a upper case version
+        of the value if its a weekday or an integer if its a number
+        '''
+        try:
+            return int(param)
+        except ValueError:
+            uparam = str(param).upper()
+            if uparam in Rule._week_days:
+                return uparam
+
     def get_params(self):
         """
         >>> rule = Rule(params = "count:1;bysecond:1;byminute:1,2,4,5")
@@ -83,11 +96,13 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
         param_dict = []
         for param in params:
             param = param.split(':')
-            if len(param) == 2:
-                param = (str(param[0]), [int(p) for p in param[1].split(',')])
-                if len(param[1]) == 1:
-                    param = (param[0], param[1][0])
-                param_dict.append(param)
+            if len(param) != 2:
+                continue
+            param = (str(param[0]), [ x for x in [self._weekday_or_number(p) for p in param[1].split(',')] if x is not None])
+            if len(param[1]) == 1:
+                 param_value = self._weekday_or_number(param[1][0])
+                 param = (param[0], param_value) 
+            param_dict.append(param)
         return dict(param_dict)
 
     def __str__(self):

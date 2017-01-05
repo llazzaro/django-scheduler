@@ -553,7 +553,7 @@ class TestEvent(TestCase):
                                     end=datetime.datetime(2008, 1, 5, 8, 0))
 
         self.assertEqual(["%s to %s" %(o.start, o.end) for o in occs2], [])
- 
+
 
 class TestEventRelationManager(TestCase):
 
