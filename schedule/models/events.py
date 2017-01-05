@@ -178,19 +178,16 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         return final_occurrences
 
     def get_rrule_object(self, tzinfo):
-        if self.rule is not None:
-            params, empty = self._event_params()
-            frequency = self.rule.rrule_frequency()
-            if timezone.is_naive(self.start):
-                dtstart = self.start
-            else:
-                dtstart = tzinfo.normalize(self.start).replace(tzinfo=None)
+        if self.rule is None:
+            return 
+        params = self._event_params()
+        frequency = self.rule.rrule_frequency()
+        if timezone.is_naive(self.start):
+            dtstart = self.start
+        else:
+            dtstart = tzinfo.normalize(self.start).replace(tzinfo=None)
 
-            if not empty:
-                return rrule.rrule(frequency, dtstart=dtstart, **params)
-            else:
-                year = self.start.year - 1
-                return rrule.rrule(frequency, dtstart=dtstart, until=self.start.replace(year=year))
+        return rrule.rrule(frequency, dtstart=dtstart, **params)
 
     def _create_occurrence(self, start, end=None):
         if end is None:
@@ -224,7 +221,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         the timespan defined by start (inclusive) and end (exclusive)
         """
         if self.rule is not None:
-            duration = (self.end - self.start)
+            duration = self.end - self.start
             use_naive = timezone.is_naive(start)
 
             # Use the timezone from the start date
@@ -347,28 +344,32 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         freq_order = freq_dict_order[self.rule.frequency]
         rule_params = self.event_rule_params
         start_params = self.event_start_params
-        empty = False
-
         event_params = {}
+
+        if len(rule_params) == 0:
+            event_params['count'] = 0
+            return event_params
 
         for param in rule_params:
             # start date influences rule params
             if (param in param_dict_order and param_dict_order[param] > freq_order and
                     param in start_params):
                 sp = start_params[param]
-                if sp == rule_params[param] or sp in rule_params[param]:
+                if sp == rule_params[param] or (
+                        hasattr(rule_params[param], '__iter__')
+                        and sp in rule_params[param]):
                     event_params[param] = [sp]
                 else:
-                    event_params = {'count': 0}
-                    empty = True
-                    break
+                    event_params[param] = rule_params[param]
             else:
                 event_params[param] = rule_params[param]
-        return event_params, empty
+
+
+        return event_params
 
     @property
     def event_params(self):
-        event_params, empty = self._event_params()
+        event_params = self._event_params()
         start = self.effective_start
         if not start:
             empty = True
