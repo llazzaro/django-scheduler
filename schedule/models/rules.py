@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 from django.utils.six.moves.builtins import str
 from django.utils.six import with_metaclass
-from dateutil.rrule import DAILY, MONTHLY, WEEKLY, YEARLY, HOURLY, MINUTELY, SECONDLY
+from dateutil.rrule import (DAILY, MONTHLY, WEEKLY, YEARLY, HOURLY, MINUTELY,
+                            SECONDLY)
+from dateutil.rrule import (MO, TU, WE, TH, FR, SA, SU)
 
 from django.db import models
 from django.db.models.base import ModelBase
@@ -53,7 +55,13 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
     frequency = models.CharField(_("frequency"), choices=freqs, max_length=10)
     params = models.TextField(_("params"), null=True, blank=True)
 
-    _week_days = ('MO', 'TU', 'TH', 'WE', 'FR', 'SA', 'SU')
+    _week_days = {'MO': MO,
+                  'TU': TU,
+                  'WE': WE,
+                  'TH': TH,
+                  'FR': FR,
+                  'SA': SA,
+                  'SU': SU}
 
     class Meta(object):
         verbose_name = _('rule')
@@ -79,10 +87,10 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
         '''
         try:
             return int(param)
-        except ValueError:
+        except (TypeError, ValueError):
             uparam = str(param).upper()
             if uparam in Rule._week_days:
-                return uparam
+                return Rule._week_days[uparam]
 
     def get_params(self):
         """
@@ -98,9 +106,11 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
             param = param.split(':')
             if len(param) != 2:
                 continue
-            param = (str(param[0]), [ x for x in
+
+            param = (str(param[0]).lower(), [ x for x in
                 [self._weekday_or_number(v) for v in param[1].split(',')]
                 if x is not None])
+
             if len(param[1]) == 1:
                  param_value = self._weekday_or_number(param[1][0])
                  param = (param[0], param_value)

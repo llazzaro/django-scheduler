@@ -507,8 +507,8 @@ class TestEvent(TestCase):
                                     datetime.datetime(2008, 1, 5, 9, 0),
                                     datetime.datetime(2008, 5, 5, 0, 0),
                                     rule,
-                                    cal
-                )
+                                    cal)
+
         occs1 = recurring_event.get_occurrences(
                                     start=datetime.datetime(2006, 1, 1, 0, 0),
                                     end=datetime.datetime(2008, 1, 19, 8, 30))
@@ -539,8 +539,8 @@ class TestEvent(TestCase):
                                     datetime.datetime(2008, 1, 5, 9, 0),
                                     datetime.datetime(2008, 5, 5, 0, 0),
                                     rule,
-                                    cal
-                )
+                                    cal)
+
         occs1 = recurring_event.get_occurrences(
                                     start=datetime.datetime(2008, 1, 5, 8, 0),
                                     end=datetime.datetime(2008, 1, 5, 8, 30))
@@ -554,7 +554,46 @@ class TestEvent(TestCase):
 
         self.assertEqual(["%s to %s" %(o.start, o.end) for o in occs2], [])
 
+    @override_settings(USE_TZ=False)
+    def test_get_occurrences_rule_weekday_param(self):
+        ''' 
+        Test whether occurrence list get method behaves correctly while using
+        complex rule parameters
+        '''
+        cal = Calendar(name="MyCal")
+        # Last Fridays of each month
+        rule = Rule(frequency="MONTHLY", params='BYWEEKDAY:FR;BYSETPOS:-1')
+        rule.save()
 
+        recurring_event = self.__create_recurring_event(
+                                    'Last Friday of each month',
+                                    datetime.datetime(2016, 11, 1),
+                                    datetime.datetime(2016, 11, 1),
+                                    datetime.datetime(2030, 1, 1),
+                                    rule,
+                                    cal)
+
+        occs = recurring_event.get_occurrences(
+                                    start=datetime.datetime(2016, 11, 1),
+                                    end=datetime.datetime(2017, 12, 31))
+
+        self.assertEqual(["%s to %s" %(o.start, o.end) for o in occs],
+                ['2016-11-25 00:00:00 to 2016-11-25 00:00:00',
+                 '2016-12-30 00:00:00 to 2016-12-30 00:00:00',
+                 '2017-01-27 00:00:00 to 2017-01-27 00:00:00',
+                 '2017-02-24 00:00:00 to 2017-02-24 00:00:00',
+                 '2017-03-31 00:00:00 to 2017-03-31 00:00:00',
+                 '2017-04-28 00:00:00 to 2017-04-28 00:00:00',
+                 '2017-05-26 00:00:00 to 2017-05-26 00:00:00',
+                 '2017-06-30 00:00:00 to 2017-06-30 00:00:00',
+                 '2017-07-28 00:00:00 to 2017-07-28 00:00:00',
+                 '2017-08-25 00:00:00 to 2017-08-25 00:00:00',
+                 '2017-09-29 00:00:00 to 2017-09-29 00:00:00',
+                 '2017-10-27 00:00:00 to 2017-10-27 00:00:00',
+                 '2017-11-24 00:00:00 to 2017-11-24 00:00:00',
+                 '2017-12-29 00:00:00 to 2017-12-29 00:00:00'])
+
+ 
 class TestEventRelationManager(TestCase):
 
     def test_get_events_for_object(self):
