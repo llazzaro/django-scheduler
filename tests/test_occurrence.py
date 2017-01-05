@@ -33,7 +33,7 @@ class TestOccurrence(TestCase):
         self.start = datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc)
         self.end = datetime.datetime(2008, 1, 27, 0, 0, tzinfo=pytz.utc)
 
-    def test_presisted_occurrences(self):
+    def test_persisted_occurrences(self):
         occurrences = self.recurring_event.get_occurrences(start=self.start, end=self.end)
         persisted_occurrence = occurrences[0]
         persisted_occurrence.save()
