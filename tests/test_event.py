@@ -466,7 +466,7 @@ class TestEvent(TestCase):
         )
         self.assertEqual(occurrences[-1].end, end_recurring)
 
-    def test_recurring_event_get_occurrence_accross_dst(self):
+    def test_recurring_event_get_occurrence_across_dst(self):
 
         pacific = pytz.timezone('US/Pacific')
         e_start = pacific.localize(datetime.datetime(2015, 3, 4, 9, 0))
