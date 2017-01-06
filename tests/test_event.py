@@ -466,6 +466,28 @@ class TestEvent(TestCase):
         )
         self.assertEqual(occurrences[-1].end, end_recurring)
 
+    def test_recurring_event_get_occurrence_accross_dst(self):
+
+        pacific = pytz.timezone('US/Pacific')
+        e_start = pacific.localize(datetime.datetime(2015, 3, 4, 9, 0))
+        e_end = e_start
+        recc_end = pacific.localize(datetime.datetime(2015, 3, 13, 9, 0))
+        event = self.__create_recurring_event(
+            'Recurring event with end_recurring_date that crosses a DST',
+            e_start, e_end, recc_end,
+            Rule.objects.create(frequency="WEEKLY"),
+            Calendar.objects.create(name='MyCal'),
+        )
+        event.save()
+
+        occs = event.get_occurrences(
+                e_start,
+                pacific.localize(datetime.datetime(2015, 3, 11, 10, 0))
+        )
+        self.assertEqual(["%s to %s" %(o.start, o.end) for o in occs],
+            ['2015-03-04 09:00:00-08:00 to 2015-03-04 09:00:00-08:00',
+             '2015-03-11 09:00:00-07:00 to 2015-03-11 09:00:00-07:00'])
+
     @override_settings(USE_TZ=False)
     def test_get_occurrences_timespan_inside_occurrence(self):
         ''' 
