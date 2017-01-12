@@ -338,7 +338,7 @@ class TestEvent(TestCase):
                             rule,
                             cal)
         event.save()
-        occurrences = list(event.occurrences_after(max_occurences=4))
+        occurrences = list(event.occurrences_after(max_occurrences=4))
         self.assertEqual(len(occurrences), 4)
 
     def test_occurences_with_recurrent_event_end_recurring_period_edge_case_max_loop_greater(self):
@@ -356,7 +356,7 @@ class TestEvent(TestCase):
                             rule,
                             cal)
         event.save()
-        occurrences = list(event.occurrences_after(max_occurences=20))
+        occurrences = list(event.occurrences_after(max_occurrences=20))
         self.assertEqual(len(occurrences), 11)
 
     def test_occurences_with_recurrent_event_no_end_recurring_period_max_loop(self):
@@ -374,7 +374,7 @@ class TestEvent(TestCase):
                             rule,
                             cal)
         event.save()
-        occurrences = list(event.occurrences_after(max_occurences=1))
+        occurrences = list(event.occurrences_after(max_occurrences=1))
         self.assertEqual(len(occurrences), 1)
 
     def test_get_for_object(self):

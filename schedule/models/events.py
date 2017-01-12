@@ -277,7 +277,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         """
         returns a generator that produces unpresisted occurrences after the
         datetime ``after``. (Optionally) This generator will return up to
-        ``max_occurences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
+        ``max_occurrences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
 
         tzinfo = timezone.utc
@@ -303,11 +303,11 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
             loop_counter += 1
 
-    def occurrences_after(self, after=None, max_occurences=None):
+    def occurrences_after(self, after=None, max_occurrences=None):
         """
         returns a generator that produces occurrences after the datetime
         ``after``.  Includes all of the persisted Occurrences. (Optionally) This generator will return up to
-        ``max_occurences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
+        ``max_occurrences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
         if after is None:
             after = timezone.now()
@@ -315,7 +315,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         generator = self._occurrences_after_generator(after)
         trickies = list(self.occurrence_set.filter(original_start__lte=after, start__gte=after).order_by('start'))
         for index, nxt in enumerate(generator):
-            if max_occurences and index > max_occurences - 1:
+            if max_occurrences and index > max_occurrences - 1:
                 break
             if (len(trickies) > 0 and (nxt is None or nxt.start > trickies[0].start)):
                 yield trickies.pop(0)
