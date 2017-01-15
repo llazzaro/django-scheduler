@@ -56,7 +56,7 @@ class TestOccurrenceReplacer(TestCase):
         daily = Rule.objects.create(frequency="DAILY")
         cal = Calendar.objects.create(name="MyCal")
         self.default_tzinfo = timezone.get_default_timezone()
-        self.start = datetime.datetime.now() - datetime.timedelta(days=10)
+        self.start = timezone.now() - datetime.timedelta(days=10)
         self.end = self.start + datetime.timedelta(days=300)
         self.event1 = Event(**{
             'title': 'Weekly Event',

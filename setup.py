@@ -13,8 +13,6 @@ setup(
     packages=[
         'schedule',
         'schedule.feeds',
-        'schedule.management',
-        'schedule.management.commands',
         'schedule.models',
         'schedule.migrations',
         'schedule.templatetags',
