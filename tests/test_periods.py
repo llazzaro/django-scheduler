@@ -297,7 +297,22 @@ class TestOccurrencesInTimezone(TestCase):
         settings.TIME_ZONE = 'America/Montevideo'
         from django.utils.timezone import activate
         activate(settings.TIME_ZONE)
-
+        self.MVD = timezone.get_current_timezone()
+        cal = Calendar(name="MyCal")
+        cal.save()
+        rule = Rule(frequency="DAILY", params="byweekday:SA", name="Saturdays")
+        rule.save()
+        data = {
+                'title': 'Every Saturday Event',
+                'start': self.MVD.localize(datetime.datetime(2017, 1, 7, 22, 0)),
+                'end': self.MVD.localize(datetime.datetime(2017, 1, 7, 23, 0)),
+                'end_recurring_period' : self.MVD.localize(datetime.datetime(2017, 2, 1)),
+                'rule': rule,
+                'calendar': cal
+               }
+        recurring_event = Event(**data)
+        recurring_event.save()
+ 
     def tearDown(self):
         '''
         django timezone goes back to what it was
@@ -310,30 +325,28 @@ class TestOccurrencesInTimezone(TestCase):
 
     @override_settings(USE_TZ=True)
     def test_occurrences_with_TZ(self):
-        MVD = timezone.get_current_timezone()
-        cal = Calendar(name="MyCal")
-        cal.save()
-        rule = Rule(frequency="DAILY", params="byweekday:SA", name="Saturdays")
-        rule.save()
-        data = {
-                'title': 'Every Saturday Event',
-                'start': MVD.localize(datetime.datetime(2017, 1, 7, 22, 0)),
-                'end': MVD.localize(datetime.datetime(2017, 1, 7, 23, 0)),
-                'end_recurring_period' : MVD.localize(datetime.datetime(2017, 2, 1)),
-                'rule': rule,
-                'calendar': cal
-               }
-        recurring_event = Event(**data)
-        recurring_event.save()
+        start = self.MVD.localize(datetime.datetime(2017, 1, 13))
+        end = self.MVD.localize(datetime.datetime(2017, 1, 23))
 
-        start = MVD.localize(datetime.datetime(2017, 1, 13))
-        end = MVD.localize(datetime.datetime(2017, 1, 23))
-
-        period = Period(Event.objects.all(), start, end, tzinfo=MVD)
+        period = Period(Event.objects.all(), start, end, tzinfo=self.MVD)
         self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
                 ['2017-01-14 22:00:00-03:00 to 2017-01-14 23:00:00-03:00',
                  '2017-01-21 22:00:00-03:00 to 2017-01-21 23:00:00-03:00'])
+ 
+    @override_settings(USE_TZ=True)
+    def test_occurrences_sub_period_with_TZ(self):
+        start = self.MVD.localize(datetime.datetime(2017, 1, 13))
+        end = self.MVD.localize(datetime.datetime(2017, 1, 23))
 
+        period = Period(Event.objects.all(), start, end, tzinfo=self.MVD)
+
+        sub_start = self.MVD.localize(datetime.datetime(2017, 1, 13))
+        sub_end = self.MVD.localize(datetime.datetime(2017, 1, 15))
+        sub_period = period.get_time_slot(sub_start, sub_end)
+        self.assertEqual(["%s to %s" % (o.start, o.end) for o in sub_period.occurrences],
+                ['2017-01-14 22:00:00-03:00 to 2017-01-14 23:00:00-03:00'])
+
+ 
 
 class TestAwareDay(TestCase):
     def setUp(self):
