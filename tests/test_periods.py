@@ -294,10 +294,7 @@ class TestOccurrencesInTimezone(TestCase):
         '''
         Configures Django to use a timezone
         '''
-        settings.TIME_ZONE = 'America/Montevideo'
-        from django.utils.timezone import activate
-        activate(settings.TIME_ZONE)
-        self.MVD = timezone.get_current_timezone()
+        self.MVD = pytz.timezone('America/Montevideo')
         cal = Calendar(name="MyCal")
         cal.save()
         rule = Rule(frequency="DAILY", params="byweekday:SA", name="Saturdays")
@@ -313,17 +310,7 @@ class TestOccurrencesInTimezone(TestCase):
         recurring_event = Event(**data)
         recurring_event.save()
  
-    def tearDown(self):
-        '''
-        django timezone goes back to what it was
-        '''
-        from django.utils.timezone import activate
-        from django.utils.timezone import deactivate
-        deactivate()
-        settings.TIME_ZONE = 'UTC'  # return to default
-        activate(settings.TIME_ZONE)
-
-    @override_settings(USE_TZ=True)
+    @override_settings(TIME_ZONE='America/Montevideo')
     def test_occurrences_with_TZ(self):
         start = self.MVD.localize(datetime.datetime(2017, 1, 13))
         end = self.MVD.localize(datetime.datetime(2017, 1, 23))
@@ -333,7 +320,7 @@ class TestOccurrencesInTimezone(TestCase):
                 ['2017-01-14 22:00:00-03:00 to 2017-01-14 23:00:00-03:00',
                  '2017-01-21 22:00:00-03:00 to 2017-01-21 23:00:00-03:00'])
  
-    @override_settings(USE_TZ=True)
+    @override_settings(TIME_ZONE='America/Montevideo')
     def test_occurrences_sub_period_with_TZ(self):
         start = self.MVD.localize(datetime.datetime(2017, 1, 13))
         end = self.MVD.localize(datetime.datetime(2017, 1, 23))
