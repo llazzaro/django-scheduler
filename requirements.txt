@@ -1,7 +1,5 @@
 coverage>=3.7.1
 coveralls>=0.5
-flake8
-wheel
 Django>=1.10.5
 django-annoying>=0.10.3
 icalendar>=3.11.2
