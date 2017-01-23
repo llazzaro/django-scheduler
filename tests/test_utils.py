@@ -1,5 +1,6 @@
 import datetime
 
+import mock
 from django.test import TestCase
 from django.test import override_settings
 from django.utils import timezone
@@ -134,12 +135,13 @@ class TestOccurrenceReplacer(TestCase):
         assert expected_ok
 
 
-class BaseTestClass(object):
-    pass
-
-
 class TestCommonUtils(TestCase):
-    @override_settings(SCHEDULER_BASE_CLASSES={'ClassName': ['tests.test_utils.BaseTestClass']})
+    def setUp(self):
+        patcher = mock.patch('schedule.utils.import_string')
+        self.import_string_mock = patcher.start()
+        self.addCleanup(patcher.stop)
+
+    @override_settings(SCHEDULER_BASE_CLASSES={'ClassName': ['path.to.module.AbstractClass']})
     def test_get_model_bases_with_custom_dict_default(self):
         from django.db.models import Model
         expected_result = [Model]
@@ -147,24 +149,36 @@ class TestCommonUtils(TestCase):
 
         self.assertListEqual(actual_result, expected_result)
 
-    @override_settings(SCHEDULER_BASE_CLASSES={'ClassName': ['tests.test_utils.BaseTestClass']})
+    @override_settings(SCHEDULER_BASE_CLASSES={'ClassName': ['path.to.module.AbstractClass']})
     def test_get_model_bases_with_custom_dict_specific(self):
-        expected_result = [BaseTestClass]
+        model_mock = mock.Mock()
+        expected_result = [model_mock]
+
+        self.import_string_mock.return_value = model_mock
         actual_result = get_model_bases('ClassName')
 
         self.assertListEqual(actual_result, expected_result)
 
-    @override_settings(SCHEDULER_BASE_CLASSES=['tests.test_utils.BaseTestClass'])
+        self.import_string_mock.assert_called_once_with('path.to.module.AbstractClass')
+
+    @override_settings(SCHEDULER_BASE_CLASSES=['path.to.module.AbstractClass1', 'path.to.module.AbstractClass2'])
     def test_get_model_bases_with_custom_list(self):
-        # Backwards compatibility.
-        expected_result = [BaseTestClass]
-        actual_result = get_model_bases('Event')
+        model_mock1 = mock.Mock()
+        model_mock2 = mock.Mock()
+
+        expected_result = [model_mock1, model_mock2]
+
+        self.import_string_mock.side_effect = [model_mock1, model_mock2]
+        actual_result = get_model_bases('ClassName')
 
         self.assertListEqual(actual_result, expected_result)
 
+        self.import_string_mock.assert_any_call('path.to.module.AbstractClass1')
+        self.import_string_mock.assert_any_call('path.to.module.AbstractClass2')
+        self.assertEqual(self.import_string_mock.call_count, 2)
+
     @override_settings(SCHEDULER_BASE_CLASSES=None)
     def test_get_model_bases_with_no_setting(self):
-        # Backwards compatibility.
         from django.db.models import Model
         expected_result = [Model]
         actual_result = get_model_bases('Event')

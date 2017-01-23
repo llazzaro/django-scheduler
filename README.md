@@ -182,6 +182,21 @@ This setting allows for custom base classes to be used on specific models. Usefu
 
 Defaults to django.db.models.Model
 
+Extend all the models using a list:
+
+```
+SCHEDULER_BASE_CLASSES = ['my_app.models.BaseAbstract1', 'my_app.models.BaseAbstract1']
+```
+
+Extend specific models using a dict, where the key is the model class name:
+
+```
+SCHEDULER_BASE_CLASSES = {
+    'Event': ['my_app.models.EventAbstract1', 'my_app..models.EventAbstract2']
+    'Calendar': [my_app.models.CalendarAbstract']
+}
+```
+
 
 ### SCHEDULER_PREVNEXT_LIMIT_SECONDS
 
