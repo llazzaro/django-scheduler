@@ -8,7 +8,7 @@ from django.utils import timezone
 
 
 class UpcomingEventsFeed(Feed):
-    feed_id = "upcoming"
+    feed_id = 'upcoming'
 
     def feed_title(self, obj):
         return "Upcoming Events for %s" % obj.name
@@ -24,7 +24,7 @@ class UpcomingEventsFeed(Feed):
     def items(self, obj):
         return itertools.islice(
             obj.occurrences_after(timezone.now()),
-            getattr(settings, "FEED_LIST_LENGTH", 10))
+            getattr(settings, 'FEED_LIST_LENGTH', 10))
 
     def item_id(self, item):
         return str(item.id)
@@ -35,7 +35,7 @@ class UpcomingEventsFeed(Feed):
     def item_authors(self, item):
         if item.event.creator is None:
             return [{'name': ''}]
-        return [{"name": item.event.creator.username}]
+        return [{'name': item.event.creator.username}]
 
     def item_updated(self, item):
         return item.event.created_on
