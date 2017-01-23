@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from schedule.models import Calendar, Event, CalendarRelation, Rule
+from schedule.models import Calendar, Event, CalendarRelation, Occurrence, Rule
 from schedule.forms import EventAdminForm
 
 
@@ -60,4 +60,5 @@ class RuleAdmin(admin.ModelAdmin):
 admin.site.register(Calendar, CalendarAdminOptions)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Rule, RuleAdmin)
+admin.site.register(Occurrence, admin.ModelAdmin)
 admin.site.register(CalendarRelation, CalendarRelationAdmin)
