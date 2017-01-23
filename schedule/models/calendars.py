@@ -106,7 +106,7 @@ class CalendarManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class Calendar(with_metaclass(ModelBase, *get_model_bases())):
+class Calendar(with_metaclass(ModelBase, *get_model_bases('Calendar'))):
     '''
     This is for grouping events so that batch relations can be made to all
     events.  An example would be a project calendar.
@@ -204,7 +204,7 @@ class CalendarRelationManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class CalendarRelation(with_metaclass(ModelBase, *get_model_bases())):
+class CalendarRelation(with_metaclass(ModelBase, *get_model_bases('CalendarRelation'))):
     '''
     This is for relating data to a Calendar, and possible all of the events for
     that calendar, there is also a distinction, so that the same type or kind of

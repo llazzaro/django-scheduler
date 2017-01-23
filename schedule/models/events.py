@@ -48,7 +48,7 @@ class EventManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class Event(with_metaclass(ModelBase, *get_model_bases())):
+class Event(with_metaclass(ModelBase, *get_model_bases('Event'))):
     '''
     This model stores meta data for a date.  You can relate this data to many
     other models.
@@ -529,7 +529,7 @@ class EventRelationManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class EventRelation(with_metaclass(ModelBase, *get_model_bases())):
+class EventRelation(with_metaclass(ModelBase, *get_model_bases('EventRelation'))):
     '''
     This is for relating data to an Event, there is also a distinction, so that
     data can be related in different ways.  A good example would be, if you have
@@ -565,7 +565,7 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases())):
 
 
 @python_2_unicode_compatible
-class Occurrence(with_metaclass(ModelBase, *get_model_bases())):
+class Occurrence(with_metaclass(ModelBase, *get_model_bases('Occurrence'))):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
     title = models.CharField(_("title"), max_length=255, blank=True, null=True)
     description = models.TextField(_("description"), blank=True, null=True)

@@ -1,4 +1,3 @@
-from functools import wraps
 import heapq
 from annoying.functions import get_object_or_None
 from django.http import HttpResponseRedirect, HttpResponseNotFound
@@ -233,10 +232,16 @@ def coerce_date_dict(date_dict):
     return modified and ret_val or {}
 
 
-def get_model_bases():
+def get_model_bases(model_class_name):
     from django.db.models import Model
-    baseStrings = getattr(settings, 'SCHEDULER_BASE_CLASSES', None)
-    if baseStrings is None:
-        return [Model]
+    base_classes = getattr(settings, 'SCHEDULER_BASE_CLASSES', {})
+
+    if isinstance(base_classes, dict):
+        base_class_names = base_classes.get(model_class_name, [])
     else:
-        return [import_string(x) for x in baseStrings]
+        base_class_names = base_classes
+
+    if base_class_names:
+        return [import_string(x) for x in base_class_names]
+    else:
+        return [Model]

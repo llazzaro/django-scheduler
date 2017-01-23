@@ -22,7 +22,7 @@ freqs = (("YEARLY", _("Yearly")),
 
 
 @python_2_unicode_compatible
-class Rule(with_metaclass(ModelBase, *get_model_bases())):
+class Rule(with_metaclass(ModelBase, *get_model_bases('Rule'))):
     """
     This defines a rule by which an event will recur.  This is defined by the
     rrule in the dateutil documentation.
