@@ -1,10 +1,12 @@
 import datetime
 
 from django.test import TestCase
+from django.test import override_settings
 from django.utils import timezone
 
 from schedule.models import Event, Rule, Calendar, Occurrence
 from schedule.utils import EventListManager, OccurrenceReplacer
+from schedule.utils import get_model_bases
 
 
 class TestEventListManager(TestCase):
@@ -130,3 +132,41 @@ class TestOccurrenceReplacer(TestCase):
             expected_ok = True
 
         assert expected_ok
+
+
+class BaseTestClass(object):
+    pass
+
+
+class TestCommonUtils(TestCase):
+    @override_settings(SCHEDULER_BASE_CLASSES={'ClassName': ['tests.test_utils.BaseTestClass']})
+    def test_get_model_bases_with_custom_dict_default(self):
+        from django.db.models import Model
+        expected_result = [Model]
+        actual_result = get_model_bases('Event')
+
+        self.assertListEqual(actual_result, expected_result)
+
+    @override_settings(SCHEDULER_BASE_CLASSES={'ClassName': ['tests.test_utils.BaseTestClass']})
+    def test_get_model_bases_with_custom_dict_specific(self):
+        expected_result = [BaseTestClass]
+        actual_result = get_model_bases('ClassName')
+
+        self.assertListEqual(actual_result, expected_result)
+
+    @override_settings(SCHEDULER_BASE_CLASSES=['tests.test_utils.BaseTestClass'])
+    def test_get_model_bases_with_custom_list(self):
+        # Backwards compatibility.
+        expected_result = [BaseTestClass]
+        actual_result = get_model_bases('Event')
+
+        self.assertListEqual(actual_result, expected_result)
+
+    @override_settings(SCHEDULER_BASE_CLASSES=None)
+    def test_get_model_bases_with_no_setting(self):
+        # Backwards compatibility.
+        from django.db.models import Model
+        expected_result = [Model]
+        actual_result = get_model_bases('Event')
+
+        self.assertListEqual(actual_result, expected_result)

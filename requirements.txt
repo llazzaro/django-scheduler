@@ -1,2 +1,7 @@
 coverage>=3.7.1
 coveralls>=0.5
+Django>=1.10.5
+django-annoying>=0.10.3
+icalendar>=3.11.2
+python-dateutil>=2.6.0
+pytz>=2016.10
