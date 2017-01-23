@@ -157,7 +157,7 @@ class CancelOccurrenceView(OccurrenceEditMixin, ModelFormMixin, ProcessFormView)
         self.success_url = kwargs.get(
             'next',
             get_next_url(request, event.get_absolute_url()))
-        if "cancel" not in request.POST:
+        if 'cancel' not in request.POST:
             occurrence.cancel()
         return HttpResponseRedirect(self.success_url)
 
@@ -207,8 +207,8 @@ class CreateEventView(EventEditMixin, CreateView):
             try:
                 start = datetime.datetime(**date)
                 initial_data = {
-                    "start": start,
-                    "end": start + datetime.timedelta(minutes=30)
+                    'start': start,
+                    'end': start + datetime.timedelta(minutes=30)
                 }
             except TypeError:
                 raise Http404
@@ -370,19 +370,19 @@ def _api_occurrences(start, end, calendar_slug):
                 if occurrence.event.end_recurring_period else None
 
             response_data.append({
-                "id": occurrence_id,
-                "title": occurrence.title,
-                "start": occurrence.start.isoformat(),
-                "end": occurrence.end.isoformat(),
-                "existed": existed,
-                "event_id": occurrence.event.id,
-                "color": occurrence.event.color_event,
-                "description": occurrence.description,
-                "rule": recur_rule,
-                "end_recurring_period": recur_period_end,
-                "creator": str(occurrence.event.creator),
-                "calendar": occurrence.event.calendar.slug,
-                "cancelled": occurrence.cancelled,
+                'id': occurrence_id,
+                'title': occurrence.title,
+                'start': occurrence.start.isoformat(),
+                'end': occurrence.end.isoformat(),
+                'existed': existed,
+                'event_id': occurrence.event.id,
+                'color': occurrence.event.color_event,
+                'description': occurrence.description,
+                'rule': recur_rule,
+                'end_recurring_period': recur_period_end,
+                'creator': str(occurrence.event.creator),
+                'calendar': occurrence.event.calendar.slug,
+                'cancelled': occurrence.cancelled,
             })
     return response_data
 

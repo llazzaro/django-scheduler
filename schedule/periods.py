@@ -77,7 +77,7 @@ class Period(object):
 
     def _get_sorted_occurrences(self):
         occurrences = []
-        if hasattr(self, "occurrence_pool") and self.occurrence_pool is not None:
+        if hasattr(self, 'occurrence_pool') and self.occurrence_pool is not None:
             for occurrence in self.occurrence_pool:
                 if occurrence.start <= self.utc_end and occurrence.end >= self.utc_start:
                     occurrences.append(occurrence)
