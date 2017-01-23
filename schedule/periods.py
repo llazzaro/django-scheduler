@@ -144,8 +144,8 @@ class Period(object):
 
     def get_time_slot(self, start, end):
         if start >= self.start and end <= self.end:
-            return Period(self.events, start, end)
-        return Period([], start, end)
+            return Period(self.events, start, end, tzinfo=self.tzinfo)
+        return Period([], start, end, tzinfo=self.tzinfo)
 
     def create_sub_period(self, cls, start=None, tzinfo=None):
         if tzinfo is None:

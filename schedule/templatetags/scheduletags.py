@@ -59,7 +59,6 @@ def daily_table(context, day, start=8, end=20, increment=30):
     if 'calendar' in context:
         addable &= CHECK_CALENDAR_PERM_FUNC(context['calendar'], user)
     context['addable'] = addable
-
     day_part = day.get_time_slot(day.start + datetime.timedelta(hours=start), day.start + datetime.timedelta(hours=end))
     # get slots to display on the left
     slots = _cook_slots(day_part, increment)
