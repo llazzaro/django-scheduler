@@ -13,7 +13,7 @@ $(document).ready(function() {
                 var view_url = "{% url 'occurrence' 12345 6789 %}".replace(/12345/, event.event_id).replace(/6789/, event.id);
             }
             else{
-                var view_url = "{% url 'admin:Scheduler_sessionoccurrencemodifier_change' 12345 %}".replace(/12345/, event.id)
+                var view_url = "{% url 'admin:schedule_occurrence_change' 12345 %}".replace(/12345/, event.id)
             }
         }
         else {
@@ -21,7 +21,7 @@ $(document).ready(function() {
                 var view_url = "{% url 'event' 12345 %}".replace(/12345/, event.event_id);
             }
             else{
-                var view_url = "{% url 'admin:Scheduler_sessionscheduler_change' 12345 %}".replace(/12345/, event.event_id)
+                var view_url = "{% url 'admin:schedule_event_change' 12345 %}".replace(/12345/, event.event_id)
             }
         }
         return view_url;

@@ -453,8 +453,8 @@ def api_select_create(request):
 
 
 def _api_select_create(start, end, calendar_slug):
-    start = dateutil.parser.parse('start')
-    end = dateutil.parser.parse('end')
+    start = dateutil.parser.parse(start)
+    end = dateutil.parser.parse(end)
 
     calendar = Calendar.objects.get(slug=calendar_slug)
     Event.objects.create(
