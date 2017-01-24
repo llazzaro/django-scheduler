@@ -3,13 +3,13 @@
 
 {% block body %}
 <div class="navigation">
-  <a class="btn btn-primary gradient" href="{% url "day_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 True %}">
+  <a class="btn btn-primary gradient" href="{% url "day_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 %}">
     {% trans "Day" %}
   </a>
-  <a class="btn btn-primary gradient" href="{% url "month_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 True %}">
+  <a class="btn btn-primary gradient" href="{% url "month_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 %}">
     {% trans "Month" %}
   </a>
-  <a class="btn btn-primary gradient" href="{% url "year_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 1 True %}">
+  <a class="btn btn-primary gradient" href="{% url "year_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 1 %}">
     {% trans "Year" %}
   </a>
 </div>
