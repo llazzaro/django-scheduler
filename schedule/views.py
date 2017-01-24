@@ -392,7 +392,7 @@ def _api_occurrences(start, end, calendar_slug):
 def api_move_or_resize_by_code(request):
     response_data = {}
     user = request.user
-    id = request.POST.get(id)
+    id = request.POST.get('id')
     existed = bool(request.POST.get('existed') == 'true')
     delta = datetime.timedelta(minutes=int(request.POST.get('delta')))
     resize = bool(request.POST.get('resize', False))
