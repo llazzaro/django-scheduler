@@ -5,6 +5,8 @@ import pytz
 from django.test import override_settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.http import Http404
+from django.utils import timezone
 
 from schedule.models.calendars import Calendar
 from schedule.models.events import Event, Occurrence
@@ -12,6 +14,7 @@ from schedule.models.rules import Rule
 
 from schedule.views import coerce_date_dict
 from schedule.views import check_next_url
+from schedule.views import get_occurrence
 
 from schedule.settings import USE_FULLCALENDAR
 
@@ -40,11 +43,59 @@ class TestViews(TestCase):
 
 
 class TestViewUtils(TestCase):
+
+    def setUp(self):
+        self.rule = Rule.objects.create(frequency="DAILY")
+        self.calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
+        data = {
+            'title': 'Recent Event',
+            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            'rule': self.rule,
+            'calendar': self.calendar
+        }
+        self.event = Event.objects.create(**data)
+
+    def test_get_occurrence(self):
+        event, occurrence = get_occurrence(self.event.pk, year=2008, month=1,
+                                           day=5, hour=8, minute=0, second=0,
+                                           tzinfo=pytz.utc)
+        self.assertEqual(event, self.event)
+        self.assertEqual(occurrence.start, self.event.start)
+        self.assertEqual(occurrence.end, self.event.end)
+
+    def test_get_occurrence_raises(self):
+        with self.assertRaises(Http404):
+            get_occurrence(self.event.pk, year=2007, month=1, day=5, hour=8,
+                           minute=0, second=0, tzinfo=pytz.utc)
+
+    def test_get_occurrence_persisted(self):
+        date = timezone.make_aware(datetime.datetime(year=2008, month=1,
+                                   day=5, hour=8, minute=0, second=0),
+                                   pytz.utc)
+        occurrence = self.event.get_occurrence(date)
+        occurrence.save()
+        with self.assertRaises(Http404):
+            get_occurrence(self.event.pk, occurrence_id=100)
+
+        event, persisted_occ = get_occurrence(self.event.pk,
+                                              occurrence_id=occurrence.pk)
+        self.assertEqual(persisted_occ, occurrence)
+
+    @override_settings(TIME_ZONE='America/Montevideo')
+    def test_get_occurrence_raises_wrong_tz(self):
+        # Montevideo is 3 hours behind UTC
+        with self.assertRaises(Http404):
+            event, occurrence = get_occurrence(self.event.pk, year=2008, month=1,
+                                               day=5, hour=8, minute=0, second=0)
+
     def test_coerce_date_dict(self):
         self.assertEqual(
-            coerce_date_dict({'year': '2008', 'month': '4', 'day': '2', 'hour': '4', 'minute': '4', 'second': '4'}),
-            {'year': 2008, 'month': 4, 'day': 2, 'hour': 4, 'minute': 4, 'second': 4}
-        )
+            coerce_date_dict({'year': '2008', 'month': '4', 'day': '2',
+                              'hour': '4', 'minute': '4', 'second': '4'}),
+                             {'year': 2008, 'month': 4, 'day': 2, 'hour': 4,
+                              'minute': 4, 'second': 4})
 
     def test_coerce_date_dict_partial(self):
         self.assertEqual(

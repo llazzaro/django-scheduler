@@ -256,17 +256,14 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
     retrieve it.  This function returns an event and occurrence regardless of
     which method is used.
     """
-    if tzinfo is None:
-        tzinfo = timezone.get_current_timezone()
-
     if(occurrence_id):
         occurrence = get_object_or_404(Occurrence, id=occurrence_id)
         event = occurrence.event
-    elif(all((year, month, day, hour, minute, second))):
+    elif None not in (year, month, day, hour, minute, second):
         event = get_object_or_404(Event, id=event_id)
-        date = tzinfo.localize(datetime.datetime(int(year), int(month),
-                               int(day), int(hour), int(minute),
-                               int(second)))
+        date = timezone.make_aware(datetime.datetime(int(year), int(month),
+                                   int(day), int(hour), int(minute),
+                                   int(second)), tzinfo)
         occurrence = event.get_occurrence(date)
         if occurrence is None:
             raise Http404
