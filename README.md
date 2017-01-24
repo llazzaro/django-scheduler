@@ -88,6 +88,7 @@ Add the following Bower dependencies for scheduler:
 ```
 BOWER_INSTALLED_APPS = (
     'jquery',
+    'jquery-ui',
     'bootstrap'
 )
 ```
