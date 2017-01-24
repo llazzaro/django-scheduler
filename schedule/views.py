@@ -248,7 +248,7 @@ class DeleteEventView(EventEditMixin, DeleteView):
 
 def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
                    day=None, hour=None, minute=None, second=None,
-                   tzinfo=pytz.utc):
+                   tzinfo=None):
     """
     Because occurrences don't have to be persisted, there must be two ways to
     retrieve them. both need an event, but if its persisted the occurrence can
@@ -256,6 +256,9 @@ def get_occurrence(event_id, occurrence_id=None, year=None, month=None,
     retrieve it.  This function returns an event and occurrence regardless of
     which method is used.
     """
+    if tzinfo is None:
+        tzinfo = timezone.get_current_timezone()
+
     if(occurrence_id):
         occurrence = get_object_or_404(Occurrence, id=occurrence_id)
         event = occurrence.event
