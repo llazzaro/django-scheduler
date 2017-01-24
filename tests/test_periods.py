@@ -391,7 +391,6 @@ class TestWeeklyOccurrences(TestCase):
         start = self.MVD.localize(datetime.datetime(2017, 1, 13))
 
         period = Week([event], start, tzinfo=self.MVD)
-        occs = period.occurrences
  
         self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
                 ['2017-01-13 15:00:00-03:00 to 2017-01-14 15:00:00-03:00'])
