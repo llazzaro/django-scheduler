@@ -303,8 +303,6 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         loop_counter = 0
         for o_start in date_iter:
             o_start = tzinfo.localize(o_start)
-            if self.end_recurring_period and self.end_recurring_period and o_start > self.end_recurring_period:
-                break
             o_end = o_start + difference
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)
