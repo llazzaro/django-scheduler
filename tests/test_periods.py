@@ -366,7 +366,37 @@ class TestWeeklyOccurrences(TestCase):
         self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
                 [])
 
+    def test_occurrences_no_end(self):
+        event = Event.objects.filter(title='Test event').get()
+        event.end_recurring_period = None
+        start = self.MVD.localize(datetime.datetime(2018, 1, 13))
 
+        period = Week([event], start, tzinfo=self.MVD)
+        occs = period.occurrences
+
+        self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
+                ['2018-01-06 15:00:00-03:00 to 2018-01-07 15:00:00-03:00',
+                 '2018-01-07 15:00:00-03:00 to 2018-01-08 15:00:00-03:00',
+                 '2018-01-08 15:00:00-03:00 to 2018-01-09 15:00:00-03:00',
+                 '2018-01-09 15:00:00-03:00 to 2018-01-10 15:00:00-03:00',
+                 '2018-01-10 15:00:00-03:00 to 2018-01-11 15:00:00-03:00',
+                 '2018-01-11 15:00:00-03:00 to 2018-01-12 15:00:00-03:00',
+                 '2018-01-12 15:00:00-03:00 to 2018-01-13 15:00:00-03:00',
+                 '2018-01-13 15:00:00-03:00 to 2018-01-14 15:00:00-03:00'])
+ 
+    def test_occurrences_end_in_diff_tz(self):
+        event = Event.objects.filter(title='Test event').get()
+        AMSTERDAM = pytz.timezone('Europe/Amsterdam')
+        # 2017-01-14 00:00 CET = 2017-01-13 21:00 UYT
+        event.end_recurring_period = AMSTERDAM.localize(datetime.datetime(2017, 1, 14, 0, 0))
+        start = self.MVD.localize(datetime.datetime(2017, 1, 13))
+
+        period = Week([event], start, tzinfo=self.MVD)
+        occs = period.occurrences
+ 
+        self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
+                ['2017-01-13 15:00:00-03:00 to 2017-01-14 15:00:00-03:00'])
+ 
 class TestAwareDay(TestCase):
     def setUp(self):
         self.timezone = pytz.timezone('Europe/Amsterdam')
