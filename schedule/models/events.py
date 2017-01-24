@@ -187,7 +187,9 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         else:
             dtstart = tzinfo.normalize(self.start).replace(tzinfo=None)
 
-        if timezone.is_naive(self.end_recurring_period):
+        if self.end_recurring_period is None:
+            until = None
+        elif timezone.is_naive(self.end_recurring_period):
             until = self.end_recurring_period
         else:
             until = tzinfo.normalize(
