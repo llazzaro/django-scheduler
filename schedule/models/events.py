@@ -187,7 +187,15 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         else:
             dtstart = tzinfo.normalize(self.start).replace(tzinfo=None)
 
-        return rrule.rrule(frequency, dtstart=dtstart, **params)
+        if self.end_recurring_period is None:
+            until = None
+        elif timezone.is_naive(self.end_recurring_period):
+            until = self.end_recurring_period
+        else:
+            until = tzinfo.normalize(
+                    self.end_recurring_period.astimezone(tzinfo)).replace(tzinfo=None)
+
+        return rrule.rrule(frequency, dtstart=dtstart, until=until, **params)
 
     def _create_occurrence(self, start, end=None):
         if end is None:
@@ -295,8 +303,6 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         loop_counter = 0
         for o_start in date_iter:
             o_start = tzinfo.localize(o_start)
-            if self.end_recurring_period and self.end_recurring_period and o_start > self.end_recurring_period:
-                break
             o_end = o_start + difference
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)
