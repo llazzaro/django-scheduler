@@ -37,4 +37,3 @@ class TestScheduleForms(TestCase):
         self.assertEqual(form.errors['end'][0], u"This field is required.")
         self.assertEqual(len(form.errors['start']), 1)
         self.assertEqual(form.errors['start'][0], u"This field is required.")
-

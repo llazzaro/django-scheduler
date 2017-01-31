@@ -4,8 +4,8 @@ from django.test import TestCase
 
 from schedule.feeds.atom import rfc3339_date, get_tag_uri
 
-class Testatom(TestCase):
 
+class Testatom(TestCase):
     def test_rfc3339_date(self):
         date = datetime.datetime(2014, 2, 25, 19, 30, 40, 573234)
         result = rfc3339_date(date)

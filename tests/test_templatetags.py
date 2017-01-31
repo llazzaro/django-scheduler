@@ -12,12 +12,15 @@ from schedule.templatetags.scheduletags import querystring_for_date, prev_url, \
 
 class TestTemplateTags(TestCase):
     def setUp(self):
-        self.day = Day(events=Event.objects.all(),
-                       date=datetime.datetime(datetime.datetime.now().year, 2, 7, 0, 0, tzinfo=pytz.utc))
-        self.day_out_of_limit = Day(events=Event.objects.all(),
-                       date=datetime.datetime(datetime.datetime.now().year + 3, 2, 7, 0, 0, tzinfo=pytz.utc))
-        self.day_out_of_limit_lower = Day(events=Event.objects.all(),
-                       date=datetime.datetime(datetime.datetime.now().year - 3, 2, 7, 0, 0, tzinfo=pytz.utc))
+        self.day = Day(
+            events=Event.objects.all(),
+            date=datetime.datetime(datetime.datetime.now().year, 2, 7, 0, 0, tzinfo=pytz.utc))
+        self.day_out_of_limit = Day(
+            events=Event.objects.all(),
+            date=datetime.datetime(datetime.datetime.now().year + 3, 2, 7, 0, 0, tzinfo=pytz.utc))
+        self.day_out_of_limit_lower = Day(
+            events=Event.objects.all(),
+            date=datetime.datetime(datetime.datetime.now().year - 3, 2, 7, 0, 0, tzinfo=pytz.utc))
 
         rule = Rule(frequency='WEEKLY')
         rule.save()
@@ -41,7 +44,8 @@ class TestTemplateTags(TestCase):
     def test_querystring_for_datetime(self):
         date = datetime.datetime(datetime.datetime.now().year, 1, 1, 0, 0, 0)
         query_string = querystring_for_date(date)
-        self.assertEqual(escape('?year={0}&month=1&day=1&hour=0&minute=0&second=0'.format(datetime.datetime.now().year)),
+        self.assertEqual(
+            escape('?year={0}&month=1&day=1&hour=0&minute=0&second=0'.format(datetime.datetime.now().year)),
             query_string)
 
     def test_prev_url(self):

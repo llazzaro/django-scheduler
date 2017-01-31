@@ -5,47 +5,51 @@ import pytz
 
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils import timezone
 from django.conf import settings
 
 from schedule.models import Event, Rule, Calendar
 from schedule.periods import Period, Month, Day, Year, Week
 
-class TestPeriod(TestCase):
 
+class TestPeriod(TestCase):
     def setUp(self):
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency="WEEKLY")
         rule.save()
         cal = Calendar(name="MyCal")
         cal.save()
         data = {
-                'title': 'Recent Event',
-                'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-                'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-                'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-                'rule': rule,
-                'calendar': cal
-               }
+            'title': 'Recent Event',
+            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            'rule': rule,
+            'calendar': cal,
+        }
         recurring_event = Event(**data)
         recurring_event.save()
-        self.period = Period(events=Event.objects.all(),
-                            start = datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
-                            end = datetime.datetime(2008, 1, 21, 7, 0, tzinfo=pytz.utc))
+        self.period = Period(
+            events=Event.objects.all(),
+            start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 21, 7, 0, tzinfo=pytz.utc))
 
     def test_get_occurrences(self):
         occurrence_list = self.period.occurrences
-        self.assertEqual(["%s to %s" %(o.start, o.end) for o in occurrence_list],
-                ['2008-01-05 08:00:00+00:00 to 2008-01-05 09:00:00+00:00',
-                 '2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00',
-                 '2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00'])
+        self.assertEqual(
+            ["%s to %s" % (o.start, o.end) for o in occurrence_list],
+            [
+                '2008-01-05 08:00:00+00:00 to 2008-01-05 09:00:00+00:00',
+                '2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00',
+                '2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00',
+            ]
+        )
 
     def test_get_occurrence_partials(self):
         occurrence_dicts = self.period.get_occurrence_partials()
         self.assertEqual(
-            [(occ_dict["class"],
-            occ_dict["occurrence"].start,
-            occ_dict["occurrence"].end)
-            for occ_dict in occurrence_dicts],
+            [
+                (occ_dict["class"], occ_dict["occurrence"].start, occ_dict["occurrence"].end)
+                for occ_dict in occurrence_dicts
+            ],
             [
                 (1,
                  datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
@@ -60,8 +64,9 @@ class TestPeriod(TestCase):
 
     def test_has_occurrence(self):
         self.assertTrue(self.period.has_occurrences())
-        slot = self.period.get_time_slot( datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
-                                          datetime.datetime(2008, 1, 4, 7, 12, tzinfo=pytz.utc) )
+        slot = self.period.get_time_slot(
+            datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
+            datetime.datetime(2008, 1, 4, 7, 12, tzinfo=pytz.utc))
         self.assertFalse(slot.has_occurrences())
 
 
@@ -72,25 +77,26 @@ class TestYear(TestCase):
 
     def test_get_months(self):
         months = self.year.get_months()
-        self.assertEqual([month.start for month in months],
-            [datetime.datetime(2008, i, 1, tzinfo=pytz.utc) for i in range(1,13)])
+        self.assertEqual(
+            [month.start for month in months],
+            [datetime.datetime(2008, i, 1, tzinfo=pytz.utc) for i in range(1, 13)])
 
 
 class TestMonth(TestCase):
 
     def setUp(self):
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency="WEEKLY")
         rule.save()
         cal = Calendar(name="MyCal")
         cal.save()
         data = {
-                'title': 'Recent Event',
-                'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-                'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-                'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-                'rule': rule,
-                'calendar': cal
-               }
+            'title': 'Recent Event',
+            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            'rule': rule,
+            'calendar': cal
+        }
         recurring_event = Event(**data)
         recurring_event.save()
         self.month = Month(events=Event.objects.all(),
@@ -134,7 +140,7 @@ class TestMonth(TestCase):
         weeks = self.month.get_weeks()
         week = list(weeks)[0]
         days = week.get_days()
-        actuals = [(len(day.occurrences), day.start,day.end) for day in days]
+        actuals = [(len(day.occurrences), day.start, day.end) for day in days]
 
         if settings.FIRST_DAY_OF_WEEK == 0:
             expecteds = [
@@ -196,34 +202,34 @@ class TestMonth(TestCase):
         for actual, expected in zip(actuals, expecteds):
             self.assertEqual(actual, expected)
 
-
     def test_month_convenience_functions(self):
-        self.assertEqual( self.month.prev_month().start, datetime.datetime(2008, 1, 1, 0, 0, tzinfo=pytz.utc))
-        self.assertEqual( self.month.next_month().start, datetime.datetime(2008, 3, 1, 0, 0, tzinfo=pytz.utc))
-        self.assertEqual( self.month.current_year().start, datetime.datetime(2008, 1, 1, 0, 0, tzinfo=pytz.utc))
-        self.assertEqual( self.month.prev_year().start, datetime.datetime(2007, 1, 1, 0, 0, tzinfo=pytz.utc))
-        self.assertEqual( self.month.next_year().start, datetime.datetime(2009, 1, 1, 0, 0, tzinfo=pytz.utc))
+        self.assertEqual(self.month.prev_month().start, datetime.datetime(2008, 1, 1, 0, 0, tzinfo=pytz.utc))
+        self.assertEqual(self.month.next_month().start, datetime.datetime(2008, 3, 1, 0, 0, tzinfo=pytz.utc))
+        self.assertEqual(self.month.current_year().start, datetime.datetime(2008, 1, 1, 0, 0, tzinfo=pytz.utc))
+        self.assertEqual(self.month.prev_year().start, datetime.datetime(2007, 1, 1, 0, 0, tzinfo=pytz.utc))
+        self.assertEqual(self.month.next_year().start, datetime.datetime(2009, 1, 1, 0, 0, tzinfo=pytz.utc))
 
 
 class TestDay(TestCase):
     def setUp(self):
-        self.day = Day(events=Event.objects.all(),
-                           date=datetime.datetime(2008, 2, 7, 9, 0, tzinfo=pytz.utc))
+        self.day = Day(
+            events=Event.objects.all(),
+            date=datetime.datetime(2008, 2, 7, 9, 0, tzinfo=pytz.utc))
 
     def test_day_setup(self):
-        self.assertEqual( self.day.start, datetime.datetime(2008, 2, 7, 0, 0, tzinfo=pytz.utc))
-        self.assertEqual( self.day.end, datetime.datetime(2008, 2, 8, 0, 0, tzinfo=pytz.utc))
+        self.assertEqual(self.day.start, datetime.datetime(2008, 2, 7, 0, 0, tzinfo=pytz.utc))
+        self.assertEqual(self.day.end, datetime.datetime(2008, 2, 8, 0, 0, tzinfo=pytz.utc))
 
     def test_day_convenience_functions(self):
-        self.assertEqual( self.day.prev_day().start, datetime.datetime(2008, 2, 6, 0, 0, tzinfo=pytz.utc))
-        self.assertEqual( self.day.next_day().start, datetime.datetime(2008, 2, 8, 0, 0, tzinfo=pytz.utc))
+        self.assertEqual(self.day.prev_day().start, datetime.datetime(2008, 2, 6, 0, 0, tzinfo=pytz.utc))
+        self.assertEqual(self.day.next_day().start, datetime.datetime(2008, 2, 8, 0, 0, tzinfo=pytz.utc))
 
     def test_time_slot(self):
         slot_start = datetime.datetime(2008, 2, 7, 13, 30, tzinfo=pytz.utc)
         slot_end = datetime.datetime(2008, 2, 7, 15, 0, tzinfo=pytz.utc)
-        period = self.day.get_time_slot( slot_start, slot_end )
-        self.assertEqual( period.start, slot_start )
-        self.assertEqual( period.end, slot_end )
+        period = self.day.get_time_slot(slot_start, slot_end)
+        self.assertEqual(period.start, slot_start)
+        self.assertEqual(period.end, slot_end)
 
     def test_time_slot_with_dst(self):
         tzinfo = pytz.timezone('America/Vancouver')
@@ -255,25 +261,25 @@ class TestDay(TestCase):
         expected_start = datetime.datetime(2015, 11, 4, 5, 00, tzinfo=pytz.utc)
         expected_end = datetime.datetime(2015, 11, 5, 5, 00, tzinfo=pytz.utc)
 
-        self.assertEqual( test_day.start, expected_start)
-        self.assertEqual( test_day.end, expected_end)
+        self.assertEqual(test_day.start, expected_start)
+        self.assertEqual(test_day.end, expected_end)
 
 
 class TestOccurrencePool(TestCase):
 
     def setUp(self):
-        rule = Rule(frequency = "WEEKLY")
+        rule = Rule(frequency="WEEKLY")
         rule.save()
         cal = Calendar(name="MyCal")
         cal.save()
         data = {
-                'title': 'Recent Event',
-                'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-                'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-                'end_recurring_period' : datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-                'rule': rule,
-                'calendar': cal
-               }
+            'title': 'Recent Event',
+            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            'rule': rule,
+            'calendar': cal
+        }
         self.recurring_event = Event(**data)
         self.recurring_event.save()
 
@@ -288,6 +294,7 @@ class TestOccurrencePool(TestCase):
         period = Period(parent_period.events, start, end, parent_period.get_persisted_occurrences(), parent_period.occurrences)
         self.assertEqual(parent_period.occurrences, period.occurrences)
 
+
 class TestOccurrencesInTimezone(TestCase):
 
     def setUp(self):
@@ -297,26 +304,30 @@ class TestOccurrencesInTimezone(TestCase):
         rule = Rule(frequency="DAILY", params="byweekday:SA", name="Saturdays")
         rule.save()
         data = {
-                'title': 'Every Saturday Event',
-                'start': self.MVD.localize(datetime.datetime(2017, 1, 7, 22, 0)),
-                'end': self.MVD.localize(datetime.datetime(2017, 1, 7, 23, 0)),
-                'end_recurring_period' : self.MVD.localize(datetime.datetime(2017, 2, 1)),
-                'rule': rule,
-                'calendar': cal
-               }
+            'title': 'Every Saturday Event',
+            'start': self.MVD.localize(datetime.datetime(2017, 1, 7, 22, 0)),
+            'end': self.MVD.localize(datetime.datetime(2017, 1, 7, 23, 0)),
+            'end_recurring_period': self.MVD.localize(datetime.datetime(2017, 2, 1)),
+            'rule': rule,
+            'calendar': cal,
+        }
         recurring_event = Event(**data)
         recurring_event.save()
- 
+
     @override_settings(TIME_ZONE='America/Montevideo')
     def test_occurrences_with_TZ(self):
         start = self.MVD.localize(datetime.datetime(2017, 1, 13))
         end = self.MVD.localize(datetime.datetime(2017, 1, 23))
 
         period = Period(Event.objects.all(), start, end, tzinfo=self.MVD)
-        self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
-                ['2017-01-14 22:00:00-03:00 to 2017-01-14 23:00:00-03:00',
-                 '2017-01-21 22:00:00-03:00 to 2017-01-21 23:00:00-03:00'])
- 
+        self.assertEqual(
+            ["%s to %s" % (o.start, o.end) for o in period.occurrences],
+            [
+                '2017-01-14 22:00:00-03:00 to 2017-01-14 23:00:00-03:00',
+                '2017-01-21 22:00:00-03:00 to 2017-01-21 23:00:00-03:00',
+            ]
+        )
+
     @override_settings(TIME_ZONE='America/Montevideo')
     def test_occurrences_sub_period_with_TZ(self):
         start = self.MVD.localize(datetime.datetime(2017, 1, 13))
@@ -327,8 +338,10 @@ class TestOccurrencesInTimezone(TestCase):
         sub_start = self.MVD.localize(datetime.datetime(2017, 1, 13))
         sub_end = self.MVD.localize(datetime.datetime(2017, 1, 15))
         sub_period = period.get_time_slot(sub_start, sub_end)
-        self.assertEqual(["%s to %s" % (o.start, o.end) for o in sub_period.occurrences],
-                ['2017-01-14 22:00:00-03:00 to 2017-01-14 23:00:00-03:00'])
+        self.assertEqual(
+            ["%s to %s" % (o.start, o.end) for o in sub_period.occurrences],
+            ['2017-01-14 22:00:00-03:00 to 2017-01-14 23:00:00-03:00'])
+
 
 class TestWeeklyOccurrences(TestCase):
 
@@ -339,13 +352,13 @@ class TestWeeklyOccurrences(TestCase):
         rule = Rule(frequency="DAILY", name="daily")
         rule.save()
         data = {
-                'title': 'Test event',
-                'start': self.MVD.localize(datetime.datetime(2017, 1, 13, 15, 0)),
-                'end': self.MVD.localize(datetime.datetime(2017, 1, 14, 15, 0)),
-                'end_recurring_period' : self.MVD.localize(datetime.datetime(2017, 1, 20)),
-                'rule': rule,
-                'calendar': cal
-               }
+            'title': 'Test event',
+            'start': self.MVD.localize(datetime.datetime(2017, 1, 13, 15, 0)),
+            'end': self.MVD.localize(datetime.datetime(2017, 1, 14, 15, 0)),
+            'end_recurring_period': self.MVD.localize(datetime.datetime(2017, 1, 20)),
+            'rule': rule,
+            'calendar': cal
+        }
         recurring_event = Event(**data)
         recurring_event.save()
 
@@ -354,17 +367,20 @@ class TestWeeklyOccurrences(TestCase):
 
         period = Week(Event.objects.all(), start, tzinfo=self.MVD)
 
-        self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
-                ['2017-01-13 15:00:00-03:00 to 2017-01-14 15:00:00-03:00',
-                 '2017-01-14 15:00:00-03:00 to 2017-01-15 15:00:00-03:00'])
+        self.assertEqual(
+            ["%s to %s" % (o.start, o.end) for o in period.occurrences],
+            [
+                '2017-01-13 15:00:00-03:00 to 2017-01-14 15:00:00-03:00',
+                '2017-01-14 15:00:00-03:00 to 2017-01-15 15:00:00-03:00',
+            ]
+        )
 
     def test_occurrences_outside_recurrence_period(self):
         start = self.MVD.localize(datetime.datetime(2017, 1, 23))
 
         period = Week(Event.objects.all(), start, tzinfo=self.MVD)
 
-        self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
-                [])
+        self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences], [])
 
     def test_occurrences_no_end(self):
         event = Event.objects.filter(title='Test event').get()
@@ -373,16 +389,20 @@ class TestWeeklyOccurrences(TestCase):
 
         period = Week([event], start, tzinfo=self.MVD)
 
-        self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
-                ['2018-01-06 15:00:00-03:00 to 2018-01-07 15:00:00-03:00',
-                 '2018-01-07 15:00:00-03:00 to 2018-01-08 15:00:00-03:00',
-                 '2018-01-08 15:00:00-03:00 to 2018-01-09 15:00:00-03:00',
-                 '2018-01-09 15:00:00-03:00 to 2018-01-10 15:00:00-03:00',
-                 '2018-01-10 15:00:00-03:00 to 2018-01-11 15:00:00-03:00',
-                 '2018-01-11 15:00:00-03:00 to 2018-01-12 15:00:00-03:00',
-                 '2018-01-12 15:00:00-03:00 to 2018-01-13 15:00:00-03:00',
-                 '2018-01-13 15:00:00-03:00 to 2018-01-14 15:00:00-03:00'])
- 
+        self.assertEqual(
+            ["%s to %s" % (o.start, o.end) for o in period.occurrences],
+            [
+                '2018-01-06 15:00:00-03:00 to 2018-01-07 15:00:00-03:00',
+                '2018-01-07 15:00:00-03:00 to 2018-01-08 15:00:00-03:00',
+                '2018-01-08 15:00:00-03:00 to 2018-01-09 15:00:00-03:00',
+                '2018-01-09 15:00:00-03:00 to 2018-01-10 15:00:00-03:00',
+                '2018-01-10 15:00:00-03:00 to 2018-01-11 15:00:00-03:00',
+                '2018-01-11 15:00:00-03:00 to 2018-01-12 15:00:00-03:00',
+                '2018-01-12 15:00:00-03:00 to 2018-01-13 15:00:00-03:00',
+                '2018-01-13 15:00:00-03:00 to 2018-01-14 15:00:00-03:00',
+            ]
+        )
+
     def test_occurrences_end_in_diff_tz(self):
         event = Event.objects.filter(title='Test event').get()
         AMSTERDAM = pytz.timezone('Europe/Amsterdam')
@@ -391,10 +411,12 @@ class TestWeeklyOccurrences(TestCase):
         start = self.MVD.localize(datetime.datetime(2017, 1, 13))
 
         period = Week([event], start, tzinfo=self.MVD)
- 
-        self.assertEqual(["%s to %s" % (o.start, o.end) for o in period.occurrences],
-                ['2017-01-13 15:00:00-03:00 to 2017-01-14 15:00:00-03:00'])
- 
+
+        self.assertEqual(
+            ["%s to %s" % (o.start, o.end) for o in period.occurrences],
+            ['2017-01-13 15:00:00-03:00 to 2017-01-14 15:00:00-03:00'])
+
+
 class TestAwareDay(TestCase):
     def setUp(self):
         self.timezone = pytz.timezone('Europe/Amsterdam')
@@ -511,6 +533,7 @@ class TestAwareYear(TestCase):
         self.assertEqual(self.year.tzinfo, self.timezone)
         self.assertEqual(start, self.year.start)
         self.assertEqual(end, self.year.end)
+
 
 class TestStrftimeRefactor(TestCase):
     """

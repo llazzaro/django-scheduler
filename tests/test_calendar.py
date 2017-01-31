@@ -5,11 +5,8 @@ from django.utils import timezone
 
 from schedule.models import Event, Rule, Calendar, CalendarRelation
 
+
 class TestCalendar(TestCase):
-
-    def setup(self):
-        pass
-
     def __create_event(self, start, end):
         data = {
             'title': 'Recent Event',
@@ -81,7 +78,7 @@ class TestCalendar(TestCase):
         calendar_1.create_relation(rule)
         calendar_2.create_relation(rule)
         with self.assertRaises(AssertionError):
-            result = Calendar.objects.get_calendar_for_object(rule)
+            Calendar.objects.get_calendar_for_object(rule)
 
     def test_get_or_create_calendar_for_object_without_calendar(self):
         """
@@ -107,7 +104,7 @@ class TestCalendar(TestCase):
     def test_get_calendars_for_object_without_calendars(self):
         rule = Rule()
         rule.save()
-        calendar = Calendar.objects.get_or_create_calendar_for_object(rule, name='My Cal', distinction='owner')
+        Calendar.objects.get_or_create_calendar_for_object(rule, name='My Cal', distinction='owner')
         rule = Rule()
         rule.save()
         calendars = list(Calendar.objects.get_calendars_for_object(rule, distinction='owner'))
@@ -122,6 +119,6 @@ class TestCalendar(TestCase):
         rule = Rule()
         rule.save()
         calendar = Calendar.objects.get_or_create_calendar_for_object(rule, name='My Cal', distinction='owner')
-        abs_url = calendar.get_absolute_url()
+        calendar.get_absolute_url()
         calendar.add_event_url()
-        relation = CalendarRelation.objects.create_relation(calendar, rule)
+        CalendarRelation.objects.create_relation(calendar, rule)
