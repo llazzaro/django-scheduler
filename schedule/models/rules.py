@@ -69,7 +69,7 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
         app_label = 'schedule'
 
     def rrule_frequency(self):
-        compatibiliy_dict = {
+        compatibility_dict = {
             'DAILY': DAILY,
             'MONTHLY': MONTHLY,
             'WEEKLY': WEEKLY,
@@ -78,7 +78,7 @@ class Rule(with_metaclass(ModelBase, *get_model_bases())):
             'MINUTELY': MINUTELY,
             'SECONDLY': SECONDLY
         }
-        return compatibiliy_dict[self.frequency]
+        return compatibility_dict[self.frequency]
 
     def _weekday_or_number(self, param):
         '''
