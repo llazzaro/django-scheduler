@@ -119,7 +119,8 @@ class CalendarNode(template.Node):
         return ''
 
 
-def do_get_calendar_for_object(parser, token):
+@register.tag
+def get_calendar(parser, token):
     contents = token.split_contents()
     if len(contents) == 4:
         _, content_object, _, context_var = contents
@@ -143,7 +144,8 @@ class CreateCalendarNode(template.Node):
         return ''
 
 
-def do_get_or_create_calendar_for_object(parser, token):
+@register.tag
+def get_or_create_calendar(parser, token):
     contents = token.split_contents()
     if len(contents) > 2:
         obj = contents[1]
@@ -167,9 +169,6 @@ def do_get_or_create_calendar_for_object(parser, token):
     else:
         raise template.TemplateSyntaxError("%r tag follows form %r <content_object> [named <calendar name>] [by <distinction>] as <context_var>" % (token.split_contents()[0], token.split_contents()[0]))
     return CreateCalendarNode(obj, distinction, context_var, name)
-
-register.tag('get_calendar', do_get_calendar_for_object)
-register.tag('get_or_create_calendar', do_get_or_create_calendar_for_object)
 
 
 @register.simple_tag
