@@ -85,7 +85,7 @@ class TestOccurrence(TestCase):
         """
         may be required for creating formsets, for example in admin
         """
-        o = Occurrence()
+        Occurrence()
 
     def test_get_occurrences_non_intersection_returns_empty_occ(self):
         rule = Rule(frequency="DAILY")

@@ -19,6 +19,8 @@ install:
   - pip install $DJANGO
   - pip install -e .
   - pip install -r requirements.txt
+before_script:
+  - flake8
 script:
   - coverage run runtests.py
   - coverage report -m

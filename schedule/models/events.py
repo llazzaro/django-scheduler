@@ -179,7 +179,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
 
     def get_rrule_object(self, tzinfo):
         if self.rule is None:
-            return 
+            return
         params = self._event_params()
         frequency = self.rule.rrule_frequency()
         if timezone.is_naive(self.start):
@@ -193,7 +193,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             until = self.end_recurring_period
         else:
             until = tzinfo.normalize(
-                    self.end_recurring_period.astimezone(tzinfo)).replace(tzinfo=None)
+                self.end_recurring_period.astimezone(tzinfo)).replace(tzinfo=None)
 
         return rrule.rrule(frequency, dtstart=dtstart, until=until, **params)
 
@@ -253,7 +253,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
             closest_start = start_rule.before(start, inc=False)
             if closest_start is not None and closest_start + duration > start:
                 o_starts.append(closest_start)
-            
+
             # Occurrences starts that happen inside timespan (end-inclusive)
             occs = start_rule.between(start, end, inc=True)
             # The occurrence that start on the end of the timespan is potentially
@@ -362,14 +362,13 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
                     param in start_params):
                 sp = start_params[param]
                 if sp == rule_params[param] or (
-                        hasattr(rule_params[param], '__iter__')
-                        and sp in rule_params[param]):
+                        hasattr(rule_params[param], '__iter__') and
+                        sp in rule_params[param]):
                     event_params[param] = [sp]
                 else:
                     event_params[param] = rule_params[param]
             else:
                 event_params[param] = rule_params[param]
-
 
         return event_params
 

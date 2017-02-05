@@ -18,4 +18,5 @@ def optional_calendar(sender, **kwargs):
         event.calendar = calendar
     return True
 
+
 pre_save.connect(optional_calendar)
