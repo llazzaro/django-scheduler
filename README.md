@@ -99,6 +99,7 @@ Last step, install bower dependencies with:
 ./manage.py bower install
 ```
 
+Remember to execute "python manage.py collectstatic"
 
 Features
 ========
