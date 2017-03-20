@@ -88,6 +88,9 @@ class Event(with_metaclass(ModelBase, *get_model_bases())):
         verbose_name = _('event')
         verbose_name_plural = _('events')
         app_label = 'schedule'
+        permissions = (
+            ('view_event', _('View Event')),
+        )
         index_together = (
             ('start', 'end'),
         )
@@ -559,6 +562,9 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases())):
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
         app_label = 'schedule'
+        permissions = (
+            ('view_event_relation', _('View Event Relation')),
+        )
 
     def __str__(self):
         return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
@@ -581,6 +587,9 @@ class Occurrence(with_metaclass(ModelBase, *get_model_bases())):
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
         app_label = 'schedule'
+        permissions = (
+            ('view_occurrence', _('View Occurrence')),
+        )
         index_together = (
             ('start', 'end'),
         )
