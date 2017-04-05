@@ -5,3 +5,4 @@ django-annoying>=0.10.3
 icalendar>=3.11.2
 python-dateutil>=2.6.0
 pytz>=2016.10
+flake8==3.3.0
