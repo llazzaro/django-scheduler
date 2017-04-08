@@ -33,10 +33,12 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Framework :: Django',
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',
         'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
         'Topic :: Utilities',
     ],
     install_requires=[
@@ -45,7 +47,6 @@ setup(
         'pytz>=2013.9',
         'icalendar>=3.8.4',
         'django-annoying>=0.8.0',
-        'mock>=2.0.0'
     ],
     license='BSD',
     test_suite='runtests.runtests',
