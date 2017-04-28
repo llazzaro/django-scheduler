@@ -9,12 +9,9 @@ def optional_calendar(sender, **kwargs):
     if not isinstance(event, Event):
         return True
     if not event.calendar:
-        try:
-            calendar = Calendar.objects.get(name='default')
-        except Calendar.DoesNotExist:
-            calendar = Calendar(name='default', slug='default')
-            calendar.save()
-
+        calendar, _created = Calendar.objects.get_or_create(
+            name='default',
+            defaults={'slug': 'default'})
         event.calendar = calendar
     return True
 

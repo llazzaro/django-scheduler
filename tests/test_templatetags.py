@@ -22,10 +22,8 @@ class TestTemplateTags(TestCase):
             events=Event.objects.all(),
             date=datetime.datetime(datetime.datetime.now().year - 3, 2, 7, 0, 0, tzinfo=pytz.utc))
 
-        rule = Rule(frequency='WEEKLY')
-        rule.save()
-        self.cal = Calendar(name='MyCal', slug='MyCalSlug')
-        self.cal.save()
+        rule = Rule.objects.create(frequency='WEEKLY')
+        self.cal = Calendar.objects.create(name='MyCal', slug='MyCalSlug')
 
         data = {
             'title': 'Recent Event',
@@ -35,8 +33,7 @@ class TestTemplateTags(TestCase):
             'rule': rule,
             'calendar': self.cal,
         }
-        recurring_event = Event(**data)
-        recurring_event.save()
+        Event.objects.create(**data)
         self.period = Period(events=Event.objects.all(),
                              start=datetime.datetime(datetime.datetime.now().year, 1, 4, 7, 0, tzinfo=pytz.utc),
                              end=datetime.datetime(datetime.datetime.now().year, 1, 21, 7, 0, tzinfo=pytz.utc))
@@ -77,8 +74,7 @@ class TestTemplateTags(TestCase):
         self.assertEqual(query_string['create_event_url'], escape(expected))
 
     def test_all_day_event_cook_slots(self):
-        cal = Calendar(name='MyCal', slug='MyCalSlug')
-        cal.save()
+        Calendar.objects.create(name='MyCal', slug='MyCalSlug')
         start = datetime.datetime(
             datetime.datetime.now().year, 1, 5, 0, 0, tzinfo=pytz.utc)
         end = datetime.datetime(
@@ -89,8 +85,7 @@ class TestTemplateTags(TestCase):
             'end': end,
             'calendar': self.cal,
         }
-        event = Event(**data)
-        event.save()
+        event = Event.objects.create(**data)
         period = Day([event], start, end)
 
         slots = _cook_slots(period, 60)

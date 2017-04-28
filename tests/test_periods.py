@@ -13,10 +13,8 @@ from schedule.periods import Period, Month, Day, Year, Week
 
 class TestPeriod(TestCase):
     def setUp(self):
-        rule = Rule(frequency="WEEKLY")
-        rule.save()
-        cal = Calendar(name="MyCal")
-        cal.save()
+        rule = Rule.objects.create(frequency="WEEKLY")
+        cal = Calendar.objects.create(name="MyCal")
         data = {
             'title': 'Recent Event',
             'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
@@ -25,8 +23,7 @@ class TestPeriod(TestCase):
             'rule': rule,
             'calendar': cal,
         }
-        recurring_event = Event(**data)
-        recurring_event.save()
+        Event.objects.create(**data)
         self.period = Period(
             events=Event.objects.all(),
             start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
@@ -85,10 +82,8 @@ class TestYear(TestCase):
 class TestMonth(TestCase):
 
     def setUp(self):
-        rule = Rule(frequency="WEEKLY")
-        rule.save()
-        cal = Calendar(name="MyCal")
-        cal.save()
+        rule = Rule.objects.create(frequency="WEEKLY")
+        cal = Calendar.objects.create(name="MyCal")
         data = {
             'title': 'Recent Event',
             'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
@@ -97,8 +92,7 @@ class TestMonth(TestCase):
             'rule': rule,
             'calendar': cal
         }
-        recurring_event = Event(**data)
-        recurring_event.save()
+        Event.objects.create(**data)
         self.month = Month(events=Event.objects.all(),
                            date=datetime.datetime(2008, 2, 7, 9, 0, tzinfo=pytz.utc))
 
@@ -268,10 +262,8 @@ class TestDay(TestCase):
 class TestOccurrencePool(TestCase):
 
     def setUp(self):
-        rule = Rule(frequency="WEEKLY")
-        rule.save()
-        cal = Calendar(name="MyCal")
-        cal.save()
+        rule = Rule.objects.create(frequency="WEEKLY")
+        cal = Calendar.objects.create(name="MyCal")
         data = {
             'title': 'Recent Event',
             'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
@@ -280,8 +272,7 @@ class TestOccurrencePool(TestCase):
             'rule': rule,
             'calendar': cal
         }
-        self.recurring_event = Event(**data)
-        self.recurring_event.save()
+        self.recurring_event = Event.objects.create(**data)
 
     def testPeriodFromPool(self):
         """
@@ -299,10 +290,8 @@ class TestOccurrencesInTimezone(TestCase):
 
     def setUp(self):
         self.MVD = pytz.timezone('America/Montevideo')
-        cal = Calendar(name="MyCal")
-        cal.save()
-        rule = Rule(frequency="DAILY", params="byweekday:SA", name="Saturdays")
-        rule.save()
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="DAILY", params="byweekday:SA", name="Saturdays")
         data = {
             'title': 'Every Saturday Event',
             'start': self.MVD.localize(datetime.datetime(2017, 1, 7, 22, 0)),
@@ -311,8 +300,7 @@ class TestOccurrencesInTimezone(TestCase):
             'rule': rule,
             'calendar': cal,
         }
-        recurring_event = Event(**data)
-        recurring_event.save()
+        Event.objects.create(**data)
 
     @override_settings(TIME_ZONE='America/Montevideo')
     def test_occurrences_with_TZ(self):
@@ -347,10 +335,8 @@ class TestWeeklyOccurrences(TestCase):
 
     def setUp(self):
         self.MVD = pytz.timezone('America/Montevideo')  # UTC-3
-        cal = Calendar(name="MyCal")
-        cal.save()
-        rule = Rule(frequency="DAILY", name="daily")
-        rule.save()
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="DAILY", name="daily")
         data = {
             'title': 'Test event',
             'start': self.MVD.localize(datetime.datetime(2017, 1, 13, 15, 0)),
@@ -359,8 +345,7 @@ class TestWeeklyOccurrences(TestCase):
             'rule': rule,
             'calendar': cal
         }
-        recurring_event = Event(**data)
-        recurring_event.save()
+        Event.objects.create(**data)
 
     def test_occurrences_inside_recurrence_period(self):
         start = self.MVD.localize(datetime.datetime(2017, 1, 13))
@@ -423,12 +408,10 @@ class TestAwareDay(TestCase):
 
         start = self.timezone.localize(datetime.datetime(2008, 2, 7, 0, 20))
         end = self.timezone.localize(datetime.datetime(2008, 2, 7, 0, 21))
-        self.event = Event(
+        self.event = Event.objects.create(
             title='One minute long event on january seventh 2008 at 00:20 in Amsterdam.',
             start=start,
-            end=end,
-        )
-        self.event.save()
+            end=end)
 
         self.day = Day(
             events=Event.objects.all(),

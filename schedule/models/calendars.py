@@ -194,13 +194,10 @@ class CalendarRelationManager(models.Manager):
         Creates a relation between calendar and content_object.
         See CalendarRelation for help on distinction and inheritable
         """
-        cr = CalendarRelation(
+        return CalendarRelation.objects.create(
             calendar=calendar,
             distinction=distinction,
-            content_object=content_object
-        )
-        cr.save()
-        return cr
+            content_object=content_object)
 
 
 @python_2_unicode_compatible
