@@ -43,7 +43,7 @@ param_dict_order = {
 
 
 class EventManager(models.Manager):
-    def get_for_object(self, content_object, distinction=None, inherit=True):
+    def get_for_object(self, content_object, distinction='', inherit=True):
         return EventRelation.objects.get_events_for_object(content_object, distinction, inherit)
 
 
@@ -56,7 +56,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases('Event'))):
     start = models.DateTimeField(_("start"), db_index=True)
     end = models.DateTimeField(_("end"), db_index=True, help_text=_("The end time must be later than the start time."))
     title = models.CharField(_("title"), max_length=255)
-    description = models.TextField(_("description"), null=True, blank=True)
+    description = models.TextField(_("description"), blank=True)
     creator = models.ForeignKey(
         django_settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -81,7 +81,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases('Event'))):
         null=True,
         blank=True,
         verbose_name=_("calendar"))
-    color_event = models.CharField(_("Color event"), null=True, blank=True, max_length=10)
+    color_event = models.CharField(_("Color event"), blank=True, max_length=10)
     objects = EventManager()
 
     class Meta(object):
@@ -460,7 +460,7 @@ class EventRelationManager(models.Manager):
     #         eventrelation__event = event
     #     )
 
-    def get_events_for_object(self, content_object, distinction=None, inherit=True):
+    def get_events_for_object(self, content_object, distinction='', inherit=True):
         '''
         returns a queryset full of events, that relate to the object through, the
         distinction
@@ -514,7 +514,7 @@ class EventRelationManager(models.Manager):
         event_q = Q(dist_q, eventrelation__object_id=content_object.id, eventrelation__content_type=ct)
         return Event.objects.filter(inherit_q | event_q)
 
-    def create_relation(self, event, content_object, distinction=None):
+    def create_relation(self, event, content_object, distinction=''):
         """
         Creates a relation between event and content_object.
         See EventRelation for help on distinction.
@@ -551,7 +551,7 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases('EventRelation'))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.IntegerField()
     content_object = fields.GenericForeignKey('content_type', 'object_id')
-    distinction = models.CharField(_("distinction"), max_length=20, null=True)
+    distinction = models.CharField(_("distinction"), max_length=20)
 
     objects = EventRelationManager()
 
@@ -567,8 +567,8 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases('EventRelation'))
 @python_2_unicode_compatible
 class Occurrence(with_metaclass(ModelBase, *get_model_bases('Occurrence'))):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
-    title = models.CharField(_("title"), max_length=255, blank=True, null=True)
-    description = models.TextField(_("description"), blank=True, null=True)
+    title = models.CharField(_("title"), max_length=255, blank=True)
+    description = models.TextField(_("description"), blank=True)
     start = models.DateTimeField(_("start"), db_index=True)
     end = models.DateTimeField(_("end"), db_index=True)
     cancelled = models.BooleanField(_("cancelled"), default=False)
@@ -587,9 +587,9 @@ class Occurrence(with_metaclass(ModelBase, *get_model_bases('Occurrence'))):
 
     def __init__(self, *args, **kwargs):
         super(Occurrence, self).__init__(*args, **kwargs)
-        if self.title is None and self.event_id:
+        if not self.title and self.event_id:
             self.title = self.event.title
-        if self.description is None and self.event_id:
+        if not self.description and self.event_id:
             self.description = self.event.description
 
     def moved(self):
