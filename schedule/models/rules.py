@@ -54,7 +54,7 @@ class Rule(with_metaclass(ModelBase, *get_model_bases('Rule'))):
     name = models.CharField(_("name"), max_length=32)
     description = models.TextField(_("description"))
     frequency = models.CharField(_("frequency"), choices=freqs, max_length=10)
-    params = models.TextField(_("params"), null=True, blank=True)
+    params = models.TextField(_("params"), blank=True)
 
     _week_days = {'MO': MO,
                   'TU': TU,
@@ -99,8 +99,6 @@ class Rule(with_metaclass(ModelBase, *get_model_bases('Rule'))):
         >>> rule.get_params()
         {'count': 1, 'byminute': [1, 2, 4, 5], 'bysecond': 1}
         """
-        if self.params is None:
-            return {}
         params = self.params.split(';')
         param_dict = []
         for param in params:
