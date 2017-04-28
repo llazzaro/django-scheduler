@@ -10,10 +10,8 @@ from schedule.periods import Period
 
 class TestOccurrence(TestCase):
     def setUp(self):
-        rule = Rule(frequency="WEEKLY")
-        rule.save()
-        cal = Calendar(name="MyCal")
-        cal.save()
+        rule = Rule.objects.create(frequency="WEEKLY")
+        cal = Calendar.objects.create(name="MyCal")
         self.recurring_data = {
             'title': 'Recent Event',
             'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
@@ -88,10 +86,8 @@ class TestOccurrence(TestCase):
         Occurrence()
 
     def test_get_occurrences_non_intersection_returns_empty_occ(self):
-        rule = Rule(frequency="DAILY")
-        rule.save()
-        cal = Calendar(name="MyCal")
-        cal.save()
+        rule = Rule.objects.create(frequency="DAILY")
+        cal = Calendar.objects.create(name="MyCal")
         recurring_data = {
             'title': 'Recent Event',
             'start': datetime.datetime(2016, 1, 5, 8, 0, tzinfo=pytz.utc),
@@ -105,10 +101,8 @@ class TestOccurrence(TestCase):
         self.assertEqual(occurrences, [])
 
     def test_get_occurrences_is_sorted(self):
-        rule = Rule(frequency="DAILY")
-        rule.save()
-        cal = Calendar(name="MyCal")
-        cal.save()
+        rule = Rule.objects.create(frequency="DAILY")
+        cal = Calendar.objects.create(name="MyCal")
         recurring_data = {
             'title': 'Recent Event',
             'start': datetime.datetime(2016, 1, 5, 8, 0, tzinfo=pytz.utc),

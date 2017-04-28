@@ -519,13 +519,10 @@ class EventRelationManager(models.Manager):
         Creates a relation between event and content_object.
         See EventRelation for help on distinction.
         """
-        er = EventRelation(
+        return EventRelation.objects.create(
             event=event,
             distinction=distinction,
-            content_object=content_object
-        )
-        er.save()
-        return er
+            content_object=content_object)
 
 
 @python_2_unicode_compatible

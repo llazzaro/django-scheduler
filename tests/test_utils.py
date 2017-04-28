@@ -17,7 +17,7 @@ class TestEventListManager(TestCase):
         cal = Calendar.objects.create(name="MyCal")
         self.default_tzinfo = timezone.get_default_timezone()
 
-        self.event1 = Event(**{
+        self.event1 = Event.objects.create(**{
             'title': 'Weekly Event',
             'start': datetime.datetime(2009, 4, 1, 8, 0, tzinfo=self.default_tzinfo),
             'end': datetime.datetime(2009, 4, 1, 9, 0, tzinfo=self.default_tzinfo),
@@ -25,8 +25,7 @@ class TestEventListManager(TestCase):
             'rule': weekly,
             'calendar': cal
         })
-        self.event1.save()
-        self.event2 = Event(**{
+        self.event2 = Event.objects.create(**{
             'title': 'Recent Event',
             'start': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=self.default_tzinfo),
             'end': datetime.datetime(2008, 1, 5, 10, 0, tzinfo=self.default_tzinfo),
@@ -34,7 +33,6 @@ class TestEventListManager(TestCase):
             'rule': daily,
             'calendar': cal
         })
-        self.event2.save()
 
     def test_occurrences_after(self):
         eml = EventListManager([self.event1, self.event2])
@@ -61,7 +59,7 @@ class TestOccurrenceReplacer(TestCase):
         self.default_tzinfo = timezone.get_default_timezone()
         self.start = timezone.now() - datetime.timedelta(days=10)
         self.end = self.start + datetime.timedelta(days=300)
-        self.event1 = Event(**{
+        self.event1 = Event.objects.create(**{
             'title': 'Weekly Event',
             'start': self.start,
             'end': self.end,
@@ -69,11 +67,14 @@ class TestOccurrenceReplacer(TestCase):
             'rule': weekly,
             'calendar': cal
         })
-        self.event1.save()
-        self.occ = Occurrence(event=self.event1, start=self.start, end=self.end, original_start=self.start, original_end=self.end)
-        self.occ.save()
+        self.occ = Occurrence.objects.create(
+            event=self.event1,
+            start=self.start,
+            end=self.end,
+            original_start=self.start,
+            original_end=self.end)
 
-        self.event2 = Event(**{
+        self.event2 = Event.objects.create(**{
             'title': 'Recent Event',
             'start': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=self.default_tzinfo),
             'end': datetime.datetime(2008, 1, 5, 10, 0, tzinfo=self.default_tzinfo),
@@ -81,11 +82,14 @@ class TestOccurrenceReplacer(TestCase):
             'rule': daily,
             'calendar': cal
         })
-        self.event2.save()
 
     def test_has_occurrence(self):
-        other_occ = Occurrence(event=self.event1, start=self.start, end=self.end, original_start=self.start, original_end=self.end)
-        other_occ.save()
+        other_occ = Occurrence.objects.create(
+            event=self.event1,
+            start=self.start,
+            end=self.end,
+            original_start=self.start,
+            original_end=self.end)
         occ_replacer = OccurrenceReplacer([self.occ])
 
         assert occ_replacer.has_occurrence(self.occ)
@@ -93,8 +97,12 @@ class TestOccurrenceReplacer(TestCase):
         assert occ_replacer.has_occurrence(other_occ)
 
     def test_has_occurrence_with_other_event(self):
-        other_occ = Occurrence(event=self.event2, start=self.start, end=self.end, original_start=self.start, original_end=self.end)
-        other_occ.save()
+        other_occ = Occurrence.objects.create(
+            event=self.event2,
+            start=self.start,
+            end=self.end,
+            original_start=self.start,
+            original_end=self.end)
         occ_replacer = OccurrenceReplacer([self.occ])
 
         assert occ_replacer.has_occurrence(self.occ)
@@ -103,8 +111,13 @@ class TestOccurrenceReplacer(TestCase):
 
     def test_get_additional_occurrences(self):
         occ_replacer = OccurrenceReplacer([self.occ])
-        other_occ = Occurrence(event=self.event2, start=self.start + datetime.timedelta(days=5), end=self.end, original_start=self.start, original_end=self.end)
-        other_occ.save()
+        # Other occurrence.
+        Occurrence.objects.create(
+            event=self.event2,
+            start=self.start + datetime.timedelta(days=5),
+            end=self.end,
+            original_start=self.start,
+            original_end=self.end)
         res = occ_replacer.get_additional_occurrences(self.start, self.end)
         assert [self.occ] == res
 
