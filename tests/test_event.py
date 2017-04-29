@@ -15,7 +15,7 @@ class TestEvent(TestCase):
         Calendar.objects.create(name="MyCal")
 
     def __create_event(self, title, start, end, cal):
-        return Event(
+        return Event.objects.create(
             title=title,
             start=start,
             end=end,
@@ -23,7 +23,7 @@ class TestEvent(TestCase):
         )
 
     def __create_recurring_event(self, title, start, end, end_recurring, rule, cal):
-        return Event(
+        return Event.objects.create(
             title=title,
             start=start,
             end=end,
@@ -69,7 +69,6 @@ class TestEvent(TestCase):
             rule,
             cal,
         )
-        recurring_event.save()
         occurrences = recurring_event.get_occurrences(start=datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc),
                                                       end=datetime.datetime(2008, 1, 20, 0, 0, tzinfo=pytz.utc))
         self.assertEqual(
@@ -105,8 +104,6 @@ class TestEvent(TestCase):
             datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc),
             cal
         )
-        event_one.save()
-        event_two.save()
         occurrences_two = event_two.get_occurrences(
             datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
             datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc))
@@ -131,7 +128,6 @@ class TestEvent(TestCase):
             rule,
             cal
         )
-        recurring_event.save()
         occurrences = recurring_event.get_occurrences(
             start=datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc),
             end=datetime.datetime(2008, 1, 20, 0, 0, tzinfo=pytz.utc))
@@ -156,8 +152,6 @@ class TestEvent(TestCase):
             rule,
             cal,
         )
-
-        recurring_event.save()
         occurrences = recurring_event.get_occurrences(
             start=datetime.datetime(2008, 1, 5, tzinfo=pytz.utc),
             end=datetime.datetime(2008, 1, 6, tzinfo=pytz.utc))
@@ -176,8 +170,6 @@ class TestEvent(TestCase):
             rule,
             cal,
         )
-
-        recurring_event.save()
         occurrence = recurring_event.get_occurrence(datetime.datetime(2008, 1, 12, 8, 0, tzinfo=pytz.utc))
         occurrence.move(
             datetime.datetime(2008, 1, 15, 8, 0, tzinfo=pytz.utc),
@@ -200,7 +192,6 @@ class TestEvent(TestCase):
             rule,
             cal,
         )
-        event.save()
         occurrence = event.get_occurrence(datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc))
         self.assertEqual(occurrence.start, datetime.datetime(2008, 1, 5, 8, tzinfo=pytz.utc))
         occurrence.save()
@@ -272,7 +263,6 @@ class TestEvent(TestCase):
             start,
             start + datetime.timedelta(hours=1),
             cal)
-        event.save()
         occurrence = event.get_occurrence(start)
         self.assertEqual(occurrence.start, start)
 
@@ -284,7 +274,6 @@ class TestEvent(TestCase):
             start,
             start + datetime.timedelta(hours=1),
             cal)
-        event.save()
         occurrences = list(event.occurrences_after())
         self.assertEqual(len(occurrences), 1)
         self.assertEqual(occurrences[0].start, start)
@@ -301,7 +290,6 @@ class TestEvent(TestCase):
             start + datetime.timedelta(days=10),
             rule,
             cal)
-        event.save()
         occurrences = list(event.occurrences_after())
         self.assertEqual(len(occurrences), 11)
 
@@ -316,7 +304,6 @@ class TestEvent(TestCase):
             start + datetime.timedelta(days=10),
             rule,
             cal)
-        event.save()
         occurrences = list(event.occurrences_after(max_occurrences=4))
         self.assertEqual(len(occurrences), 4)
 
@@ -331,7 +318,6 @@ class TestEvent(TestCase):
             start + datetime.timedelta(days=10),
             rule,
             cal)
-        event.save()
         occurrences = list(event.occurrences_after(max_occurrences=20))
         self.assertEqual(len(occurrences), 11)
 
@@ -346,7 +332,6 @@ class TestEvent(TestCase):
             start + datetime.timedelta(hours=10),
             rule,
             cal)
-        event.save()
         occurrences = list(event.occurrences_after(max_occurrences=1))
         self.assertEqual(len(occurrences), 1)
 
@@ -363,7 +348,6 @@ class TestEvent(TestCase):
             datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
             cal
         )
-        event.save()
         events = list(Event.objects.get_for_object(user, 'owner', inherit=False))
         self.assertEqual(len(events), 0)
         EventRelation.objects.create_relation(event, user, 'owner')
@@ -383,7 +367,6 @@ class TestEvent(TestCase):
             start + datetime.timedelta(days=10),
             rule,
             cal)
-        event.save()
         url = event.get_absolute_url()
         self.assertEqual(reverse('event', kwargs={'event_id': event.id}), url)
 
@@ -402,7 +385,6 @@ class TestEvent(TestCase):
             rule,
             cal,
         )
-        event.save()
         tzinfo = pytz.timezone('Europe/Helsinki')
         start = tzinfo.localize(datetime.datetime(2014, 3, 28, 8, 0))  # +2
         occurrence = event.get_occurrence(start)
@@ -424,8 +406,6 @@ class TestEvent(TestCase):
             Rule.objects.create(frequency="DAILY"),
             Calendar.objects.create(name='MyCal'),
         )
-        event.save()
-
         tzinfo = pytz.timezone('Europe/Athens')
         occurrences = event.get_occurrences(
             tzinfo.localize(datetime.datetime(2016, 1, 1, 0, 0)),
@@ -445,8 +425,6 @@ class TestEvent(TestCase):
             Rule.objects.create(frequency="WEEKLY"),
             Calendar.objects.create(name='MyCal'),
         )
-        event.save()
-
         occs = event.get_occurrences(
             e_start,
             pacific.localize(datetime.datetime(2015, 3, 11, 10, 0))
