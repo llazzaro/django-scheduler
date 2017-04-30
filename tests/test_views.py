@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import datetime
 import json
 import pytz
@@ -208,7 +210,7 @@ class TestUrls(TestCase):
             reverse("api_occurences") + "?calendar={}&start={}&end={}".format(
                 'MyCal', datetime.datetime(2008, 1, 5), datetime.datetime(2008, 1, 6)))
         self.assertEqual(response.status_code, 200)
-        expected_content = [{u'existed': False, u'end': u'2008-01-05T09:00:00+00:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-05-05T00:00:00+00:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-05T08:00:00+00:00', u'id': 9}]
+        expected_content = [{'existed': False, 'end': '2008-01-05T09:00:00+00:00', 'description': '', 'creator': 'None', 'color': '', 'title': 'Recent Event', 'rule': '', 'event_id': 8, 'end_recurring_period': '2008-05-05T00:00:00+00:00', 'cancelled': False, 'calendar': 'MyCalSlug', 'start': '2008-01-05T08:00:00+00:00', 'id': 9}]
         self.assertEqual(json.loads(response.content.decode()), expected_content)
 
     def test_occurences_api_without_parameters_return_status_400(self):
@@ -251,7 +253,7 @@ class TestUrls(TestCase):
                 datetime.datetime(2008, 1, 5),
                 datetime.datetime(2008, 1, 8)))
         self.assertEqual(response.status_code, 200)
-        expected_content = [{u'existed': False, u'end': u'2008-01-05T09:00:00+00:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-08T00:00:00+00:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-05T08:00:00+00:00', u'id': 10}, {u'existed': False, u'end': u'2008-01-06T09:00:00+00:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-08T00:00:00+00:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-06T08:00:00+00:00', u'id': 10}, {u'existed': False, u'end': u'2008-01-07T09:00:00+00:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-08T00:00:00+00:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-07T08:00:00+00:00', u'id': 10}, {u'existed': True, u'end': u'2008-01-07T08:00:00+00:00', u'description': u'Persisted occ test', u'creator': u'None', u'color': '', u'title': u'My persisted Occ', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-08T00:00:00+00:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-07T08:00:00+00:00', u'id': 1}]
+        expected_content = [{'existed': False, 'end': '2008-01-05T09:00:00+00:00', 'description': '', 'creator': 'None', 'color': '', 'title': 'Recent Event', 'rule': '', 'event_id': 8, 'end_recurring_period': '2008-01-08T00:00:00+00:00', 'cancelled': False, 'calendar': 'MyCalSlug', 'start': '2008-01-05T08:00:00+00:00', 'id': 10}, {'existed': False, 'end': '2008-01-06T09:00:00+00:00', 'description': '', 'creator': 'None', 'color': '', 'title': 'Recent Event', 'rule': '', 'event_id': 8, 'end_recurring_period': '2008-01-08T00:00:00+00:00', 'cancelled': False, 'calendar': 'MyCalSlug', 'start': '2008-01-06T08:00:00+00:00', 'id': 10}, {'existed': False, 'end': '2008-01-07T09:00:00+00:00', 'description': '', 'creator': 'None', 'color': '', 'title': 'Recent Event', 'rule': '', 'event_id': 8, 'end_recurring_period': '2008-01-08T00:00:00+00:00', 'cancelled': False, 'calendar': 'MyCalSlug', 'start': '2008-01-07T08:00:00+00:00', 'id': 10}, {'existed': True, 'end': '2008-01-07T08:00:00+00:00', 'description': 'Persisted occ test', 'creator': 'None', 'color': '', 'title': 'My persisted Occ', 'rule': '', 'event_id': 8, 'end_recurring_period': '2008-01-08T00:00:00+00:00', 'cancelled': False, 'calendar': 'MyCalSlug', 'start': '2008-01-07T08:00:00+00:00', 'id': 1}]
         self.assertEqual(json.loads(response.content.decode()), expected_content)
 
     def test_occurences_api_works_with_and_without_cal_slug(self):
