@@ -253,7 +253,7 @@ class TestUrls(TestCase):
         self.assertEqual(response.status_code, 200)
         expected_content = [{u'existed': False, u'end': u'2008-01-05T09:00:00+00:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-08T00:00:00+00:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-05T08:00:00+00:00', u'id': 10}, {u'existed': False, u'end': u'2008-01-06T09:00:00+00:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-08T00:00:00+00:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-06T08:00:00+00:00', u'id': 10}, {u'existed': False, u'end': u'2008-01-07T09:00:00+00:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-08T00:00:00+00:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-07T08:00:00+00:00', u'id': 10}, {u'existed': True, u'end': u'2008-01-07T08:00:00+00:00', u'description': u'Persisted occ test', u'creator': u'None', u'color': '', u'title': u'My persisted Occ', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-08T00:00:00+00:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-07T08:00:00+00:00', u'id': 1}]
         self.assertEqual(json.loads(response.content.decode()), expected_content)
-        
+
     def test_occurences_api_works_with_and_without_cal_slug(self):
         # create a calendar and event
         calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
