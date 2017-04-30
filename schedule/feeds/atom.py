@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.utils.six.moves.builtins import str
 #
 # django-atompub by James Tauber <http://jtauber.com/>
@@ -156,7 +157,7 @@ class ValidationError(Exception):
 class AtomFeed(object):
 
     mime_type = 'application/atom+xml'
-    ns = u'http://www.w3.org/2005/Atom'
+    ns = 'http://www.w3.org/2005/Atom'
 
     def __init__(self, atom_id, title, updated=None, icon=None, logo=None, rights=None, subtitle=None, authors=None, categories=None, contributors=None, links=None, extra_attrs={}, hide_generator=False):
         if atom_id is None:
@@ -229,124 +230,124 @@ class AtomFeed(object):
 
     def write_person_construct(self, handler, element_name, person):
         handler.startElement(element_name, {})
-        handler.addQuickElement(u'name', person['name'])
+        handler.addQuickElement('name', person['name'])
         if 'uri' in person:
-            handler.addQuickElement(u'uri', person['uri'])
+            handler.addQuickElement('uri', person['uri'])
         if 'email' in person:
-            handler.addQuickElement(u'email', person['email'])
+            handler.addQuickElement('email', person['email'])
         handler.endElement(element_name)
 
     def write_link_construct(self, handler, link):
         if 'length' in link:
             link['length'] = str(link['length'])
-        handler.addQuickElement(u'link', None, link)
+        handler.addQuickElement('link', None, link)
 
     def write_category_construct(self, handler, category):
-        handler.addQuickElement(u'category', None, category)
+        handler.addQuickElement('category', None, category)
 
     def write_source(self, handler, data):
-        handler.startElement(u'source', {})
+        handler.startElement('source', {})
         if data.get('id'):
-            handler.addQuickElement(u'id', data['id'])
+            handler.addQuickElement('id', data['id'])
         if data.get('title'):
-            self.write_text_construct(handler, u'title', data['title'])
+            self.write_text_construct(handler, 'title', data['title'])
         if data.get('subtitle'):
-            self.write_text_construct(handler, u'subtitle', data['subtitle'])
+            self.write_text_construct(handler, 'subtitle', data['subtitle'])
         if data.get('icon'):
-            handler.addQuickElement(u'icon', data['icon'])
+            handler.addQuickElement('icon', data['icon'])
         if data.get('logo'):
-            handler.addQuickElement(u'logo', data['logo'])
+            handler.addQuickElement('logo', data['logo'])
         if data.get('updated'):
-            handler.addQuickElement(u'updated', rfc3339_date(data['updated']))
+            handler.addQuickElement('updated', rfc3339_date(data['updated']))
         for category in data.get('categories', []):
             self.write_category_construct(handler, category)
         for link in data.get('links', []):
             self.write_link_construct(handler, link)
         for author in data.get('authors', []):
-            self.write_person_construct(handler, u'author', author)
+            self.write_person_construct(handler, 'author', author)
         for contributor in data.get('contributors', []):
-            self.write_person_construct(handler, u'contributor', contributor)
+            self.write_person_construct(handler, 'contributor', contributor)
         if data.get('rights'):
-            self.write_text_construct(handler, u'rights', data['rights'])
-        handler.endElement(u'source')
+            self.write_text_construct(handler, 'rights', data['rights'])
+        handler.endElement('source')
 
     def write_content(self, handler, data):
         if isinstance(data, tuple):
             content_dict, text = data
             if content_dict.get('type') == 'xhtml':
-                handler.startElement(u'content', content_dict)
+                handler.startElement('content', content_dict)
                 handler._write(text)  # write unescaped -- it had better be well-formed XML
-                handler.endElement(u'content')
+                handler.endElement('content')
             else:
-                handler.addQuickElement(u'content', text, content_dict)
+                handler.addQuickElement('content', text, content_dict)
         else:
-            handler.addQuickElement(u'content', data)
+            handler.addQuickElement('content', data)
 
     def write(self, outfile, encoding):
         handler = SimplerXMLGenerator(outfile, encoding)
         handler.startDocument()
-        feed_attrs = {u'xmlns': self.ns}
+        feed_attrs = {'xmlns': self.ns}
         if self.feed.get('extra_attrs'):
             feed_attrs.update(self.feed['extra_attrs'])
-        handler.startElement(u'feed', feed_attrs)
-        handler.addQuickElement(u'id', self.feed['id'])
-        self.write_text_construct(handler, u'title', self.feed['title'])
+        handler.startElement('feed', feed_attrs)
+        handler.addQuickElement('id', self.feed['id'])
+        self.write_text_construct(handler, 'title', self.feed['title'])
         if self.feed.get('subtitle'):
-            self.write_text_construct(handler, u'subtitle', self.feed['subtitle'])
+            self.write_text_construct(handler, 'subtitle', self.feed['subtitle'])
         if self.feed.get('icon'):
-            handler.addQuickElement(u'icon', self.feed['icon'])
+            handler.addQuickElement('icon', self.feed['icon'])
         if self.feed.get('logo'):
-            handler.addQuickElement(u'logo', self.feed['logo'])
+            handler.addQuickElement('logo', self.feed['logo'])
         if self.feed['updated']:
-            handler.addQuickElement(u'updated', rfc3339_date(self.feed['updated']))
+            handler.addQuickElement('updated', rfc3339_date(self.feed['updated']))
         else:
-            handler.addQuickElement(u'updated', rfc3339_date(self.latest_updated()))
+            handler.addQuickElement('updated', rfc3339_date(self.latest_updated()))
         for category in self.feed['categories']:
             self.write_category_construct(handler, category)
         for link in self.feed['links']:
             self.write_link_construct(handler, link)
         for author in self.feed['authors']:
-            self.write_person_construct(handler, u'author', author)
+            self.write_person_construct(handler, 'author', author)
         for contributor in self.feed['contributors']:
-            self.write_person_construct(handler, u'contributor', contributor)
+            self.write_person_construct(handler, 'contributor', contributor)
         if self.feed.get('rights'):
-            self.write_text_construct(handler, u'rights', self.feed['rights'])
+            self.write_text_construct(handler, 'rights', self.feed['rights'])
         if not self.feed.get('hide_generator'):
-            handler.addQuickElement(u'generator', GENERATOR_TEXT, GENERATOR_ATTR)
+            handler.addQuickElement('generator', GENERATOR_TEXT, GENERATOR_ATTR)
 
         self.write_items(handler)
 
-        handler.endElement(u'feed')
+        handler.endElement('feed')
 
     def write_items(self, handler):
         for item in self.items:
             entry_attrs = item.get('extra_attrs', {})
-            handler.startElement(u'entry', entry_attrs)
+            handler.startElement('entry', entry_attrs)
 
-            handler.addQuickElement(u'id', item['id'])
-            self.write_text_construct(handler, u'title', item['title'])
-            handler.addQuickElement(u'updated', rfc3339_date(item['updated']))
+            handler.addQuickElement('id', item['id'])
+            self.write_text_construct(handler, 'title', item['title'])
+            handler.addQuickElement('updated', rfc3339_date(item['updated']))
             if item.get('published'):
-                handler.addQuickElement(u'published', rfc3339_date(item['published']))
+                handler.addQuickElement('published', rfc3339_date(item['published']))
             if item.get('rights'):
-                self.write_text_construct(handler, u'rights', item['rights'])
+                self.write_text_construct(handler, 'rights', item['rights'])
             if item.get('source'):
                 self.write_source(handler, item['source'])
 
             for author in item['authors']:
-                self.write_person_construct(handler, u'author', author)
+                self.write_person_construct(handler, 'author', author)
             for contributor in item['contributors']:
-                self.write_person_construct(handler, u'contributor', contributor)
+                self.write_person_construct(handler, 'contributor', contributor)
             for category in item['categories']:
                 self.write_category_construct(handler, category)
             for link in item['links']:
                 self.write_link_construct(handler, link)
             if item.get('summary'):
-                self.write_text_construct(handler, u'summary', item['summary'])
+                self.write_text_construct(handler, 'summary', item['summary'])
             if item.get('content'):
                 self.write_content(handler, item['content'])
 
-            handler.endElement(u'entry')
+            handler.endElement('entry')
 
     def validate(self):
 
