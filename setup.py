@@ -47,6 +47,7 @@ setup(
         'pytz>=2013.9',
         'icalendar>=3.8.4',
         'django-annoying>=0.8.0',
+        'mock>=2.0.0'
     ],
     license='BSD',
     test_suite='runtests.runtests',
