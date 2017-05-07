@@ -92,9 +92,8 @@ class TestOccurrenceReplacer(TestCase):
             original_end=self.end)
         occ_replacer = OccurrenceReplacer([self.occ])
 
-        assert occ_replacer.has_occurrence(self.occ)
-
-        assert occ_replacer.has_occurrence(other_occ)
+        self.assertTrue(occ_replacer.has_occurrence(self.occ))
+        self.assertTrue(occ_replacer.has_occurrence(other_occ))
 
     def test_has_occurrence_with_other_event(self):
         other_occ = Occurrence.objects.create(
@@ -105,9 +104,8 @@ class TestOccurrenceReplacer(TestCase):
             original_end=self.end)
         occ_replacer = OccurrenceReplacer([self.occ])
 
-        assert occ_replacer.has_occurrence(self.occ)
-
-        assert not occ_replacer.has_occurrence(other_occ)
+        self.assertTrue(occ_replacer.has_occurrence(self.occ))
+        self.assertFalse(occ_replacer.has_occurrence(other_occ))
 
     def test_get_additional_occurrences(self):
         occ_replacer = OccurrenceReplacer([self.occ])
@@ -119,33 +117,28 @@ class TestOccurrenceReplacer(TestCase):
             original_start=self.start,
             original_end=self.end)
         res = occ_replacer.get_additional_occurrences(self.start, self.end)
-        assert [self.occ] == res
+        self.assertEqual(res, [self.occ])
 
     def test_get_additional_occurrences_cancelled(self):
         occ_replacer = OccurrenceReplacer([self.occ])
         self.occ.cancelled = True
         self.occ.save()
         res = occ_replacer.get_additional_occurrences(self.start, self.end)
-        assert [] == res
+        self.assertEqual(res, [])
 
     def test_get_occurrence(self):
         # self.occ is a persisted Occurrence
         occ_replacer = OccurrenceReplacer([self.occ])
         res = occ_replacer.get_occurrence(self.occ)
-        assert res == self.occ
+        self.assertEqual(res, self.occ)
         res = occ_replacer.get_occurrence(self.occ)
-        assert res == self.occ
+        self.assertEqual(res, self.occ)
 
     def test_get_occurrence_works_for_event_like_object(self):
         # get_occurrence method checks the duck
-        expected_ok = False
         occ_replacer = OccurrenceReplacer([self.occ])
-        try:
+        with self.assertRaises(AttributeError):
             occ_replacer.get_occurrence(int)
-        except AttributeError:
-            expected_ok = True
-
-        assert expected_ok
 
 
 class TestCommonUtils(TestCase):
