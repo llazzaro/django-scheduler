@@ -1,22 +1,20 @@
 from __future__ import unicode_literals
-from django.utils.six.moves.builtins import range
-import pytz
-import datetime
+
 import calendar as standardlib_calendar
+import datetime
 
+import pytz
 from django.conf import settings
-try:
-    from django.db.models import prefetch_related_objects
-except ImportError:
-    from django.db.models.query import prefetch_related_objects
-
-from django.utils.translation import ugettext
-from django.utils.encoding import python_2_unicode_compatible
+from django.db.models.query import prefetch_related_objects
 from django.template.defaultfilters import date as date_filter
-from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
-from schedule.settings import SHOW_CANCELLED_OCCURRENCES
-from schedule.models import Occurrence
 from django.utils import timezone
+from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.six.moves.builtins import range
+from django.utils.translation import ugettext
+
+from schedule.models import Occurrence
+from schedule.settings import SHOW_CANCELLED_OCCURRENCES
 
 weekday_names = []
 weekday_abbrs = []

@@ -1,9 +1,9 @@
 import datetime
-import pytz
 
+import pytz
 from django.test import TestCase
 
-from schedule.models import Event, Rule, Calendar
+from schedule.models import Calendar, Event, Rule
 from schedule.models.events import Occurrence
 from schedule.periods import Period
 

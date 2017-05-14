@@ -1,5 +1,6 @@
-from django.test import TestCase
 from dateutil.rrule import FR
+from django.test import TestCase
+
 from schedule.models import Rule
 
 

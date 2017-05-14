@@ -1,18 +1,23 @@
 from __future__ import division
-from django.utils.six.moves.builtins import range
+
 import datetime
-from django.conf import settings
+
 from django import template
+from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from django.utils.dateformat import format
 from django.utils.html import escape
-from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.six.moves.builtins import range
 from django.utils.six.moves.urllib.parse import urlencode
 
-from schedule.settings import CHECK_EVENT_PERM_FUNC, CHECK_CALENDAR_PERM_FUNC, SCHEDULER_PREVNEXT_LIMIT_SECONDS
 from schedule.models import Calendar
-from schedule.periods import weekday_names, weekday_abbrs
+from schedule.periods import weekday_abbrs, weekday_names
+from schedule.settings import (
+    CHECK_CALENDAR_PERM_FUNC, CHECK_EVENT_PERM_FUNC,
+    SCHEDULER_PREVNEXT_LIMIT_SECONDS,
+)
 
 register = template.Library()
 

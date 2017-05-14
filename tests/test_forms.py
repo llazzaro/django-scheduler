@@ -1,8 +1,10 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import datetime
+
 from django.test import TestCase
+
 from schedule.forms import EventForm
 
 

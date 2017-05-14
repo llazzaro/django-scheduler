@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from schedule.models import Calendar, Event, CalendarRelation, Occurrence, Rule
 from schedule.forms import EventAdminForm
+from schedule.models import Calendar, CalendarRelation, Event, Occurrence, Rule
 
 
 class CalendarAdminOptions(admin.ModelAdmin):

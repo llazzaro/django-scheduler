@@ -1,14 +1,13 @@
-from django.utils.six.moves.builtins import zip
-from django.utils.six.moves.builtins import range
 import datetime
-import pytz
 
+import pytz
+from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.conf import settings
+from django.utils.six.moves.builtins import range, zip
 
-from schedule.models import Event, Rule, Calendar
-from schedule.periods import Period, Month, Day, Year, Week
+from schedule.models import Calendar, Event, Rule
+from schedule.periods import Day, Month, Period, Week, Year
 
 
 class TestPeriod(TestCase):

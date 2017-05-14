@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+
 from schedule.models import Event, Occurrence
 from schedule.widgets import SpectrumColorPicker
 
