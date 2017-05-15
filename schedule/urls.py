@@ -1,15 +1,15 @@
 from django.conf.urls import url
 from django.views.generic.list import ListView
+
+from schedule.feeds import CalendarICalendar, UpcomingEventsFeed
 from schedule.models import Calendar
-from schedule.feeds import UpcomingEventsFeed
-from schedule.feeds import CalendarICalendar
-from schedule.periods import Year, Month, Week, Day
+from schedule.periods import Day, Month, Week, Year
 from schedule.views import (
-    CalendarByPeriodsView, CalendarView, EventView,
-    OccurrenceView, EditOccurrenceView, DeleteEventView,
-    EditEventView, CreateEventView, OccurrencePreview,
-    CreateOccurrenceView, CancelOccurrenceView, FullCalendarView,
-    api_select_create, api_move_or_resize_by_code, api_occurrences)
+    CalendarByPeriodsView, CalendarView, CancelOccurrenceView, CreateEventView,
+    CreateOccurrenceView, DeleteEventView, EditEventView, EditOccurrenceView,
+    EventView, FullCalendarView, OccurrencePreview, OccurrenceView,
+    api_move_or_resize_by_code, api_occurrences, api_select_create,
+)
 
 urlpatterns = [
     url(r'^$', ListView.as_view(model=Calendar), name='calendar_list'),

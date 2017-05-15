@@ -1,15 +1,16 @@
 import heapq
 from functools import wraps
+
 from annoying.functions import get_object_or_None
-from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.conf import settings
+from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.utils import timezone
 from django.utils.module_loading import import_string
+
 from schedule.settings import (
-    CHECK_EVENT_PERM_FUNC,
-    CHECK_CALENDAR_PERM_FUNC,
+    CALENDAR_VIEW_PERM, CHECK_CALENDAR_PERM_FUNC, CHECK_EVENT_PERM_FUNC,
     CHECK_OCCURRENCE_PERM_FUNC,
-    CALENDAR_VIEW_PERM)
+)
 
 
 class EventListManager(object):

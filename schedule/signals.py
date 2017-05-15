@@ -1,6 +1,6 @@
 from django.db.models.signals import pre_save
 
-from schedule.models import Event, Calendar
+from schedule.models import Calendar, Event
 
 
 def optional_calendar(sender, **kwargs):

@@ -2,23 +2,18 @@ from __future__ import unicode_literals
 
 import datetime
 import json
-import pytz
 
-from django.test import override_settings
+import pytz
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.http import Http404
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from schedule.models.calendars import Calendar
 from schedule.models.events import Event, Occurrence
 from schedule.models.rules import Rule
-
-from schedule.views import coerce_date_dict
-from schedule.views import check_next_url
-from schedule.views import get_occurrence
-
 from schedule.settings import USE_FULLCALENDAR
+from schedule.views import check_next_url, coerce_date_dict, get_occurrence
 
 
 class TestViews(TestCase):

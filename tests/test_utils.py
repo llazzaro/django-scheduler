@@ -1,13 +1,13 @@
 import datetime
 
 import mock
-from django.test import TestCase
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from schedule.models import Event, Rule, Calendar, Occurrence
-from schedule.utils import EventListManager, OccurrenceReplacer
-from schedule.utils import get_model_bases
+from schedule.models import Calendar, Event, Occurrence, Rule
+from schedule.utils import (
+    EventListManager, OccurrenceReplacer, get_model_bases,
+)
 
 
 class TestEventListManager(TestCase):

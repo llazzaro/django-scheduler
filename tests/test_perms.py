@@ -1,11 +1,12 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils import timezone
+
+from schedule import utils
 from schedule.models.calendars import Calendar
 from schedule.models.events import Event, Occurrence
-from schedule import utils
 
 
 def check_event_perms(ob, user):

@@ -1,14 +1,15 @@
 from __future__ import unicode_literals
-from django.utils.six.moves.builtins import str
-from django.utils.six import with_metaclass
-from dateutil.rrule import (DAILY, MONTHLY, WEEKLY, YEARLY, HOURLY, MINUTELY,
-                            SECONDLY)
-from dateutil.rrule import (MO, TU, WE, TH, FR, SA, SU)
 
+from dateutil.rrule import (
+    DAILY, FR, HOURLY, MINUTELY, MO, MONTHLY, SA, SECONDLY, SU, TH, TU, WE,
+    WEEKLY, YEARLY,
+)
 from django.db import models
 from django.db.models.base import ModelBase
-from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.six import with_metaclass
+from django.utils.six.moves.builtins import str
+from django.utils.translation import ugettext_lazy as _
 
 from schedule.utils import get_model_bases
 

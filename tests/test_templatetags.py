@@ -1,13 +1,14 @@
 import datetime
-import pytz
 
+import pytz
 from django.test import TestCase
 from django.utils.html import escape
-from schedule.models import Event, Rule, Calendar
-from schedule.periods import Period, Day
 
-from schedule.templatetags.scheduletags import querystring_for_date, prev_url, \
-    next_url, create_event_url, _cook_slots
+from schedule.models import Calendar, Event, Rule
+from schedule.periods import Day, Period
+from schedule.templatetags.scheduletags import (
+    _cook_slots, create_event_url, next_url, prev_url, querystring_for_date,
+)
 
 
 class TestTemplateTags(TestCase):

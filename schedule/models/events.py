@@ -1,25 +1,26 @@
-from __future__ import division, unicode_literals
-from django.utils.six import with_metaclass
 # -*- coding: utf-8 -*-
-from django.conf import settings as django_settings
-from dateutil import rrule
+from __future__ import division, unicode_literals
+
 import datetime
 
+from dateutil import rrule
+from django.conf import settings as django_settings
 from django.contrib.contenttypes import fields
-from django.db import models
-from django.db.models.base import ModelBase
-from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.db.models import Q
+from django.db.models.base import ModelBase
 from django.template.defaultfilters import date
-from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.six import with_metaclass
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext
 
-from schedule.models.rules import Rule
 from schedule.models.calendars import Calendar
-from schedule.utils import OccurrenceReplacer
-from schedule.utils import get_model_bases
+from schedule.models.rules import Rule
+from schedule.utils import OccurrenceReplacer, get_model_bases
 
 freq_dict_order = {
     'YEARLY': 0,
