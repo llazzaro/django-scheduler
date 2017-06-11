@@ -384,7 +384,6 @@ def _api_occurrences(start, end, calendar_slug, timezone):
                 event_start = event_start.astimezone(current_tz)
                 event_end = event_end.astimezone(current_tz)
 
-
             response_data.append({
                 'id': occurrence_id,
                 'title': occurrence.title,
