@@ -1,14 +1,15 @@
 from __future__ import unicode_literals
-from django.utils.six.moves.builtins import str
-from django.utils.six import with_metaclass
-from dateutil.rrule import (DAILY, MONTHLY, WEEKLY, YEARLY, HOURLY, MINUTELY,
-                            SECONDLY)
-from dateutil.rrule import (MO, TU, WE, TH, FR, SA, SU)
 
+from dateutil.rrule import (
+    DAILY, FR, HOURLY, MINUTELY, MO, MONTHLY, SA, SECONDLY, SU, TH, TU, WE,
+    WEEKLY, YEARLY,
+)
 from django.db import models
 from django.db.models.base import ModelBase
-from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.six import with_metaclass
+from django.utils.six.moves.builtins import str
+from django.utils.translation import ugettext_lazy as _
 
 from schedule.utils import get_model_bases
 
@@ -54,7 +55,7 @@ class Rule(with_metaclass(ModelBase, *get_model_bases('Rule'))):
     name = models.CharField(_("name"), max_length=32)
     description = models.TextField(_("description"))
     frequency = models.CharField(_("frequency"), choices=freqs, max_length=10)
-    params = models.TextField(_("params"), null=True, blank=True)
+    params = models.TextField(_("params"), blank=True)
 
     _week_days = {'MO': MO,
                   'TU': TU,
@@ -99,8 +100,6 @@ class Rule(with_metaclass(ModelBase, *get_model_bases('Rule'))):
         >>> rule.get_params()
         {'count': 1, 'byminute': [1, 2, 4, 5], 'bysecond': 1}
         """
-        if self.params is None:
-            return {}
         params = self.params.split(';')
         param_dict = []
         for param in params:

@@ -1,33 +1,35 @@
-import pytz
 import datetime
-import dateutil.parser
-from django.utils.six.moves.urllib.parse import quote
 
-from django.db.models import Q, F
+import dateutil.parser
+import pytz
+from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import JsonResponse
+from django.db.models import F, Q
+from django.http import (
+    Http404, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse,
+)
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest
+from django.utils.http import is_safe_url
+from django.utils.six.moves.urllib.parse import quote
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
-    UpdateView, CreateView, DeleteView, ModelFormMixin, ProcessFormView)
-from django.utils.http import is_safe_url
-from django.conf import settings
+    CreateView, DeleteView, ModelFormMixin, ProcessFormView, UpdateView,
+)
 
-from schedule.settings import (GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT,
-                               EVENT_NAME_PLACEHOLDER, CHECK_EVENT_PERM_FUNC,
-                               CHECK_OCCURRENCE_PERM_FUNC, USE_FULLCALENDAR)
 from schedule.forms import EventForm, OccurrenceForm
-from schedule.models import Calendar, Occurrence, Event
+from schedule.models import Calendar, Event, Occurrence
 from schedule.periods import weekday_names
+from schedule.settings import (
+    CHECK_EVENT_PERM_FUNC, CHECK_OCCURRENCE_PERM_FUNC, EVENT_NAME_PLACEHOLDER,
+    GET_EVENTS_FUNC, OCCURRENCE_CANCEL_REDIRECT, USE_FULLCALENDAR,
+)
 from schedule.utils import (
-    check_event_permissions,
-    check_calendar_permissions,
-    coerce_date_dict,
-    check_occurrence_permissions)
+    check_calendar_permissions, check_event_permissions,
+    check_occurrence_permissions, coerce_date_dict,
+)
 
 
 class CalendarViewPermissionMixin(object):

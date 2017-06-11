@@ -1,21 +1,21 @@
-from __future__ import unicode_literals
-from django.utils.six.moves.builtins import str
-from django.utils.six import with_metaclass
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from django.contrib.contenttypes import fields
-from django.db import models
-from django.db.models.base import ModelBase
-from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
+from django.db.models import Q
+from django.db.models.base import ModelBase
 from django.template.defaultfilters import slugify
-from schedule.utils import EventListManager, get_model_bases
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.six import with_metaclass
+from django.utils.six.moves.builtins import str
+from django.utils.translation import ugettext_lazy as _
 
 from schedule.settings import USE_FULLCALENDAR
+from schedule.utils import EventListManager, get_model_bases
 
 
 class CalendarManager(models.Manager):
@@ -23,7 +23,7 @@ class CalendarManager(models.Manager):
     >>> user1 = User(username='tony')
     >>> user1.save()
     """
-    def get_calendar_for_object(self, obj, distinction=None):
+    def get_calendar_for_object(self, obj, distinction=''):
         """
         This function gets a calendar for an object.  It should only return one
         calendar.  If the object has more than one calendar related to it (or
@@ -70,7 +70,7 @@ class CalendarManager(models.Manager):
         else:
             return calendar_list[0]
 
-    def get_or_create_calendar_for_object(self, obj, distinction=None, name=None):
+    def get_or_create_calendar_for_object(self, obj, distinction='', name=None):
         """
         >>> user = User(username="jeremy")
         >>> user.save()
@@ -90,7 +90,7 @@ class CalendarManager(models.Manager):
             calendar.create_relation(obj, distinction)
             return calendar
 
-    def get_calendars_for_object(self, obj, distinction=None):
+    def get_calendars_for_object(self, obj, distinction=''):
         """
         This function allows you to get calendars for a specific object
 
@@ -157,7 +157,7 @@ class Calendar(with_metaclass(ModelBase, *get_model_bases('Calendar'))):
     def events(self):
         return self.event_set
 
-    def create_relation(self, obj, distinction=None, inheritable=True):
+    def create_relation(self, obj, distinction='', inheritable=True):
         """
         Creates a CalendarRelation between self and obj.
 
@@ -189,18 +189,15 @@ class Calendar(with_metaclass(ModelBase, *get_model_bases('Calendar'))):
 
 
 class CalendarRelationManager(models.Manager):
-    def create_relation(self, calendar, content_object, distinction=None, inheritable=True):
+    def create_relation(self, calendar, content_object, distinction='', inheritable=True):
         """
         Creates a relation between calendar and content_object.
         See CalendarRelation for help on distinction and inheritable
         """
-        cr = CalendarRelation(
+        return CalendarRelation.objects.create(
             calendar=calendar,
             distinction=distinction,
-            content_object=content_object
-        )
-        cr.save()
-        return cr
+            content_object=content_object)
 
 
 @python_2_unicode_compatible
@@ -231,7 +228,7 @@ class CalendarRelation(with_metaclass(ModelBase, *get_model_bases('CalendarRelat
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.IntegerField()
     content_object = fields.GenericForeignKey('content_type', 'object_id')
-    distinction = models.CharField(_("distinction"), max_length=20, null=True)
+    distinction = models.CharField(_("distinction"), max_length=20)
     inheritable = models.BooleanField(_("inheritable"), default=True)
 
     objects = CalendarRelationManager()

@@ -1,13 +1,13 @@
 import datetime
 
 import mock
-from django.test import TestCase
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from schedule.models import Event, Rule, Calendar, Occurrence
-from schedule.utils import EventListManager, OccurrenceReplacer
-from schedule.utils import get_model_bases
+from schedule.models import Calendar, Event, Occurrence, Rule
+from schedule.utils import (
+    EventListManager, OccurrenceReplacer, get_model_bases,
+)
 
 
 class TestEventListManager(TestCase):
@@ -17,7 +17,7 @@ class TestEventListManager(TestCase):
         cal = Calendar.objects.create(name="MyCal")
         self.default_tzinfo = timezone.get_default_timezone()
 
-        self.event1 = Event(**{
+        self.event1 = Event.objects.create(**{
             'title': 'Weekly Event',
             'start': datetime.datetime(2009, 4, 1, 8, 0, tzinfo=self.default_tzinfo),
             'end': datetime.datetime(2009, 4, 1, 9, 0, tzinfo=self.default_tzinfo),
@@ -25,8 +25,7 @@ class TestEventListManager(TestCase):
             'rule': weekly,
             'calendar': cal
         })
-        self.event1.save()
-        self.event2 = Event(**{
+        self.event2 = Event.objects.create(**{
             'title': 'Recent Event',
             'start': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=self.default_tzinfo),
             'end': datetime.datetime(2008, 1, 5, 10, 0, tzinfo=self.default_tzinfo),
@@ -34,7 +33,6 @@ class TestEventListManager(TestCase):
             'rule': daily,
             'calendar': cal
         })
-        self.event2.save()
 
     def test_occurrences_after(self):
         eml = EventListManager([self.event1, self.event2])
@@ -61,7 +59,7 @@ class TestOccurrenceReplacer(TestCase):
         self.default_tzinfo = timezone.get_default_timezone()
         self.start = timezone.now() - datetime.timedelta(days=10)
         self.end = self.start + datetime.timedelta(days=300)
-        self.event1 = Event(**{
+        self.event1 = Event.objects.create(**{
             'title': 'Weekly Event',
             'start': self.start,
             'end': self.end,
@@ -69,11 +67,14 @@ class TestOccurrenceReplacer(TestCase):
             'rule': weekly,
             'calendar': cal
         })
-        self.event1.save()
-        self.occ = Occurrence(event=self.event1, start=self.start, end=self.end, original_start=self.start, original_end=self.end)
-        self.occ.save()
+        self.occ = Occurrence.objects.create(
+            event=self.event1,
+            start=self.start,
+            end=self.end,
+            original_start=self.start,
+            original_end=self.end)
 
-        self.event2 = Event(**{
+        self.event2 = Event.objects.create(**{
             'title': 'Recent Event',
             'start': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=self.default_tzinfo),
             'end': datetime.datetime(2008, 1, 5, 10, 0, tzinfo=self.default_tzinfo),
@@ -81,58 +82,63 @@ class TestOccurrenceReplacer(TestCase):
             'rule': daily,
             'calendar': cal
         })
-        self.event2.save()
 
     def test_has_occurrence(self):
-        other_occ = Occurrence(event=self.event1, start=self.start, end=self.end, original_start=self.start, original_end=self.end)
-        other_occ.save()
+        other_occ = Occurrence.objects.create(
+            event=self.event1,
+            start=self.start,
+            end=self.end,
+            original_start=self.start,
+            original_end=self.end)
         occ_replacer = OccurrenceReplacer([self.occ])
 
-        assert occ_replacer.has_occurrence(self.occ)
-
-        assert occ_replacer.has_occurrence(other_occ)
+        self.assertTrue(occ_replacer.has_occurrence(self.occ))
+        self.assertTrue(occ_replacer.has_occurrence(other_occ))
 
     def test_has_occurrence_with_other_event(self):
-        other_occ = Occurrence(event=self.event2, start=self.start, end=self.end, original_start=self.start, original_end=self.end)
-        other_occ.save()
+        other_occ = Occurrence.objects.create(
+            event=self.event2,
+            start=self.start,
+            end=self.end,
+            original_start=self.start,
+            original_end=self.end)
         occ_replacer = OccurrenceReplacer([self.occ])
 
-        assert occ_replacer.has_occurrence(self.occ)
-
-        assert not occ_replacer.has_occurrence(other_occ)
+        self.assertTrue(occ_replacer.has_occurrence(self.occ))
+        self.assertFalse(occ_replacer.has_occurrence(other_occ))
 
     def test_get_additional_occurrences(self):
         occ_replacer = OccurrenceReplacer([self.occ])
-        other_occ = Occurrence(event=self.event2, start=self.start + datetime.timedelta(days=5), end=self.end, original_start=self.start, original_end=self.end)
-        other_occ.save()
+        # Other occurrence.
+        Occurrence.objects.create(
+            event=self.event2,
+            start=self.start + datetime.timedelta(days=5),
+            end=self.end,
+            original_start=self.start,
+            original_end=self.end)
         res = occ_replacer.get_additional_occurrences(self.start, self.end)
-        assert [self.occ] == res
+        self.assertEqual(res, [self.occ])
 
     def test_get_additional_occurrences_cancelled(self):
         occ_replacer = OccurrenceReplacer([self.occ])
         self.occ.cancelled = True
         self.occ.save()
         res = occ_replacer.get_additional_occurrences(self.start, self.end)
-        assert [] == res
+        self.assertEqual(res, [])
 
     def test_get_occurrence(self):
         # self.occ is a persisted Occurrence
         occ_replacer = OccurrenceReplacer([self.occ])
         res = occ_replacer.get_occurrence(self.occ)
-        assert res == self.occ
+        self.assertEqual(res, self.occ)
         res = occ_replacer.get_occurrence(self.occ)
-        assert res == self.occ
+        self.assertEqual(res, self.occ)
 
     def test_get_occurrence_works_for_event_like_object(self):
         # get_occurrence method checks the duck
-        expected_ok = False
         occ_replacer = OccurrenceReplacer([self.occ])
-        try:
+        with self.assertRaises(AttributeError):
             occ_replacer.get_occurrence(int)
-        except AttributeError:
-            expected_ok = True
-
-        assert expected_ok
 
 
 class TestCommonUtils(TestCase):

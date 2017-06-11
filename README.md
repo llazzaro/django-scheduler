@@ -45,7 +45,7 @@ add to `INSTALLED_APPS`:
 add to `TEMPLATE_CONTEXT_PROCESSORS`:
 
 ```python
-"django.core.context_processors.request"
+"django.template.context_processors.request"
 ```
 
 Static assets

@@ -13,4 +13,4 @@ add package to INSTALLED_APPS in ``settings.py``:
 
     'schedule',
 
-make sure that you have ``"django.core.context_processors.request"`` in TEMPLATE_CONTEXT_PROCESSORS.
+make sure that you have ``"django.template.context_processors.request"`` in TEMPLATE_CONTEXT_PROCESSORS.
