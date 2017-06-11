@@ -373,9 +373,15 @@ def _api_occurrences(start, end, calendar_slug, timezone):
 
             recur_rule = occurrence.event.rule.name \
                 if occurrence.event.rule else None
-            recur_period_end = \
-                occurrence.event.end_recurring_period.isoformat() \
-                if occurrence.event.end_recurring_period else None
+
+            if occurrence.event.end_recurring_period:
+                recur_period_end = occurrence.event.end_recurring_period
+                if current_tz:
+                    # make recur_period_end aware in given timezone
+                    recur_period_end = recur_period_end.astimezone(current_tz)
+                recur_period_end = recur_period_end.isoformat()
+            else:
+                recur_period_end = None
 
             event_start = occurrence.start
             event_end = occurrence.end
