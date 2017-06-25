@@ -6,7 +6,8 @@ from django.utils import timezone
 
 from schedule.models import Calendar, Event, Occurrence, Rule
 from schedule.utils import (
-    EventListManager, OccurrenceReplacer, get_model_bases,
+    EventListManager, OccurrenceReplacer, get_admin_model_fields,
+    get_model_bases,
 )
 
 
@@ -190,3 +191,19 @@ class TestCommonUtils(TestCase):
         actual_result = get_model_bases('Event')
 
         self.assertListEqual(actual_result, expected_result)
+
+    @override_settings(SCHEDULER_ADMIN_FIELDS=[('cost',)])
+    def test_get_admin_fields_with_custom_list(self):
+        self.assertListEqual(get_admin_model_fields('Event'), [('cost',)])
+
+    @override_settings(SCHEDULER_ADMIN_FIELDS={'ClassName': [('cost',)]})
+    def test_get_admin_fields_with_custom_dict_specific(self):
+        self.assertListEqual(get_admin_model_fields('ClassName'), [('cost',)])
+
+    @override_settings(SCHEDULER_ADMIN_FIELDS={'ClassName': [('cost',)]})
+    def test_get_admin_fields_with_custom_dict_default(self):
+        self.assertListEqual(get_admin_model_fields('Event'), [])
+
+    @override_settings(SCHEDULER_ADMIN_FIELDS=None)
+    def test_get_admin_fields_with_no_setting(self):
+        self.assertListEqual(get_admin_model_fields('Event'), [])

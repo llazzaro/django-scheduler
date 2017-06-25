@@ -247,3 +247,15 @@ def get_model_bases(model_class_name):
         return [import_string(x) for x in base_class_names]
     else:
         return [Model]
+
+
+def get_admin_model_fields(model_class_name):
+    admin_fields = getattr(settings, 'SCHEDULER_ADMIN_FIELDS', {})
+    if isinstance(admin_fields, dict):
+        model_fields = admin_fields.get(model_class_name, [])
+    else:
+        model_fields = admin_fields
+    if model_fields:
+        return model_fields
+    else:
+        return []
