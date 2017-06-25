@@ -147,7 +147,7 @@ class Calendar(with_metaclass(ModelBase, *get_model_bases('Calendar'))):
 
     class Meta(object):
         verbose_name = _('calendar')
-        verbose_name_plural = _('calendar')
+        verbose_name_plural = _('calendars')
         app_label = 'schedule'
 
     def __str__(self):
