@@ -13,7 +13,7 @@ Django Scheduler
 
 A calendar app for Django
 
-Donate bitcoins to this project. 
+Donate bitcoins to this project.
 [![tip for next commit](https://tip4commit.com/projects/882.svg)](https://tip4commit.com/github/llazzaro/django-scheduler)
 
         BTC: 1DjMUVGUyJ5aJ5TxGx79K6VWagMSshhftg
@@ -196,6 +196,22 @@ SCHEDULER_BASE_CLASSES = {
     'Calendar': [my_app.models.CalendarAbstract']
 }
 ```
+
+### SCHEDULER_ADMIN_FIELDS
+This complements the SCHEDULER_BASE_CLASSES feature, by allowing fields
+added via a base class to be shown in the admin form for that model.
+
+Example - EventBase adds a 'cost' field, and now the field can be shown
+in the admin form too.
+
+```
+SCHEDULER_BASE_CLASSES = {
+    'Event': ['main.models.EventBase']
+}
+
+SCHEDULER_ADMIN_FIELDS = {
+    'Event': [('cost',)]
+}
 
 
 ### SCHEDULER_PREVNEXT_LIMIT_SECONDS

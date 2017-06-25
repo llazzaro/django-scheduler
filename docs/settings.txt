@@ -79,3 +79,24 @@ SCHEDULER_BASE_CLASSES = {
 }
 
 .. _ref-settings-scheduler-base-classes:
+
+
+SCHEDULER_ADMIN_FIELDS
+---------------
+
+This complements the SCHEDULER_BASE_CLASSES feature, by allowing fields
+added via a base class to be shown in the admin form for that model.
+
+Example - EventBase adds a 'cost' field, and now the field can be shown
+in the admin form too.
+
+```
+SCHEDULER_BASE_CLASSES = {
+    'Event': ['main.models.EventBase']
+}
+
+SCHEDULER_ADMIN_FIELDS = {
+    'Event': [('cost',)]
+}
+
+.. _ref-settings-scheduler-admin-fields
