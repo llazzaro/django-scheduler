@@ -10,7 +10,7 @@
     </td>
     <td class="col-md-4">
       {% for occ in slot.occurrences %}
-            <button type="button"  class="btn {% if occ.cancelled %} btn-danger {%else%} btn-primary {% endif %}" data-toggle="modal" data-target="#{% hash_occurrence occ %}">
+      <button type="button"  class="btn {% if occ.cancelled %} btn-danger {%else%} btn-primary {% endif %}" data-toggle="modal" data-target="#{% hash_occurrence occ %}" {% if occ.event.color_event %} style="background-color: {{occ.event.color_event}};border-color:{{occ.event.color_event}}" {% endif %}>
                   {% options occ %}
                   {% title occ %}
             </button>
