@@ -299,16 +299,17 @@ def api_occurrences(request):
     start = request.GET.get('start')
     end = request.GET.get('end')
     calendar_slug = request.GET.get('calendar_slug')
+    timezone = request.GET.get('timezone')
 
     try:
-        response_data = _api_occurrences(start, end, calendar_slug)
+        response_data = _api_occurrences(start, end, calendar_slug, timezone)
     except (ValueError, Calendar.DoesNotExist) as e:
         return HttpResponseBadRequest(e)
 
     return JsonResponse(response_data, safe=False)
 
 
-def _api_occurrences(start, end, calendar_slug):
+def _api_occurrences(start, end, calendar_slug, timezone):
 
     if not start or not end:
         raise ValueError('Start and end parameters are required')
@@ -325,8 +326,14 @@ def _api_occurrences(start, end, calendar_slug):
 
     start = convert(start)
     end = convert(end)
-    # If USE_TZ is True, make start and end dates aware in UTC timezone
-    if settings.USE_TZ:
+    current_tz = False
+    if timezone and timezone in pytz.common_timezones:
+        # make start and end dates aware in given timezone
+        current_tz = pytz.timezone(timezone)
+        start = current_tz.localize(start)
+        end = current_tz.localize(end)
+    elif settings.USE_TZ:
+        # If USE_TZ is True, make start and end dates aware in UTC timezone
         utc = pytz.UTC
         start = utc.localize(start)
         end = utc.localize(end)
@@ -368,15 +375,28 @@ def _api_occurrences(start, end, calendar_slug):
 
             recur_rule = occurrence.event.rule.name \
                 if occurrence.event.rule else None
-            recur_period_end = \
-                occurrence.event.end_recurring_period.isoformat() \
-                if occurrence.event.end_recurring_period else None
+
+            if occurrence.event.end_recurring_period:
+                recur_period_end = occurrence.event.end_recurring_period
+                if current_tz:
+                    # make recur_period_end aware in given timezone
+                    recur_period_end = recur_period_end.astimezone(current_tz)
+                recur_period_end = recur_period_end.isoformat()
+            else:
+                recur_period_end = None
+
+            event_start = occurrence.start
+            event_end = occurrence.end
+            if current_tz:
+                # make event start and end dates aware in given timezone
+                event_start = event_start.astimezone(current_tz)
+                event_end = event_end.astimezone(current_tz)
 
             response_data.append({
                 'id': occurrence_id,
                 'title': occurrence.title,
-                'start': occurrence.start.isoformat(),
-                'end': occurrence.end.isoformat(),
+                'start': event_start.isoformat(),
+                'end': event_end.isoformat(),
                 'existed': existed,
                 'event_id': occurrence.event.id,
                 'color': occurrence.event.color_event,
