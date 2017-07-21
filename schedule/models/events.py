@@ -354,7 +354,6 @@ class Event(with_metaclass(ModelBase, *get_model_bases('Event'))):
         event_params = {}
 
         if len(rule_params) == 0:
-            event_params['count'] = 0
             return event_params
 
         for param in rule_params:
