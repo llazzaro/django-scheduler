@@ -381,7 +381,7 @@ def _api_occurrences(start, end, calendar_slug, timezone):
                 if current_tz:
                     # make recur_period_end aware in given timezone
                     recur_period_end = recur_period_end.astimezone(current_tz)
-                recur_period_end = recur_period_end.isoformat()
+                recur_period_end = recur_period_end
             else:
                 recur_period_end = None
 
@@ -395,8 +395,8 @@ def _api_occurrences(start, end, calendar_slug, timezone):
             response_data.append({
                 'id': occurrence_id,
                 'title': occurrence.title,
-                'start': event_start.isoformat(),
-                'end': event_end.isoformat(),
+                'start': event_start,
+                'end': event_end,
                 'existed': existed,
                 'event_id': occurrence.event.id,
                 'color': occurrence.event.color_event,
