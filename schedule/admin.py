@@ -13,7 +13,7 @@ class CalendarAdminOptions(admin.ModelAdmin):
         (None, {
             'fields': [
                 ('name', 'slug'),
-            ]
+            ] + get_admin_model_fields('Calendar')
         }),
     )
 
