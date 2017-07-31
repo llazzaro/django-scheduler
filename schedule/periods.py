@@ -39,7 +39,7 @@ class Period(object):
     based on its events, and its time period (start and end).
     """
     def __init__(self, events, start, end, parent_persisted_occurrences=None,
-                 occurrence_pool=None, tzinfo=pytz.utc):
+                 occurrence_pool=None, tzinfo=pytz.utc, sorting_options=None):
 
         self.utc_start = self._normalize_timezone_to_utc(start, tzinfo)
 
@@ -50,6 +50,7 @@ class Period(object):
         self.occurrence_pool = occurrence_pool
         if parent_persisted_occurrences is not None:
             self._persisted_occurrences = parent_persisted_occurrences
+        self.sorting_options = sorting_options or {}
 
     def _normalize_timezone_to_utc(self, point_in_time, tzinfo):
         if point_in_time.tzinfo is not None:
@@ -88,7 +89,7 @@ class Period(object):
         for event in self.events:
             event_occurrences = event.get_occurrences(self.start, self.end, clear_prefetch=False)
             occurrences += event_occurrences
-        return sorted(occurrences)
+        return sorted(occurrences, **self.sorting_options)
 
     def cached_get_sorted_occurrences(self):
         if hasattr(self, '_occurrences'):
