@@ -19,6 +19,10 @@ the end date is exclusive.* i.e. [start, end)
 
 >>> p = Period(datetime.datetime(2008,4,1,0,0))
 
+Additionally, you can specify sorting options for the period using the ``sorting_options`` argument. By
+default the occurrences in the period are sorted using the Occurrence model ordering. The ``sorting_options``
+argument accepts all the options of `Python sorted built-in`_.
+
 ``get_occurrences()``
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -140,3 +144,4 @@ datetime.datetime(2008, 4, 2, 0, 0)
 
 
 
+.. _`Python sorted built-in`: https://docs.python.org/library/functions.html#sorted
