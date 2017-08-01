@@ -39,6 +39,22 @@ class TestPeriod(TestCase):
             ]
         )
 
+    def test_get_occurrences_with_sorting_options(self):
+        period = Period(
+            events=Event.objects.all(),
+            start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 21, 7, 0, tzinfo=pytz.utc),
+            sorting_options={"reverse": True})
+        occurrence_list = period.occurrences
+        self.assertEqual(
+            ["%s to %s" % (o.start, o.end) for o in occurrence_list],
+            [
+                '2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00',
+                '2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00',
+                '2008-01-05 08:00:00+00:00 to 2008-01-05 09:00:00+00:00',
+            ]
+        )
+
     def test_get_occurrence_partials(self):
         occurrence_dicts = self.period.get_occurrence_partials()
         self.assertEqual(
