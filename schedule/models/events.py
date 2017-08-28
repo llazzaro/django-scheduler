@@ -376,6 +376,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases('Event'))):
     def event_params(self):
         event_params = self._event_params()
         start = self.effective_start
+        empty = False
         if not start:
             empty = True
         elif self.end_recurring_period and start > self.end_recurring_period:
@@ -407,7 +408,7 @@ class Event(with_metaclass(ModelBase, *get_model_bases('Event'))):
                     pass
                 return occ.end
         elif self.pk:
-            return datetime.max
+            return datetime.datetime.max
         return None
 
 
