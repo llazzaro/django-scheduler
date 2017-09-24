@@ -328,25 +328,25 @@ class TestUrls(TestCase):
     def test_check_next_url_valid_case(self):
         expected = '/calendar/1'
         res = check_next_url('/calendar/1')
-        self.assertEquals(expected, res)
+        self.assertEqual(expected, res)
 
     def test_check_next_url_invalid_case(self):
         expected = None
         res = check_next_url('http://localhost/calendar/1')
-        self.assertEquals(expected, res)
+        self.assertEqual(expected, res)
         res = check_next_url(None)
-        self.assertEquals(expected, res)
+        self.assertEqual(expected, res)
 
     @override_settings(SITE_ID=1)
     def test_feed_link(self):
         feed_url = reverse('upcoming_events_feed', kwargs={'calendar_id': 1})
         response = self.client.get(feed_url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         expected_feed = 'http://example.com/feed/calendar/upcoming/1/'
         self.assertTrue(expected_feed in response.content.decode('utf8'))
 
     def test_calendar_view_home(self):
         calendar_view_url = reverse('calendar_home', kwargs={'calendar_slug': 'example'})
         response = self.client.get(calendar_view_url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue('<a href="/feed/calendar/upcoming/1/">Feed</a>' in response.content.decode('utf8'))
