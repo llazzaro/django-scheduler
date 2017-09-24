@@ -3,12 +3,12 @@ import datetime
 import dateutil.parser
 import pytz
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db.models import F, Q
 from django.http import (
     Http404, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse,
 )
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import is_safe_url
 from django.utils.six.moves.urllib.parse import quote

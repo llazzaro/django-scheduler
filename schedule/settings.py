@@ -12,7 +12,7 @@ CHECK_EVENT_PERM_FUNC = get_config('CHECK_EVENT_PERM_FUNC', None)
 
 if not CHECK_EVENT_PERM_FUNC:
     def check_event_permission(ob, user):
-        return user.is_authenticated()
+        return user.is_authenticated
 
     CHECK_EVENT_PERM_FUNC = check_event_permission
 
@@ -31,7 +31,7 @@ CHECK_CALENDAR_PERM_FUNC = get_config('CHECK_CALENDAR_PERM_FUNC', None)
 
 if not CHECK_CALENDAR_PERM_FUNC:
     def check_calendar_permission(ob, user):
-        return user.is_authenticated()
+        return user.is_authenticated
 
     CHECK_CALENDAR_PERM_FUNC = check_calendar_permission
 
