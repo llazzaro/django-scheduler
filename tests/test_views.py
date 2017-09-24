@@ -4,9 +4,9 @@ import datetime
 import json
 
 import pytz
-from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.test import TestCase, override_settings
+from django.urls import reverse
 from django.utils import timezone
 
 from schedule.models.calendars import Calendar

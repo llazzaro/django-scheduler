@@ -4,7 +4,7 @@ import datetime
 
 from django import template
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateformat import format
 from django.utils.html import escape
@@ -62,7 +62,7 @@ def daily_table(context, day, start=8, end=20, increment=30):
     user = context['request'].user
     addable = CHECK_EVENT_PERM_FUNC(None, user)
     if 'calendar' in context:
-        addable &= CHECK_CALENDAR_PERM_FUNC(context['calendar'], user)
+        addable = addable and CHECK_CALENDAR_PERM_FUNC(context['calendar'], user)
     context['addable'] = addable
     day_part = day.get_time_slot(day.start + datetime.timedelta(hours=start), day.start + datetime.timedelta(hours=end))
     # get slots to display on the left

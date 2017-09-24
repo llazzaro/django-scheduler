@@ -5,26 +5,6 @@ cache: pip
 matrix:
   include:
     - python: 2.7
-      env: DJANGO="Django>=1.8,<1.9"
-    - python: 3.3
-      env: DJANGO="Django>=1.8,<1.9"
-    - python: 3.4
-      env: DJANGO="Django>=1.8,<1.9"
-    - python: 3.5
-      env: DJANGO="Django>=1.8,<1.9"
-    - python: 2.7
-      env: DJANGO="Django>=1.9,<1.10"
-    - python: 3.4
-      env: DJANGO="Django>=1.9,<1.10"
-    - python: 3.5
-      env: DJANGO="Django>=1.9,<1.10"
-    - python: 2.7
-      env: DJANGO="Django>=1.10,<1.11"
-    - python: 3.4
-      env: DJANGO="Django>=1.10,<1.11"
-    - python: 3.5
-      env: DJANGO="Django>=1.10,<1.11"
-    - python: 2.7
       env: DJANGO="Django>=1.11,<2.0"
     - python: 3.4
       env: DJANGO="Django>=1.11,<2.0"
@@ -32,6 +12,12 @@ matrix:
       env: DJANGO="Django>=1.11,<2.0"
     - python: 3.6
       env: DJANGO="Django>=1.11,<2.0"
+    - python: 3.4
+      env: DJANGO="Django>=2.0,<2.1"
+    - python: 3.5
+      env: DJANGO="Django>=2.0,<2.1"
+    - python: 3.6
+      env: DJANGO="Django>=2.0,<2.1"
 
 install:
   - pip install $DJANGO
@@ -40,7 +26,7 @@ before_script:
   - flake8
   - isort --check-only --diff
 script:
-  - coverage run runtests.py
+  - coverage run -m django test --settings=tests.settings
   - coverage report -m
 after_success:
   - coveralls --verbose
