@@ -64,7 +64,7 @@ class OccurrenceReplacer(object):
     """
 
     def __init__(self, persisted_occurrences):
-        lookup = [((occ.event.id, occ.original_start, occ.original_end), occ) for
+        lookup = [((occ.event.id, occ.start, occ.end), occ) for
                   occ in persisted_occurrences]
         self.lookup = dict(lookup)
 
@@ -74,12 +74,12 @@ class OccurrenceReplacer(object):
         has already been matched
         """
         return self.lookup.pop(
-            (occ.event.id, occ.original_start, occ.original_end),
+            (occ.event.id, occ.start, occ.end),
             occ)
 
     def has_occurrence(self, occ):
         try:
-            return (occ.event.id, occ.original_start, occ.original_end) in self.lookup
+            return (occ.event.id, occ.start, occ.end) in self.lookup
         except TypeError:
             if not self.lookup:
                 return False
