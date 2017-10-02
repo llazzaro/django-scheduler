@@ -2,6 +2,8 @@ import datetime
 
 import pytz
 from django.test import TestCase
+from django.test.utils import override_settings
+from django.utils import timezone
 
 from schedule.models import Calendar, Event, Rule
 from schedule.models.events import Occurrence
@@ -30,6 +32,36 @@ class TestOccurrence(TestCase):
         self.recurring_event = Event.objects.create(**self.recurring_data)
         self.start = datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc)
         self.end = datetime.datetime(2008, 1, 27, 0, 0, tzinfo=pytz.utc)
+
+    @override_settings(TIME_ZONE='America/Toronto')
+    def test_persisted_occurrences_with_modified_start_time(self):
+        tzinfo = timezone.get_default_timezone()
+        # Create a recurring event with a non-UTC timezone
+        recurring_event = {
+            'title': 'Recurring Event in localtime',
+            'start': tzinfo.localize(datetime.datetime(2008, 1, 5, 8, 0)),
+            'end': tzinfo.localize(datetime.datetime(2008, 1, 5, 9, 0)),
+            'end_recurring_period': tzinfo.localize(datetime.datetime(2008, 1, 10, 0, 0)),
+            'rule': Rule.objects.create(frequency="DAILY"),
+            'calendar': Calendar.objects.create(name="MyCal")
+        }
+        r_event = Event.objects.create(**recurring_event)
+        # Create a persistent occurrence, with a modified start/end date
+        data = {
+            'event_id': r_event.id,
+            'title': 'Saved Occurrence',
+            'start': tzinfo.localize(datetime.datetime(2008, 1, 7, 9, 0)),
+            'end': tzinfo.localize(datetime.datetime(2008, 1, 7, 10, 0)),
+            'original_start': tzinfo.localize(datetime.datetime(2008, 1, 7, 8, 0)),
+            'original_end': tzinfo.localize(datetime.datetime(2008, 1, 7, 9, 0)),
+        }
+        p_occ = Occurrence.objects.create(**data)
+        period_start = tzinfo.localize(datetime.datetime(2008, 1, 7, 0, 0))
+        period_end = tzinfo.localize(datetime.datetime(2008, 1, 8, 0, 0))
+        occurrences = r_event.get_occurrences(start=period_start, end=period_end)
+        occ_start = occurrences[0].start
+        self.assertEqual(occ_start.tzinfo, period_start.tzinfo)
+        self.assertEqual(p_occ.original_start + datetime.timedelta(hours=1), occ_start)
 
     def test_persisted_occurrences(self):
         occurrences = self.recurring_event.get_occurrences(start=self.start, end=self.end)
