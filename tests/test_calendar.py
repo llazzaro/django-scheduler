@@ -20,6 +20,7 @@ class TestCalendarInheritance(TestCase):
             ProxyCalendar
         )
 
+
 class TestCalendar(TestCase):
     def __create_event(self, start, end):
         data = {
