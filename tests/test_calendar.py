@@ -6,6 +6,20 @@ from django.utils import timezone
 from schedule.models import Event, Rule, Calendar, CalendarRelation
 
 
+class TestCalendarInheritance(TestCase):
+
+    def test_get_or_create_calendar_for_object_when_proxy_calendar_should_return_proxy_calendar(self):
+        class ProxyCalendar(Calendar):
+            class Meta:
+                proxy = True
+
+        base_object = Calendar.objects.create()
+
+        self.assertIsInstance(
+            ProxyCalendar.objects.get_or_create_calendar_for_object(base_object),
+            ProxyCalendar
+        )
+
 class TestCalendar(TestCase):
     def __create_event(self, start, end):
         data = {

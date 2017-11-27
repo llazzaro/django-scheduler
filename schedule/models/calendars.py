@@ -82,9 +82,9 @@ class CalendarManager(models.Manager):
             return self.get_calendar_for_object(obj, distinction)
         except Calendar.DoesNotExist:
             if name is None:
-                calendar = Calendar(name=str(obj))
+                calendar = self.model(name=str(obj))
             else:
-                calendar = Calendar(name=name)
+                calendar = self.model(name=name)
             calendar.slug = slugify(calendar.name)
             calendar.save()
             calendar.create_relation(obj, distinction)
