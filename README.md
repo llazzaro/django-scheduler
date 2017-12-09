@@ -34,15 +34,15 @@ Installation
 pip install django-scheduler
 ```
 
-edit your `settings.py`
+Edit your `settings.py`
 
-add to `INSTALLED_APPS`:
+Add to `INSTALLED_APPS`:
 
 ```python
 'schedule',
 ```
 
-add to `TEMPLATE_CONTEXT_PROCESSORS`:
+Add to `TEMPLATE_CONTEXT_PROCESSORS`:
 
 ```python
 "django.template.context_processors.request"
