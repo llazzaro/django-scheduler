@@ -1,7 +1,11 @@
--e .
 coverage>=3.7.1
 coveralls>=0.5
+django-annoying>=0.8.0
+Django>=1.11
 flake8
+icalendar>=3.8.4
 isort
 mock
+python-dateutil>=2.1
+pytz>=2013.9
 wheel

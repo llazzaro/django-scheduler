@@ -151,7 +151,7 @@ This setting controls the callable used to determine if a user has permission to
 Default:
 ```python
     check_edit_permission(ob, user):
-        return user.is_authenticated()
+        return user.is_authenticated
 ```
 
 If ob is None, then the function is checking for permission to add new events
@@ -163,7 +163,7 @@ This setting controls the callable used to determine if a user has permission to
 Default:
 ```python
     check_edit_permission(ob, user):
-        return user.is_authenticated()
+        return user.is_authenticated
 ```
 
 ### GET_EVENTS_FUNC
