@@ -75,7 +75,6 @@ class TestTemplateTags(TestCase):
         self.assertEqual(query_string['create_event_url'], escape(expected))
 
     def test_all_day_event_cook_slots(self):
-        Calendar.objects.create(name='MyCal', slug='MyCalSlug')
         start = datetime.datetime(
             datetime.datetime.now().year, 1, 5, 0, 0, tzinfo=pytz.utc)
         end = datetime.datetime(
