@@ -1,7 +1,6 @@
 import heapq
 from functools import wraps
 
-from annoying.functions import get_object_or_None
 from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.utils import timezone
@@ -93,37 +92,31 @@ class OccurrenceReplacer(object):
         return [occ for _, occ in list(self.lookup.items()) if (occ.start < end and occ.end >= start and not occ.cancelled)]
 
 
+def get_kwarg_or_param(request, kwargs, key):
+    value = None
+    try:
+        value = kwargs[key]
+    except KeyError:
+        if request.method == 'GET':
+            value = request.GET.get(key)
+        elif request.method == 'POST':
+            value = request.POST.get(key)
+    return value
+
+
 def get_occurrence(request, *args, **kwargs):
     from schedule.models import Occurrence
-    occurrence = None
-    if 'occurrence_id' in kwargs:
-        occurrence = get_object_or_None(Occurrence, id=kwargs['occurrence_id'])
-    elif request.GET:
-        occurrence = get_object_or_None(
-            Occurrence,
-            id=request.GET.get('occurrence_id'))
-    elif request.POST:
-        occurrence = get_object_or_None(
-            Occurrence,
-            id=request.POST.get('occurrence_id'))
-    return occurrence
+    occurrence_id = get_kwarg_or_param(request, kwargs, 'occurrence_id')
+    return Occurrence.objects.filter(pk=occurrence_id).first() if occurrence_id else None
 
 
 def get_event(occurrence, request, *args, **kwargs):
     from schedule.models import Event
-    event = None
     if occurrence:
         event = occurrence.event
-    elif 'event_id' in kwargs:
-        event = get_object_or_None(Event, id=kwargs['event_id'])
-    elif request.GET:
-        event = get_object_or_None(
-            Event,
-            id=request.GET.get('event_id'))
-    elif request.POST:
-        event = get_object_or_None(
-            Event,
-            id=request.POST.get('event_id'))
+    else:
+        event_id = get_kwarg_or_param(request, kwargs, 'event_id')
+        event = Event.objects.filter(pk=event_id).first() if event_id else None
     return event
 
 
@@ -132,16 +125,9 @@ def get_calendar(event, request, *args, **kwargs):
     calendar = None
     if event:
         calendar = event.calendar
-    elif 'calendar_slug' in kwargs:
-        calendar = get_object_or_None(Calendar, slug=kwargs['calendar_slug'])
-    elif request.GET:
-        calendar = get_object_or_None(
-            Calendar,
-            slug=request.GET.get('calendar_slug'))
-    elif request.POST:
-        calendar = get_object_or_None(
-            Calendar,
-            slug=request.POST.get('calendar_slug'))
+    else:
+        calendar_slug = get_kwarg_or_param(request, kwargs, 'calendar_slug')
+        calendar = Calendar.objects.filter(slug=calendar_slug).first() if calendar_slug else None
     return calendar
 
 
