@@ -23,12 +23,11 @@ class TestCalendarInheritance(TestCase):
 
 class TestCalendar(TestCase):
     def __create_event(self, start, end):
-        data = {
-            'title': 'Recent Event',
-            'start': start,
-            'end': end
-        }
-        return Event.objects.create(**data)
+        return Event.objects.create(
+            title='Recent Event',
+            start=start,
+            end=end,
+        )
 
     def test_get_recent_events_without_events_is_empty(self):
         calendar = Calendar()

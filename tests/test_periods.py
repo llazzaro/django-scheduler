@@ -14,15 +14,14 @@ class TestPeriod(TestCase):
     def setUp(self):
         rule = Rule.objects.create(frequency="WEEKLY")
         cal = Calendar.objects.create(name="MyCal")
-        data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'rule': rule,
-            'calendar': cal,
-        }
-        Event.objects.create(**data)
+        Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
         self.period = Period(
             events=Event.objects.all(),
             start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
@@ -99,15 +98,14 @@ class TestMonth(TestCase):
     def setUp(self):
         rule = Rule.objects.create(frequency="WEEKLY")
         cal = Calendar.objects.create(name="MyCal")
-        data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'rule': rule,
-            'calendar': cal
-        }
-        Event.objects.create(**data)
+        Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
         self.month = Month(events=Event.objects.all(),
                            date=datetime.datetime(2008, 2, 7, 9, 0, tzinfo=pytz.utc))
 
@@ -279,15 +277,14 @@ class TestOccurrencePool(TestCase):
     def setUp(self):
         rule = Rule.objects.create(frequency="WEEKLY")
         cal = Calendar.objects.create(name="MyCal")
-        data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'rule': rule,
-            'calendar': cal
-        }
-        self.recurring_event = Event.objects.create(**data)
+        self.recurring_event = Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
 
     def testPeriodFromPool(self):
         """
@@ -307,15 +304,14 @@ class TestOccurrencesInTimezone(TestCase):
         self.MVD = pytz.timezone('America/Montevideo')
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="DAILY", params="byweekday:SA", name="Saturdays")
-        data = {
-            'title': 'Every Saturday Event',
-            'start': self.MVD.localize(datetime.datetime(2017, 1, 7, 22, 0)),
-            'end': self.MVD.localize(datetime.datetime(2017, 1, 7, 23, 0)),
-            'end_recurring_period': self.MVD.localize(datetime.datetime(2017, 2, 1)),
-            'rule': rule,
-            'calendar': cal,
-        }
-        Event.objects.create(**data)
+        Event.objects.create(
+            title='Every Saturday Event',
+            start=self.MVD.localize(datetime.datetime(2017, 1, 7, 22, 0)),
+            end=self.MVD.localize(datetime.datetime(2017, 1, 7, 23, 0)),
+            end_recurring_period=self.MVD.localize(datetime.datetime(2017, 2, 1)),
+            rule=rule,
+            calendar=cal,
+        )
 
     @override_settings(TIME_ZONE='America/Montevideo')
     def test_occurrences_with_TZ(self):
@@ -352,15 +348,14 @@ class TestWeeklyOccurrences(TestCase):
         self.MVD = pytz.timezone('America/Montevideo')  # UTC-3
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="DAILY", name="daily")
-        data = {
-            'title': 'Test event',
-            'start': self.MVD.localize(datetime.datetime(2017, 1, 13, 15, 0)),
-            'end': self.MVD.localize(datetime.datetime(2017, 1, 14, 15, 0)),
-            'end_recurring_period': self.MVD.localize(datetime.datetime(2017, 1, 20)),
-            'rule': rule,
-            'calendar': cal
-        }
-        Event.objects.create(**data)
+        Event.objects.create(
+            title='Test event',
+            start=self.MVD.localize(datetime.datetime(2017, 1, 13, 15, 0)),
+            end=self.MVD.localize(datetime.datetime(2017, 1, 14, 15, 0)),
+            end_recurring_period=self.MVD.localize(datetime.datetime(2017, 1, 20)),
+            rule=rule,
+            calendar=cal,
+        )
 
     def test_occurrences_inside_recurrence_period(self):
         start = self.MVD.localize(datetime.datetime(2017, 1, 13))

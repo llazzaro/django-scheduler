@@ -26,15 +26,14 @@ class TestTemplateTags(TestCase):
         rule = Rule.objects.create(frequency='WEEKLY')
         self.cal = Calendar.objects.create(name='MyCal', slug='MyCalSlug')
 
-        data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(datetime.datetime.now().year, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(datetime.datetime.now().year, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(datetime.datetime.now().year, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'rule': rule,
-            'calendar': self.cal,
-        }
-        Event.objects.create(**data)
+        Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(datetime.datetime.now().year, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(datetime.datetime.now().year, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(datetime.datetime.now().year, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=self.cal,
+        )
         self.period = Period(events=Event.objects.all(),
                              start=datetime.datetime(datetime.datetime.now().year, 1, 4, 7, 0, tzinfo=pytz.utc),
                              end=datetime.datetime(datetime.datetime.now().year, 1, 21, 7, 0, tzinfo=pytz.utc))
@@ -80,13 +79,12 @@ class TestTemplateTags(TestCase):
             datetime.datetime.now().year, 1, 5, 0, 0, tzinfo=pytz.utc)
         end = datetime.datetime(
             datetime.datetime.now().year, 1, 6, 0, 0, tzinfo=pytz.utc)
-        data = {
-            'title': 'All Day Event',
-            'start': start,
-            'end': end,
-            'calendar': self.cal,
-        }
-        event = Event.objects.create(**data)
+        event = Event.objects.create(
+            title='All Day Event',
+            start=start,
+            end=end,
+            calendar=self.cal,
+        )
         period = Day([event], start, end)
 
         slots = _cook_slots(period, 60)
