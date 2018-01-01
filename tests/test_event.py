@@ -11,10 +11,6 @@ from schedule.models import Calendar, Event, EventRelation, Rule
 
 
 class TestEvent(TestCase):
-
-    def setUp(self):
-        Calendar.objects.create(name="MyCal")
-
     def __create_event(self, title, start, end, cal):
         return Event.objects.create(
             title=title,
