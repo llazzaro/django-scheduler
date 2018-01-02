@@ -13,10 +13,9 @@ class TestCalendarInheritance(TestCase):
             class Meta:
                 proxy = True
 
-        base_object = Calendar.objects.create()
-
+        rule = Rule.objects.create()
         self.assertIsInstance(
-            ProxyCalendar.objects.get_or_create_calendar_for_object(base_object),
+            ProxyCalendar.objects.get_or_create_calendar_for_object(rule),
             ProxyCalendar
         )
 
@@ -78,8 +77,8 @@ class TestCalendar(TestCase):
             Calendar.objects.get_calendar_for_object(rule)
 
     def test_get_calendar_for_object_with_more_than_one_calendar(self):
-        calendar_1 = Calendar.objects.create(name='My Cal 1')
-        calendar_2 = Calendar.objects.create(name='My Cal 2')
+        calendar_1 = Calendar.objects.create(name='My Cal 1', slug='my-cal-1')
+        calendar_2 = Calendar.objects.create(name='My Cal 2', slug='my-cal-2')
         rule = Rule.objects.create()
         calendar_1.create_relation(rule)
         calendar_2.create_relation(rule)
