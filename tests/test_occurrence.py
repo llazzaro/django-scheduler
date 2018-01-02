@@ -20,13 +20,6 @@ class TestOccurrence(TestCase):
             'rule': rule,
             'calendar': cal
         }
-        self.data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'calendar': cal
-        }
         self.recurring_event = Event.objects.create(**self.recurring_data)
         self.start = datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc)
         self.end = datetime.datetime(2008, 1, 27, 0, 0, tzinfo=pytz.utc)
