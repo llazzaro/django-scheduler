@@ -42,7 +42,6 @@ setup(
         'python-dateutil>=2.1',
         'pytz>=2013.9',
         'icalendar>=3.8.4',
-        'django-annoying>=0.8.0',
     ],
     license='BSD',
     test_suite='runtests.runtests',
