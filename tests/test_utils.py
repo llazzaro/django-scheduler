@@ -1,14 +1,10 @@
 import datetime
 
-import mock
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 
 from schedule.models import Calendar, Event, Occurrence, Rule
-from schedule.utils import (
-    EventListManager, OccurrenceReplacer, get_admin_model_fields,
-    get_model_bases,
-)
+from schedule.utils import EventListManager, OccurrenceReplacer
 
 
 class TestEventListManager(TestCase):
@@ -140,70 +136,3 @@ class TestOccurrenceReplacer(TestCase):
         occ_replacer = OccurrenceReplacer([self.occ])
         with self.assertRaises(AttributeError):
             occ_replacer.get_occurrence(int)
-
-
-class TestCommonUtils(TestCase):
-    def setUp(self):
-        patcher = mock.patch('schedule.utils.import_string')
-        self.import_string_mock = patcher.start()
-        self.addCleanup(patcher.stop)
-
-    @override_settings(SCHEDULER_BASE_CLASSES={'ClassName': ['path.to.module.AbstractClass']})
-    def test_get_model_bases_with_custom_dict_default(self):
-        from django.db.models import Model
-        expected_result = [Model]
-        actual_result = get_model_bases('Event')
-
-        self.assertListEqual(actual_result, expected_result)
-
-    @override_settings(SCHEDULER_BASE_CLASSES={'ClassName': ['path.to.module.AbstractClass']})
-    def test_get_model_bases_with_custom_dict_specific(self):
-        model_mock = mock.Mock()
-        expected_result = [model_mock]
-
-        self.import_string_mock.return_value = model_mock
-        actual_result = get_model_bases('ClassName')
-
-        self.assertListEqual(actual_result, expected_result)
-
-        self.import_string_mock.assert_called_once_with('path.to.module.AbstractClass')
-
-    @override_settings(SCHEDULER_BASE_CLASSES=['path.to.module.AbstractClass1', 'path.to.module.AbstractClass2'])
-    def test_get_model_bases_with_custom_list(self):
-        model_mock1 = mock.Mock()
-        model_mock2 = mock.Mock()
-
-        expected_result = [model_mock1, model_mock2]
-
-        self.import_string_mock.side_effect = [model_mock1, model_mock2]
-        actual_result = get_model_bases('ClassName')
-
-        self.assertListEqual(actual_result, expected_result)
-
-        self.import_string_mock.assert_any_call('path.to.module.AbstractClass1')
-        self.import_string_mock.assert_any_call('path.to.module.AbstractClass2')
-        self.assertEqual(self.import_string_mock.call_count, 2)
-
-    @override_settings(SCHEDULER_BASE_CLASSES=None)
-    def test_get_model_bases_with_no_setting(self):
-        from django.db.models import Model
-        expected_result = [Model]
-        actual_result = get_model_bases('Event')
-
-        self.assertListEqual(actual_result, expected_result)
-
-    @override_settings(SCHEDULER_ADMIN_FIELDS=[('cost',)])
-    def test_get_admin_fields_with_custom_list(self):
-        self.assertListEqual(get_admin_model_fields('Event'), [('cost',)])
-
-    @override_settings(SCHEDULER_ADMIN_FIELDS={'ClassName': [('cost',)]})
-    def test_get_admin_fields_with_custom_dict_specific(self):
-        self.assertListEqual(get_admin_model_fields('ClassName'), [('cost',)])
-
-    @override_settings(SCHEDULER_ADMIN_FIELDS={'ClassName': [('cost',)]})
-    def test_get_admin_fields_with_custom_dict_default(self):
-        self.assertListEqual(get_admin_model_fields('Event'), [])
-
-    @override_settings(SCHEDULER_ADMIN_FIELDS=None)
-    def test_get_admin_fields_with_no_setting(self):
-        self.assertListEqual(get_admin_model_fields('Event'), [])

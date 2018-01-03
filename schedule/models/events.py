@@ -9,18 +9,16 @@ from django.contrib.contenttypes import fields
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
-from django.db.models.base import ModelBase
 from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.six import with_metaclass
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 
 from schedule.models.calendars import Calendar
 from schedule.models.rules import Rule
-from schedule.utils import OccurrenceReplacer, get_model_bases
+from schedule.utils import OccurrenceReplacer
 
 freq_dict_order = {
     'YEARLY': 0,
@@ -49,7 +47,7 @@ class EventManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class Event(with_metaclass(ModelBase, *get_model_bases('Event'))):
+class Event(models.Model):
     '''
     This model stores meta data for a date.  You can relate this data to many
     other models.
@@ -527,7 +525,7 @@ class EventRelationManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class EventRelation(with_metaclass(ModelBase, *get_model_bases('EventRelation'))):
+class EventRelation(models.Model):
     '''
     This is for relating data to an Event, there is also a distinction, so that
     data can be related in different ways.  A good example would be, if you have
@@ -563,7 +561,7 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases('EventRelation'))
 
 
 @python_2_unicode_compatible
-class Occurrence(with_metaclass(ModelBase, *get_model_bases('Occurrence'))):
+class Occurrence(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
     title = models.CharField(_("title"), max_length=255, blank=True)
     description = models.TextField(_("description"), blank=True)
