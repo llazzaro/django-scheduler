@@ -104,13 +104,13 @@ def get_kwarg_or_param(request, kwargs, key):
     return value
 
 
-def get_occurrence(request, *args, **kwargs):
+def get_occurrence(request, **kwargs):
     from schedule.models import Occurrence
     occurrence_id = get_kwarg_or_param(request, kwargs, 'occurrence_id')
     return Occurrence.objects.filter(pk=occurrence_id).first() if occurrence_id else None
 
 
-def get_event(occurrence, request, *args, **kwargs):
+def get_event(occurrence, request, **kwargs):
     from schedule.models import Event
     if occurrence:
         event = occurrence.event
@@ -120,7 +120,7 @@ def get_event(occurrence, request, *args, **kwargs):
     return event
 
 
-def get_calendar(event, request, *args, **kwargs):
+def get_calendar(event, request, **kwargs):
     from schedule.models import Calendar
     calendar = None
     if event:
@@ -131,10 +131,10 @@ def get_calendar(event, request, *args, **kwargs):
     return calendar
 
 
-def get_objects(request, *args, **kwargs):
-    occurrence = get_occurrence(request, *args, **kwargs)
-    event = get_event(occurrence, request, *args, **kwargs)
-    calendar = get_calendar(event, request, *args, **kwargs)
+def get_objects(request, **kwargs):
+    occurrence = get_occurrence(request, **kwargs)
+    event = get_event(occurrence, request, **kwargs)
+    calendar = get_calendar(event, request, **kwargs)
     return occurrence, event, calendar
 
 
@@ -144,7 +144,7 @@ def check_occurrence_permissions(function):
         user = request.user
         if not user:
             return HttpResponseRedirect(settings.LOGIN_URL)
-        occurrence, event, calendar = get_objects(request, *args, **kwargs)
+        occurrence, event, calendar = get_objects(request, **kwargs)
         if calendar and event:
             allowed = (CHECK_EVENT_PERM_FUNC(event, user) and
                        CHECK_CALENDAR_PERM_FUNC(calendar, user) and
@@ -163,7 +163,7 @@ def check_event_permissions(function):
         user = request.user
         if not user:
             return HttpResponseRedirect(settings.LOGIN_URL)
-        occurrence, event, calendar = get_objects(request, *args, **kwargs)
+        occurrence, event, calendar = get_objects(request, **kwargs)
         if calendar:
             allowed = (CHECK_EVENT_PERM_FUNC(event, user) and
                        CHECK_CALENDAR_PERM_FUNC(calendar, user))
@@ -182,7 +182,7 @@ def check_calendar_permissions(function):
             user = request.user
             if not user:
                 return HttpResponseRedirect(settings.LOGIN_URL)
-            occurrence, event, calendar = get_objects(request, *args, **kwargs)
+            occurrence, event, calendar = get_objects(request, **kwargs)
             if calendar:
                 allowed = CHECK_CALENDAR_PERM_FUNC(calendar, user)
                 if not allowed:
