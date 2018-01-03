@@ -35,20 +35,18 @@ class TestEvent(TestCase):
 
     def test_edge_case_events(self):
         cal = Calendar.objects.create(name="MyCal")
-        data_1 = {
-            'title': 'Edge case event test one',
-            'start': datetime.datetime(2013, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'calendar': cal
-        }
-        data_2 = {
-            'title': 'Edge case event test two',
-            'start': datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc),
-            'calendar': cal
-        }
-        event_one = Event.objects.create(**data_1)
-        event_two = Event.objects.create(**data_2)
+        event_one = Event.objects.create(
+            title='Edge case event test one',
+            start=datetime.datetime(2013, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
+            calendar=cal,
+        )
+        event_two = Event.objects.create(
+            title='Edge case event test two',
+            start=datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc),
+            calendar=cal,
+        )
         occurrences_two = event_two.get_occurrences(datetime.datetime(2013, 1, 5, 9, 0, tzinfo=pytz.utc),
                                                     datetime.datetime(2013, 1, 5, 12, 0, tzinfo=pytz.utc))
         self.assertEqual(1, len(occurrences_two))

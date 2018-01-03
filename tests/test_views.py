@@ -22,15 +22,14 @@ class TestViews(TestCase):
     def setUp(self):
         self.rule = Rule.objects.create(frequency="DAILY")
         self.calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
-        data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'rule': self.rule,
-            'calendar': self.calendar
-        }
-        self.event = Event.objects.create(**data)
+        self.event = Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=self.rule,
+            calendar=self.calendar,
+        )
 
     @override_settings(USE_TZ=False)
     def test_timezone_off(self):
@@ -44,15 +43,14 @@ class TestViewUtils(TestCase):
     def setUp(self):
         self.rule = Rule.objects.create(frequency="DAILY")
         self.calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
-        data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'rule': self.rule,
-            'calendar': self.calendar
-        }
-        self.event = Event.objects.create(**data)
+        self.event = Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=self.rule,
+            calendar=self.calendar,
+        )
 
     def test_get_occurrence(self):
         event, occurrence = get_occurrence(self.event.pk, year=2008, month=1,
@@ -191,15 +189,14 @@ class TestUrls(TestCase):
         # create a calendar and event
         calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
         rule = Rule.objects.create(frequency="DAILY")
-        data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'rule': rule,
-            'calendar': calendar
-        }
-        Event.objects.create(**data)
+        Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=calendar,
+        )
         # test calendar slug
         response = self.client.get(
             reverse("api_occurences") + "?calendar={}&start={}&end={}".format(
@@ -223,15 +220,14 @@ class TestUrls(TestCase):
         # create a calendar and event
         calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
         rule = Rule.objects.create(frequency="DAILY")
-        data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 1, 8, 0, 0, tzinfo=pytz.utc),
-            'rule': rule,
-            'calendar': calendar
-        }
-        event = Event.objects.create(**data)
+        event = Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 1, 8, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=calendar,
+        )
         Occurrence.objects.create(
             event=event,
             title='My persisted Occ',
@@ -264,14 +260,13 @@ class TestUrls(TestCase):
     def test_occurences_api_works_with_and_without_cal_slug(self):
         # create a calendar and event
         calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
-        data = {
-            'title': 'Recent Event',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'calendar': calendar
-        }
-        event = Event.objects.create(**data)
+        event = Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar,
+        )
         # test calendar slug
         response = self.client.get(
             reverse('api_occurences'),
@@ -291,22 +286,20 @@ class TestUrls(TestCase):
     def test_cal_slug_filters_returned_events(self):
         calendar1 = Calendar.objects.create(name="MyCal1", slug='MyCalSlug1')
         calendar2 = Calendar.objects.create(name="MyCal2", slug='MyCalSlug2')
-        data1 = {
-            'title': 'Recent Event 1',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'calendar': calendar1
-        }
-        data2 = {
-            'title': 'Recent Event 2',
-            'start': datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            'end': datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            'end_recurring_period': datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            'calendar': calendar2
-        }
-        event1 = Event.objects.create(**data1)
-        event2 = Event.objects.create(**data2)
+        event1 = Event.objects.create(
+            title='Recent Event 1',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar1,
+        )
+        event2 = Event.objects.create(
+            title='Recent Event 2',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar2,
+        )
         # Test both present with no cal arg
         response = self.client.get(reverse("api_occurences"),
                                    {'start': '2008-01-05',
