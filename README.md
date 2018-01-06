@@ -140,7 +140,7 @@ This setting controls the behavior of `Views.get_next_url`. If set, all calendar
 
 ### SHOW_CANCELLED_OCCURRENCES
 
-This setting controls the behavior of `Period.classify_occurence`. If True, then occurences that have been cancelled will be displayed with a css class of canceled, otherwise they won't appear at all.
+This setting controls the behavior of `Period.classify_occurrence`.If True, then occurences that have been cancelled will be displayed with a css class of canceled, otherwise they won't appear at all.
 
 Defaults to False
 
