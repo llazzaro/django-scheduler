@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 
 class SpectrumColorPicker(TextInput):
     """
-    Based on Brian Grinstead's Spectrum - http://bgrins.github.com/spectrum/
+    Based on Brian Grinstead's Spectrum - https://bgrins.github.io/spectrum/
     """
     class Media:
         css = {'all': ("//cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.css",)}

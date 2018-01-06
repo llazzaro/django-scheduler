@@ -72,7 +72,6 @@ PASSWORD_HASHERS = [
 ]
 
 # URL prefix for static files.
-# Example: "http://example.com/static/", "http://static.example.com/"
 STATIC_URL = '/static/'
 
 STATICFILES_FINDERS = (
