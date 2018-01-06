@@ -39,7 +39,7 @@ class Rule(with_metaclass(ModelBase, *get_model_bases('Rule'))):
         value = int[,int]*
 
       The options are: (documentation for these can be found at
-      http://labix.org/python-dateutil#head-470fa22b2db72000d7abe698a5783a46b0731b57)
+      https://dateutil.readthedocs.io/en/stable/rrule.html#module-dateutil.rrule
         ** count
         ** bysetpos
         ** bymonth

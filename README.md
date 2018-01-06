@@ -1,14 +1,14 @@
 Django Scheduler
 ========
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/llazzaro/django-scheduler?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/llazzaro/django-scheduler)
 [<img src="https://img.shields.io/travis/llazzaro/django-scheduler.svg">](https://travis-ci.org/llazzaro/django-scheduler)
 [![Code Health](https://landscape.io/github/llazzaro/django-scheduler/master/landscape.svg?style=flat)](https://landscape.io/github/llazzaro/django-scheduler/master)
 [<img src="https://img.shields.io/coveralls/llazzaro/django-scheduler.svg">](https://coveralls.io/r/llazzaro/django-scheduler)
 [<img src="https://img.shields.io/pypi/v/django-scheduler.svg">](https://pypi.python.org/pypi/django-scheduler)
 [<img src="https://pypip.in/d/django-scheduler/badge.png">](https://pypi.python.org/pypi/django-scheduler)
 [<img src="https://pypip.in/license/django-scheduler/badge.png">](https://github.com/llazzaro/django-scheduler/blob/master/LICENSE.txt)
-[![Documentation Status](http://readthedocs.org/projects/django-scheduler/badge/?version=latest)](http://django-scheduler.readthedocs.org/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/django-scheduler/badge/)](https://django-scheduler.readthedocs.io/)
 
 
 A calendar app for Django
@@ -22,7 +22,7 @@ Donate bitcoins to this project.
 Information
 ========
 
-* [Documentation](http://django-scheduler.readthedocs.org/en/latest/)
+* [Documentation](https://django-scheduler.readthedocs.io/)
 * [Wiki](https://github.com/llazzaro/django-scheduler/wiki)
 * [Sample Project](https://github.com/llazzaro/django-scheduler-sample)
 
