@@ -102,7 +102,7 @@ class CalendarManager(models.Manager):
             dist_q = Q(calendarrelation__distinction=distinction)
         else:
             dist_q = Q()
-        return self.filter(dist_q, calendarrelation__object_id=obj.id, calendarrelation__content_type=ct)
+        return self.filter(dist_q, calendarrelation__content_type=ct, calendarrelation__object_id=obj.id)
 
 
 @python_2_unicode_compatible
@@ -226,7 +226,7 @@ class CalendarRelation(with_metaclass(ModelBase, *get_model_bases('CalendarRelat
 
     calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE, verbose_name=_("calendar"))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.IntegerField()
+    object_id = models.IntegerField(db_index=True)
     content_object = fields.GenericForeignKey('content_type', 'object_id')
     distinction = models.CharField(_("distinction"), max_length=20)
     inheritable = models.BooleanField(_("inheritable"), default=True)
@@ -237,6 +237,7 @@ class CalendarRelation(with_metaclass(ModelBase, *get_model_bases('CalendarRelat
         verbose_name = _('calendar relation')
         verbose_name_plural = _('calendar relations')
         app_label = 'schedule'
+        index_together = [('content_type', 'object_id')]
 
     def __str__(self):
         return '%s - %s' % (self.calendar, self.content_object)
