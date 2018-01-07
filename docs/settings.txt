@@ -15,7 +15,7 @@ This setting controls the behavior of :func:`Views.get_next_url`. If set, all ca
 SHOW_CANCELLED_OCCURRENCES
 --------------------------
 
-This setting controls the behavior of :func:`Period.classify_occurence`. If True, then occurrences that have been cancelled will be displayed with a css class of canceled, otherwise they won't appear at all.
+This setting controls the behavior of :func:`Period.classify_occurrence`. If True, then occurrences that have been cancelled will be displayed with a css class of canceled, otherwise they won't appear at all.
 
 Defaults to False
 

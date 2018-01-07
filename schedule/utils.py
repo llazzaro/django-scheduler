@@ -48,10 +48,10 @@ class EventListManager(object):
             generator = occurrences[0][1]
 
             try:
-                next_occurence = heapq.heapreplace(occurrences, (next(generator), generator))[0]
+                next_occurrence = heapq.heapreplace(occurrences, (next(generator), generator))[0]
             except StopIteration:
-                next_occurence = heapq.heappop(occurrences)[0]
-            yield occ_replacer.get_occurrence(next_occurence)
+                next_occurrence = heapq.heappop(occurrences)[0]
+            yield occ_replacer.get_occurrence(next_occurrence)
 
 
 class OccurrenceReplacer(object):
@@ -83,7 +83,7 @@ class OccurrenceReplacer(object):
             if not self.lookup:
                 return False
             else:
-                raise TypeError('A problem with checking if a persisted occurence exists has occured!')
+                raise TypeError('A problem with checking if a persisted occurrence exists has occured!')
 
     def get_additional_occurrences(self, start, end):
         """

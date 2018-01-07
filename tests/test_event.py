@@ -265,7 +265,7 @@ class TestEvent(TestCase):
         occurrence = event.get_occurrence(start)
         self.assertEqual(occurrence.start, start)
 
-    def test_occurences_after_with_no_params(self):
+    def test_occurrences_after_with_no_params(self):
         cal = Calendar.objects.create(name='MyCal')
         start = timezone.now() + datetime.timedelta(days=1)
         event = self.__create_event(
@@ -278,7 +278,7 @@ class TestEvent(TestCase):
         self.assertEqual(occurrences[0].start, start)
         self.assertEqual(occurrences[0].end, start + datetime.timedelta(hours=1))
 
-    def test_occurences_with_recurrent_event_end_recurring_period_edge_case(self):
+    def test_occurrences_with_recurrent_event_end_recurring_period_edge_case(self):
         cal = Calendar.objects.create(name='MyCal')
         rule = Rule.objects.create(frequency="DAILY")
         start = timezone.now() + datetime.timedelta(days=1)
@@ -292,7 +292,7 @@ class TestEvent(TestCase):
         occurrences = list(event.occurrences_after())
         self.assertEqual(len(occurrences), 11)
 
-    def test_occurences_with_recurrent_event_end_recurring_period_edge_case_max_loop_lower(self):
+    def test_occurrences_with_recurrent_event_end_recurring_period_edge_case_max_loop_lower(self):
         cal = Calendar.objects.create(name='MyCal')
         rule = Rule.objects.create(frequency="DAILY")
         start = timezone.now() + datetime.timedelta(days=1)
@@ -306,7 +306,7 @@ class TestEvent(TestCase):
         occurrences = list(event.occurrences_after(max_occurrences=4))
         self.assertEqual(len(occurrences), 4)
 
-    def test_occurences_with_recurrent_event_end_recurring_period_edge_case_max_loop_greater(self):
+    def test_occurrences_with_recurrent_event_end_recurring_period_edge_case_max_loop_greater(self):
         cal = Calendar.objects.create(name='MyCal')
         rule = Rule.objects.create(frequency="DAILY")
         start = timezone.now() + datetime.timedelta(days=1)
@@ -320,7 +320,7 @@ class TestEvent(TestCase):
         occurrences = list(event.occurrences_after(max_occurrences=20))
         self.assertEqual(len(occurrences), 11)
 
-    def test_occurences_with_recurrent_event_no_end_recurring_period_max_loop(self):
+    def test_occurrences_with_recurrent_event_no_end_recurring_period_max_loop(self):
         cal = Calendar.objects.create(name='MyCal')
         rule = Rule.objects.create(frequency="DAILY")
         start = timezone.now() + datetime.timedelta(days=1)
@@ -440,7 +440,7 @@ class TestEvent(TestCase):
     def test_get_occurrences_timespan_inside_occurrence(self):
         '''
         Test whether occurrences are correctly obtained if selected timespan start
-        and end happen completely inside an occurence.
+        and end happen completely inside an occurrence.
         '''
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="WEEKLY")
