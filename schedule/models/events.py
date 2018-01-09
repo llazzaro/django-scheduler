@@ -506,13 +506,13 @@ class EventRelationManager(models.Manager):
         if inherit:
             inherit_q = Q(
                 cal_dist_q,
-                calendar__calendarrelation__object_id=content_object.id,
                 calendar__calendarrelation__content_type=ct,
+                calendar__calendarrelation__object_id=content_object.id,
                 calendar__calendarrelation__inheritable=True,
             )
         else:
             inherit_q = Q()
-        event_q = Q(dist_q, eventrelation__object_id=content_object.id, eventrelation__content_type=ct)
+        event_q = Q(dist_q, eventrelation__content_type=ct, eventrelation__object_id=content_object.id)
         return Event.objects.filter(inherit_q | event_q)
 
     def create_relation(self, event, content_object, distinction=''):
@@ -547,7 +547,7 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases('EventRelation'))
     '''
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.IntegerField()
+    object_id = models.IntegerField(db_index=True)
     content_object = fields.GenericForeignKey('content_type', 'object_id')
     distinction = models.CharField(_("distinction"), max_length=20)
 
@@ -557,6 +557,7 @@ class EventRelation(with_metaclass(ModelBase, *get_model_bases('EventRelation'))
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
         app_label = 'schedule'
+        index_together = [('content_type', 'object_id')]
 
     def __str__(self):
         return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
