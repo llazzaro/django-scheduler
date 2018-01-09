@@ -5,13 +5,9 @@ from dateutil.rrule import (
     WEEKLY, YEARLY,
 )
 from django.db import models
-from django.db.models.base import ModelBase
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.six import with_metaclass
 from django.utils.six.moves.builtins import str
 from django.utils.translation import ugettext_lazy as _
-
-from schedule.utils import get_model_bases
 
 freqs = (("YEARLY", _("Yearly")),
          ("MONTHLY", _("Monthly")),
@@ -23,7 +19,7 @@ freqs = (("YEARLY", _("Yearly")),
 
 
 @python_2_unicode_compatible
-class Rule(with_metaclass(ModelBase, *get_model_bases('Rule'))):
+class Rule(models.Model):
     """
     This defines a rule by which an event will recur.  This is defined by the
     rrule in the dateutil documentation.

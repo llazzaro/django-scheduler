@@ -4,7 +4,6 @@ Django>=2.0
 flake8
 icalendar>=3.8.4
 isort
-mock
 python-dateutil>=2.1
 pytz>=2013.9
 wheel

@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from schedule.forms import EventAdminForm
 from schedule.models import Calendar, CalendarRelation, Event, Occurrence, Rule
-from schedule.utils import get_admin_model_fields
 
 
 class CalendarAdminOptions(admin.ModelAdmin):
@@ -13,7 +12,7 @@ class CalendarAdminOptions(admin.ModelAdmin):
         (None, {
             'fields': [
                 ('name', 'slug'),
-            ] + get_admin_model_fields('Calendar')
+            ]
         }),
     )
 
@@ -46,7 +45,7 @@ class EventAdmin(admin.ModelAdmin):
                 ('start', 'end'),
                 ('creator', 'calendar'),
                 ('rule', 'end_recurring_period'),
-            ] + get_admin_model_fields('Event')
+            ]
         }),
     )
     form = EventAdminForm

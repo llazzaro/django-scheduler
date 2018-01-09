@@ -176,44 +176,6 @@ Default:
         return calendar.event_set.all()
 ```
 
-### SCHEDULER_BASE_CLASSES
-
-This setting allows for custom base classes to be used on specific models. Useful for adding fields, managers, or other elements.
-
-Defaults to django.db.models.Model
-
-Extend all the models using a list:
-
-```
-SCHEDULER_BASE_CLASSES = ['my_app.models.BaseAbstract1', 'my_app.models.BaseAbstract1']
-```
-
-Extend specific models using a dict, where the key is the model class name:
-
-```
-SCHEDULER_BASE_CLASSES = {
-    'Event': ['my_app.models.EventAbstract1', 'my_app..models.EventAbstract2']
-    'Calendar': [my_app.models.CalendarAbstract']
-}
-```
-
-### SCHEDULER_ADMIN_FIELDS
-This complements the SCHEDULER_BASE_CLASSES feature, by allowing fields
-added via a base class to be shown in the admin form for that model.
-
-Example - EventBase adds a 'cost' field, and now the field can be shown
-in the admin form too.
-
-```
-SCHEDULER_BASE_CLASSES = {
-    'Event': ['main.models.EventBase']
-}
-
-SCHEDULER_ADMIN_FIELDS = {
-    'Event': [('cost',)]
-}
-
-
 ### SCHEDULER_PREVNEXT_LIMIT_SECONDS
 
 This settings allows to set the upper and lower limit in calendars navigation.

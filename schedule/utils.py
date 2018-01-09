@@ -4,7 +4,6 @@ from functools import wraps
 from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.utils import timezone
-from django.utils.module_loading import import_string
 
 from schedule.settings import (
     CALENDAR_VIEW_PERM, CHECK_CALENDAR_PERM_FUNC, CHECK_EVENT_PERM_FUNC,
@@ -218,30 +217,3 @@ def coerce_date_dict(date_dict):
         except KeyError:
             break
     return modified and ret_val or {}
-
-
-def get_model_bases(model_class_name):
-    from django.db.models import Model
-    base_classes = getattr(settings, 'SCHEDULER_BASE_CLASSES', {})
-
-    if isinstance(base_classes, dict):
-        base_class_names = base_classes.get(model_class_name, [])
-    else:
-        base_class_names = base_classes
-
-    if base_class_names:
-        return [import_string(x) for x in base_class_names]
-    else:
-        return [Model]
-
-
-def get_admin_model_fields(model_class_name):
-    admin_fields = getattr(settings, 'SCHEDULER_ADMIN_FIELDS', {})
-    if isinstance(admin_fields, dict):
-        model_fields = admin_fields.get(model_class_name, [])
-    else:
-        model_fields = admin_fields
-    if model_fields:
-        return model_fields
-    else:
-        return []
