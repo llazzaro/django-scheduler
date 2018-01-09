@@ -1,6 +1,6 @@
 coverage>=3.7.1
 coveralls>=0.5
-Django>=1.11
+Django>=2.0
 flake8
 icalendar>=3.8.4
 isort
