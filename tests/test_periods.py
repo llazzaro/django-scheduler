@@ -436,7 +436,7 @@ class TestAwareDay(TestCase):
         self.assertEqual(start, self.day.start)
         self.assertEqual(end, self.day.end)
 
-    def test_occurence(self):
+    def test_occurrence(self):
         self.assertEqual(self.event in [o.event for o in self.day.occurrences], True)
 
 

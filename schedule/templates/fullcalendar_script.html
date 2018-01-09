@@ -113,7 +113,7 @@ $(document).ready(function() {
         eventLimit: true, // allow 'more' link when too many events
         selectable: true, //Allows a user to highlight multiple days or timeslots by clicking and dragging.
         selectHelper: true,
-        events: "{% url 'api_occurences' %}?calendar_slug={{calendar_slug}}",
+        events: "{% url 'api_occurrences' %}?calendar_slug={{calendar_slug}}",
         loading: function(bool) {
             if (bool) {
                 $('#loading').show();

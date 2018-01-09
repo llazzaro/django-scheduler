@@ -2,7 +2,7 @@
 <div>
   {% if day.has_occurrences %}
       {% for o in day.get_occurrence_partials %}
-              <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#occurenceModal">
+              <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#occurrenceModal">
 
                   <div class="starttime">
                       {% ifequal o.class 0 %}{{ o.occurrence.start|time:"G:i" }}{% endifequal %}
@@ -14,7 +14,7 @@
                       {% title o.occurrence %}
                   </div>
               </div>
-              <div class="modal fade" id="occurenceModal" tabindex="-1" role="dialog" aria-labelledby="occurence_detailsl">
+              <div class="modal fade" id="occurrenceModal" tabindex="-1" role="dialog" aria-labelledby="occurrence_detailsl">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">

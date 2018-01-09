@@ -93,7 +93,7 @@ urlpatterns = [
     url(r'^ical/calendar/(.*)/$', CalendarICalendar(), name='calendar_ical'),
 
     # api urls
-    url(r'^api/occurrences', api_occurrences, name='api_occurences'),
+    url(r'^api/occurrences', api_occurrences, name='api_occurrences'),
     url(r'^api/move_or_resize/$',
         api_move_or_resize_by_code,
         name='api_move_or_resize'),
