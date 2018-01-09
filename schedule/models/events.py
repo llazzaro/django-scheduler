@@ -47,10 +47,10 @@ class EventManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class Event(models.Model):
+class AbstractEvent(models.Model):
     '''
-    This model stores meta data for a date.  You can relate this data to many
-    other models.
+    Abstract model for the `Event` model. If you want to use a custom
+    model instead of the built-in `Event`, inherit from this class.
     '''
     start = models.DateTimeField(_("start"), db_index=True)
     end = models.DateTimeField(_("end"), db_index=True, help_text=_("The end time must be later than the start time."))
@@ -82,6 +82,7 @@ class Event(models.Model):
     objects = EventManager()
 
     class Meta(object):
+        abstract = True
         verbose_name = _('event')
         verbose_name_plural = _('events')
         index_together = (
@@ -405,6 +406,15 @@ class Event(models.Model):
         elif self.pk:
             return datetime.datetime.max
         return None
+
+
+class Event(AbstractEvent):
+    """
+    This model stores meta data for a date.  You can relate this data to many
+    other models.
+    """
+    class Meta(AbstractEvent.Meta):
+        swappable = 'SCHEDULER_EVENT_MODEL'
 
 
 class EventRelationManager(models.Manager):
