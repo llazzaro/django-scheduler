@@ -80,7 +80,7 @@ class TestOccurrence(TestCase):
 
     def test_get_occurrences_non_intersection_returns_empty_occ(self):
         rule = Rule.objects.create(frequency="DAILY")
-        cal = Calendar.objects.create(name="MyCal")
+        cal = Calendar.objects.create(name="MyCal", slug='mycal')
         recurring_event = Event.objects.create(
             title='Recent Event',
             start=datetime.datetime(2016, 1, 5, 8, 0, tzinfo=pytz.utc),
@@ -94,7 +94,7 @@ class TestOccurrence(TestCase):
 
     def test_get_occurrences_is_sorted(self):
         rule = Rule.objects.create(frequency="DAILY")
-        cal = Calendar.objects.create(name="MyCal")
+        cal = Calendar.objects.create(name="MyCal", slug='mycal')
         recurring_event = Event.objects.create(
             title='Recent Event',
             start=datetime.datetime(2016, 1, 5, 8, 0, tzinfo=pytz.utc),
