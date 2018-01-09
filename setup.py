@@ -38,7 +38,7 @@ setup(
         'Topic :: Utilities',
     ],
     install_requires=[
-        'Django>=2.0',
+        'Django>=1.11',
         'python-dateutil>=2.1',
         'pytz>=2013.9',
         'icalendar>=3.8.4',
