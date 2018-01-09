@@ -57,3 +57,8 @@ USE_FULLCALENDAR = getattr(settings, 'USE_FULLCALENDAR', False)
 
 # This name is used when a new event is created through selecting in fullcalendar
 EVENT_NAME_PLACEHOLDER = getattr(settings, 'EVENT_NAME_PLACEHOLDER', 'Event Name')
+
+# custom models
+SCHEDULER_CALENDAR_MODEL = getattr(settings, 'SCHEDULER_CALENDAR_MODEL', 'schedule.Calendar')
+SCHEDULER_EVENT_MODEL = getattr(settings, 'SCHEDULER_EVENT_MODEL', 'schedule.Event')
+SCHEDULER_OCCURRENCE_MODEL = getattr(settings, 'SCHEDULER_OCCURRENCE_MODEL', 'schedule.Occurrence')
