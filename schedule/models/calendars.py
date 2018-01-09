@@ -104,39 +104,10 @@ class CalendarManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class Calendar(models.Model):
+class AbstractCalendar(models.Model):
     '''
-    This is for grouping events so that batch relations can be made to all
-    events.  An example would be a project calendar.
-
-    name: the name of the calendar
-    events: all the events contained within the calendar.
-    >>> calendar = Calendar(name = 'Test Calendar')
-    >>> calendar.save()
-    >>> data = {
-    ...         'title': 'Recent Event',
-    ...         'start': datetime.datetime(2008, 1, 5, 0, 0),
-    ...         'end': datetime.datetime(2008, 1, 10, 0, 0)
-    ...        }
-    >>> event = Event(**data)
-    >>> event.save()
-    >>> calendar.events.add(event)
-    >>> data = {
-    ...         'title': 'Upcoming Event',
-    ...         'start': datetime.datetime(2008, 1, 1, 0, 0),
-    ...         'end': datetime.datetime(2008, 1, 4, 0, 0)
-    ...        }
-    >>> event = Event(**data)
-    >>> event.save()
-    >>> calendar.events.add(event)
-    >>> data = {
-    ...         'title': 'Current Event',
-    ...         'start': datetime.datetime(2008, 1, 3),
-    ...         'end': datetime.datetime(2008, 1, 6)
-    ...        }
-    >>> event = Event(**data)
-    >>> event.save()
-    >>> calendar.events.add(event)
+    Abstract model for the `Calendar` model. If you want to use a custom
+    model instead of the built-in `Calendar`, inherit from this class.
     '''
 
     name = models.CharField(_("name"), max_length=200)
@@ -144,6 +115,7 @@ class Calendar(models.Model):
     objects = CalendarManager()
 
     class Meta(object):
+        abstract = True
         verbose_name = _('calendar')
         verbose_name_plural = _('calendars')
 
@@ -180,6 +152,44 @@ class Calendar(models.Model):
         if USE_FULLCALENDAR:
             return reverse('fullcalendar', kwargs={'calendar_slug': self.slug})
         return reverse('calendar_home', kwargs={'calendar_slug': self.slug})
+
+
+class Calendar(AbstractCalendar):
+    """
+    This is for grouping events so that batch relations can be made to all
+    events.  An example would be a project calendar.
+
+    name: the name of the calendar
+    events: all the events contained within the calendar.
+    >>> calendar = Calendar(name = 'Test Calendar')
+    >>> calendar.save()
+    >>> data = {
+    ...         'title': 'Recent Event',
+    ...         'start': datetime.datetime(2008, 1, 5, 0, 0),
+    ...         'end': datetime.datetime(2008, 1, 10, 0, 0)
+    ...        }
+    >>> event = Event(**data)
+    >>> event.save()
+    >>> calendar.events.add(event)
+    >>> data = {
+    ...         'title': 'Upcoming Event',
+    ...         'start': datetime.datetime(2008, 1, 1, 0, 0),
+    ...         'end': datetime.datetime(2008, 1, 4, 0, 0)
+    ...        }
+    >>> event = Event(**data)
+    >>> event.save()
+    >>> calendar.events.add(event)
+    >>> data = {
+    ...         'title': 'Current Event',
+    ...         'start': datetime.datetime(2008, 1, 3),
+    ...         'end': datetime.datetime(2008, 1, 6)
+    ...        }
+    >>> event = Event(**data)
+    >>> event.save()
+    >>> calendar.events.add(event)
+    """
+    class Meta(AbstractCalendar.Meta):
+        swappable = 'SCHEDULER_CALENDAR_MODEL'
 
 
 class CalendarRelationManager(models.Manager):
