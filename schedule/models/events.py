@@ -568,7 +568,7 @@ class EventRelation(models.Model):
 
 
 @python_2_unicode_compatible
-class Occurrence(models.Model):
+class AbstractOccurrence(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
     title = models.CharField(_("title"), max_length=255, blank=True)
     description = models.TextField(_("description"), blank=True)
@@ -581,6 +581,7 @@ class Occurrence(models.Model):
     updated_on = models.DateTimeField(_("updated on"), auto_now=True)
 
     class Meta(object):
+        abstract = True
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
         index_together = (
@@ -588,7 +589,7 @@ class Occurrence(models.Model):
         )
 
     def __init__(self, *args, **kwargs):
-        super(Occurrence, self).__init__(*args, **kwargs)
+        super(AbstractOccurrence, self).__init__(*args, **kwargs)
         if not self.title and self.event_id:
             self.title = self.event.title
         if not self.description and self.event_id:
@@ -679,3 +680,11 @@ class Occurrence(models.Model):
         return (isinstance(other, Occurrence) and
                 self.original_start == other.original_start and
                 self.original_end == other.original_end)
+
+
+class Occurrence(AbstractOccurrence):
+    """
+    This model represent an occurrence of an Event.
+    """
+    class Meta(AbstractOccurrence.Meta):
+        swappable = 'SCHEDULER_OCCURRENCE_MODEL'
