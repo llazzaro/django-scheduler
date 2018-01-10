@@ -3,7 +3,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-SECRET_KEY = '_nc9_+ntllx!ptq5tzh96nn^$a#81#auhrdw#8t#+n0#4ig(lz'
+SECRET_KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 
 TEMPLATES = [
     {
