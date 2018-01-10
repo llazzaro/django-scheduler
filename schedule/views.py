@@ -27,10 +27,9 @@ from schedule.settings import (
 )
 from schedule.utils import (
     check_calendar_permissions, check_event_permissions,
-    check_occurrence_permissions, coerce_date_dict,
-    get_calendar_model, get_event_model, get_occurrence_model
+    check_occurrence_permissions, coerce_date_dict, get_calendar_model,
+    get_event_model, get_occurrence_model,
 )
-
 
 Calendar = get_calendar_model()
 Event = get_event_model()

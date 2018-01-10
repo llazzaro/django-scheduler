@@ -11,7 +11,6 @@ from schedule.views import (
     api_move_or_resize_by_code, api_occurrences, api_select_create,
 )
 
-
 Calendar = get_calendar_model()
 
 urlpatterns = [

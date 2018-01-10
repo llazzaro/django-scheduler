@@ -1,4 +1,5 @@
 from django.db import models
+
 from schedule.models import AbstractCalendar, AbstractEvent, AbstractOccurrence
 
 

@@ -2,7 +2,9 @@ from django.contrib import admin
 
 from schedule.forms import EventAdminForm
 from schedule.models import CalendarRelation, Rule
-from schedule.utils import get_calendar_model, get_event_model, get_occurrence_model
+from schedule.utils import (
+    get_calendar_model, get_event_model, get_occurrence_model,
+)
 
 
 @admin.register(get_calendar_model())

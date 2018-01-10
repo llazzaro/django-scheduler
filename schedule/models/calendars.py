@@ -12,7 +12,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.six.moves.builtins import str
 from django.utils.translation import ugettext_lazy as _
 
-from schedule.settings import USE_FULLCALENDAR, SCHEDULER_CALENDAR_MODEL
+from schedule.settings import SCHEDULER_CALENDAR_MODEL, USE_FULLCALENDAR
 from schedule.utils import EventListManager
 
 
