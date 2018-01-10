@@ -1,10 +1,11 @@
 from django.contrib import admin
 
 from schedule.forms import EventAdminForm
-from schedule.models import Calendar, CalendarRelation, Event, Occurrence, Rule
+from schedule.models import CalendarRelation, Rule
+from schedule.utils import get_calendar_model, get_event_model, get_occurrence_model
 
 
-@admin.register(Calendar)
+@admin.register(get_calendar_model())
 class CalendarAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
@@ -33,7 +34,7 @@ class CalendarRelationAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Event)
+@admin.register(get_event_model())
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'start', 'end')
     list_filter = ('start',)
@@ -54,7 +55,7 @@ class EventAdmin(admin.ModelAdmin):
     form = EventAdminForm
 
 
-admin.site.register(Occurrence, admin.ModelAdmin)
+admin.site.register(get_occurrence_model(), admin.ModelAdmin)
 
 
 @admin.register(Rule)

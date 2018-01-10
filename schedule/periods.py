@@ -13,8 +13,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.six.moves.builtins import range
 from django.utils.translation import ugettext
 
-from schedule.models import Occurrence
 from schedule.settings import SHOW_CANCELLED_OCCURRENCES
+from schedule.utils import get_occurrence_model
 
 weekday_names = []
 weekday_abbrs = []
@@ -103,7 +103,7 @@ class Period(object):
         if hasattr(self, '_persisted_occurrences'):
             return self._persisted_occurrences
         else:
-            self._persisted_occurrences = Occurrence.objects.filter(event__in=self.events)
+            self._persisted_occurrences = get_occurrence_model().objects.filter(event__in=self.events)
             return self._persisted_occurrences
 
     def classify_occurrence(self, occurrence):

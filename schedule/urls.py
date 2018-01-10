@@ -2,14 +2,17 @@ from django.conf.urls import url
 from django.views.generic.list import ListView
 
 from schedule.feeds import CalendarICalendar, UpcomingEventsFeed
-from schedule.models import Calendar
 from schedule.periods import Day, Month, Week, Year
+from schedule.utils import get_calendar_model
 from schedule.views import (
     CalendarByPeriodsView, CalendarView, CancelOccurrenceView, CreateEventView,
     CreateOccurrenceView, DeleteEventView, EditEventView, EditOccurrenceView,
     EventView, FullCalendarView, OccurrencePreview, OccurrenceView,
     api_move_or_resize_by_code, api_occurrences, api_select_create,
 )
+
+
+Calendar = get_calendar_model()
 
 urlpatterns = [
     url(r'^$', ListView.as_view(model=Calendar), name='calendar_list'),

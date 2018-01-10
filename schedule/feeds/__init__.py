@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.six.moves.builtins import str
 
 from schedule.feeds.ical import ICalendarFeed
-from schedule.models import Calendar
+from schedule.utils import get_calendar_model
 
 
 class UpcomingEventsFeed(Feed):
@@ -16,7 +16,7 @@ class UpcomingEventsFeed(Feed):
         return "Upcoming Events for %s" % obj.name
 
     def get_object(self, request, calendar_id):
-        return Calendar.objects.get(pk=calendar_id)
+        return get_calendar_model().objects.get(pk=calendar_id)
 
     def link(self, obj):
         if not obj:
@@ -49,7 +49,7 @@ class UpcomingEventsFeed(Feed):
 class CalendarICalendar(ICalendarFeed):
     def items(self):
         cal_id = self.args[1]
-        cal = Calendar.objects.get(pk=cal_id)
+        cal = get_calendar_model().objects.get(pk=cal_id)
 
         return cal.events.all()
 

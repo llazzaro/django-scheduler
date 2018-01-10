@@ -20,7 +20,6 @@ from django.views.generic.edit import (
 )
 
 from schedule.forms import EventForm, OccurrenceForm
-from schedule.models import Calendar, Event, Occurrence
 from schedule.periods import weekday_names
 from schedule.settings import (
     CHECK_EVENT_PERM_FUNC, CHECK_OCCURRENCE_PERM_FUNC, EVENT_NAME_PLACEHOLDER,
@@ -29,7 +28,13 @@ from schedule.settings import (
 from schedule.utils import (
     check_calendar_permissions, check_event_permissions,
     check_occurrence_permissions, coerce_date_dict,
+    get_calendar_model, get_event_model, get_occurrence_model
 )
+
+
+Calendar = get_calendar_model()
+Event = get_event_model()
+Occurrence = get_occurrence_model()
 
 
 class CalendarViewPermissionMixin(object):

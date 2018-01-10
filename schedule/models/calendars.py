@@ -12,7 +12,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.six.moves.builtins import str
 from django.utils.translation import ugettext_lazy as _
 
-from schedule.settings import USE_FULLCALENDAR
+from schedule.settings import USE_FULLCALENDAR, SCHEDULER_CALENDAR_MODEL
 from schedule.utils import EventListManager
 
 
@@ -228,7 +228,7 @@ class CalendarRelation(models.Model):
     may not scale well.  If you use this, keep that in mind.
     '''
 
-    calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE, verbose_name=_("calendar"))
+    calendar = models.ForeignKey(SCHEDULER_CALENDAR_MODEL, on_delete=models.CASCADE, verbose_name=_("calendar"))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.IntegerField(db_index=True)
     content_object = fields.GenericForeignKey('content_type', 'object_id')

@@ -18,7 +18,8 @@ from django.utils.translation import ugettext
 
 from schedule.models.calendars import Calendar
 from schedule.models.rules import Rule
-from schedule.utils import OccurrenceReplacer
+from schedule.settings import SCHEDULER_CALENDAR_MODEL, SCHEDULER_EVENT_MODEL
+from schedule.utils import OccurrenceReplacer, get_occurrence_model
 
 freq_dict_order = {
     'YEARLY': 0,
@@ -75,7 +76,7 @@ class AbstractEvent(models.Model):
     end_recurring_period = models.DateTimeField(_("end recurring period"), null=True, blank=True, db_index=True,
                                                 help_text=_("This date is ignored for one time only events."))
     calendar = models.ForeignKey(
-        Calendar,
+        SCHEDULER_CALENDAR_MODEL,
         on_delete=models.CASCADE,
         verbose_name=_("calendar"))
     color_event = models.CharField(_("Color event"), blank=True, max_length=10)
@@ -197,7 +198,7 @@ class AbstractEvent(models.Model):
     def _create_occurrence(self, start, end=None):
         if end is None:
             end = start + (self.end - self.start)
-        return Occurrence(event=self, start=start, end=end, original_start=start, original_end=end)
+        return get_occurrence_model()(event=self, start=start, end=end, original_start=start, original_end=end)
 
     def get_occurrence(self, date):
         use_naive = timezone.is_naive(date)
@@ -213,6 +214,7 @@ class AbstractEvent(models.Model):
         else:
             next_occurrence = self.start
         if next_occurrence == date:
+            Occurrence = get_occurrence_model()
             try:
                 return Occurrence.objects.get(event=self, original_start=date)
             except Occurrence.DoesNotExist:
@@ -550,7 +552,7 @@ class EventRelation(models.Model):
     DISCLAIMER: while this model is a nice out of the box feature to have, it
     may not scale well.  If you use this keep that in mind.
     '''
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
+    event = models.ForeignKey(SCHEDULER_EVENT_MODEL, on_delete=models.CASCADE, verbose_name=_("event"))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.IntegerField(db_index=True)
     content_object = fields.GenericForeignKey('content_type', 'object_id')
@@ -569,7 +571,7 @@ class EventRelation(models.Model):
 
 @python_2_unicode_compatible
 class AbstractOccurrence(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
+    event = models.ForeignKey(SCHEDULER_EVENT_MODEL, on_delete=models.CASCADE, verbose_name=_("event"))
     title = models.CharField(_("title"), max_length=255, blank=True)
     description = models.TextField(_("description"), blank=True)
     start = models.DateTimeField(_("start"), db_index=True)
@@ -677,7 +679,7 @@ class AbstractOccurrence(models.Model):
         return self.end < other.end
 
     def __eq__(self, other):
-        return (isinstance(other, Occurrence) and
+        return (isinstance(other, self.__class__) and
                 self.original_start == other.original_start and
                 self.original_end == other.original_end)
 

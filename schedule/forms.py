@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from schedule.models import Event, Occurrence
+from schedule.utils import get_event_model, get_occurrence_model
 from schedule.widgets import ColorInput
 
 
@@ -28,20 +28,20 @@ class EventForm(SpanForm):
                                                required=False)
 
     class Meta(object):
-        model = Event
+        model = get_event_model()
         exclude = ('creator', 'created_on', 'calendar')
 
 
 class OccurrenceForm(SpanForm):
     class Meta(object):
-        model = Occurrence
+        model = get_occurrence_model()
         exclude = ('original_start', 'original_end', 'event', 'cancelled')
 
 
 class EventAdminForm(forms.ModelForm):
     class Meta:
         exclude = []
-        model = Event
+        model = get_event_model()
         widgets = {
             'color_event': ColorInput,
         }
