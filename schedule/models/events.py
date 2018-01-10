@@ -16,7 +16,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 
-from schedule.models.calendars import Calendar
 from schedule.models.rules import Rule
 from schedule.settings import SCHEDULER_CALENDAR_MODEL, SCHEDULER_EVENT_MODEL
 from schedule.utils import OccurrenceReplacer, get_occurrence_model
