@@ -9,3 +9,5 @@
 /dist/
 *.egg-info/
 /docs/_build/
+# generated in tests, shouldn't be versionned
+tests/test_project/migrations/0001_initial.py
