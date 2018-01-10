@@ -1,13 +1,16 @@
 import heapq
 from functools import wraps
 
+from django.apps import apps
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.utils import timezone
 
 from schedule.settings import (
     CALENDAR_VIEW_PERM, CHECK_CALENDAR_PERM_FUNC, CHECK_EVENT_PERM_FUNC,
-    CHECK_OCCURRENCE_PERM_FUNC,
+    CHECK_OCCURRENCE_PERM_FUNC, SCHEDULER_CALENDAR_MODEL, SCHEDULER_EVENT_MODEL,
+    SCHEDULER_OCCURRENCE_MODEL
 )
 
 
@@ -28,12 +31,10 @@ class EventListManager(object):
         the most recent occurrence after the date ``after`` from any of the
         events in ``self.events``
         """
-        from schedule.models import Occurrence
-
         if after is None:
             after = timezone.now()
         occ_replacer = OccurrenceReplacer(
-            Occurrence.objects.filter(event__in=self.events))
+            get_occurrence_model().objects.filter(event__in=self.events))
         generators = [event._occurrences_after_generator(after) for event in self.events]
         occurrences = []
 
@@ -104,29 +105,26 @@ def get_kwarg_or_param(request, kwargs, key):
 
 
 def get_occurrence(request, **kwargs):
-    from schedule.models import Occurrence
     occurrence_id = get_kwarg_or_param(request, kwargs, 'occurrence_id')
-    return Occurrence.objects.filter(pk=occurrence_id).first() if occurrence_id else None
+    return get_occurrence_model().objects.filter(pk=occurrence_id).first() if occurrence_id else None
 
 
 def get_event(occurrence, request, **kwargs):
-    from schedule.models import Event
     if occurrence:
         event = occurrence.event
     else:
         event_id = get_kwarg_or_param(request, kwargs, 'event_id')
-        event = Event.objects.filter(pk=event_id).first() if event_id else None
+        event = get_event_model().objects.filter(pk=event_id).first() if event_id else None
     return event
 
 
 def get_calendar(event, request, **kwargs):
-    from schedule.models import Calendar
     calendar = None
     if event:
         calendar = event.calendar
     else:
         calendar_slug = get_kwarg_or_param(request, kwargs, 'calendar_slug')
-        calendar = Calendar.objects.filter(slug=calendar_slug).first() if calendar_slug else None
+        calendar = get_calendar_model().objects.filter(slug=calendar_slug).first() if calendar_slug else None
     return calendar
 
 
@@ -217,3 +215,44 @@ def coerce_date_dict(date_dict):
         except KeyError:
             break
     return modified and ret_val or {}
+
+
+def get_calendar_model():
+    """
+    Shortcut to return the calendar model.
+    """
+    return _get_swapped_model(SCHEDULER_CALENDAR_MODEL, 'SCHEDULER_CALENDAR_MODEL')
+
+
+def get_event_model():
+    """
+    Shortcut to return the event model.
+    """
+    return _get_swapped_model(SCHEDULER_EVENT_MODEL, 'SCHEDULER_EVENT_MODEL')
+
+
+def get_occurrence_model():
+    """
+    Shortcut to return the occurrence model.
+    """
+    return _get_swapped_model(SCHEDULER_OCCURRENCE_MODEL, 'SCHEDULER_OCCURRENCE_MODEL')
+
+
+def _get_swapped_model(model_setting, setting_name):
+    """
+    Internal helper to retrieve a swapped model that is defined through the settings.
+    Supports the following:
+        - SCHEDULER_CALENDAR_MODEL
+        - SCHEDULER_EVENT_MODEL
+        - SCHEDULER_OCCURRENCE_MODEL
+    """
+    try:
+        return apps.get_model(model_setting, require_ready=False)
+    except ValueError:
+        raise ImproperlyConfigured(
+            "{} must be of the form 'app_label.model_name'".format(setting_name)
+        )
+    except LookupError:
+        raise ImproperlyConfigured(
+            "{} refers to model '{}' that has not been installed".format(setting_name, model_setting)
+        )
