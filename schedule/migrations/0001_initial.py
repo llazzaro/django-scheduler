@@ -21,6 +21,7 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(max_length=200, verbose_name='slug')),
             ],
             options={
+                'swappable': 'SCHEDULER_CALENDAR_MODEL',
                 'verbose_name_plural': 'calendar',
                 'verbose_name': 'calendar',
             },
@@ -57,6 +58,7 @@ class Migration(migrations.Migration):
                 ('creator', models.ForeignKey(blank=True, null=True, related_name='creator', verbose_name='creator', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
+                'swappable': 'SCHEDULER_EVENT_MODEL',
                 'verbose_name_plural': 'events',
                 'verbose_name': 'event',
             },
@@ -93,6 +95,7 @@ class Migration(migrations.Migration):
                 ('event', models.ForeignKey(to='schedule.Event', verbose_name='event', on_delete=models.CASCADE)),
             ],
             options={
+                'swappable': 'SCHEDULER_OCCURRENCE_MODEL',
                 'verbose_name_plural': 'occurrences',
                 'verbose_name': 'occurrence',
             },
