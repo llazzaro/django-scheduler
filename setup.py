@@ -37,6 +37,7 @@ setup(
         'Framework :: Django :: 2.0',
         'Topic :: Utilities',
     ],
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
     install_requires=[
         'Django>=1.11',
         'python-dateutil>=2.1',
