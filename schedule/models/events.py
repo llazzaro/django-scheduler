@@ -86,7 +86,6 @@ class Event(models.Model):
     class Meta(object):
         verbose_name = _('event')
         verbose_name_plural = _('events')
-        app_label = 'schedule'
         index_together = (
             ('start', 'end'),
         )
@@ -554,7 +553,6 @@ class EventRelation(models.Model):
     class Meta(object):
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
-        app_label = 'schedule'
         index_together = [('content_type', 'object_id')]
 
     def __str__(self):
@@ -577,7 +575,6 @@ class Occurrence(models.Model):
     class Meta(object):
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
-        app_label = 'schedule'
         index_together = (
             ('start', 'end'),
         )

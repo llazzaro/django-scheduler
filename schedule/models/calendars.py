@@ -146,7 +146,6 @@ class Calendar(models.Model):
     class Meta(object):
         verbose_name = _('calendar')
         verbose_name_plural = _('calendars')
-        app_label = 'schedule'
 
     def __str__(self):
         return self.name
@@ -234,7 +233,6 @@ class CalendarRelation(models.Model):
     class Meta(object):
         verbose_name = _('calendar relation')
         verbose_name_plural = _('calendar relations')
-        app_label = 'schedule'
         index_together = [('content_type', 'object_id')]
 
     def __str__(self):

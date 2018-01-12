@@ -64,7 +64,6 @@ class Rule(models.Model):
     class Meta(object):
         verbose_name = _('rule')
         verbose_name_plural = _('rules')
-        app_label = 'schedule'
 
     def rrule_frequency(self):
         compatibility_dict = {
