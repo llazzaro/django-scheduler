@@ -421,7 +421,9 @@ class TestAwareDay(TestCase):
         self.event = Event.objects.create(
             title='One minute long event on january seventh 2008 at 00:20 in Amsterdam.',
             start=start,
-            end=end)
+            end=end,
+            calendar=Calendar.objects.create(name="MyCal"),
+        )
 
         self.day = Day(
             events=Event.objects.all(),

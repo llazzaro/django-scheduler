@@ -21,13 +21,6 @@ class TestCalendarInheritance(TestCase):
 
 
 class TestCalendar(TestCase):
-    def __create_event(self, start, end):
-        return Event.objects.create(
-            title='Recent Event',
-            start=start,
-            end=end,
-        )
-
     def test_get_recent_events_without_events_is_empty(self):
         calendar = Calendar()
         self.assertEqual(list(calendar.get_recent()), [])
@@ -43,7 +36,12 @@ class TestCalendar(TestCase):
         calendar = Calendar.objects.create()
         start_after = timezone.now() + datetime.timedelta(days=1)
         end_after = start_after + datetime.timedelta(hours=1)
-        event = self.__create_event(start_after, end_after)
+        event = Event.objects.create(
+            title='Recent Event',
+            start=start_after,
+            end=end_after,
+            calendar=calendar,
+        )
         calendar.events.add(event)
         occurrences = list(calendar.occurrences_after(timezone.now()))
         self.assertEqual(len(occurrences), 1)
@@ -54,7 +52,12 @@ class TestCalendar(TestCase):
         calendar = Calendar.objects.create()
         start_after = timezone.now() + datetime.timedelta(days=-1)
         end_after = start_after + datetime.timedelta(hours=1)
-        event = self.__create_event(start_after, end_after)
+        event = Event.objects.create(
+            title='Recent Event',
+            start=start_after,
+            end=end_after,
+            calendar=calendar,
+        )
         calendar.events.add(event)
         occurrences = list(calendar.occurrences_after(timezone.now()))
         self.assertEqual(occurrences, [])
