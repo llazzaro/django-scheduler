@@ -181,3 +181,15 @@ Value is in seconds.
 
 Default (two years):
 62208000
+
+
+Contributing
+============
+
+## Tests
+
+To run tests on all supported versions of Django and Python, use `tox`:
+
+```
+$ tox
+```
