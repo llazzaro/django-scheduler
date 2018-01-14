@@ -4,31 +4,27 @@ cache: pip
 
 matrix:
   include:
+    - env: TOXENV=lint
     - python: 2.7
-      env: DJANGO="Django>=1.11,<2.0"
+      env: TOXENV=py27-django111
     - python: 3.4
-      env: DJANGO="Django>=1.11,<2.0"
+      env: TOXENV=py34-django111
     - python: 3.5
-      env: DJANGO="Django>=1.11,<2.0"
+      env: TOXENV=py35-django111
     - python: 3.6
-      env: DJANGO="Django>=1.11,<2.0"
+      env: TOXENV=py36-django111
     - python: 3.4
-      env: DJANGO="Django>=2.0,<2.1"
+      env: TOXENV=py34-django20
     - python: 3.5
-      env: DJANGO="Django>=2.0,<2.1"
+      env: TOXENV=py35-django20
     - python: 3.6
-      env: DJANGO="Django>=2.0,<2.1"
+      env: TOXENV=py36-django20
 
 install:
-  - pip install $DJANGO
-  - pip install -r requirements.txt
-before_script:
-  - flake8
-  - isort --check-only --diff
-  - python -m django check --settings=tests.settings
-  - python -m django makemigrations --settings=tests.settings --no-input --dry-run --check
+  - pip install tox
+  - if [ $TOXENV != lint ]; then pip install coveralls; fi
 script:
-  - coverage run -m django test --settings=tests.settings
-  - coverage report -m
+  - tox
+  - if [ $TOXENV != lint ]; then coverage report -m; fi
 after_success:
-  - coveralls --verbose
+  - if [ $TOXENV != lint ]; then coveralls --verbose; fi
