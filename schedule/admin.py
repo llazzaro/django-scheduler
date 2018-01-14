@@ -4,7 +4,8 @@ from schedule.forms import EventAdminForm
 from schedule.models import Calendar, CalendarRelation, Event, Occurrence, Rule
 
 
-class CalendarAdminOptions(admin.ModelAdmin):
+@admin.register(Calendar)
+class CalendarAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name']
@@ -17,6 +18,7 @@ class CalendarAdminOptions(admin.ModelAdmin):
     )
 
 
+@admin.register(CalendarRelation)
 class CalendarRelationAdmin(admin.ModelAdmin):
     list_display = ('calendar', 'content_object')
     list_filter = ('inheritable',)
@@ -31,6 +33,7 @@ class CalendarRelationAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'start', 'end')
     list_filter = ('start',)
@@ -51,14 +54,11 @@ class EventAdmin(admin.ModelAdmin):
     form = EventAdminForm
 
 
+admin.site.register(Occurrence, admin.ModelAdmin)
+
+
+@admin.register(Rule)
 class RuleAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('frequency',)
     search_fields = ('name', 'description')
-
-
-admin.site.register(Calendar, CalendarAdminOptions)
-admin.site.register(Event, EventAdmin)
-admin.site.register(Rule, RuleAdmin)
-admin.site.register(Occurrence, admin.ModelAdmin)
-admin.site.register(CalendarRelation, CalendarRelationAdmin)
