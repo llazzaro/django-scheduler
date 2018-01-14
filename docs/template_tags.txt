@@ -30,6 +30,3 @@ This is useful when creating links as the calendar_by_period view uses this to d
 >>> # Now everything except the seconds
 >>> querystring_for_date(date, num=5)
 '?year=2009&month=4&day=1&hour=0&minute=0'
-
-
-    
