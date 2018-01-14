@@ -181,9 +181,6 @@ class Calendar(models.Model):
             return reverse('fullcalendar', kwargs={'calendar_slug': self.slug})
         return reverse('calendar_home', kwargs={'calendar_slug': self.slug})
 
-    def add_event_url(self):
-        return reverse('calendar_create_event', args=[self.slug])
-
 
 class CalendarRelationManager(models.Manager):
     def create_relation(self, calendar, content_object, distinction='', inheritable=True):
