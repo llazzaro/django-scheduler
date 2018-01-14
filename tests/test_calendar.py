@@ -123,5 +123,4 @@ class TestCalendar(TestCase):
         rule = Rule.objects.create()
         calendar = Calendar.objects.get_or_create_calendar_for_object(rule, name='My Cal', distinction='owner')
         calendar.get_absolute_url()
-        calendar.add_event_url()
         CalendarRelation.objects.create_relation(calendar, rule)
