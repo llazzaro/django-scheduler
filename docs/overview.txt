@@ -37,7 +37,7 @@ Because some Event can recur indefinitely, you cannot have a function like,
 This gives you a list of all occurrences that occur inclusively after start and exclusively before end.  When we say occur, that means that they exist at all between start and end. If occurrence ends 10 seconds after ``start`` then it will be in the list, and if an occurrence starts 10 seconds before ``end`` then it will also be in the list.
 
 ``occurrences_after(after)``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This method produces a generator that generates events inclusively after the given datetime ``after``.  If no date is given then it uses now.
 

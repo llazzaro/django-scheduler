@@ -8,7 +8,7 @@ Settings
 OCCURRENCE_CANCEL_REDIRECT
 --------------------------
 
-This setting controls the behavior of :func:`Views.get_next_url`. If set, all calendar modifications will redirect here (unless there is a `next` set in the request.)
+This setting controls the behavior of ``Views.get_next_url``. If set, all calendar modifications will redirect here (unless there is a `next` set in the request.)
 
 .. _ref-settings-show-cancelled-occurrences:
 
@@ -36,7 +36,7 @@ If ob is None, then the function is checking for permission to add new events.
 .. _ref-settings-check-calendar-perm-func:
 
 CHECK_CALENDAR_PERM_FUNC
----------------------
+------------------------
 
 This setting controls the callable used to determine if a user has permission to add, update or delete events in a specific calendar. The callable must take the object (calendar) and the user and return a boolean.
 
