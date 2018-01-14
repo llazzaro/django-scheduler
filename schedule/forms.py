@@ -4,7 +4,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from schedule.models import Event, Occurrence
-from schedule.widgets import SpectrumColorPicker
+from schedule.widgets import ColorInput
 
 
 class SpanForm(forms.ModelForm):
@@ -43,5 +43,5 @@ class EventAdminForm(forms.ModelForm):
         exclude = []
         model = Event
         widgets = {
-            'color_event': SpectrumColorPicker,
+            'color_event': ColorInput,
         }
