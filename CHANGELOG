@@ -1,5 +1,5 @@
-UNRELEASED
-==========
+0.8.8 - 2018-01-14
+==================
 
 - Fixed dependencies to keep Django 1.11 support.
 - ``Event.calendar`` is now ``null=True``. Existing ``Event`` objects without a
