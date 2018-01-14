@@ -61,11 +61,6 @@ class TestCalendar(TestCase):
         calendar.events.add(event)
         occurrences = list(calendar.occurrences_after(timezone.now()))
         self.assertEqual(occurrences, [])
-#        self.assertEqual(list(calendar.occurrences_after(timezone.now())), [])
-
-#    def test_get_absolute_url(self):
-#        calendar = Calendar()
-#        self.assertEqual(calendar.get_absolute_url(), '')
 
     def test_get_calendar_for_object(self):
         calendar = Calendar.objects.create(name='My Cal')
