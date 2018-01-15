@@ -1,10 +1,12 @@
 import datetime
+from contextlib import contextmanager
 
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from django.utils import timezone
 
+from schedule import utils
 from schedule.models import Calendar, Event, Occurrence, Rule
-from schedule.utils import EventListManager, OccurrenceReplacer
 
 
 class TestEventListManager(TestCase):
@@ -32,7 +34,7 @@ class TestEventListManager(TestCase):
         )
 
     def test_occurrences_after(self):
-        eml = EventListManager([self.event1, self.event2])
+        eml = utils.EventListManager([self.event1, self.event2])
         occurrences = eml.occurrences_after(datetime.datetime(2009, 4, 1, 0, 0, tzinfo=self.default_tzinfo))
         self.assertEqual(next(occurrences).event, self.event1)
         self.assertEqual(next(occurrences).event, self.event2)
@@ -87,7 +89,7 @@ class TestOccurrenceReplacer(TestCase):
             end=self.end,
             original_start=self.start,
             original_end=self.end)
-        occ_replacer = OccurrenceReplacer([self.occ])
+        occ_replacer = utils.OccurrenceReplacer([self.occ])
 
         self.assertTrue(occ_replacer.has_occurrence(self.occ))
         self.assertTrue(occ_replacer.has_occurrence(other_occ))
@@ -99,13 +101,13 @@ class TestOccurrenceReplacer(TestCase):
             end=self.end,
             original_start=self.start,
             original_end=self.end)
-        occ_replacer = OccurrenceReplacer([self.occ])
+        occ_replacer = utils.OccurrenceReplacer([self.occ])
 
         self.assertTrue(occ_replacer.has_occurrence(self.occ))
         self.assertFalse(occ_replacer.has_occurrence(other_occ))
 
     def test_get_additional_occurrences(self):
-        occ_replacer = OccurrenceReplacer([self.occ])
+        occ_replacer = utils.OccurrenceReplacer([self.occ])
         # Other occurrence.
         Occurrence.objects.create(
             event=self.event2,
@@ -117,7 +119,7 @@ class TestOccurrenceReplacer(TestCase):
         self.assertEqual(res, [self.occ])
 
     def test_get_additional_occurrences_cancelled(self):
-        occ_replacer = OccurrenceReplacer([self.occ])
+        occ_replacer = utils.OccurrenceReplacer([self.occ])
         self.occ.cancelled = True
         self.occ.save()
         res = occ_replacer.get_additional_occurrences(self.start, self.end)
@@ -125,7 +127,7 @@ class TestOccurrenceReplacer(TestCase):
 
     def test_get_occurrence(self):
         # self.occ is a persisted Occurrence
-        occ_replacer = OccurrenceReplacer([self.occ])
+        occ_replacer = utils.OccurrenceReplacer([self.occ])
         res = occ_replacer.get_occurrence(self.occ)
         self.assertEqual(res, self.occ)
         res = occ_replacer.get_occurrence(self.occ)
@@ -133,6 +135,64 @@ class TestOccurrenceReplacer(TestCase):
 
     def test_get_occurrence_works_for_event_like_object(self):
         # get_occurrence method checks the duck
-        occ_replacer = OccurrenceReplacer([self.occ])
+        occ_replacer = utils.OccurrenceReplacer([self.occ])
         with self.assertRaises(AttributeError):
             occ_replacer.get_occurrence(int)
+
+
+@contextmanager
+def override_local_settings(**kwargs):
+    previous = {}
+    for key in kwargs:
+        previous[key] = getattr(utils, key)
+        setattr(utils, key, kwargs[key])
+    try:
+        yield
+    finally:
+        for key in previous:
+            setattr(utils, key, previous[key])
+
+
+class TestUtils(TestCase):
+
+    def test_get_calendar_model(self):
+        model = utils.get_calendar_model()
+        self.assertIs(model, Calendar)
+
+    def test_get_calendar_model_swapped_bad_settings(self):
+        with override_local_settings(SCHEDULER_CALENDAR_MODEL='badsetting'):
+            with self.assertRaisesMessage(ImproperlyConfigured, "SCHEDULER_CALENDAR_MODEL must be of the form 'app_label.model_name'"):
+                utils.get_calendar_model()
+
+    def test_get_calendar_model_swapped_unknown_model(self):
+        with override_local_settings(SCHEDULER_CALENDAR_MODEL='stuff.Model'):
+            with self.assertRaisesMessage(ImproperlyConfigured, "SCHEDULER_CALENDAR_MODEL refers to model 'stuff.Model' that has not been installed"):
+                utils.get_calendar_model()
+
+    def test_get_event_model(self):
+        model = utils.get_event_model()
+        self.assertIs(model, Event)
+
+    def test_get_event_model_swapped_bad_settings(self):
+        with override_local_settings(SCHEDULER_EVENT_MODEL='badsetting'):
+            with self.assertRaisesMessage(ImproperlyConfigured, "SCHEDULER_EVENT_MODEL must be of the form 'app_label.model_name'"):
+                utils.get_event_model()
+
+    def test_get_event_model_swapped_unknown_model(self):
+        with override_local_settings(SCHEDULER_EVENT_MODEL='stuff.Model'):
+            with self.assertRaisesMessage(ImproperlyConfigured, "SCHEDULER_EVENT_MODEL refers to model 'stuff.Model' that has not been installed"):
+                utils.get_event_model()
+
+    def test_get_occurrence_model(self):
+        model = utils.get_occurrence_model()
+        self.assertIs(model, Occurrence)
+
+    def test_test_get_occurrence_model_swapped_bad_settings(self):
+        with override_local_settings(SCHEDULER_OCCURRENCE_MODEL='badsetting'):
+            with self.assertRaisesMessage(ImproperlyConfigured, "SCHEDULER_OCCURRENCE_MODEL must be of the form 'app_label.model_name'"):
+                utils.get_occurrence_model()
+
+    def test_test_get_occurrence_model_swapped_unknown_model(self):
+        with override_local_settings(SCHEDULER_OCCURRENCE_MODEL='stuff.Model'):
+            with self.assertRaisesMessage(ImproperlyConfigured, "SCHEDULER_OCCURRENCE_MODEL refers to model 'stuff.Model' that has not been installed"):
+                utils.get_occurrence_model()
