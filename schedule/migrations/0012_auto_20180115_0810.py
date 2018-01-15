@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='event',
             name='calendar',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.SCHEDULER_CALENDAR_MODEL, verbose_name='calendar'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.SCHEDULER_CALENDAR_MODEL, verbose_name='calendar'),
         ),
         migrations.AlterField(
             model_name='eventrelation',
