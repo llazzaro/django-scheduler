@@ -9,7 +9,7 @@ from schedule import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('schedule', '0009_merge_20180108_2303'),
+        ('schedule', '0011_event_calendar_not_null'),
     ]
 
     operations = [
