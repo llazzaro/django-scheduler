@@ -1,29 +1,39 @@
 import importlib
+import os
+import subprocess
+import sys
 
+from django.conf import settings
 from django.db import migrations
 from django.test import TestCase
 from django.test.utils import override_settings
 
 
 class TestSwappableModels(TestCase):
-    """
-    This test relies entirely on the `test_project` app and the following instruction:
 
-    python -m django makemigrations test_project --settings=tests.test_project.settings
-
-    This instruction is executed in travis.yml, and if you want to execute this test locally
-    you'll need to run it by yourself.
-    """
+    def _execute_makemigrations(self):
+        popen = subprocess.Popen(
+            [
+                'python',
+                '-m',
+                'django',
+                'makemigrations',
+                'test_project',
+                '--settings=tests.test_project.settings'
+            ],
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+            cwd=settings.BASE_DIR
+        )
+        popen.wait()
 
     def _get_migration_class(self):
-        try:
-            module = importlib.import_module('tests.test_project.migrations.0001_initial')
-            return module.Migration
-        except ImportError:
-            raise RuntimeError(self.__doc__.strip())
+        module = importlib.import_module('tests.test_project.migrations.0001_initial')
+        return module.Migration
 
     @override_settings(SCHEDULER_CALENDAR_MODEL='schedule.Calendar', SCHEDULER_EVENT_MODEL='schedule.Event')
     def test_migration(self):
+        self._execute_makemigrations()
         migration = self._get_migration_class()
         self.assertTrue(migration.initial)
         creations = [op for op in migration.operations if isinstance(op, migrations.CreateModel)]
