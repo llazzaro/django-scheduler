@@ -61,8 +61,7 @@ class AbstractEvent(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name=_("creator"),
-        related_name='creator')
+        verbose_name=_("creator"))
     created_on = models.DateTimeField(_("created on"), auto_now_add=True)
     updated_on = models.DateTimeField(_("updated on"), auto_now=True)
     rule = models.ForeignKey(

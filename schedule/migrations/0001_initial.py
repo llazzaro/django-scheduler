@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('updated_on', models.DateTimeField(auto_now=True, verbose_name='updated on')),
                 ('end_recurring_period', models.DateTimeField(blank=True, null=True, help_text='This date is ignored for one time only events.', verbose_name='end recurring period')),
                 ('calendar', models.ForeignKey(blank=True, null=True, on_delete=models.CASCADE, to=schedule_settings.SCHEDULER_CALENDAR_MODEL, verbose_name='calendar')),
-                ('creator', models.ForeignKey(blank=True, null=True, related_name='creator', verbose_name='creator', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('creator', models.ForeignKey(blank=True, null=True, verbose_name='creator', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'swappable': 'SCHEDULER_EVENT_MODEL',
