@@ -79,6 +79,6 @@ STATICFILES_FINDERS = (
 )
 
 # custom Scheduler models
-SCHEDULER_CALENDAR_MODEL = 'schedule.Calendar'
-SCHEDULER_EVENT_MODEL = 'schedule.Event'
-SCHEDULER_OCCURRENCE_MODEL = 'schedule.Occurrence'
+SCHEDULER_CALENDAR_MODEL = 'test_project.CustomCalendar'
+SCHEDULER_EVENT_MODEL = 'test_project.CustomEvent'
+SCHEDULER_OCCURRENCE_MODEL = 'test_project.CustomOccurrence'
