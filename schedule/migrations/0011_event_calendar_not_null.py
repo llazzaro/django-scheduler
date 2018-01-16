@@ -1,6 +1,8 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
+from schedule import settings as schedule_settings
+
 
 class Migration(migrations.Migration):
 
@@ -12,6 +14,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='event',
             name='calendar',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schedule.Calendar', verbose_name='calendar'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to=schedule_settings.SCHEDULER_CALENDAR_MODEL,
+                verbose_name='calendar'
+            ),
         ),
     ]

@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 
+from schedule import settings as schedule_settings
+
 
 class Migration(migrations.Migration):
 
@@ -34,7 +36,7 @@ class Migration(migrations.Migration):
                 ('object_id', models.IntegerField()),
                 ('distinction', models.CharField(null=True, max_length=20, verbose_name='distinction')),
                 ('inheritable', models.BooleanField(default=True, verbose_name='inheritable')),
-                ('calendar', models.ForeignKey(to='schedule.Calendar', verbose_name='calendar', on_delete=models.CASCADE)),
+                ('calendar', models.ForeignKey(on_delete=models.CASCADE, to=schedule_settings.SCHEDULER_CALENDAR_MODEL, verbose_name='calendar')),
                 ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
             ],
             options={
@@ -54,7 +56,7 @@ class Migration(migrations.Migration):
                 ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='created on')),
                 ('updated_on', models.DateTimeField(auto_now=True, verbose_name='updated on')),
                 ('end_recurring_period', models.DateTimeField(blank=True, null=True, help_text='This date is ignored for one time only events.', verbose_name='end recurring period')),
-                ('calendar', models.ForeignKey(blank=True, null=True, to='schedule.Calendar', verbose_name='calendar', on_delete=models.CASCADE)),
+                ('calendar', models.ForeignKey(blank=True, null=True, on_delete=models.CASCADE, to=schedule_settings.SCHEDULER_CALENDAR_MODEL, verbose_name='calendar')),
                 ('creator', models.ForeignKey(blank=True, null=True, related_name='creator', verbose_name='creator', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
@@ -71,7 +73,7 @@ class Migration(migrations.Migration):
                 ('object_id', models.IntegerField()),
                 ('distinction', models.CharField(null=True, max_length=20, verbose_name='distinction')),
                 ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
-                ('event', models.ForeignKey(to='schedule.Event', verbose_name='event', on_delete=models.CASCADE)),
+                ('event', models.ForeignKey(on_delete=models.CASCADE, to=schedule_settings.SCHEDULER_EVENT_MODEL, verbose_name='event')),
             ],
             options={
                 'verbose_name_plural': 'event relations',
@@ -92,7 +94,7 @@ class Migration(migrations.Migration):
                 ('original_end', models.DateTimeField(verbose_name='original end')),
                 ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='created on')),
                 ('updated_on', models.DateTimeField(auto_now=True, verbose_name='updated on')),
-                ('event', models.ForeignKey(to='schedule.Event', verbose_name='event', on_delete=models.CASCADE)),
+                ('event', models.ForeignKey(on_delete=models.CASCADE, to=schedule_settings.SCHEDULER_EVENT_MODEL, verbose_name='event')),
             ],
             options={
                 'swappable': 'SCHEDULER_OCCURRENCE_MODEL',
