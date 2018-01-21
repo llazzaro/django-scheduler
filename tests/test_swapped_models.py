@@ -1,6 +1,7 @@
 import importlib
 import os
 import subprocess
+import sys
 
 from django.conf import settings
 from django.db import migrations
@@ -74,7 +75,7 @@ class TestSwappableModels(TestCase):
         """
         popen = subprocess.Popen(
             [
-                'python',
+                sys.executable,
                 '-m',
                 'django',
                 'makemigrations',
@@ -105,7 +106,7 @@ class TestSwappableModels(TestCase):
         """
         popen = subprocess.Popen(
             [
-                'python',
+                sys.executable,
                 '-m',
                 'django',
                 'makemigrations',
