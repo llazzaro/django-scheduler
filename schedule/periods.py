@@ -82,10 +82,7 @@ class Period(object):
                     occurrences.append(occurrence)
             return occurrences
 
-        try:
-            prefetch_related_objects(self.events, 'occurrence_set')
-        except AttributeError:
-            prefetch_related_objects(self.events, ['occurrence_set'])
+        prefetch_related_objects(self.events, 'occurrence_set')
         for event in self.events:
             event_occurrences = event.get_occurrences(self.start, self.end, clear_prefetch=False)
             occurrences += event_occurrences
