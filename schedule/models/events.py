@@ -156,6 +156,15 @@ class Event(models.Model):
             persisted_occurrences = self.occurrence_set.select_related(None).all()
         else:
             persisted_occurrences = self.occurrence_set.all()
+        tzinfo = timezone.utc
+        if start.tzinfo:
+            tzinfo = start.tzinfo
+        for p in persisted_occurrences:
+            p.start = timezone.localtime(p.start)
+            p.end = timezone.localtime(p.end)
+            if timezone.is_naive(start):
+                p.start = timezone.make_naive(p.start, tzinfo)
+                p.end = timezone.make_naive(p.end, tzinfo)
         occ_replacer = OccurrenceReplacer(persisted_occurrences)
         occurrences = self._get_occurrence_list(start, end)
         final_occurrences = []
