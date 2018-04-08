@@ -141,6 +141,7 @@ class Calendar(models.Model):
 
     name = models.CharField(_("name"), max_length=200)
     slug = models.SlugField(_("slug"), max_length=200, unique=True)
+    desc = models.CharField(_("desc"), max_length=200, default="")
     objects = CalendarManager()
 
     class Meta(object):
