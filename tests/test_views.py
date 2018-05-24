@@ -347,6 +347,28 @@ class TestUrls(TestCase):
         resp_list = json.loads(response.content.decode('utf-8'))
         self.assertIn(event.title, [d['title'] for d in resp_list])
 
+    def test_occurrences_api_fails_with_incorrect_date_string_formats(self):
+        # create a calendar and event
+        calendar = Calendar.objects.create(name="MyCal", slug='MyCalSlug')
+        event = Event.objects.create(
+            title='Recent Event',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar,
+        )
+
+        # test fails with date string time format not '%Y-%m-%d' or '%Y-%m-%dT%H:%M:%S'
+        response = self.client.get(reverse("api_occurrences"),
+                                   {'start': '2008-01-05T00:00',
+                                    'end': '2008-02-05T00:00',
+                                    'calendar_slug': event.calendar.slug
+                                    })
+        self.assertEqual(response.status_code, 400)
+        resp = response.content.decode('utf-8')
+        expected_error = "does not match format '%Y-%m-%dT%H:%M:%S'"
+        self.assertIn(expected_error, resp)
+
     def test_check_next_url_valid_case(self):
         expected = '/calendar/1'
         res = check_next_url('/calendar/1')
