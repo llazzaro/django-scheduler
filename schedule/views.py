@@ -319,7 +319,12 @@ def _api_occurrences(start, end, calendar_slug, timezone):
         def convert(ddatetime):
             if ddatetime:
                 ddatetime = ddatetime.split(' ')[0]
-                return datetime.datetime.strptime(ddatetime, '%Y-%m-%d')
+                try:
+                    return datetime.datetime.strptime(ddatetime, '%Y-%m-%d')
+                except ValueError:
+                    # try a different date string format first before failing
+                    return datetime.datetime.strptime(ddatetime, '%Y-%m-%dT%H:%M:%S')
+
     else:
         def convert(ddatetime):
             return datetime.datetime.utcfromtimestamp(float(ddatetime))
