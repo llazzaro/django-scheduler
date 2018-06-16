@@ -298,20 +298,18 @@ def get_next_url(request, default):
 def api_occurrences(request):
     start = request.GET.get('start')
     end = request.GET.get('end')
-    calendar_slugs_raw = request.GET.get('calendar_slug')
+    calendar_slug = request.GET.get('calendar_slug')
     timezone = request.GET.get('timezone')
 
-    calendar_slugs = calendar_slugs_raw.split(',') if calendar_slugs_raw else []
-
     try:
-        response_data = _api_occurrences(start, end, calendar_slugs, timezone)
+        response_data = _api_occurrences(start, end, calendar_slug, timezone)
     except (ValueError, Calendar.DoesNotExist) as e:
         return HttpResponseBadRequest(e)
 
     return JsonResponse(response_data, safe=False)
 
 
-def _api_occurrences(start, end, calendar_slugs, timezone):
+def _api_occurrences(start, end, calendar_slug, timezone):
 
     if not start or not end:
         raise ValueError('Start and end parameters are required')
@@ -345,14 +343,9 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
         start = utc.localize(start)
         end = utc.localize(end)
 
-    if calendar_slugs:
+    if calendar_slug:
         # will raise DoesNotExist exception if no match
-        calendars = list(Calendar.objects.filter(slug__in=calendar_slugs))
-        missing_calendars = set(calendar_slugs) - set([s.slug for s in calendars])
-        if missing_calendars:
-            missing_msg = ", ".join("'{0}'".format(s) for s in missing_calendars)
-            msg = "Calendars {0} does not exist.".format(missing_msg)
-            raise Calendar.DoesNotExist(missing_calendars)
+        calendars = [Calendar.objects.get(slug=calendar_slug)]
     # if no calendar slug is given, get all the calendars
     else:
         calendars = Calendar.objects.all()
