@@ -396,8 +396,8 @@ class TestUrls(TestCase):
             end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
             calendar=calendarOther,
         )
-        
-        calendar_slug = ','.join(['MyCalSlug1','MyCalSlug2', ])
+
+        calendar_slug = ','.join(['MyCalSlug1', 'MyCalSlug2', ])
 
         # Test both present with no cal arg
         response = self.client.get(reverse("api_occurrences"),
@@ -423,7 +423,7 @@ class TestUrls(TestCase):
             calendar=calendar1,
         )
 
-        calendar_slug = ','.join(['MyCalSlug1','MyCalSlugOther', ])
+        calendar_slug = ','.join(['MyCalSlug1', 'MyCalSlugOther', ])
         # Test both present with no cal arg
         response = self.client.get(reverse("api_occurrences"),
                                    {'start': '2008-01-05',
