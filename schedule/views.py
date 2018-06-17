@@ -352,7 +352,7 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
         if missing_calendars:
             missing_msg = ", ".join("'{0}'".format(s) for s in missing_calendars)
             msg = "Calendars {0} do not exist.".format(missing_msg)
-            raise Calendar.DoesNotExist(missing_calendars)
+            raise Calendar.DoesNotExist(msg)
     # if no calendar slug is given, get all the calendars
     else:
         calendars = Calendar.objects.all()
