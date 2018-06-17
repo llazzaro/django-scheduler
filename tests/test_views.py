@@ -401,7 +401,7 @@ class TestUrls(TestCase):
         response = self.client.get(reverse("api_occurrences"),
                                    {'start': '2008-01-05',
                                     'end': '2008-02-05',
-                                    'calendar_slug': ','.join(['MyCalSlug1','MyCalSlug2',]), }
+                                    'calendar_slug': ','.join(['MyCalSlug1','MyCalSlug2', ]), }
                                    )
         self.assertEqual(response.status_code, 200)
         resp_list = json.loads(response.content.decode('utf-8'))
@@ -413,7 +413,7 @@ class TestUrls(TestCase):
     def test_cal_request_missing_returns_400(self):
         calendar1 = Calendar.objects.create(name="MyCal1", slug='MyCalSlug1')
 
-        event1 = Event.objects.create(
+        Event.objects.create(
             title='Recent Event 1',
             start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
             end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
@@ -425,7 +425,7 @@ class TestUrls(TestCase):
         response = self.client.get(reverse("api_occurrences"),
                                    {'start': '2008-01-05',
                                     'end': '2008-02-05',
-                                    'calendar_slug': ','.join(['MyCalSlug1','MyCalSlugOther',]), }
+                                    'calendar_slug': ','.join(['MyCalSlug1','MyCalSlugOther', ]), }
                                    )
         self.assertContains(response, 'MyCalSlugOther', status_code=400)
 
