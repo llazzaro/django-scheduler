@@ -6,13 +6,13 @@ from schedule.models import Calendar, CalendarRelation, Event, Occurrence, Rule
 
 @admin.register(Calendar)
 class CalendarAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('name', 'slug', 'desc')
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name']
     fieldsets = (
         (None, {
             'fields': [
-                ('name', 'slug'),
+                ('name', 'slug', 'desc'),
             ]
         }),
     )
@@ -35,8 +35,8 @@ class CalendarRelationAdmin(admin.ModelAdmin):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'start', 'end')
-    list_filter = ('start',)
+    list_display = ('title', 'calendar', 'start', 'end')
+    list_filter = ('calendar', 'start')
     ordering = ('-start',)
     date_hierarchy = 'start'
     search_fields = ('title', 'description')
