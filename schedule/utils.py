@@ -11,7 +11,7 @@ from schedule.settings import (
 )
 
 
-class EventListManager(object):
+class EventListManager:
     """
     This class is responsible for doing functions on a list of events. It is
     used to when one has a list of events and wants to access the occurrences
@@ -53,7 +53,7 @@ class EventListManager(object):
             yield occ_replacer.get_occurrence(next_occurrence)
 
 
-class OccurrenceReplacer(object):
+class OccurrenceReplacer:
     """
     When getting a list of occurrences, the last thing that needs to be done
     before passing it forward is to make sure all of the occurrences that

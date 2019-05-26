@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import calendar as standardlib_calendar
 import datetime
 
@@ -9,9 +7,7 @@ from django.db.models.query import prefetch_related_objects
 from django.template.defaultfilters import date as date_filter
 from django.utils import timezone
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.six.moves.builtins import range
-from django.utils.translation import ugettext
+from django.utils.translation import gettext
 
 from schedule.models import Occurrence
 from schedule.settings import SHOW_CANCELLED_OCCURRENCES
@@ -33,7 +29,7 @@ else:
         weekday_abbrs.append(WEEKDAYS_ABBR[i])
 
 
-class Period(object):
+class Period:
     """
     This class represents a period of time. It can return a set of occurrences
     based on its events, and its time period (start and end).
@@ -67,9 +63,6 @@ class Period(object):
 
     def __eq__(self, period):
         return self.utc_start == period.utc_start and self.utc_end == period.utc_end and self.events == period.events
-
-    def __ne__(self, period):
-        return self.utc_start != period.utc_start or self.utc_end != period.utc_end or self.events != period.events
 
     def _get_tzinfo(self, tzinfo):
         return tzinfo if settings.USE_TZ else None
@@ -170,14 +163,13 @@ class Period(object):
         return self.utc_end.replace(tzinfo=None)
 
 
-@python_2_unicode_compatible
 class Year(Period):
     def __init__(self, events, date=None, parent_persisted_occurrences=None, tzinfo=pytz.utc):
         self.tzinfo = self._get_tzinfo(tzinfo)
         if date is None:
             date = timezone.now()
         start, end = self._get_year_range(date)
-        super(Year, self).__init__(events, start, end, parent_persisted_occurrences, tzinfo=tzinfo)
+        super().__init__(events, start, end, parent_persisted_occurrences, tzinfo=tzinfo)
 
     def get_months(self):
         return self.get_periods(Month)
@@ -210,7 +202,6 @@ class Year(Period):
         return self.start.year
 
 
-@python_2_unicode_compatible
 class Month(Period):
     """
     The month period has functions for retrieving the week periods within this period
@@ -222,8 +213,8 @@ class Month(Period):
         if date is None:
             date = timezone.now()
         start, end = self._get_month_range(date)
-        super(Month, self).__init__(events, start, end,
-                                    parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
+        super().__init__(events, start, end,
+                         parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def get_weeks(self):
         return self.get_periods(Week)
@@ -287,7 +278,6 @@ class Month(Period):
         return self.start.year
 
 
-@python_2_unicode_compatible
 class Week(Period):
     """
     The Week period that has functions for retrieving Day periods within it
@@ -298,8 +288,8 @@ class Week(Period):
         if date is None:
             date = timezone.now()
         start, end = self._get_week_range(date)
-        super(Week, self).__init__(events, start, end,
-                                   parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
+        super().__init__(events, start, end,
+                         parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def prev_week(self):
         return Week(self.events, self.start - datetime.timedelta(days=7), tzinfo=self.tzinfo)
@@ -349,13 +339,12 @@ class Week(Period):
 
     def __str__(self):
         date_format = 'l, %s' % settings.DATE_FORMAT
-        return ugettext('Week: %(start)s-%(end)s') % {
+        return gettext('Week: %(start)s-%(end)s') % {
             'start': date_filter(self.start, date_format),
             'end': date_filter(self.end, date_format),
         }
 
 
-@python_2_unicode_compatible
 class Day(Period):
     def __init__(self, events, date=None, parent_persisted_occurrences=None,
                  occurrence_pool=None, tzinfo=pytz.utc):
@@ -363,8 +352,8 @@ class Day(Period):
         if date is None:
             date = timezone.now()
         start, end = self._get_day_range(date)
-        super(Day, self).__init__(events, start, end,
-                                  parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
+        super().__init__(events, start, end,
+                         parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
 
     def _get_day_range(self, date):
 
@@ -390,7 +379,7 @@ class Day(Period):
 
     def __str__(self):
         date_format = 'l, %s' % settings.DATE_FORMAT
-        return ugettext('Day: %(start)s-%(end)s') % {
+        return gettext('Day: %(start)s-%(end)s') % {
             'start': date_filter(self.start, date_format),
             'end': date_filter(self.end, date_format),
         }

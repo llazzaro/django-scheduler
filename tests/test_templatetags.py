@@ -42,19 +42,19 @@ class TestTemplateTags(TestCase):
         date = datetime.datetime(datetime.datetime.now().year, 1, 1, 0, 0, 0)
         query_string = querystring_for_date(date)
         self.assertEqual(
-            escape('?year={0}&month=1&day=1&hour=0&minute=0&second=0'.format(datetime.datetime.now().year)),
+            escape('?year={}&month=1&day=1&hour=0&minute=0&second=0'.format(datetime.datetime.now().year)),
             query_string)
 
     def test_prev_url(self):
         query_string = prev_url('month_calendar', self.cal, self.day)
-        url_params = escape('/calendar/month/MyCalSlug/?year={0}&month=2&day=6&hour=0&minute=0&second=0'.format(datetime.datetime.now().year))
-        expected = ('<a href="{0}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>'.format(url_params))
+        url_params = escape('/calendar/month/MyCalSlug/?year={}&month=2&day=6&hour=0&minute=0&second=0'.format(datetime.datetime.now().year))
+        expected = ('<a href="{}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>'.format(url_params))
         self.assertEqual(query_string, expected)
 
     def test_next_url(self):
         query_string = next_url('month_calendar', self.cal, self.day)
-        url_params = escape('/calendar/month/MyCalSlug/?year={0}&month=2&day=8&hour=0&minute=0&second=0'.format(datetime.datetime.now().year))
-        expected = ('<a href="{0}"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>'.format(url_params))
+        url_params = escape('/calendar/month/MyCalSlug/?year={}&month=2&day=8&hour=0&minute=0&second=0'.format(datetime.datetime.now().year))
+        expected = ('<a href="{}"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>'.format(url_params))
         self.assertEqual(query_string, expected)
 
     def test_next_url_upper_limit(self):
@@ -70,7 +70,7 @@ class TestTemplateTags(TestCase):
         slot = self.period.get_time_slot(datetime.datetime(datetime.datetime.now().year, 1, 4, 7, 0, tzinfo=pytz.utc),
                                          datetime.datetime(datetime.datetime.now().year, 1, 4, 7, 12, tzinfo=pytz.utc))
         query_string = create_event_url(context, self.cal, slot.start)
-        expected = ('/event/create/MyCalSlug/?year={0}&month=1&day=4&hour=7&minute=0&second=0'.format(datetime.datetime.now().year))
+        expected = ('/event/create/MyCalSlug/?year={}&month=1&day=4&hour=7&minute=0&second=0'.format(datetime.datetime.now().year))
         self.assertEqual(query_string['create_event_url'], escape(expected))
 
     def test_all_day_event_cook_slots(self):

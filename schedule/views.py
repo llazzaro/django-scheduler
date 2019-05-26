@@ -1,4 +1,5 @@
 import datetime
+from urllib.parse import quote
 
 import dateutil.parser
 import pytz
@@ -11,7 +12,6 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import is_safe_url
-from django.utils.six.moves.urllib.parse import quote
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
@@ -32,35 +32,35 @@ from schedule.utils import (
 )
 
 
-class CalendarViewPermissionMixin(object):
+class CalendarViewPermissionMixin:
     @classmethod
     def as_view(cls, **initkwargs):
-        view = super(CalendarViewPermissionMixin, cls).as_view(**initkwargs)
+        view = super().as_view(**initkwargs)
         return check_calendar_permissions(view)
 
 
-class EventEditPermissionMixin(object):
+class EventEditPermissionMixin:
     @classmethod
     def as_view(cls, **initkwargs):
-        view = super(EventEditPermissionMixin, cls).as_view(**initkwargs)
+        view = super().as_view(**initkwargs)
         return check_event_permissions(view)
 
 
-class OccurrenceEditPermissionMixin(object):
+class OccurrenceEditPermissionMixin:
     @classmethod
     def as_view(cls, **initkwargs):
-        view = super(OccurrenceEditPermissionMixin, cls).as_view(**initkwargs)
+        view = super().as_view(**initkwargs)
         return check_occurrence_permissions(view)
 
 
-class CancelButtonMixin(object):
+class CancelButtonMixin:
     def post(self, request, *args, **kwargs):
         next_url = kwargs.get('next')
         self.success_url = get_next_url(request, next_url)
         if "cancel" in request.POST:
             return HttpResponseRedirect(self.success_url)
         else:
-            return super(CancelButtonMixin, self).post(request, *args, **kwargs)
+            return super().post(request, *args, **kwargs)
 
 
 class CalendarMixin(CalendarViewPermissionMixin):
@@ -76,7 +76,7 @@ class FullCalendarView(CalendarMixin, DetailView):
     template_name = "fullcalendar.html"
 
     def get_context_data(self, **kwargs):
-        context = super(FullCalendarView, self).get_context_data()
+        context = super().get_context_data()
         context['calendar_slug'] = self.kwargs.get('calendar_slug')
         return context
 
@@ -85,7 +85,7 @@ class CalendarByPeriodsView(CalendarMixin, DetailView):
     template_name = 'schedule/calendar_by_period.html'
 
     def get_context_data(self, **kwargs):
-        context = super(CalendarByPeriodsView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         calendar = self.object
         period_class = self.kwargs['period']
         try:
@@ -122,7 +122,7 @@ class OccurrenceMixin(CalendarViewPermissionMixin, TemplateResponseMixin):
 
 class OccurrenceEditMixin(CancelButtonMixin, OccurrenceEditPermissionMixin, OccurrenceMixin):
     def get_initial(self):
-        initial_data = super(OccurrenceEditMixin, self).get_initial()
+        initial_data = super().get_initial()
         _, self.object = get_occurrence(**self.kwargs)
         return initial_data
 
@@ -135,7 +135,7 @@ class OccurrencePreview(OccurrenceMixin, ModelFormMixin, ProcessFormView):
     template_name = 'schedule/occurrence.html'
 
     def get_context_data(self, **kwargs):
-        context = super(OccurrencePreview, self).get_context_data()
+        context = super().get_context_data()
         context = {
             'event': self.object.event,
             'occurrence': self.object,
@@ -195,7 +195,7 @@ class EditEventView(EventEditMixin, UpdateView):
             original_end=F('original_end') + dte,
         )
         event.save()
-        return super(EditEventView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class CreateEventView(EventEditMixin, CreateView):
@@ -230,7 +230,7 @@ class DeleteEventView(EventEditMixin, DeleteView):
     template_name = 'schedule/delete_event.html'
 
     def get_context_data(self, **kwargs):
-        ctx = super(DeleteEventView, self).get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
         ctx['next'] = self.get_success_url()
         return ctx
 

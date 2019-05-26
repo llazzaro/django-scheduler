@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import datetime
 import json
 
@@ -254,7 +252,7 @@ class TestUrls(TestCase):
                 datetime.datetime(2008, 1, 8),
                 'America/Chicago'))
         self.assertEqual(response.status_code, 200)
-        expected_content = [{u'existed': False, u'end': u'2008-01-05T03:00:00-06:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-07T18:00:00-06:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-05T02:00:00-06:00', u'id': 10}, {u'existed': False, u'end': u'2008-01-06T03:00:00-06:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-07T18:00:00-06:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-06T02:00:00-06:00', u'id': 10}, {u'existed': False, u'end': u'2008-01-07T03:00:00-06:00', u'description': '', u'creator': u'None', u'color': '', u'title': u'Recent Event', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-07T18:00:00-06:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-07T02:00:00-06:00', u'id': 10}, {u'existed': True, u'end': u'2008-01-07T02:00:00-06:00', u'description': u'Persisted occ test', u'creator': u'None', u'color': '', u'title': u'My persisted Occ', u'rule': u'', u'event_id': 8, u'end_recurring_period': u'2008-01-07T18:00:00-06:00', u'cancelled': False, u'calendar': u'MyCalSlug', u'start': u'2008-01-07T02:00:00-06:00', u'id': 1}]
+        expected_content = [{'existed': False, 'end': '2008-01-05T03:00:00-06:00', 'description': '', 'creator': 'None', 'color': '', 'title': 'Recent Event', 'rule': '', 'event_id': 8, 'end_recurring_period': '2008-01-07T18:00:00-06:00', 'cancelled': False, 'calendar': 'MyCalSlug', 'start': '2008-01-05T02:00:00-06:00', 'id': 10}, {'existed': False, 'end': '2008-01-06T03:00:00-06:00', 'description': '', 'creator': 'None', 'color': '', 'title': 'Recent Event', 'rule': '', 'event_id': 8, 'end_recurring_period': '2008-01-07T18:00:00-06:00', 'cancelled': False, 'calendar': 'MyCalSlug', 'start': '2008-01-06T02:00:00-06:00', 'id': 10}, {'existed': False, 'end': '2008-01-07T03:00:00-06:00', 'description': '', 'creator': 'None', 'color': '', 'title': 'Recent Event', 'rule': '', 'event_id': 8, 'end_recurring_period': '2008-01-07T18:00:00-06:00', 'cancelled': False, 'calendar': 'MyCalSlug', 'start': '2008-01-07T02:00:00-06:00', 'id': 10}, {'existed': True, 'end': '2008-01-07T02:00:00-06:00', 'description': 'Persisted occ test', 'creator': 'None', 'color': '', 'title': 'My persisted Occ', 'rule': '', 'event_id': 8, 'end_recurring_period': '2008-01-07T18:00:00-06:00', 'cancelled': False, 'calendar': 'MyCalSlug', 'start': '2008-01-07T02:00:00-06:00', 'id': 1}]
         self.assertEqual(json.loads(response.content.decode()), expected_content)
 
     def test_occurrences_api_works_with_and_without_cal_slug(self):
@@ -272,7 +270,7 @@ class TestUrls(TestCase):
             reverse('api_occurrences'),
             {'start': '2008-01-05', 'end': '2008-02-05', 'calendar_slug': event.calendar.slug})
         self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode('utf-8'))
+        resp_list = json.loads(response.content.decode())
         self.assertIn(event.title, [d['title'] for d in resp_list])
         # test works with no calendar slug
         response = self.client.get(reverse("api_occurrences"),
@@ -280,7 +278,7 @@ class TestUrls(TestCase):
                                     'end': '2008-02-05'
                                     })
         self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode('utf-8'))
+        resp_list = json.loads(response.content.decode())
         self.assertIn(event.title, [d['title'] for d in resp_list])
 
     def test_cal_slug_filters_returned_events(self):
@@ -306,7 +304,7 @@ class TestUrls(TestCase):
                                    'end': '2008-02-05'}
                                    )
         self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode('utf-8'))
+        resp_list = json.loads(response.content.decode())
         self.assertIn(event1.title, [d['title'] for d in resp_list])
         self.assertIn(event2.title, [d['title'] for d in resp_list])
         # test event2 not in event1 response
@@ -314,7 +312,7 @@ class TestUrls(TestCase):
             reverse("api_occurrences"),
             {'start': '2008-01-05', 'end': '2008-02-05', 'calendar_slug': event1.calendar.slug})
         self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode('utf-8'))
+        resp_list = json.loads(response.content.decode())
         self.assertIn(event1.title, [d['title'] for d in resp_list])
         self.assertNotIn(event2.title, [d['title'] for d in resp_list])
 
@@ -335,7 +333,7 @@ class TestUrls(TestCase):
                                     'calendar_slug': event.calendar.slug
                                     })
         self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode('utf-8'))
+        resp_list = json.loads(response.content.decode())
         self.assertIn(event.title, [d['title'] for d in resp_list])
         # test works with date string time format '%Y-%m-%dT%H:%M:%S'
         response = self.client.get(reverse("api_occurrences"),
@@ -344,7 +342,7 @@ class TestUrls(TestCase):
                                     'calendar_slug': event.calendar.slug
                                     })
         self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode('utf-8'))
+        resp_list = json.loads(response.content.decode())
         self.assertIn(event.title, [d['title'] for d in resp_list])
 
     def test_occurrences_api_fails_with_incorrect_date_string_formats(self):
@@ -365,7 +363,7 @@ class TestUrls(TestCase):
                                     'calendar_slug': event.calendar.slug
                                     })
         self.assertEqual(response.status_code, 400)
-        resp = response.content.decode('utf-8')
+        resp = response.content.decode()
         expected_error = "does not match format '%Y-%m-%dT%H:%M:%S'"
         self.assertIn(expected_error, resp)
 
@@ -387,10 +385,10 @@ class TestUrls(TestCase):
         response = self.client.get(feed_url)
         self.assertEqual(response.status_code, 200)
         expected_feed = 'http://example.com/feed/calendar/upcoming/1/'
-        self.assertTrue(expected_feed in response.content.decode('utf8'))
+        self.assertTrue(expected_feed in response.content.decode())
 
     def test_calendar_view_home(self):
         calendar_view_url = reverse('calendar_home', kwargs={'calendar_slug': 'example'})
         response = self.client.get(calendar_view_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('<a href="/feed/calendar/upcoming/1/">Feed</a>' in response.content.decode('utf8'))
+        self.assertTrue('<a href="/feed/calendar/upcoming/1/">Feed</a>' in response.content.decode())
