@@ -6,7 +6,9 @@ from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.utils import timezone
 
 from schedule.settings import (
-    CALENDAR_VIEW_PERM, CHECK_CALENDAR_PERM_FUNC, CHECK_EVENT_PERM_FUNC,
+    CALENDAR_VIEW_PERM,
+    CHECK_CALENDAR_PERM_FUNC,
+    CHECK_EVENT_PERM_FUNC,
     CHECK_OCCURRENCE_PERM_FUNC,
 )
 
@@ -33,8 +35,11 @@ class EventListManager:
         if after is None:
             after = timezone.now()
         occ_replacer = OccurrenceReplacer(
-            Occurrence.objects.filter(event__in=self.events))
-        generators = [event._occurrences_after_generator(after) for event in self.events]
+            Occurrence.objects.filter(event__in=self.events)
+        )
+        generators = [
+            event._occurrences_after_generator(after) for event in self.events
+        ]
         occurrences = []
 
         for generator in generators:
@@ -47,7 +52,9 @@ class EventListManager:
             generator = occurrences[0][1]
 
             try:
-                next_occurrence = heapq.heapreplace(occurrences, (next(generator), generator))[0]
+                next_occurrence = heapq.heapreplace(
+                    occurrences, (next(generator), generator)
+                )[0]
             except StopIteration:
                 next_occurrence = heapq.heappop(occurrences)[0]
             yield occ_replacer.get_occurrence(next_occurrence)
@@ -62,8 +69,10 @@ class OccurrenceReplacer:
     """
 
     def __init__(self, persisted_occurrences):
-        lookup = [((occ.event.id, occ.original_start, occ.original_end), occ) for
-                  occ in persisted_occurrences]
+        lookup = [
+            ((occ.event.id, occ.original_start, occ.original_end), occ)
+            for occ in persisted_occurrences
+        ]
         self.lookup = dict(lookup)
 
     def get_occurrence(self, occ):
@@ -72,8 +81,8 @@ class OccurrenceReplacer:
         has already been matched
         """
         return self.lookup.pop(
-            (occ.event.id, occ.original_start, occ.original_end),
-            occ)
+            (occ.event.id, occ.original_start, occ.original_end), occ
+        )
 
     def has_occurrence(self, occ):
         try:
@@ -82,13 +91,19 @@ class OccurrenceReplacer:
             if not self.lookup:
                 return False
             else:
-                raise TypeError('A problem with checking if a persisted occurrence exists has occured!')
+                raise TypeError(
+                    "A problem with checking if a persisted occurrence exists has occured!"
+                )
 
     def get_additional_occurrences(self, start, end):
         """
         Return persisted occurrences which are now in the period
         """
-        return [occ for _, occ in list(self.lookup.items()) if (occ.start < end and occ.end >= start and not occ.cancelled)]
+        return [
+            occ
+            for _, occ in list(self.lookup.items())
+            if (occ.start < end and occ.end >= start and not occ.cancelled)
+        ]
 
 
 def get_kwarg_or_param(request, kwargs, key):
@@ -96,37 +111,46 @@ def get_kwarg_or_param(request, kwargs, key):
     try:
         value = kwargs[key]
     except KeyError:
-        if request.method == 'GET':
+        if request.method == "GET":
             value = request.GET.get(key)
-        elif request.method == 'POST':
+        elif request.method == "POST":
             value = request.POST.get(key)
     return value
 
 
 def get_occurrence(request, **kwargs):
     from schedule.models import Occurrence
-    occurrence_id = get_kwarg_or_param(request, kwargs, 'occurrence_id')
-    return Occurrence.objects.filter(pk=occurrence_id).first() if occurrence_id else None
+
+    occurrence_id = get_kwarg_or_param(request, kwargs, "occurrence_id")
+    return (
+        Occurrence.objects.filter(pk=occurrence_id).first() if occurrence_id else None
+    )
 
 
 def get_event(occurrence, request, **kwargs):
     from schedule.models import Event
+
     if occurrence:
         event = occurrence.event
     else:
-        event_id = get_kwarg_or_param(request, kwargs, 'event_id')
+        event_id = get_kwarg_or_param(request, kwargs, "event_id")
         event = Event.objects.filter(pk=event_id).first() if event_id else None
     return event
 
 
 def get_calendar(event, request, **kwargs):
     from schedule.models import Calendar
+
     calendar = None
     if event:
         calendar = event.calendar
     else:
-        calendar_slug = get_kwarg_or_param(request, kwargs, 'calendar_slug')
-        calendar = Calendar.objects.filter(slug=calendar_slug).first() if calendar_slug else None
+        calendar_slug = get_kwarg_or_param(request, kwargs, "calendar_slug")
+        calendar = (
+            Calendar.objects.filter(slug=calendar_slug).first()
+            if calendar_slug
+            else None
+        )
     return calendar
 
 
@@ -145,14 +169,17 @@ def check_occurrence_permissions(function):
             return HttpResponseRedirect(settings.LOGIN_URL)
         occurrence, event, calendar = get_objects(request, **kwargs)
         if calendar and event:
-            allowed = (CHECK_EVENT_PERM_FUNC(event, user) and
-                       CHECK_CALENDAR_PERM_FUNC(calendar, user) and
-                       CHECK_OCCURRENCE_PERM_FUNC(occurrence, user))
+            allowed = (
+                CHECK_EVENT_PERM_FUNC(event, user)
+                and CHECK_CALENDAR_PERM_FUNC(calendar, user)
+                and CHECK_OCCURRENCE_PERM_FUNC(occurrence, user)
+            )
             if not allowed:
                 return HttpResponseRedirect(settings.LOGIN_URL)
             # all checks passed
             return function(request, *args, **kwargs)
-        return HttpResponseNotFound('<h1>Page not found</h1>')
+        return HttpResponseNotFound("<h1>Page not found</h1>")
+
     return decorator
 
 
@@ -164,13 +191,15 @@ def check_event_permissions(function):
             return HttpResponseRedirect(settings.LOGIN_URL)
         occurrence, event, calendar = get_objects(request, **kwargs)
         if calendar:
-            allowed = (CHECK_EVENT_PERM_FUNC(event, user) and
-                       CHECK_CALENDAR_PERM_FUNC(calendar, user))
+            allowed = CHECK_EVENT_PERM_FUNC(event, user) and CHECK_CALENDAR_PERM_FUNC(
+                calendar, user
+            )
             if not allowed:
                 return HttpResponseRedirect(settings.LOGIN_URL)
             # all checks passed
             return function(request, *args, **kwargs)
-        return HttpResponseNotFound('<h1>Page not found</h1>')
+        return HttpResponseNotFound("<h1>Page not found</h1>")
+
     return decorator
 
 
@@ -188,8 +217,9 @@ def check_calendar_permissions(function):
                     return HttpResponseRedirect(settings.LOGIN_URL)
                 # all checks passed
                 return function(request, *args, **kwargs)
-            return HttpResponseNotFound('<h1>Page not found</h1>')
+            return HttpResponseNotFound("<h1>Page not found</h1>")
         return function(request, *args, **kwargs)
+
     return decorator
 
 
@@ -201,14 +231,8 @@ def coerce_date_dict(date_dict):
     year and month will be returned, the rest will be returned as min. If none
     of the parts are found return an empty tuple.
     """
-    keys = ['year', 'month', 'day', 'hour', 'minute', 'second']
-    ret_val = {
-        'year': 1,
-        'month': 1,
-        'day': 1,
-        'hour': 0,
-        'minute': 0,
-        'second': 0}
+    keys = ["year", "month", "day", "hour", "minute", "second"]
+    ret_val = {"year": 1, "month": 1, "day": 1, "hour": 0, "minute": 0, "second": 0}
     modified = False
     for key in keys:
         try:
