@@ -4,7 +4,6 @@ import pytz
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.six.moves.builtins import range, zip
 
 from schedule.models import Calendar, Event, Rule
 from schedule.periods import Day, Month, Period, Week, Year

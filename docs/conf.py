@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # DjangoSchedule documentation build configuration file, created by
 # sphinx-quickstart on Mon Mar 30 15:19:11 2009.
 #
@@ -38,8 +36,8 @@ source_suffix = '.txt'
 master_doc = 'index'
 
 # General information about the project.
-project = u'DjangoSchedule'
-copyright = u'2009, Tony Hauber, Yann Malet, Rock Howard'
+project = 'DjangoSchedule'
+copyright = '2009, Tony Hauber, Yann Malet, Rock Howard'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -173,8 +171,8 @@ htmlhelp_basename = 'DjangoScheduledoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'DjangoSchedule.tex', u'DjangoSchedule Documentation',
-   u'Tony Hauber, Yann Malet, Rock Howard', 'manual'),
+  ('index', 'DjangoSchedule.tex', 'DjangoSchedule Documentation',
+   'Tony Hauber, Yann Malet, Rock Howard', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

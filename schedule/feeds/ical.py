@@ -1,6 +1,5 @@
 import icalendar
 from django.http import HttpResponse
-from django.utils.six.moves.builtins import str
 
 EVENT_ITEMS = (
     ('uid', 'uid'),
@@ -13,7 +12,7 @@ EVENT_ITEMS = (
 )
 
 
-class ICalendarFeed(object):
+class ICalendarFeed:
 
     def __call__(self, *args, **kwargs):
         self.args = args

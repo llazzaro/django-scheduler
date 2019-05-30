@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import migrations, models
 
 
@@ -38,10 +35,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterIndexTogether(
             name='event',
-            index_together=set([('start', 'end')]),
+            index_together={('start', 'end')},
         ),
         migrations.AlterIndexTogether(
             name='occurrence',
-            index_together=set([('start', 'end')]),
+            index_together={('start', 'end')},
         ),
     ]

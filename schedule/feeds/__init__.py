@@ -3,7 +3,6 @@ import itertools
 from django.conf import settings
 from django.contrib.syndication.views import Feed, FeedDoesNotExist
 from django.utils import timezone
-from django.utils.six.moves.builtins import str
 
 from schedule.feeds.ical import ICalendarFeed
 from schedule.models import Calendar
