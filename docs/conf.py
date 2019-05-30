@@ -1,4 +1,4 @@
-o# DjangoSchedule documentation build configuration file, created by
+# DjangoSchedule documentation build configuration file, created by
 # sphinx-quickstart on Mon Mar 30 15:19:11 2009.
 #
 # This file is execfile()d with the current directory set to its containing dir.
