@@ -17,38 +17,45 @@ from schedule.models.rules import Rule
 from schedule.utils import OccurrenceReplacer
 
 freq_dict_order = {
-    'YEARLY': 0,
-    'MONTHLY': 1,
-    'WEEKLY': 2,
-    'DAILY': 3,
-    'HOURLY': 4,
-    'MINUTELY': 5,
-    'SECONDLY': 6
+    "YEARLY": 0,
+    "MONTHLY": 1,
+    "WEEKLY": 2,
+    "DAILY": 3,
+    "HOURLY": 4,
+    "MINUTELY": 5,
+    "SECONDLY": 6,
 }
 param_dict_order = {
-    'byyearday': 1,
-    'bymonth': 1,
-    'bymonthday': 2,
-    'byweekno': 2,
-    'byweekday': 3,
-    'byhour': 4,
-    'byminute': 5,
-    'bysecond': 6
+    "byyearday": 1,
+    "bymonth": 1,
+    "bymonthday": 2,
+    "byweekno": 2,
+    "byweekday": 3,
+    "byhour": 4,
+    "byminute": 5,
+    "bysecond": 6,
 }
 
 
 class EventManager(models.Manager):
-    def get_for_object(self, content_object, distinction='', inherit=True):
-        return EventRelation.objects.get_events_for_object(content_object, distinction, inherit)
+    def get_for_object(self, content_object, distinction="", inherit=True):
+        return EventRelation.objects.get_events_for_object(
+            content_object, distinction, inherit
+        )
 
 
 class Event(models.Model):
-    '''
+    """
     This model stores meta data for a date.  You can relate this data to many
     other models.
-    '''
+    """
+
     start = models.DateTimeField(_("start"), db_index=True)
-    end = models.DateTimeField(_("end"), db_index=True, help_text=_("The end time must be later than the start time."))
+    end = models.DateTimeField(
+        _("end"),
+        db_index=True,
+        help_text=_("The end time must be later than the start time."),
+    )
     title = models.CharField(_("title"), max_length=255)
     description = models.TextField(_("description"), blank=True)
     creator = models.ForeignKey(
@@ -57,7 +64,8 @@ class Event(models.Model):
         null=True,
         blank=True,
         verbose_name=_("creator"),
-        related_name='creator')
+        related_name="creator",
+    )
     created_on = models.DateTimeField(_("created on"), auto_now_add=True)
     updated_on = models.DateTimeField(_("updated on"), auto_now=True)
     rule = models.ForeignKey(
@@ -66,28 +74,31 @@ class Event(models.Model):
         null=True,
         blank=True,
         verbose_name=_("rule"),
-        help_text=_("Select '----' for a one time only event."))
-    end_recurring_period = models.DateTimeField(_("end recurring period"), null=True, blank=True, db_index=True,
-                                                help_text=_("This date is ignored for one time only events."))
+        help_text=_("Select '----' for a one time only event."),
+    )
+    end_recurring_period = models.DateTimeField(
+        _("end recurring period"),
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text=_("This date is ignored for one time only events."),
+    )
     calendar = models.ForeignKey(
-        Calendar,
-        on_delete=models.CASCADE,
-        verbose_name=_("calendar"))
+        Calendar, on_delete=models.CASCADE, verbose_name=_("calendar")
+    )
     color_event = models.CharField(_("Color event"), blank=True, max_length=10)
     objects = EventManager()
 
     class Meta:
-        verbose_name = _('event')
-        verbose_name_plural = _('events')
-        index_together = (
-            ('start', 'end'),
-        )
+        verbose_name = _("event")
+        verbose_name_plural = _("events")
+        index_together = (("start", "end"),)
 
     def __str__(self):
-        return gettext('%(title)s: %(start)s - %(end)s') % {
-            'title': self.title,
-            'start': date(self.start, django_settings.DATE_FORMAT),
-            'end': date(self.end, django_settings.DATE_FORMAT),
+        return gettext("%(title)s: %(start)s - %(end)s") % {
+            "title": self.title,
+            "start": date(self.start, django_settings.DATE_FORMAT),
+            "end": date(self.end, django_settings.DATE_FORMAT),
         }
 
     @property
@@ -103,7 +114,7 @@ class Event(models.Model):
         return float(self.seconds) / 3600
 
     def get_absolute_url(self):
-        return reverse('event', args=[self.id])
+        return reverse("event", args=[self.id])
 
     def get_occurrences(self, start, end, clear_prefetch=True):
         """
@@ -184,14 +195,17 @@ class Event(models.Model):
             until = self.end_recurring_period
         else:
             until = tzinfo.normalize(
-                self.end_recurring_period.astimezone(tzinfo)).replace(tzinfo=None)
+                self.end_recurring_period.astimezone(tzinfo)
+            ).replace(tzinfo=None)
 
         return rrule.rrule(frequency, dtstart=dtstart, until=until, **params)
 
     def _create_occurrence(self, start, end=None):
         if end is None:
             end = start + (self.end - self.start)
-        return Occurrence(event=self, start=start, end=end, original_start=start, original_end=end)
+        return Occurrence(
+            event=self, start=start, end=end, original_start=start, original_end=end
+        )
 
     def get_occurrence(self, date):
         use_naive = timezone.is_naive(date)
@@ -202,7 +216,9 @@ class Event(models.Model):
             tzinfo = date.tzinfo
         rule = self.get_rrule_object(tzinfo)
         if rule:
-            next_occurrence = rule.after(tzinfo.normalize(date).replace(tzinfo=None), inc=True)
+            next_occurrence = rule.after(
+                tzinfo.normalize(date).replace(tzinfo=None), inc=True
+            )
             next_occurrence = tzinfo.localize(next_occurrence)
         else:
             next_occurrence = self.start
@@ -310,11 +326,15 @@ class Event(models.Model):
             after = timezone.now()
         occ_replacer = OccurrenceReplacer(self.occurrence_set.all())
         generator = self._occurrences_after_generator(after)
-        trickies = list(self.occurrence_set.filter(original_start__lte=after, start__gte=after).order_by('start'))
+        trickies = list(
+            self.occurrence_set.filter(
+                original_start__lte=after, start__gte=after
+            ).order_by("start")
+        )
         for index, nxt in enumerate(generator):
             if max_occurrences and index > max_occurrences - 1:
                 break
-            if (len(trickies) > 0 and (nxt is None or nxt.start > trickies[0].start)):
+            if len(trickies) > 0 and (nxt is None or nxt.start > trickies[0].start):
                 yield trickies.pop(0)
             yield occ_replacer.get_occurrence(nxt)
 
@@ -322,14 +342,14 @@ class Event(models.Model):
     def event_start_params(self):
         start = self.start
         params = {
-            'byyearday': start.timetuple().tm_yday,
-            'bymonth': start.month,
-            'bymonthday': start.day,
-            'byweekno': start.isocalendar()[1],
-            'byweekday': start.weekday(),
-            'byhour': start.hour,
-            'byminute': start.minute,
-            'bysecond': start.second
+            "byyearday": start.timetuple().tm_yday,
+            "bymonth": start.month,
+            "bymonthday": start.day,
+            "byweekno": start.isocalendar()[1],
+            "byweekday": start.weekday(),
+            "byhour": start.hour,
+            "byminute": start.minute,
+            "bysecond": start.second,
         }
         return params
 
@@ -348,12 +368,15 @@ class Event(models.Model):
 
         for param in rule_params:
             # start date influences rule params
-            if (param in param_dict_order and param_dict_order[param] > freq_order and
-                    param in start_params):
+            if (
+                param in param_dict_order
+                and param_dict_order[param] > freq_order
+                and param in start_params
+            ):
                 sp = start_params[param]
                 if sp == rule_params[param] or (
-                        hasattr(rule_params[param], '__iter__') and
-                        sp in rule_params[param]):
+                    hasattr(rule_params[param], "__iter__") and sp in rule_params[param]
+                ):
                     event_params[param] = [sp]
                 else:
                     event_params[param] = rule_params[param]
@@ -403,7 +426,7 @@ class Event(models.Model):
 
 
 class EventRelationManager(models.Manager):
-    '''
+    """
     >>> import datetime
     >>> EventRelation.objects.all().delete()
     >>> CalendarRelation.objects.all().delete()
@@ -425,7 +448,8 @@ class EventRelationManager(models.Manager):
     >>> event1.create_relation(user1, 'owner')
     >>> event1.create_relation(user2, 'viewer')
     >>> event2.create_relation(user1, 'viewer')
-    '''
+    """
+
     # Currently not supported
     # Multiple level reverse lookups of generic relations appears to be
     # unsupported in Django, which makes sense.
@@ -451,8 +475,8 @@ class EventRelationManager(models.Manager):
     #         eventrelation__event = event
     #     )
 
-    def get_events_for_object(self, content_object, distinction='', inherit=True):
-        '''
+    def get_events_for_object(self, content_object, distinction="", inherit=True):
+        """
         returns a queryset full of events, that relate to the object through, the
         distinction
 
@@ -485,7 +509,7 @@ class EventRelationManager(models.Manager):
         >>> cr = calendar.create_relation(user, 'viewer', True)
         >>> EventRelation.objects.get_events_for_object(user, 'viewer')
         [<Event: Test1: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>, <Event: Test2: Tuesday, Jan. 1, 2008-Friday, Jan. 11, 2008>]
-        '''
+        """
         ct = ContentType.objects.get_for_model(type(content_object))
         if distinction:
             dist_q = Q(eventrelation__distinction=distinction)
@@ -502,22 +526,25 @@ class EventRelationManager(models.Manager):
             )
         else:
             inherit_q = Q()
-        event_q = Q(dist_q, eventrelation__content_type=ct, eventrelation__object_id=content_object.id)
+        event_q = Q(
+            dist_q,
+            eventrelation__content_type=ct,
+            eventrelation__object_id=content_object.id,
+        )
         return Event.objects.filter(inherit_q | event_q)
 
-    def create_relation(self, event, content_object, distinction=''):
+    def create_relation(self, event, content_object, distinction=""):
         """
         Creates a relation between event and content_object.
         See EventRelation for help on distinction.
         """
         return EventRelation.objects.create(
-            event=event,
-            distinction=distinction,
-            content_object=content_object)
+            event=event, distinction=distinction, content_object=content_object
+        )
 
 
 class EventRelation(models.Model):
-    '''
+    """
     This is for relating data to an Event, there is also a distinction, so that
     data can be related in different ways.  A good example would be, if you have
     events that are only visible by certain users, you could create a relation
@@ -533,11 +560,12 @@ class EventRelation(models.Model):
 
     DISCLAIMER: while this model is a nice out of the box feature to have, it
     may not scale well.  If you use this keep that in mind.
-    '''
+    """
+
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.IntegerField(db_index=True)
-    content_object = fields.GenericForeignKey('content_type', 'object_id')
+    content_object = fields.GenericForeignKey("content_type", "object_id")
     distinction = models.CharField(_("distinction"), max_length=20)
 
     objects = EventRelationManager()
@@ -545,10 +573,10 @@ class EventRelation(models.Model):
     class Meta:
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
-        index_together = [('content_type', 'object_id')]
+        index_together = [("content_type", "object_id")]
 
     def __str__(self):
-        return '%s(%s)-%s' % (self.event.title, self.distinction, self.content_object)
+        return "%s(%s)-%s" % (self.event.title, self.distinction, self.content_object)
 
 
 class Occurrence(models.Model):
@@ -566,9 +594,7 @@ class Occurrence(models.Model):
     class Meta:
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
-        index_together = (
-            ('start', 'end'),
-        )
+        index_together = (("start", "end"),)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -609,56 +635,73 @@ class Occurrence(models.Model):
 
     def get_absolute_url(self):
         if self.pk is not None:
-            return reverse('occurrence', kwargs={'occurrence_id': self.pk,
-                                                 'event_id': self.event.id})
-        return reverse('occurrence_by_date', kwargs={
-            'event_id': self.event.id,
-            'year': self.start.year,
-            'month': self.start.month,
-            'day': self.start.day,
-            'hour': self.start.hour,
-            'minute': self.start.minute,
-            'second': self.start.second,
-        })
+            return reverse(
+                "occurrence",
+                kwargs={"occurrence_id": self.pk, "event_id": self.event.id},
+            )
+        return reverse(
+            "occurrence_by_date",
+            kwargs={
+                "event_id": self.event.id,
+                "year": self.start.year,
+                "month": self.start.month,
+                "day": self.start.day,
+                "hour": self.start.hour,
+                "minute": self.start.minute,
+                "second": self.start.second,
+            },
+        )
 
     def get_cancel_url(self):
         if self.pk is not None:
-            return reverse('cancel_occurrence', kwargs={'occurrence_id': self.pk,
-                                                        'event_id': self.event.id})
-        return reverse('cancel_occurrence_by_date', kwargs={
-            'event_id': self.event.id,
-            'year': self.start.year,
-            'month': self.start.month,
-            'day': self.start.day,
-            'hour': self.start.hour,
-            'minute': self.start.minute,
-            'second': self.start.second,
-        })
+            return reverse(
+                "cancel_occurrence",
+                kwargs={"occurrence_id": self.pk, "event_id": self.event.id},
+            )
+        return reverse(
+            "cancel_occurrence_by_date",
+            kwargs={
+                "event_id": self.event.id,
+                "year": self.start.year,
+                "month": self.start.month,
+                "day": self.start.day,
+                "hour": self.start.hour,
+                "minute": self.start.minute,
+                "second": self.start.second,
+            },
+        )
 
     def get_edit_url(self):
         if self.pk is not None:
-            return reverse('edit_occurrence', kwargs={'occurrence_id': self.pk,
-                                                      'event_id': self.event.id})
-        return reverse('edit_occurrence_by_date', kwargs={
-            'event_id': self.event.id,
-            'year': self.start.year,
-            'month': self.start.month,
-            'day': self.start.day,
-            'hour': self.start.hour,
-            'minute': self.start.minute,
-            'second': self.start.second,
-        })
+            return reverse(
+                "edit_occurrence",
+                kwargs={"occurrence_id": self.pk, "event_id": self.event.id},
+            )
+        return reverse(
+            "edit_occurrence_by_date",
+            kwargs={
+                "event_id": self.event.id,
+                "year": self.start.year,
+                "month": self.start.month,
+                "day": self.start.day,
+                "hour": self.start.hour,
+                "minute": self.start.minute,
+                "second": self.start.second,
+            },
+        )
 
     def __str__(self):
         return gettext("%(start)s to %(end)s") % {
-            'start': date(self.start, django_settings.DATE_FORMAT),
-            'end': date(self.end, django_settings.DATE_FORMAT)
+            "start": date(self.start, django_settings.DATE_FORMAT),
+            "end": date(self.end, django_settings.DATE_FORMAT),
         }
 
     def __lt__(self, other):
         return self.end < other.end
 
     def __eq__(self, other):
-        return (isinstance(other, Occurrence) and
-                self.original_start == other.original_start and
-                self.original_end == other.original_end)
+        return (
+            isinstance(other, Occurrence)
+            and self.original_start == other.original_start
+            and self.original_end == other.original_end
+        )

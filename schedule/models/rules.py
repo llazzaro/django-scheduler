@@ -1,17 +1,31 @@
 from dateutil.rrule import (
-    DAILY, FR, HOURLY, MINUTELY, MO, MONTHLY, SA, SECONDLY, SU, TH, TU, WE,
-    WEEKLY, YEARLY,
+    DAILY,
+    FR,
+    HOURLY,
+    MINUTELY,
+    MO,
+    MONTHLY,
+    SA,
+    SECONDLY,
+    SU,
+    TH,
+    TU,
+    WE,
+    WEEKLY,
+    YEARLY,
 )
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-freqs = (("YEARLY", _("Yearly")),
-         ("MONTHLY", _("Monthly")),
-         ("WEEKLY", _("Weekly")),
-         ("DAILY", _("Daily")),
-         ("HOURLY", _("Hourly")),
-         ("MINUTELY", _("Minutely")),
-         ("SECONDLY", _("Secondly")))
+freqs = (
+    ("YEARLY", _("Yearly")),
+    ("MONTHLY", _("Monthly")),
+    ("WEEKLY", _("Weekly")),
+    ("DAILY", _("Daily")),
+    ("HOURLY", _("Hourly")),
+    ("MINUTELY", _("Minutely")),
+    ("SECONDLY", _("Secondly")),
+)
 
 
 class Rule(models.Model):
@@ -43,40 +57,35 @@ class Rule(models.Model):
         ** bysecond
         ** byeaster
     """
+
     name = models.CharField(_("name"), max_length=32)
     description = models.TextField(_("description"))
     frequency = models.CharField(_("frequency"), choices=freqs, max_length=10)
     params = models.TextField(_("params"), blank=True)
 
-    _week_days = {'MO': MO,
-                  'TU': TU,
-                  'WE': WE,
-                  'TH': TH,
-                  'FR': FR,
-                  'SA': SA,
-                  'SU': SU}
+    _week_days = {"MO": MO, "TU": TU, "WE": WE, "TH": TH, "FR": FR, "SA": SA, "SU": SU}
 
     class Meta:
-        verbose_name = _('rule')
-        verbose_name_plural = _('rules')
+        verbose_name = _("rule")
+        verbose_name_plural = _("rules")
 
     def rrule_frequency(self):
         compatibility_dict = {
-            'DAILY': DAILY,
-            'MONTHLY': MONTHLY,
-            'WEEKLY': WEEKLY,
-            'YEARLY': YEARLY,
-            'HOURLY': HOURLY,
-            'MINUTELY': MINUTELY,
-            'SECONDLY': SECONDLY
+            "DAILY": DAILY,
+            "MONTHLY": MONTHLY,
+            "WEEKLY": WEEKLY,
+            "YEARLY": YEARLY,
+            "HOURLY": HOURLY,
+            "MINUTELY": MINUTELY,
+            "SECONDLY": SECONDLY,
         }
         return compatibility_dict[self.frequency]
 
     def _weekday_or_number(self, param):
-        '''
+        """
         Receives a rrule parameter value, returns a upper case version
         of the value if its a weekday or an integer if its a number
-        '''
+        """
         try:
             return int(param)
         except (TypeError, ValueError):
@@ -90,18 +99,20 @@ class Rule(models.Model):
         >>> rule.get_params()
         {'count': 1, 'byminute': [1, 2, 4, 5], 'bysecond': 1}
         """
-        params = self.params.split(';')
+        params = self.params.split(";")
         param_dict = []
         for param in params:
-            param = param.split(':')
+            param = param.split(":")
             if len(param) != 2:
                 continue
 
             param = (
                 str(param[0]).lower(),
-                [x for x in
-                 [self._weekday_or_number(v) for v in param[1].split(',')]
-                 if x is not None],
+                [
+                    x
+                    for x in [self._weekday_or_number(v) for v in param[1].split(",")]
+                    if x is not None
+                ],
             )
 
             if len(param[1]) == 1:
@@ -112,4 +123,4 @@ class Rule(models.Model):
 
     def __str__(self):
         """Human readable string for Rule"""
-        return 'Rule %s params %s' % (self.name, self.params)
+        return "Rule %s params %s" % (self.name, self.params)
