@@ -699,6 +699,11 @@ class Occurrence(models.Model):
     def __lt__(self, other):
         return self.end < other.end
 
+    def __hash__(self):
+        if not self.pk:
+            raise TypeError("Model instances without primary key value are unhashable")
+        return hash(self.pk)
+
     def __eq__(self, other):
         return (
             isinstance(other, Occurrence)
