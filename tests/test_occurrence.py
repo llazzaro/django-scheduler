@@ -30,6 +30,8 @@ class TestOccurrence(TestCase):
         occurrences = self.recurring_event.get_occurrences(
             start=self.start, end=self.end
         )
+        with self.assertRaises(TypeError):
+            hash(occurrences[0])
         persisted_occurrence = occurrences[0]
         persisted_occurrence.save()
         occurrences = self.recurring_event.get_occurrences(
