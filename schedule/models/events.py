@@ -9,8 +9,7 @@ from django.db.models import Q
 from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 
 from schedule.models.calendars import Calendar
 from schedule.models.rules import Rule
@@ -698,6 +697,11 @@ class Occurrence(models.Model):
 
     def __lt__(self, other):
         return self.end < other.end
+
+    def __hash__(self):
+        if not self.pk:
+            raise TypeError("Model instances without primary key value are unhashable")
+        return hash(self.pk)
 
     def __eq__(self, other):
         return (

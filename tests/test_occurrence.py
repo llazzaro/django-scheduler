@@ -30,6 +30,8 @@ class TestOccurrence(TestCase):
         occurrences = self.recurring_event.get_occurrences(
             start=self.start, end=self.end
         )
+        with self.assertRaises(TypeError):
+            hash(occurrences[0])
         persisted_occurrence = occurrences[0]
         persisted_occurrence.save()
         occurrences = self.recurring_event.get_occurrences(
@@ -37,6 +39,14 @@ class TestOccurrence(TestCase):
         )
         self.assertTrue(occurrences[0].pk)
         self.assertFalse(occurrences[1].pk)
+
+    def test_persisted_occurrences_are_hashable(self):
+        occurrences = self.recurring_event.get_occurrences(
+            start=self.start, end=self.end
+        )
+        persisted_occurrence = occurrences[0]
+        persisted_occurrence.save()
+        self.assertEqual(hash(persisted_occurrence), persisted_occurrence.pk)
 
     def test_moved_occurrences(self):
         occurrences = self.recurring_event.get_occurrences(
