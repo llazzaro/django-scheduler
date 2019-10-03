@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 from setuptools import setup
 
+with open("README.md") as fp:
+    long_description = fp.read()
+
 setup(
     name="django-scheduler",
     version="0.8.8",
     description="A calendaring app for Django.",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author="Leonardo Lazzaro",
     author_email="lazzaroleonardo@gmail.com",
     url="https://github.com/llazzaro/django-scheduler",
