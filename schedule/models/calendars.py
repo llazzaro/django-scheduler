@@ -234,4 +234,4 @@ class CalendarRelation(models.Model):
         index_together = [("content_type", "object_id")]
 
     def __str__(self):
-        return "%s - %s" % (self.calendar, self.content_object)
+        return "{} - {}".format(self.calendar, self.content_object)

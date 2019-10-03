@@ -30,7 +30,7 @@ class TestPeriod(TestCase):
     def test_get_occurrences(self):
         occurrence_list = self.period.occurrences
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occurrence_list],
+            ["{} to {}".format(o.start, o.end) for o in occurrence_list],
             [
                 "2008-01-05 08:00:00+00:00 to 2008-01-05 09:00:00+00:00",
                 "2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00",
@@ -47,7 +47,7 @@ class TestPeriod(TestCase):
         )
         occurrence_list = period.occurrences
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occurrence_list],
+            ["{} to {}".format(o.start, o.end) for o in occurrence_list],
             [
                 "2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00",
                 "2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00",
@@ -404,7 +404,7 @@ class TestOccurrencesInTimezone(TestCase):
 
         period = Period(Event.objects.all(), start, end, tzinfo=self.MVD)
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in period.occurrences],
+            ["{} to {}".format(o.start, o.end) for o in period.occurrences],
             [
                 "2017-01-14 22:00:00-03:00 to 2017-01-14 23:00:00-03:00",
                 "2017-01-21 22:00:00-03:00 to 2017-01-21 23:00:00-03:00",
@@ -422,7 +422,7 @@ class TestOccurrencesInTimezone(TestCase):
         sub_end = self.MVD.localize(datetime.datetime(2017, 1, 15))
         sub_period = period.get_time_slot(sub_start, sub_end)
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in sub_period.occurrences],
+            ["{} to {}".format(o.start, o.end) for o in sub_period.occurrences],
             ["2017-01-14 22:00:00-03:00 to 2017-01-14 23:00:00-03:00"],
         )
 
@@ -447,7 +447,7 @@ class TestWeeklyOccurrences(TestCase):
         period = Week(Event.objects.all(), start, tzinfo=self.MVD)
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in period.occurrences],
+            ["{} to {}".format(o.start, o.end) for o in period.occurrences],
             [
                 "2017-01-13 15:00:00-03:00 to 2017-01-14 15:00:00-03:00",
                 "2017-01-14 15:00:00-03:00 to 2017-01-15 15:00:00-03:00",
@@ -460,7 +460,7 @@ class TestWeeklyOccurrences(TestCase):
         period = Week(Event.objects.all(), start, tzinfo=self.MVD)
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in period.occurrences], []
+            ["{} to {}".format(o.start, o.end) for o in period.occurrences], []
         )
 
     def test_occurrences_no_end(self):
@@ -471,7 +471,7 @@ class TestWeeklyOccurrences(TestCase):
         period = Week([event], start, tzinfo=self.MVD)
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in period.occurrences],
+            ["{} to {}".format(o.start, o.end) for o in period.occurrences],
             [
                 "2018-01-06 15:00:00-03:00 to 2018-01-07 15:00:00-03:00",
                 "2018-01-07 15:00:00-03:00 to 2018-01-08 15:00:00-03:00",
@@ -496,7 +496,7 @@ class TestWeeklyOccurrences(TestCase):
         period = Week([event], start, tzinfo=self.MVD)
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in period.occurrences],
+            ["{} to {}".format(o.start, o.end) for o in period.occurrences],
             ["2017-01-13 15:00:00-03:00 to 2017-01-14 15:00:00-03:00"],
         )
 

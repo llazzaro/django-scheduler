@@ -98,7 +98,7 @@ def options(context, occurrence):
 def create_event_url(context, calendar, slot):
     context.update({"calendar": calendar, "MEDIA_URL": getattr(settings, "MEDIA_URL")})
     lookup_context = {"calendar_slug": calendar.slug}
-    context["create_event_url"] = "%s%s" % (
+    context["create_event_url"] = "{}{}".format(
         reverse("calendar_create_event", kwargs=lookup_context),
         querystring_for_date(slot),
     )
@@ -277,4 +277,4 @@ def _cook_slots(period, increment):
 
 @register.simple_tag
 def hash_occurrence(occ):
-    return "%s_%s" % (occ.start.strftime("%Y%m%d%H%M%S"), occ.event.id)
+    return "{}_{}".format(occ.start.strftime("%Y%m%d%H%M%S"), occ.event.id)

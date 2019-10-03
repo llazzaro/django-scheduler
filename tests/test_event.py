@@ -68,7 +68,7 @@ class TestEvent(TestCase):
             end=datetime.datetime(2008, 1, 20, 0, 0, tzinfo=pytz.utc),
         )
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occurrences],
+            ["{} to {}".format(o.start, o.end) for o in occurrences],
             [
                 "2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00",
                 "2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00",
@@ -132,7 +132,7 @@ class TestEvent(TestCase):
         )
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occurrences],
+            ["{} to {}".format(o.start, o.end) for o in occurrences],
             [
                 "2008-01-12 08:00:00+00:00 to 2008-01-12 09:00:00+00:00",
                 "2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00",
@@ -263,7 +263,7 @@ class TestEvent(TestCase):
         )
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occurrences],
+            ["{} to {}".format(o.start, o.end) for o in occurrences],
             [
                 "2008-01-12 08:00:00 to 2008-01-12 09:00:00",
                 "2008-01-19 08:00:00 to 2008-01-19 09:00:00",
@@ -459,7 +459,7 @@ class TestEvent(TestCase):
             e_start, pacific.localize(datetime.datetime(2015, 3, 11, 10, 0))
         )
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occs],
+            ["{} to {}".format(o.start, o.end) for o in occs],
             [
                 "2015-03-04 09:00:00-08:00 to 2015-03-04 09:00:00-08:00",
                 "2015-03-11 09:00:00-07:00 to 2015-03-11 09:00:00-07:00",
@@ -489,7 +489,7 @@ class TestEvent(TestCase):
         )
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occurrences],
+            ["{} to {}".format(o.start, o.end) for o in occurrences],
             ["2008-01-12 08:00:00 to 2008-01-12 09:00:00"],
         )
 
@@ -517,7 +517,7 @@ class TestEvent(TestCase):
         )
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occs1],
+            ["{} to {}".format(o.start, o.end) for o in occs1],
             [
                 "2008-01-05 08:00:00 to 2008-01-05 09:00:00",
                 "2008-01-12 08:00:00 to 2008-01-12 09:00:00",
@@ -531,7 +531,7 @@ class TestEvent(TestCase):
         )
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occs2],
+            ["{} to {}".format(o.start, o.end) for o in occs2],
             [
                 "2008-01-05 08:00:00 to 2008-01-05 09:00:00",
                 "2008-01-12 08:00:00 to 2008-01-12 09:00:00",
@@ -563,7 +563,7 @@ class TestEvent(TestCase):
         )
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occs1],
+            ["{} to {}".format(o.start, o.end) for o in occs1],
             ["2008-01-05 08:00:00 to 2008-01-05 09:00:00"],
         )
 
@@ -572,7 +572,7 @@ class TestEvent(TestCase):
             end=datetime.datetime(2008, 1, 5, 8, 0),
         )
 
-        self.assertEqual(["%s to %s" % (o.start, o.end) for o in occs2], [])
+        self.assertEqual(["{} to {}".format(o.start, o.end) for o in occs2], [])
 
     @override_settings(USE_TZ=False)
     def test_get_occurrences_rule_weekday_param(self):
@@ -600,7 +600,7 @@ class TestEvent(TestCase):
         )
 
         self.assertEqual(
-            ["%s to %s" % (o.start, o.end) for o in occs],
+            ["{} to {}".format(o.start, o.end) for o in occs],
             [
                 "2016-11-25 00:00:00 to 2016-11-25 00:00:00",
                 "2016-12-30 00:00:00 to 2016-12-30 00:00:00",

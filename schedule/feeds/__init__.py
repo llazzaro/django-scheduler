@@ -43,7 +43,7 @@ class UpcomingEventsFeed(Feed):
         return item.event.created_on
 
     def item_content(self, item):
-        return "%s \n %s" % (item.event.title, item.event.description)
+        return "{} \n {}".format(item.event.title, item.event.description)
 
 
 class CalendarICalendar(ICalendarFeed):
