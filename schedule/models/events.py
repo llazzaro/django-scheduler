@@ -575,7 +575,9 @@ class EventRelation(models.Model):
         index_together = [("content_type", "object_id")]
 
     def __str__(self):
-        return "%s(%s)-%s" % (self.event.title, self.distinction, self.content_object)
+        return "{}({})-{}".format(
+            self.event.title, self.distinction, self.content_object
+        )
 
 
 class Occurrence(models.Model):

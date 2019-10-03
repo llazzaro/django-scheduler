@@ -123,4 +123,4 @@ class Rule(models.Model):
 
     def __str__(self):
         """Human readable string for Rule"""
-        return "Rule %s params %s" % (self.name, self.params)
+        return "Rule {} params {}".format(self.name, self.params)
