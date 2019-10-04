@@ -1,3 +1,8 @@
+UNRELEASED
+==========
+
+- Removed support for end-of-life Django 2.0.
+
 0.9.0 - 2019-10-04
 ==================
 
