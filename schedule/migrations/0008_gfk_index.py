@@ -25,4 +25,9 @@ class Migration(migrations.Migration):
         migrations.AlterIndexTogether(
             name="eventrelation", index_together={("content_type", "object_id")}
         ),
+        migrations.AlterField(
+            model_name="calendar",
+            name="slug",
+            field=models.SlugField(verbose_name="slug", max_length=200, unique=True),
+        )
     ]
