@@ -29,5 +29,5 @@ class Migration(migrations.Migration):
             model_name="calendar",
             name="slug",
             field=models.SlugField(verbose_name="slug", max_length=200, unique=True),
-        )
+        ),
     ]
