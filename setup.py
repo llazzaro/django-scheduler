@@ -6,7 +6,7 @@ with open("README.md") as fp:
 
 setup(
     name="django-scheduler",
-    version="0.9.1",
+    version="0.9.2",
     description="A calendaring app for Django.",
     long_description=long_description,
     long_description_content_type="text/markdown",
