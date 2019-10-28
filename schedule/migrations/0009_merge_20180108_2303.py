@@ -5,8 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("schedule", "0008_gfk_index"),
-    ]
+    dependencies = [("schedule", "0008_gfk_index")]
 
     operations = []
