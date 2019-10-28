@@ -1,34 +1,46 @@
+dist: xenial
 sudo: false
 language: python
 cache: pip
 
 matrix:
+  fast_finish: true
   include:
-    - python: 2.7
-      env: DJANGO="Django>=1.11,<2.0"
-    - python: 3.4
-      env: DJANGO="Django>=1.11,<2.0"
+    - python: 3.7
+      env: TOXENV=lint
     - python: 3.5
-      env: DJANGO="Django>=1.11,<2.0"
+      env: TOXENV=py35-django111
     - python: 3.6
-      env: DJANGO="Django>=1.11,<2.0"
-    - python: 3.4
-      env: DJANGO="Django>=2.0,<2.1"
+      env: TOXENV=py36-django111
     - python: 3.5
-      env: DJANGO="Django>=2.0,<2.1"
+      env: TOXENV=py35-django21
     - python: 3.6
-      env: DJANGO="Django>=2.0,<2.1"
+      env: TOXENV=py36-django21
+    - python: 3.7
+      env: TOXENV=py37-django21
+    - python: 3.5
+      env: TOXENV=py35-django22
+    - python: 3.6
+      env: TOXENV=py36-django22
+    - python: 3.7
+      env: TOXENV=py37-django22
+    - python: 3.6
+      env: TOXENV=py36-django30
+    - python: 3.7
+      env: TOXENV=py37-django30
+    - python: 3.6
+      env: TOXENV=py36-djangomaster
+    - python: 3.7
+      env: TOXENV=py37-djangomaster
+  allow_failures:
+    - env: TOXENV=py36-djangomaster
+    - env: TOXENV=py37-djangomaster
 
 install:
-  - pip install $DJANGO
-  - pip install -r requirements.txt
-before_script:
-  - flake8
-  - isort --check-only --diff
-  - python -m django check --settings=tests.settings
-  - python -m django makemigrations --settings=tests.settings --no-input --dry-run --check
+  - pip install tox
+  - if [ $TOXENV != lint ]; then pip install coveralls; fi
 script:
-  - coverage run -m django test --settings=tests.settings
-  - coverage report -m
+  - tox
+  - if [ $TOXENV != lint ]; then coverage report -m; fi
 after_success:
-  - coveralls --verbose
+  - if [ $TOXENV != lint ]; then coveralls --verbose; fi

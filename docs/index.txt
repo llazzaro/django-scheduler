@@ -3,7 +3,7 @@
 Welcome to DjangoSchedule's documentation!
 ==========================================
 
-DjangoSchedule is an open-source calendaring application. 
+DjangoSchedule is an open-source calendaring application.
 
 .. toctree::
     :maxdepth: 1
@@ -16,6 +16,7 @@ DjangoSchedule is an open-source calendaring application.
     views
     models
     settings
+    changelog
 
 
 Indices and tables
@@ -24,4 +25,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

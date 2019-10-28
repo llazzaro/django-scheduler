@@ -55,15 +55,15 @@ Optional Arguments
 ``template_name``
     default
         'schedule/calendar_by_period.html'
-    
+
     This is the template that will be rendered.
 
 ``periods``
     default
         ``[]``
-    
+
     This is a list of Period Subclasses that designates which periods you would like to instantiate and put in the context.
-    
+
 Context Variables
 -----------------
 
@@ -74,9 +74,9 @@ Context Variables
     this is a dictionary that returns the periods from the list you passed
     in.  If you passed in Month and Day, then your dictionary would look
     like this
-    
+
     ::
-    
+
         {
             'month': <schedule.periods.Month object>
             'day':   <schedule.periods.Day object>
@@ -95,9 +95,9 @@ Context Variables
 event
 =====
 
-This view is for showing an event. It is important to remember that an 
+This view is for showing an event. It is important to remember that an
 event is not an occurrence.  Events define a set of recurring occurrences.
-If you would like to display an occurrence (a single instance of a 
+If you would like to display an occurrence (a single instance of a
 recurring event) use ``occurrence``.
 
 Required Arguments
@@ -115,7 +115,7 @@ Optional Arguments
 ``template_name``
     default
         'schedule/calendar_by_period.html'
-    
+
     This is the template that will be rendered.
 
 
@@ -133,7 +133,7 @@ occurrence
 ==========
 
 This view is used to display an occurrence.  There are two methods of
-displaying an occurrence.  
+displaying an occurrence.
 
 Required Arguments
 ------------------
@@ -164,7 +164,7 @@ Optional Arguments
 ``template_name``
     default
         'schedule/calendar_by_period.html'
-    
+
     This is the template that will be rendered
 
 
@@ -175,7 +175,7 @@ Context Variables
 ``event``
     the event that produces the occurrence
 
-``occurrence`` 
+``occurrence``
     the occurrence to be displayed
 
 ``back_url``
@@ -215,7 +215,7 @@ Optional Arguments
 ``template_name``
     default
         'schedule/calendar_by_period.html'
-    
+
     This is the template that will be rendered.
 
 Context Variables
@@ -260,13 +260,13 @@ Optional Arguments
 ``template_name``
     default
         'schedule/calendar_by_period.html'
-    
+
     This is the template that will be rendered, if this view is accessed via GET.
 
 ``next``
     default
         the event detail page of ``occurrence.event``
-    
+
     This is the url you wish to be redirected to after a successful cancelation.
 
 Context Variables
@@ -296,7 +296,7 @@ Optional Arguments
 ``template_name``
     default
         'schedule/calendar_by_period.html'
-    
+
     This is the template that will be rendered.
 
 ``event_id``
@@ -335,7 +335,7 @@ Optional Arguments
 ``template_name``
     default
         'schedule/calendar_by_period.html'
-    
+
     This is the template that will be rendered.
 
 ``next``
@@ -344,7 +344,7 @@ Optional Arguments
 ``login_required``
     default
         ``True``
-    
+
     If you want to require a login before deletion happens you can set that here.
 
 Context Variables

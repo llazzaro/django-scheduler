@@ -15,25 +15,31 @@ class TestEventListManager(TestCase):
         self.default_tzinfo = timezone.get_default_timezone()
 
         self.event1 = Event.objects.create(
-            title='Weekly Event',
+            title="Weekly Event",
             start=datetime.datetime(2009, 4, 1, 8, 0, tzinfo=self.default_tzinfo),
             end=datetime.datetime(2009, 4, 1, 9, 0, tzinfo=self.default_tzinfo),
-            end_recurring_period=datetime.datetime(2009, 10, 5, 0, 0, tzinfo=self.default_tzinfo),
+            end_recurring_period=datetime.datetime(
+                2009, 10, 5, 0, 0, tzinfo=self.default_tzinfo
+            ),
             rule=weekly,
             calendar=cal,
         )
         self.event2 = Event.objects.create(
-            title='Recent Event',
+            title="Recent Event",
             start=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=self.default_tzinfo),
             end=datetime.datetime(2008, 1, 5, 10, 0, tzinfo=self.default_tzinfo),
-            end_recurring_period=datetime.datetime(2009, 5, 5, 0, 0, tzinfo=self.default_tzinfo),
+            end_recurring_period=datetime.datetime(
+                2009, 5, 5, 0, 0, tzinfo=self.default_tzinfo
+            ),
             rule=daily,
             calendar=cal,
         )
 
     def test_occurrences_after(self):
         eml = EventListManager([self.event1, self.event2])
-        occurrences = eml.occurrences_after(datetime.datetime(2009, 4, 1, 0, 0, tzinfo=self.default_tzinfo))
+        occurrences = eml.occurrences_after(
+            datetime.datetime(2009, 4, 1, 0, 0, tzinfo=self.default_tzinfo)
+        )
         self.assertEqual(next(occurrences).event, self.event1)
         self.assertEqual(next(occurrences).event, self.event2)
         self.assertEqual(next(occurrences).event, self.event2)
@@ -48,7 +54,6 @@ class TestEventListManager(TestCase):
 
 
 class TestOccurrenceReplacer(TestCase):
-
     def setUp(self):
         weekly = Rule.objects.create(frequency="WEEKLY")
         daily = Rule.objects.create(frequency="DAILY")
@@ -57,7 +62,7 @@ class TestOccurrenceReplacer(TestCase):
         self.start = timezone.now() - datetime.timedelta(days=10)
         self.end = self.start + datetime.timedelta(days=300)
         self.event1 = Event.objects.create(
-            title='Weekly Event',
+            title="Weekly Event",
             start=self.start,
             end=self.end,
             end_recurring_period=self.end,
@@ -69,13 +74,16 @@ class TestOccurrenceReplacer(TestCase):
             start=self.start,
             end=self.end,
             original_start=self.start,
-            original_end=self.end)
+            original_end=self.end,
+        )
 
         self.event2 = Event.objects.create(
-            title='Recent Event',
+            title="Recent Event",
             start=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=self.default_tzinfo),
             end=datetime.datetime(2008, 1, 5, 10, 0, tzinfo=self.default_tzinfo),
-            end_recurring_period=datetime.datetime(2009, 5, 5, 0, 0, tzinfo=self.default_tzinfo),
+            end_recurring_period=datetime.datetime(
+                2009, 5, 5, 0, 0, tzinfo=self.default_tzinfo
+            ),
             rule=daily,
             calendar=cal,
         )
@@ -86,7 +94,8 @@ class TestOccurrenceReplacer(TestCase):
             start=self.start,
             end=self.end,
             original_start=self.start,
-            original_end=self.end)
+            original_end=self.end,
+        )
         occ_replacer = OccurrenceReplacer([self.occ])
 
         self.assertTrue(occ_replacer.has_occurrence(self.occ))
@@ -98,7 +107,8 @@ class TestOccurrenceReplacer(TestCase):
             start=self.start,
             end=self.end,
             original_start=self.start,
-            original_end=self.end)
+            original_end=self.end,
+        )
         occ_replacer = OccurrenceReplacer([self.occ])
 
         self.assertTrue(occ_replacer.has_occurrence(self.occ))
@@ -112,7 +122,8 @@ class TestOccurrenceReplacer(TestCase):
             start=self.start + datetime.timedelta(days=5),
             end=self.end,
             original_start=self.start,
-            original_end=self.end)
+            original_end=self.end,
+        )
         res = occ_replacer.get_additional_occurrences(self.start, self.end)
         self.assertEqual(res, [self.occ])
 

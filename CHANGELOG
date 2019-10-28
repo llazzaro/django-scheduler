@@ -1,0 +1,92 @@
+UNRELEASED
+==========
+
+- Removed support for end-of-life Django 2.0.
+
+0.9.0 - 2019-10-04
+==================
+
+- Added support for Django 2.1, 2.2, and 3.0 and Python 3.7.
+- Dropped support for Python 2.7 and 3.4.
+- Added support for FullCalendar's use of the ``%Y-%m-%dT%H:%M:%S`` datetime
+  format.
+- Added the ``__hash__`` method to the ``Occurrence`` model to fix a crash when
+  deleting objects with Django ≥ 2.2.
+
+0.8.8 - 2018-01-14
+==================
+
+- Fixed dependencies to keep Django 1.11 support.
+- ``Event.calendar`` is now ``null=True``. Existing ``Event`` objects without a
+  calendar will be assigned to a calendar named "default".
+
+
+0.8.7 - 2018-01-09
+==================
+
+- Added support for Django 2.0.
+- Removed support for Django < 1.11.
+- Removed support for end of life Python 3.3.
+- Removed ``SCHEDULER_BASE_CLASSES`` setting.
+- ``Calendar.slug`` is now ``unique=True``.
+- To improve query performance, generic foreign keys are now ``db_index=True``.
+
+
+0.8.6 - 2017-07-30
+==================
+
+- Fixed admin to use ``SCHEDULER_ADMIN_FIELDS`` for ``Calendar``.
+- Fixed compatibility with dateutil 2.6.1.
+- Added missing migration for the ``Calendar`` ``verbose_name`` option.
+
+
+0.8.5 - 2017-06-25
+==================
+
+- Model fields of type ``CharField`` or ``TextField`` are now ``null=False``.
+  Use an empty string, ``''``, to represent no data.
+- ``feeds/atom.py`` has been removed. Use Django's syndication feed framework
+  instead.
+- Added setting ``SCHEDULER_ADMIN_FIELDS`` to add additional fields to be added
+  to admin forms.
+- Changed ``Callendar`` ``verbose_name`` to "calendars".
+
+
+0.8.4 - 2017-04-09
+==================
+
+- Now distributed as a universal wheel.
+- Added view ``schedule`` that lists all calendars.
+- Changed setting ``SCHEDULER_BASE_CLASSES`` to support extending specific
+  models.
+
+
+0.8.3 - 2017-02-01
+==================
+
+0.8.2 - 2016-12-03
+==================
+
+0.8.1 - 2016-11-08
+==================
+
+0.8.0 - 2016-05-04
+==================
+
+0.7.5 - 2015-05-16
+==================
+
+0.7.4 - 2015-01-11
+==================
+
+0.7.3 - 2014-11-03
+==================
+
+0.7.2 - 2014-04-26
+==================
+
+0.7.1 - 2013-11-12
+==================
+
+0.6.1 - 2013-07-26
+==================

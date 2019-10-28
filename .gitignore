@@ -3,8 +3,9 @@
 *.pyc
 /.coverage
 /.eggs/
+/.idea/
+/.tox/
 /build/
 /dist/
-/django_scheduler.egg-info/
+*.egg-info/
 /docs/_build/
-/.idea/

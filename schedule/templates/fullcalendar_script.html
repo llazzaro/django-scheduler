@@ -1,4 +1,4 @@
-{% load scheduletags i18n %}
+{% load i18n %}
 
 <link rel='stylesheet' type='text/css' href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.min.css' />
 <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js'></script>
@@ -62,13 +62,13 @@ $(document).ready(function() {
                         /789/, event.second);
             }
         }
-        
+
         $('#allevent').attr('href', all_url);
         $('#thisevent').attr('href', this_url);
         $('#editordelete').html(type);
         $('#EditorDelete').html(tYPE);
     }
-    
+
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
@@ -160,7 +160,7 @@ $(document).ready(function() {
             }
         },
         dayClick: function(date, allDay, jsEvent, view) {
-                    if (allDay) {       
+                    if (allDay) {
                         $('#calendar').fullCalendar('changeView', 'agendaWeek');
                         $("#calendar").fullCalendar('gotoDate', date);
                     }
@@ -177,7 +177,7 @@ $(document).ready(function() {
                         'delta' : delta.asMinutes(),
                     },
                     success : function(result) {
-                        if (result.success) $('#feedback input').attr('value', ''); 
+                        if (result.success) $('#feedback input').attr('value', '');
                         $('#calendar').fullCalendar('refetchEvents');
                         },
                     error : function(req, status, error) {
@@ -199,7 +199,7 @@ $(document).ready(function() {
                         'resize' : true,
                     },
                     success : function(result) {
-                        if (result.success) $('#feedback input').attr('value', ''); 
+                        if (result.success) $('#feedback input').attr('value', '');
                         $('#calendar').fullCalendar('refetchEvents');
                         },
                     error : function(req, status, error) {
@@ -222,7 +222,7 @@ $(document).ready(function() {
                         },
                         success : function(result) {
                             console.log(result);
-                            if (result.success) $('#feedback input').attr('value', ''); 
+                            if (result.success) $('#feedback input').attr('value', '');
                             $('#calendar').fullCalendar('refetchEvents');
                             },
                         error : function(req, status, error) {

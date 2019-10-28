@@ -72,7 +72,7 @@ This method returns whether there are any occurrences in this period
 Year
 ----
 
-The year period is instantiated with a list of events and a date or datetime object. It will resemble the year in which that date exists. 
+The year period is instantiated with a list of events and a date or datetime object. It will resemble the year in which that date exists.
 
 >>> p = Year(events, datetime.datetime(2008,4,1))
 >>> p.start

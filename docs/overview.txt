@@ -5,7 +5,7 @@ A Quick Overview
 What is an Event?
 -----------------
 
-An event doesn't have any date or time associated with it, just a rule for how it recurs. In a way it designates a set of occurrences.  A weekly staff meeting is a perfect example.  A weekly staff meeting is an event, it says what it is and how often it recurs.  Now if we were to say Tuesday's staff meeting, that's an occurrence. That is, a specific element in the set of occurrences designated by weekly staff meeting.  
+An event doesn't have any date or time associated with it, just a rule for how it recurs. In a way it designates a set of occurrences.  A weekly staff meeting is a perfect example.  A weekly staff meeting is an event, it says what it is and how often it recurs.  Now if we were to say Tuesday's staff meeting, that's an occurrence. That is, a specific element in the set of occurrences designated by weekly staff meeting.
 
 There is an exception, and that is the "one-time" event. If your boss calls and sets up a meeting today at 3. That's a one-time event. It's only going to happen this one time. That doesn't mean it's an occurrence. It just means that it's an event which represents a set of occurrences that only has one occurrence in it.
 
@@ -37,7 +37,7 @@ Because some Event can recur indefinitely, you cannot have a function like,
 This gives you a list of all occurrences that occur inclusively after start and exclusively before end.  When we say occur, that means that they exist at all between start and end. If occurrence ends 10 seconds after ``start`` then it will be in the list, and if an occurrence starts 10 seconds before ``end`` then it will also be in the list.
 
 ``occurrences_after(after)``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This method produces a generator that generates events inclusively after the given datetime ``after``.  If no date is given then it uses now.
 

@@ -11,12 +11,6 @@ Django Scheduler
 
 A calendar app for Django
 
-Donate bitcoins to this project.
-[![tip for next commit](https://tip4commit.com/projects/882.svg)](https://tip4commit.com/github/llazzaro/django-scheduler)
-
-        BTC: 1DjMUVGUyJ5aJ5TxGx79K6VWagMSshhftg
-
-
 Information
 ========
 
@@ -181,3 +175,15 @@ Value is in seconds.
 
 Default (two years):
 62208000
+
+
+Contributing
+============
+
+## Tests
+
+To run tests on all supported versions of Django and Python, use `tox`:
+
+```
+$ tox
+```
