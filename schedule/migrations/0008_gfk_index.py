@@ -27,8 +27,8 @@ class Migration(migrations.Migration):
         ),
         # Drop db_index before creating unique index, to prevent re-creating indices
         migrations.RunSQL(
-            "DROP INDEX schedule_calendar_slug_ba17e861; "
-            "DROP INDEX schedule_calendar_slug_ba17e861_like;"
+            "DROP INDEX IF EXISTS schedule_calendar_slug_ba17e861; "
+            "DROP INDEX IF EXISTS schedule_calendar_slug_ba17e861_like;"
         ),
         migrations.AlterField(
             model_name="calendar",
