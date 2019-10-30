@@ -25,6 +25,11 @@ class Migration(migrations.Migration):
         migrations.AlterIndexTogether(
             name="eventrelation", index_together={("content_type", "object_id")}
         ),
+        # Drop db_index before creating unique index, to prevent re-creating indices
+        migrations.RunSQL(
+            "DROP INDEX schedule_calendar_slug_ba17e861; "
+            "DROP INDEX schedule_calendar_slug_ba17e861_like;"
+        ),
         migrations.AlterField(
             model_name="calendar",
             name="slug",
