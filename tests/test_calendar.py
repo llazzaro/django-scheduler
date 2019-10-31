@@ -8,7 +8,7 @@ from schedule.models import Calendar, CalendarRelation, Event, Rule
 
 class TestCalendarInheritance(TestCase):
     def test_get_or_create_calendar_for_object_when_proxy_calendar_should_return_proxy_calendar(
-        self
+        self,
     ):
         class ProxyCalendar(Calendar):
             class Meta:

@@ -312,7 +312,7 @@ class TestEvent(TestCase):
         self.assertEqual(len(occurrences), 11)
 
     def test_occurrences_with_recurrent_event_end_recurring_period_edge_case_max_loop_lower(
-        self
+        self,
     ):
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="DAILY")
@@ -329,7 +329,7 @@ class TestEvent(TestCase):
         self.assertEqual(len(occurrences), 4)
 
     def test_occurrences_with_recurrent_event_end_recurring_period_edge_case_max_loop_greater(
-        self
+        self,
     ):
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="DAILY")
