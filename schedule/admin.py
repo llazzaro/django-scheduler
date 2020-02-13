@@ -41,7 +41,7 @@ class CalendarRelationAdmin(admin.ModelAdmin):
 class EventRelationAdmin(admin.ModelAdmin):
     list_display = ("event", "content_object", "distinction")
     fieldsets = (
-        (None, {"fields": ["event", ("content_type", "object_id", "distinction"),]},),
+        (None, {"fields": ["event", ("content_type", "object_id", "distinction"), ]},),
     )
 
 
