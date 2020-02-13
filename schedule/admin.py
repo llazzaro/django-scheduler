@@ -7,7 +7,7 @@ from schedule.models import (
     Event,
     EventRelation,
     Occurrence,
-    Rule
+    Rule,
 )
 
 
