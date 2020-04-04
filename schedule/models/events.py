@@ -158,7 +158,7 @@ class Event(models.Model):
         # to override this cache clear since it already fetches all
         # occurrence_sets via prefetch_related in its get_occurrences.
         if clear_prefetch:
-            self.occurrence_set._remove_prefetched_objects()
+            self.refresh_from_db()
 
         persisted_occurrences = self.occurrence_set.all()
         occ_replacer = OccurrenceReplacer(persisted_occurrences)
