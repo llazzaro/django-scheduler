@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import calendar as standardlib_calendar
 import datetime
 
@@ -9,9 +7,7 @@ from django.db.models.query import prefetch_related_objects
 from django.template.defaultfilters import date as date_filter
 from django.utils import timezone
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.six.moves.builtins import range
-from django.utils.translation import ugettext
+from django.utils.translation import gettext
 
 from schedule.models import Occurrence
 from schedule.settings import SHOW_CANCELLED_OCCURRENCES
@@ -33,13 +29,22 @@ else:
         weekday_abbrs.append(WEEKDAYS_ABBR[i])
 
 
-class Period(object):
+class Period:
     """
     This class represents a period of time. It can return a set of occurrences
     based on its events, and its time period (start and end).
     """
-    def __init__(self, events, start, end, parent_persisted_occurrences=None,
-                 occurrence_pool=None, tzinfo=pytz.utc, sorting_options=None):
+
+    def __init__(
+        self,
+        events,
+        start,
+        end,
+        parent_persisted_occurrences=None,
+        occurrence_pool=None,
+        tzinfo=pytz.utc,
+        sorting_options=None,
+    ):
 
         self.utc_start = self._normalize_timezone_to_utc(start, tzinfo)
 
@@ -66,41 +71,50 @@ class Period(object):
                 return point_in_time
 
     def __eq__(self, period):
-        return self.utc_start == period.utc_start and self.utc_end == period.utc_end and self.events == period.events
-
-    def __ne__(self, period):
-        return self.utc_start != period.utc_start or self.utc_end != period.utc_end or self.events != period.events
+        return (
+            self.utc_start == period.utc_start
+            and self.utc_end == period.utc_end
+            and self.events == period.events
+        )
 
     def _get_tzinfo(self, tzinfo):
         return tzinfo if settings.USE_TZ else None
 
     def _get_sorted_occurrences(self):
         occurrences = []
-        if hasattr(self, 'occurrence_pool') and self.occurrence_pool is not None:
+        if hasattr(self, "occurrence_pool") and self.occurrence_pool is not None:
             for occurrence in self.occurrence_pool:
-                if occurrence.start <= self.utc_end and occurrence.end >= self.utc_start:
+                if (
+                    occurrence.start <= self.utc_end
+                    and occurrence.end >= self.utc_start
+                ):
                     occurrences.append(occurrence)
             return occurrences
 
-        prefetch_related_objects(self.events, 'occurrence_set')
+        prefetch_related_objects(self.events, "occurrence_set")
         for event in self.events:
-            event_occurrences = event.get_occurrences(self.start, self.end, clear_prefetch=False)
+            event_occurrences = event.get_occurrences(
+                self.start, self.end, clear_prefetch=False
+            )
             occurrences += event_occurrences
         return sorted(occurrences, **self.sorting_options)
 
     def cached_get_sorted_occurrences(self):
-        if hasattr(self, '_occurrences'):
+        if hasattr(self, "_occurrences"):
             return self._occurrences
         occs = self._get_sorted_occurrences()
         self._occurrences = occs
         return occs
+
     occurrences = property(cached_get_sorted_occurrences)
 
     def get_persisted_occurrences(self):
-        if hasattr(self, '_persisted_occurrences'):
+        if hasattr(self, "_persisted_occurrences"):
             return self._persisted_occurrences
         else:
-            self._persisted_occurrences = Occurrence.objects.filter(event__in=self.events)
+            self._persisted_occurrences = Occurrence.objects.filter(
+                event__in=self.events
+            )
             return self._persisted_occurrences
 
     def classify_occurrence(self, occurrence):
@@ -115,14 +129,14 @@ class Period(object):
         if self.utc_start <= occurrence.end < self.utc_end:
             ended = True
         if started and ended:
-            return {'occurrence': occurrence, 'class': 1}
+            return {"occurrence": occurrence, "class": 1}
         elif started:
-            return {'occurrence': occurrence, 'class': 0}
+            return {"occurrence": occurrence, "class": 0}
         elif ended:
-            return {'occurrence': occurrence, 'class': 3}
+            return {"occurrence": occurrence, "class": 3}
         # it existed during this period but it didn't begin or end within it
         # so it must have just continued
-        return {'occurrence': occurrence, 'class': 2}
+        return {"occurrence": occurrence, "class": 2}
 
     def get_occurrence_partials(self):
         occurrence_dicts = []
@@ -147,7 +161,13 @@ class Period(object):
         if tzinfo is None:
             tzinfo = self.tzinfo
         start = start or self.start
-        return cls(self.events, start, self.get_persisted_occurrences(), self.occurrences, tzinfo)
+        return cls(
+            self.events,
+            start,
+            self.get_persisted_occurrences(),
+            self.occurrences,
+            tzinfo,
+        )
 
     def get_periods(self, cls, tzinfo=None):
         if tzinfo is None:
@@ -170,31 +190,40 @@ class Period(object):
         return self.utc_end.replace(tzinfo=None)
 
 
-@python_2_unicode_compatible
 class Year(Period):
-    def __init__(self, events, date=None, parent_persisted_occurrences=None, tzinfo=pytz.utc):
+    def __init__(
+        self, events, date=None, parent_persisted_occurrences=None, tzinfo=pytz.utc
+    ):
         self.tzinfo = self._get_tzinfo(tzinfo)
         if date is None:
             date = timezone.now()
         start, end = self._get_year_range(date)
-        super(Year, self).__init__(events, start, end, parent_persisted_occurrences, tzinfo=tzinfo)
+        super().__init__(
+            events, start, end, parent_persisted_occurrences, tzinfo=tzinfo
+        )
 
     def get_months(self):
         return self.get_periods(Month)
 
     def next_year(self):
         return Year(self.events, self.end, tzinfo=self.tzinfo)
+
     next = __next__ = next_year
 
     def prev_year(self):
         start = datetime.datetime(self.start.year - 1, self.start.month, self.start.day)
         return Year(self.events, start, tzinfo=self.tzinfo)
+
     prev = prev_year
 
     def _get_year_range(self, year):
         # If tzinfo is not none get the local start of the year and convert it to utc.
-        naive_start = datetime.datetime(year.year, datetime.datetime.min.month, datetime.datetime.min.day)
-        naive_end = datetime.datetime(year.year + 1, datetime.datetime.min.month, datetime.datetime.min.day)
+        naive_start = datetime.datetime(
+            year.year, datetime.datetime.min.month, datetime.datetime.min.day
+        )
+        naive_end = datetime.datetime(
+            year.year + 1, datetime.datetime.min.month, datetime.datetime.min.day
+        )
 
         start = naive_start
         end = naive_end
@@ -210,20 +239,32 @@ class Year(Period):
         return self.start.year
 
 
-@python_2_unicode_compatible
 class Month(Period):
     """
     The month period has functions for retrieving the week periods within this period
     and day periods within the date.
     """
-    def __init__(self, events, date=None, parent_persisted_occurrences=None,
-                 occurrence_pool=None, tzinfo=pytz.utc):
+
+    def __init__(
+        self,
+        events,
+        date=None,
+        parent_persisted_occurrences=None,
+        occurrence_pool=None,
+        tzinfo=pytz.utc,
+    ):
         self.tzinfo = self._get_tzinfo(tzinfo)
         if date is None:
             date = timezone.now()
         start, end = self._get_month_range(date)
-        super(Month, self).__init__(events, start, end,
-                                    parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
+        super().__init__(
+            events,
+            start,
+            end,
+            parent_persisted_occurrences,
+            occurrence_pool,
+            tzinfo=tzinfo,
+        )
 
     def get_weeks(self):
         return self.get_periods(Week)
@@ -239,22 +280,30 @@ class Month(Period):
 
     def next_month(self):
         return Month(self.events, self.end, tzinfo=self.tzinfo)
+
     next = __next__ = next_month
 
     def prev_month(self):
-        start = (self.start - datetime.timedelta(days=1)).replace(day=1, tzinfo=self.tzinfo)
+        start = (self.start - datetime.timedelta(days=1)).replace(
+            day=1, tzinfo=self.tzinfo
+        )
         return Month(self.events, start, tzinfo=self.tzinfo)
+
     prev = prev_month
 
     def current_year(self):
         return Year(self.events, self.start, tzinfo=self.tzinfo)
 
     def prev_year(self):
-        start = datetime.datetime.min.replace(year=self.start.year - 1, tzinfo=self.tzinfo)
+        start = datetime.datetime.min.replace(
+            year=self.start.year - 1, tzinfo=self.tzinfo
+        )
         return Year(self.events, start, tzinfo=self.tzinfo)
 
     def next_year(self):
-        start = datetime.datetime.min.replace(year=self.start.year + 1, tzinfo=self.tzinfo)
+        start = datetime.datetime.min.replace(
+            year=self.start.year + 1, tzinfo=self.tzinfo
+        )
         return Year(self.events, start, tzinfo=self.tzinfo)
 
     def _get_month_range(self, month):
@@ -287,26 +336,42 @@ class Month(Period):
         return self.start.year
 
 
-@python_2_unicode_compatible
 class Week(Period):
     """
     The Week period that has functions for retrieving Day periods within it
     """
-    def __init__(self, events, date=None, parent_persisted_occurrences=None,
-                 occurrence_pool=None, tzinfo=pytz.utc):
+
+    def __init__(
+        self,
+        events,
+        date=None,
+        parent_persisted_occurrences=None,
+        occurrence_pool=None,
+        tzinfo=pytz.utc,
+    ):
         self.tzinfo = self._get_tzinfo(tzinfo)
         if date is None:
             date = timezone.now()
         start, end = self._get_week_range(date)
-        super(Week, self).__init__(events, start, end,
-                                   parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
+        super().__init__(
+            events,
+            start,
+            end,
+            parent_persisted_occurrences,
+            occurrence_pool,
+            tzinfo=tzinfo,
+        )
 
     def prev_week(self):
-        return Week(self.events, self.start - datetime.timedelta(days=7), tzinfo=self.tzinfo)
+        return Week(
+            self.events, self.start - datetime.timedelta(days=7), tzinfo=self.tzinfo
+        )
+
     prev = prev_week
 
     def next_week(self):
         return Week(self.events, self.end, tzinfo=self.tzinfo)
+
     next = __next__ = next_week
 
     def current_month(self):
@@ -348,23 +413,34 @@ class Week(Period):
         return start, end
 
     def __str__(self):
-        date_format = 'l, %s' % settings.DATE_FORMAT
-        return ugettext('Week: %(start)s-%(end)s') % {
-            'start': date_filter(self.start, date_format),
-            'end': date_filter(self.end, date_format),
+        date_format = "l, %s" % settings.DATE_FORMAT
+        return gettext("Week: %(start)s-%(end)s") % {
+            "start": date_filter(self.start, date_format),
+            "end": date_filter(self.end, date_format),
         }
 
 
-@python_2_unicode_compatible
 class Day(Period):
-    def __init__(self, events, date=None, parent_persisted_occurrences=None,
-                 occurrence_pool=None, tzinfo=pytz.utc):
+    def __init__(
+        self,
+        events,
+        date=None,
+        parent_persisted_occurrences=None,
+        occurrence_pool=None,
+        tzinfo=pytz.utc,
+    ):
         self.tzinfo = self._get_tzinfo(tzinfo)
         if date is None:
             date = timezone.now()
         start, end = self._get_day_range(date)
-        super(Day, self).__init__(events, start, end,
-                                  parent_persisted_occurrences, occurrence_pool, tzinfo=tzinfo)
+        super().__init__(
+            events,
+            start,
+            end,
+            parent_persisted_occurrences,
+            occurrence_pool,
+            tzinfo=tzinfo,
+        )
 
     def _get_day_range(self, date):
 
@@ -376,7 +452,9 @@ class Day(Period):
             date = date.date()
 
         naive_start = datetime.datetime.combine(date, datetime.time.min)
-        naive_end = datetime.datetime.combine(date + datetime.timedelta(days=1), datetime.time.min)
+        naive_end = datetime.datetime.combine(
+            date + datetime.timedelta(days=1), datetime.time.min
+        )
         if self.tzinfo is not None:
             local_start = self.tzinfo.localize(naive_start)
             local_end = self.tzinfo.localize(naive_end)
@@ -389,18 +467,22 @@ class Day(Period):
         return start, end
 
     def __str__(self):
-        date_format = 'l, %s' % settings.DATE_FORMAT
-        return ugettext('Day: %(start)s-%(end)s') % {
-            'start': date_filter(self.start, date_format),
-            'end': date_filter(self.end, date_format),
+        date_format = "l, %s" % settings.DATE_FORMAT
+        return gettext("Day: %(start)s-%(end)s") % {
+            "start": date_filter(self.start, date_format),
+            "end": date_filter(self.end, date_format),
         }
 
     def prev_day(self):
-        return Day(self.events, self.start - datetime.timedelta(days=1), tzinfo=self.tzinfo)
+        return Day(
+            self.events, self.start - datetime.timedelta(days=1), tzinfo=self.tzinfo
+        )
+
     prev = prev_day
 
     def next_day(self):
         return Day(self.events, self.end, tzinfo=self.tzinfo)
+
     next = __next__ = next_day
 
     def current_year(self):

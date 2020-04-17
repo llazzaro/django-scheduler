@@ -1,3 +1,32 @@
+0.9.3 - 2019-10-31
+==================
+
+- Add testing for Python 3.8.
+- Fix broken migrations.
+
+0.9.2 - 2019-10-27
+==================
+
+- Fix broken migration.
+
+0.9.1 - 2019-10-27
+==================
+
+- Removed support for end-of-life Django 2.0.
+- ``Calendar.slug`` is now unique.
+- ``Event.rule`` and ``Event.creator`` foreign keys are now
+  ``on_delete=models.SET_NULL``.
+
+0.9.0 - 2019-10-04
+==================
+
+- Added support for Django 2.1, 2.2, and 3.0 and Python 3.7.
+- Dropped support for Python 2.7 and 3.4.
+- Added support for FullCalendar's use of the ``%Y-%m-%dT%H:%M:%S`` datetime
+  format.
+- Added the ``__hash__`` method to the ``Occurrence`` model to fix a crash when
+  deleting objects with Django ≥ 2.2.
+
 0.8.8 - 2018-01-14
 ==================
 

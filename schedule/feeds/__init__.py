@@ -3,14 +3,13 @@ import itertools
 from django.conf import settings
 from django.contrib.syndication.views import Feed, FeedDoesNotExist
 from django.utils import timezone
-from django.utils.six.moves.builtins import str
 
 from schedule.feeds.ical import ICalendarFeed
 from schedule.models import Calendar
 
 
 class UpcomingEventsFeed(Feed):
-    feed_id = 'upcoming'
+    feed_id = "upcoming"
 
     def feed_title(self, obj):
         return "Upcoming Events for %s" % obj.name
@@ -26,7 +25,8 @@ class UpcomingEventsFeed(Feed):
     def items(self, obj):
         return itertools.islice(
             obj.occurrences_after(timezone.now()),
-            getattr(settings, 'FEED_LIST_LENGTH', 10))
+            getattr(settings, "FEED_LIST_LENGTH", 10),
+        )
 
     def item_id(self, item):
         return str(item.id)
@@ -36,14 +36,14 @@ class UpcomingEventsFeed(Feed):
 
     def item_authors(self, item):
         if item.event.creator is None:
-            return [{'name': ''}]
-        return [{'name': item.event.creator.username}]
+            return [{"name": ""}]
+        return [{"name": item.event.creator.username}]
 
     def item_updated(self, item):
         return item.event.created_on
 
     def item_content(self, item):
-        return "%s \n %s" % (item.event.title, item.event.description)
+        return "{} \n {}".format(item.event.title, item.event.description)
 
 
 class CalendarICalendar(ICalendarFeed):
