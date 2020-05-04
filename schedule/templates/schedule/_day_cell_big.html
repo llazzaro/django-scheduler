@@ -5,10 +5,10 @@
               <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#occurrenceModal">
 
                   <div class="starttime">
-                      {% ifequal o.class 0 %}{{ o.occurrence.start|time:"G:i" }}{% endifequal %}
-                      {% ifequal o.class 1 %}{{ o.occurrence.start|time:"G:i" }}{% endifequal %}
-                      {% ifequal o.class 2 %}(All day){% endifequal %}
-                      {% ifequal o.class 3 %}Ends at {{ o.occurrence.end|time:"G:i" }}{% endifequal %}
+                      {% if o.class == 0 %}{{ o.occurrence.start|time:"G:i" }}{% endif %}
+                      {% if o.class == 1 %}{{ o.occurrence.start|time:"G:i" }}{% endif %}
+                      {% if o.class == 2 %}(All day){% endif %}
+                      {% if o.class == 3 %}Ends at {{ o.occurrence.end|time:"G:i" }}{% endif %}
                   </div>
                   <div class="eventdesc">
                       {% title o.occurrence %}

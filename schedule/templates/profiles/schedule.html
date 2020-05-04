@@ -26,14 +26,14 @@
                 <a href="{% url "event" event.pk %}" title="{% trans "Event details" %} {{ event }}">
                     <img src="{{ settings.MEDIA_URL }}icons/time_go.png" alt="{% trans "Event details" %}">
                 </a>
-                {% ifequal request.user other_user %}
+                {% if request.user == other_user %}
                 <a href="{% url "edit_event" calendar.slug event.pk %}" title="{% trans "Edit event" %} {{ event }}">
                     <img src="{{ settings.MEDIA_URL }}icons/time_edit.png" alt="{% trans "Edit event" %}">
                 </a>
                 <a href="{% url "delete_event" event.pk %}" title="{% trans "Delete event" %} {{ event }}">
                     <img src="{{ settings.MEDIA_URL }}icons/time_delete.png" alt="{% trans "Delete event" %}">
                 </a>
-                {% endifequal %}
+                {% endif %}
                 {% endblock schedule_event_controls %}
             </td>
         </tr>
