@@ -1,5 +1,5 @@
 {% load scheduletags %}
-{% ifnotequal day.start.month month.start.month %}
+{% if day.start.month != month.start.month %}
   <td class="muted"></td>
 {% else %}
   {% if day.has_occurrences %}
@@ -10,8 +10,8 @@
   <a href="{% url "day_calendar" calendar.slug %}{% querystring_for_date day.start 3 %}">
     <strong>{{day.start.day}}</strong>
   </a>
-  {% ifnotequal size "small" %}
+  {% if size != "small" %}
     {% include "schedule/_day_cell_big.html" %}
-  {% endifnotequal %}
+  {% endif %}
 </td>
-{% endifnotequal %}
+{% endif %}
