@@ -1,7 +1,14 @@
 from django.contrib import admin
 
 from schedule.forms import EventAdminForm
-from schedule.models import Calendar, CalendarRelation, Event, Occurrence, Rule
+from schedule.models import (
+    Calendar,
+    CalendarRelation,
+    Event,
+    EventRelation,
+    Occurrence,
+    Rule,
+)
 
 
 @admin.register(Calendar)
@@ -27,6 +34,14 @@ class CalendarRelationAdmin(admin.ModelAdmin):
                 ]
             },
         ),
+    )
+
+
+@admin.register(EventRelation)
+class EventRelationAdmin(admin.ModelAdmin):
+    list_display = ("event", "content_object", "distinction")
+    fieldsets = (
+        (None, {"fields": ["event", ("content_type", "object_id", "distinction")]}),
     )
 
 
