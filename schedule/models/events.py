@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from dateutil import rrule
 from django.conf import settings as django_settings
@@ -422,6 +423,22 @@ class Event(models.Model):
         elif self.pk:
             return datetime.datetime.max
         return None
+
+    @property
+    def next_occurrence(self) -> Optional[datetime.datetime]:
+        """Get the next occurrence date with `event.start` date replacing the year with `now.year`"""
+        now = timezone.now()
+
+        if self.end_recurring_period and now > self.end_recurring_period:
+            return None
+
+        # Since this is a generator, it won't generate infinite dates
+        future_occurrences = rrule.rrule(
+            freq=self.rule.rrule_frequency(), dtstart=self.start.replace(year=now.year)
+        )
+        for occurrence in future_occurrences:
+            if now <= occurrence:
+                return occurrence
 
 
 class EventRelationManager(models.Manager):

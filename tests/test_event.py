@@ -1,9 +1,10 @@
 import datetime
+from unittest import mock
 
 import pytz
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, freeze_time
 from django.urls import reverse
 from django.utils import timezone
 
@@ -618,6 +619,73 @@ class TestEvent(TestCase):
                 "2017-12-29 00:00:00 to 2017-12-29 00:00:00",
             ],
         )
+
+    @override_settings(TIME_ZONE="UTC", USE_TZ=True)
+    @mock.patch("schedule.models.events.timezone")
+    def test_next_occurrence_date_monthly(self, mock_timezone):
+        """Test that we get the next occurrence date for an event monthly"""
+        mock_timezone.now.return_value = datetime.datetime(
+            2020, 4, 5, 8, 0, tzinfo=pytz.utc
+        )
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="MONTHLY")
+
+        event = self.__create_recurring_event(
+            "Recurrent event test get_occurrence",
+            datetime.datetime(2020, 1, 5, 8, 0, tzinfo=pytz.utc),
+            datetime.datetime(2020, 1, 5, 9, 0, tzinfo=pytz.utc),
+            datetime.datetime(2020, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule,
+            cal,
+        )
+
+        self.assertEqual(
+            event.next_occurrence, datetime.datetime(2020, 4, 5, 8, 0, tzinfo=pytz.utc),
+        )
+
+    @override_settings(TIME_ZONE="UTC", USE_TZ=True)
+    @mock.patch("schedule.models.events.timezone")
+    def test_next_occurrence_date_weekly(self, mock_timezone):
+        """Test that we get the next occurrence date for an event weekly"""
+        mock_timezone.now.return_value = datetime.datetime(
+            2020, 3, 3, 8, 0, tzinfo=pytz.utc
+        )
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="WEEKLY")
+
+        event = self.__create_recurring_event(
+            "Recurrent event test get_occurrence",
+            datetime.datetime(2020, 1, 5, 8, 0, tzinfo=pytz.utc),
+            datetime.datetime(2020, 1, 5, 9, 0, tzinfo=pytz.utc),
+            datetime.datetime(2020, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule,
+            cal,
+        )
+
+        self.assertEqual(
+            event.next_occurrence, datetime.datetime(2020, 3, 8, 8, 0, tzinfo=pytz.utc),
+        )
+
+    @override_settings(TIME_ZONE="UTC", USE_TZ=True)
+    @mock.patch("schedule.models.events.timezone")
+    def test_next_occurrence_date_ended(self, mock_timezone):
+        """Test that we don't get any date for an event if the end_recurring_period has already passed"""
+        mock_timezone.now.return_value = datetime.datetime(
+            2020, 10, 3, 8, 0, tzinfo=pytz.utc
+        )
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="WEEKLY")
+
+        event = self.__create_recurring_event(
+            "Recurrent event test get_occurrence",
+            datetime.datetime(2020, 1, 5, 8, 0, tzinfo=pytz.utc),
+            datetime.datetime(2020, 1, 5, 9, 0, tzinfo=pytz.utc),
+            datetime.datetime(2020, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule,
+            cal,
+        )
+
+        self.assertEqual(event.next_occurrence, None)
 
 
 class TestEventRelationManager(TestCase):
