@@ -17,7 +17,7 @@ Information
 * [Documentation](https://django-scheduler.readthedocs.io/)
 * [Wiki](https://github.com/llazzaro/django-scheduler/wiki)
 * [Sample Project](https://github.com/llazzaro/django-scheduler-sample)
-* [Sample Project using django + vue] (https://github.com/karmael/django-scheduler-vue-sample)
+* [Sample Project using django + vue](https://github.com/karmael/django-scheduler-vue-sample)
 
 
 Installation
