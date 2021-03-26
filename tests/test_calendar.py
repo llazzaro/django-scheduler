@@ -79,7 +79,7 @@ class TestCalendar(TestCase):
 
     def test_get_or_create_calendar_for_object_without_calendar(self):
         """
-            Creation test
+        Creation test
         """
         rule = Rule.objects.create()
         calendar = Calendar.objects.get_or_create_calendar_for_object(
@@ -91,7 +91,7 @@ class TestCalendar(TestCase):
 
     def test_get_or_create_calendar_for_object_withouth_name(self):
         """
-            Test with already created calendar
+        Test with already created calendar
         """
         rule = Rule.objects.create()
         calendar = Calendar.objects.get_or_create_calendar_for_object(rule)
@@ -111,8 +111,8 @@ class TestCalendar(TestCase):
 
     def test_calendar_absolute_and_event_url(self):
         """
-            this test seems to not make too much send, just added since an
-            url was with wrong reverse name.
+        this test seems to not make too much send, just added since an
+        url was with wrong reverse name.
 
         """
         rule = Rule.objects.create()

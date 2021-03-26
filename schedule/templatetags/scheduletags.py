@@ -46,11 +46,11 @@ def day_cell(context, calendar, day, month, size="regular"):
 @register.inclusion_tag("schedule/_daily_table.html", takes_context=True)
 def daily_table(context, day, start=8, end=20, increment=30):
     """
-      Display a nice table with occurrences and action buttons.
-      Arguments:
-      start - hour at which the day starts
-      end - hour at which the day ends
-      increment - size of a time slot (in minutes)
+    Display a nice table with occurrences and action buttons.
+    Arguments:
+    start - hour at which the day starts
+    end - hour at which the day ends
+    increment - size of a time slot (in minutes)
     """
     user = context["request"].user
     addable = CHECK_EVENT_PERM_FUNC(None, user)
@@ -258,11 +258,11 @@ def detail(occurrence):
 
 def _cook_slots(period, increment):
     """
-        Prepare slots to be displayed on the left hand side
-        calculate dimensions (in px) for each slot.
-        Arguments:
-        period - time period for the whole series
-        increment - slot size in minutes
+    Prepare slots to be displayed on the left hand side
+    calculate dimensions (in px) for each slot.
+    Arguments:
+    period - time period for the whole series
+    increment - slot size in minutes
     """
     tdiff = datetime.timedelta(minutes=increment)
     num = int((period.end - period.start).total_seconds()) // int(tdiff.total_seconds())
