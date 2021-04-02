@@ -365,8 +365,8 @@ class TestOccurrencePool(TestCase):
 
     def testPeriodFromPool(self):
         """
-            Test that period initiated with occurrence_pool returns the same occurrences as "straigh" period
-            in a corner case whereby a period's start date is equal to the occurrence's end date
+        Test that period initiated with occurrence_pool returns the same occurrences as "straigh" period
+        in a corner case whereby a period's start date is equal to the occurrence's end date
         """
         start = datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc)
         end = datetime.datetime(2008, 1, 5, 10, 0, tzinfo=pytz.utc)
@@ -621,7 +621,7 @@ class TestAwareYear(TestCase):
 
 class TestStrftimeRefactor(TestCase):
     """
-        Test for the refactor of strftime
+    Test for the refactor of strftime
     """
 
     def test_years_before_1900(self):
