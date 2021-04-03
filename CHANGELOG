@@ -2,6 +2,7 @@ Unreleased
 ==========
 
 - Dropped support for Python 3.5.
+- Add testing for Python 3.9.
 
 0.9.3 - 2019-10-31
 ==================
