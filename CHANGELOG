@@ -2,8 +2,9 @@ Unreleased
 ==========
 
 - Dropped support for Python 3.5.
-- Dropped support for Django 1.11 and 2.1.
+- Dropped support for Django 1.11, 2.1 and 3.0.
 - Add testing for Python 3.9.
+- Add testing for Django 3.1 and 3.2.
 
 0.9.3 - 2019-10-31
 ==================
