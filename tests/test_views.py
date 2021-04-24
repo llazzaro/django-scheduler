@@ -3,7 +3,7 @@ import json
 
 import pytz
 from django.http import Http404
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -11,7 +11,12 @@ from schedule.models.calendars import Calendar
 from schedule.models.events import Event, Occurrence
 from schedule.models.rules import Rule
 from schedule.settings import USE_FULLCALENDAR
-from schedule.views import check_next_url, coerce_date_dict, get_occurrence
+from schedule.views import (
+    check_next_url,
+    coerce_date_dict,
+    get_next_url,
+    get_occurrence,
+)
 
 
 class TestViews(TestCase):
@@ -129,6 +134,21 @@ class TestViewUtils(TestCase):
             coerce_date_dict({"year": "2008", "month": "4", "hours": "3"}),
             {"year": 2008, "month": 4, "day": 1, "hour": 0, "minute": 0, "second": 0},
         )
+
+
+class TestGetNextUrl(SimpleTestCase):
+    def setUp(self):
+        super().setUp()
+        self.factory = RequestFactory()
+
+    def test_redirects_to_same_server(self):
+        redirect_to = "http://testserver/"
+        request = self.factory.get(f"?next={redirect_to}")
+        self.assertEqual(get_next_url(request, None), redirect_to)
+
+    def test_redirects_to_malicious_server(self):
+        request = self.factory.get("?next=http://evil.com")
+        self.assertIsNone(get_next_url(request, None))
 
 
 class TestUrls(TestCase):
