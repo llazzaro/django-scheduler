@@ -600,6 +600,69 @@ class TestUrls(TestCase):
         expected_error = "does not match format '%Y-%m-%dT%H:%M:%S'"
         self.assertIn(expected_error, resp)
 
+    def test_cal_multiple_slugs_return_all_events(self):
+        calendar1 = Calendar.objects.create(name="MyCal1", slug='MyCalSlug1')
+        calendar2 = Calendar.objects.create(name="MyCal2", slug='MyCalSlug2')
+        calendarOther = Calendar.objects.create(name="MyCalOther", slug='MyCalSlugOther')
+
+        event1 = Event.objects.create(
+            title='Recent Event 1',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar1,
+        )
+        event2 = Event.objects.create(
+            title='Recent Event 2',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar2,
+        )
+
+        eventOther = Event.objects.create(
+            title='Recent Event Other',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendarOther,
+        )
+
+        calendar_slug = ','.join(['MyCalSlug1', 'MyCalSlug2', ])
+
+        # Test both present with no cal arg
+        response = self.client.get(reverse("api_occurrences"),
+                                   {'start': '2008-01-05',
+                                    'end': '2008-02-05',
+                                    'calendar_slug': calendar_slug, }
+                                   )
+        self.assertEqual(response.status_code, 200)
+        resp_list = json.loads(response.content.decode('utf-8'))
+        self.assertIn(event1.title, [d['title'] for d in resp_list])
+        self.assertIn(event2.title, [d['title'] for d in resp_list])
+
+        self.assertNotIn(eventOther.title, [d['title'] for d in resp_list])
+
+    def test_cal_request_missing_returns_400(self):
+        calendar1 = Calendar.objects.create(name="MyCal1", slug='MyCalSlug1')
+
+        Event.objects.create(
+            title='Recent Event 1',
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar1,
+        )
+
+        calendar_slug = ','.join(['MyCalSlug1', 'MyCalSlugOther', ])
+        # Test both present with no cal arg
+        response = self.client.get(reverse("api_occurrences"),
+                                   {'start': '2008-01-05',
+                                    'end': '2008-02-05',
+                                    'calendar_slug': calendar_slug, }
+                                   )
+        self.assertContains(response, 'MyCalSlugOther', status_code=400)
+
     def test_check_next_url_valid_case(self):
         expected = "/calendar/1"
         res = check_next_url("/calendar/1")
