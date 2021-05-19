@@ -600,6 +600,40 @@ class TestUrls(TestCase):
         expected_error = "does not match format '%Y-%m-%dT%H:%M:%S'"
         self.assertIn(expected_error, resp)
 
+    def test_occurrences_api_filters_cancelled_events(self):
+        # create a calendar and event
+        calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
+        weekly_meeting_event = Event.objects.create(
+            title="Recent Event",
+            start=datetime.datetime(2021, 12, 27, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2021, 12, 27, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2021, 12, 31, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar,
+        )
+        Occurrence.objects.create(
+            event=weekly_meeting_event,
+            start=weekly_meeting_event.start.replace(year=2021, month=12, day=27),
+            end=weekly_meeting_event.end.replace(year=2021, month=12, day=27),
+            cancelled=True,
+            original_start=weekly_meeting_event.start.replace(
+                year=2021, month=12, day=27
+            ),
+            original_end=weekly_meeting_event.end.replace(year=2021, month=12, day=27),
+        )
+
+        # test fails with date string time format not '%Y-%m-%d' or '%Y-%m-%dT%H:%M:%S'
+        response = self.client.get(
+            reverse("api_occurrences"),
+            {
+                "start": "2021-12-27T08:00:00",
+                "end": "2021-12-27T09:00:00",
+                "calendar_slug": weekly_meeting_event.calendar.slug,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        expected_content = []
+        self.assertEqual(json.loads(response.content.decode()), expected_content)
+
     def test_check_next_url_valid_case(self):
         expected = "/calendar/1"
         res = check_next_url("/calendar/1")

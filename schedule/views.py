@@ -434,7 +434,9 @@ def _api_occurrences(start, end, calendar_slug, timezone):
                 # make event start and end dates aware in given timezone
                 event_start = event_start.astimezone(current_tz)
                 event_end = event_end.astimezone(current_tz)
-
+            if occurrence.cancelled:
+                # fixes bug 508
+                continue
             response_data.append(
                 {
                     "id": occurrence_id,
