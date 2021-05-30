@@ -1,4 +1,10 @@
-0.9.4 - 2021-10-19
+0.9.5 - 2021-05-29
+==========
+
+- Use an AutoField until Django 3.2 is the only supported version
+
+
+0.9.4 - 2021-05-19
 ==========
 
 - Dropped support for Python 3.5.
