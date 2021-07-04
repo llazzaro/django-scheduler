@@ -24,7 +24,7 @@ class UpcomingEventsFeed(Feed):
 
     def items(self, obj):
         return itertools.islice(
-            obj.occurrences_after(timezone.now()),
+            obj.occurrences_after(timezone.localtime(timezone.now())),
             getattr(settings, "FEED_LIST_LENGTH", 10),
         )
 
