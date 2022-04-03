@@ -1,5 +1,6 @@
 import datetime
 
+import pytz
 from dateutil import rrule
 from django.conf import settings as django_settings
 from django.contrib.contenttypes import fields
@@ -186,16 +187,14 @@ class Event(models.Model):
         if timezone.is_naive(self.start):
             dtstart = self.start
         else:
-            dtstart = tzinfo.normalize(self.start).replace(tzinfo=None)
+            dtstart = self.start.astimezone(tzinfo).replace(tzinfo=None)
 
         if self.end_recurring_period is None:
             until = None
         elif timezone.is_naive(self.end_recurring_period):
             until = self.end_recurring_period
         else:
-            until = tzinfo.normalize(
-                self.end_recurring_period.astimezone(tzinfo)
-            ).replace(tzinfo=None)
+            until = self.end_recurring_period.astimezone(tzinfo).replace(tzinfo=None)
 
         return rrule.rrule(frequency, dtstart=dtstart, until=until, **params)
 
@@ -216,9 +215,9 @@ class Event(models.Model):
         rule = self.get_rrule_object(tzinfo)
         if rule:
             next_occurrence = rule.after(
-                tzinfo.normalize(date).replace(tzinfo=None), inc=True
+                date.astimezone(tzinfo).replace(tzinfo=None), inc=True
             )
-            next_occurrence = tzinfo.localize(next_occurrence)
+            next_occurrence = pytz.timezone(str(tzinfo)).localize(next_occurrence)
         else:
             next_occurrence = self.start
         if next_occurrence == date:
@@ -251,7 +250,7 @@ class Event(models.Model):
             start_rule = self.get_rrule_object(tzinfo)
             start = start.replace(tzinfo=None)
             if timezone.is_aware(end):
-                end = tzinfo.normalize(end).replace(tzinfo=None)
+                end = end.astimezone(tzinfo).replace(tzinfo=None)
 
             o_starts = []
 
@@ -272,7 +271,7 @@ class Event(models.Model):
 
             # Create the Occurrence objects for the found start dates
             for o_start in o_starts:
-                o_start = tzinfo.localize(o_start)
+                o_start = pytz.timezone(str(tzinfo)).localize(o_start)
                 if use_naive:
                     o_start = timezone.make_naive(o_start, tzinfo)
                 o_end = o_start + duration
@@ -308,7 +307,7 @@ class Event(models.Model):
         difference = self.end - self.start
         loop_counter = 0
         for o_start in date_iter:
-            o_start = tzinfo.localize(o_start)
+            o_start = pytz.timezone(str(tzinfo)).localize(o_start)
             o_end = o_start + difference
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)

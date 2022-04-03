@@ -61,7 +61,7 @@ class Period:
         if point_in_time.tzinfo is not None:
             return point_in_time.astimezone(pytz.utc)
         if tzinfo is not None:
-            return tzinfo.localize(point_in_time).astimezone(pytz.utc)
+            return pytz.timezone(str(tzinfo)).localize(point_in_time)
         if settings.USE_TZ:
             return pytz.utc.localize(point_in_time)
         else:
@@ -228,8 +228,8 @@ class Year(Period):
         start = naive_start
         end = naive_end
         if self.tzinfo is not None:
-            local_start = self.tzinfo.localize(naive_start)
-            local_end = self.tzinfo.localize(naive_end)
+            local_start = pytz.timezone(str(self.tzinfo)).localize(naive_start)
+            local_end = pytz.timezone(str(self.tzinfo)).localize(naive_end)
             start = local_start.astimezone(pytz.utc)
             end = local_end.astimezone(pytz.utc)
 
@@ -319,8 +319,8 @@ class Month(Period):
         start = naive_start
         end = naive_end
         if self.tzinfo is not None:
-            local_start = self.tzinfo.localize(naive_start)
-            local_end = self.tzinfo.localize(naive_end)
+            local_start = pytz.timezone(str(self.tzinfo)).localize(naive_start)
+            local_end = pytz.timezone(str(self.tzinfo)).localize(naive_end)
             start = local_start.astimezone(pytz.utc)
             end = local_end.astimezone(pytz.utc)
 
@@ -402,8 +402,8 @@ class Week(Period):
         naive_end = naive_start + datetime.timedelta(days=7)
 
         if self.tzinfo is not None:
-            local_start = self.tzinfo.localize(naive_start)
-            local_end = self.tzinfo.localize(naive_end)
+            local_start = pytz.timezone(str(self.tzinfo)).localize(naive_start)
+            local_end = pytz.timezone(str(self.tzinfo)).localize(naive_end)
             start = local_start.astimezone(pytz.utc)
             end = local_end.astimezone(pytz.utc)
         else:
@@ -456,8 +456,8 @@ class Day(Period):
             date + datetime.timedelta(days=1), datetime.time.min
         )
         if self.tzinfo is not None:
-            local_start = self.tzinfo.localize(naive_start)
-            local_end = self.tzinfo.localize(naive_end)
+            local_start = pytz.timezone(str(self.tzinfo)).localize(naive_start)
+            local_end = pytz.timezone(str(self.tzinfo)).localize(naive_end)
             start = local_start.astimezone(pytz.utc)
             end = local_end.astimezone(pytz.utc)
         else:

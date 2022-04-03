@@ -23,6 +23,7 @@ class TestCalendarInheritance(TestCase):
 class TestCalendar(TestCase):
     def test_get_recent_events_without_events_is_empty(self):
         calendar = Calendar()
+        calendar.save()
         self.assertEqual(list(calendar.get_recent()), [])
 
     def test_get_recent_events_with_events_return_the_event(self):
