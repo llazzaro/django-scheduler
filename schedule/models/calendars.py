@@ -183,7 +183,7 @@ class Calendar(models.Model):
 
 class CalendarRelationManager(models.Manager):
     def create_relation(
-        self, calendar, content_object, distinction="", inheritable=True
+        self, calendar, content_object, distinction: str = "", inheritable: bool = True
     ):
         """
         Creates a relation between calendar and content_object.

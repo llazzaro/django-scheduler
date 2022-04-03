@@ -117,7 +117,7 @@ class Period:
             )
             return self._persisted_occurrences
 
-    def classify_occurrence(self, occurrence):
+    def classify_occurrence(self, occurrence: Occurrence):
         if occurrence.cancelled and not SHOW_CANCELLED_OCCURRENCES:
             return
         if occurrence.start > self.end or occurrence.end < self.start:
@@ -152,12 +152,12 @@ class Period:
     def has_occurrences(self):
         return any(self.classify_occurrence(o) for o in self.occurrences)
 
-    def get_time_slot(self, start, end):
+    def get_time_slot(self, start: datetime.datetime, end: datetime.datetime):
         if start >= self.start and end <= self.end:
             return Period(self.events, start, end, tzinfo=self.tzinfo)
         return Period([], start, end, tzinfo=self.tzinfo)
 
-    def create_sub_period(self, cls, start=None, tzinfo=None):
+    def create_sub_period(self, cls, start: datetime.datetime = None, tzinfo=None):
         if tzinfo is None:
             tzinfo = self.tzinfo
         start = start or self.start
