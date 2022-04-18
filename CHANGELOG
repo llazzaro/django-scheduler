@@ -1,7 +1,7 @@
-0.9.6 -
+0.9.6 - 2022-04-18
 ==========
 
-- Fix bug #522. 'backports.zoneinfo.ZoneInfo' object has no attribute 'localize' 
+- Fix bug #522. 'backports.zoneinfo.ZoneInfo' object has no attribute 'localize'
 
 
 0.9.5 - 2021-05-29
