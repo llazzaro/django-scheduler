@@ -47,6 +47,13 @@ setup(
         "pytz>=2013.9",
         "icalendar>=3.8.4",
     ],
+    extras_require={
+        "dev": [
+            "coverage>=3.7.1",
+            "flake8",
+            "isort",
+        ],
+    },
     license="BSD",
     test_suite="runtests.runtests",
 )
