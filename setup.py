@@ -40,7 +40,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Topic :: Utilities",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
         "Django>=2.2",
         "python-dateutil>=2.1",
