@@ -21,6 +21,7 @@ jobs:
           - django31
           - django32
           - django40
+          - django41
         # include:
         #   - python-version: 3.8
         #     tox-environment: djangomain
@@ -31,6 +32,10 @@ jobs:
             tox-environment: django40
           - python-version: 3.7
             tox-environment: django40
+          - python-version: 3.6
+            tox-environment: django41
+          - python-version: 3.7
+            tox-environment: django41
 
     env:
       TOXENV: ${{ matrix.tox-environment }}
