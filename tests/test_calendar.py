@@ -31,6 +31,7 @@ class TestCalendar(TestCase):
 
     def test_occurrences_after_without_events_is_empty(self):
         calendar = Calendar()
+        calendar.save()
         self.assertEqual(list(calendar.occurrences_after(timezone.now())), [])
 
     def test_occurrences_after_with_events_after_returns_events(self):
