@@ -207,9 +207,9 @@ class Event(models.Model):
 
     def get_occurrence(self, date):
         use_naive = timezone.is_naive(date)
-        tzinfo = timezone.utc
+        tzinfo = datetime.timezone.utc
         if timezone.is_naive(date):
-            date = timezone.make_aware(date, timezone.utc)
+            date = timezone.make_aware(date, tzinfo)
         if date.tzinfo:
             tzinfo = date.tzinfo
         rule = self.get_rrule_object(tzinfo)
@@ -238,7 +238,7 @@ class Event(models.Model):
             use_naive = timezone.is_naive(start)
 
             # Use the timezone from the start date
-            tzinfo = timezone.utc
+            tzinfo = datetime.timezone.utc
             if start.tzinfo:
                 tzinfo = start.tzinfo
 
@@ -293,7 +293,7 @@ class Event(models.Model):
         ``max_occurrences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
 
-        tzinfo = timezone.utc
+        tzinfo = datetime.timezone.utc
         if after is None:
             after = timezone.now()
         elif not timezone.is_naive(after):
