@@ -1,6 +1,7 @@
 UNRELEASED
 ==========
 
+- Add support for Python 3.10
 - Drop support for Django versions before 3.2.
 
 0.9.6 - 2022-04-18
