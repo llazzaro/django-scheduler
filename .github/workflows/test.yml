@@ -19,9 +19,11 @@ jobs:
         tox-environment:
           - django32
           - django40
+          - django41
         include:
           - python-version: 3.7
             tox-environment: django32
+        # include:
         #   - python-version: 3.8
         #     tox-environment: djangomain
         #   - python-version: 3.9
