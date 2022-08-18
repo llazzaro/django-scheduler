@@ -26,8 +26,6 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Framework :: Django",
-        "Framework :: Django :: 2.2",
-        "Framework :: Django :: 3.1",
         "Framework :: Django :: 3.2",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
@@ -43,7 +41,7 @@ setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        "Django>=2.2",
+        "Django>=3.2",
         "python-dateutil>=2.1",
         "pytz>=2013.9",
         "icalendar>=3.8.4",
