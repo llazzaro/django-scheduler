@@ -1,9 +1,10 @@
-UNRELEASED
+0.10.0 - 2022-08-21
 ==========
 
 - Drop support for Python 3.6.
 - Add support for Python 3.10
 - Drop support for Django versions before 3.2.
+- Allow override of prev_url and next_url links
 
 0.9.6 - 2022-04-18
 ==========
