@@ -92,6 +92,7 @@ class Migration(migrations.Migration):
                         verbose_name="end",
                     ),
                 ),
+                ("default_end", models.BooleanField(default=False)),
                 ("title", models.CharField(max_length=255, verbose_name="title")),
                 (
                     "description",

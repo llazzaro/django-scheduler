@@ -15,9 +15,8 @@ from django.utils.translation import gettext, gettext_lazy as _
 
 from schedule.models.calendars import Calendar
 from schedule.models.rules import Rule
-from schedule.utils import OccurrenceReplacer
-
 from schedule.settings import EVENT_END_DEFAULT_DURATION
+from schedule.utils import OccurrenceReplacer
 
 freq_dict_order = {
     "YEARLY": 0,
@@ -53,7 +52,8 @@ class Event(models.Model):
     other models.
     """
 
-    def end_of_time(self):
+    @staticmethod
+    def end_of_time():
         return datetime.datetime.today() + relativedelta(**EVENT_END_DEFAULT_DURATION)
 
     def clean(self):
@@ -65,7 +65,11 @@ class Event(models.Model):
             else:
                 self.end = self.end_of_time()
                 self.default_end = True
-        if self.end != self.end_recurring_period:
+
+        if (
+            self.end_recurring_period is not None
+            and self.end != self.end_recurring_period
+        ):
             end = min(self.end, self.end_recurring_period)
             self.end = end
             self.end_recurring_period = end
