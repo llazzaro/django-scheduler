@@ -2,10 +2,12 @@ import datetime
 
 import pytz
 from django.conf import settings
+from django.db import connection
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import CaptureQueriesContext, override_settings
 
 from schedule.models import Calendar, Event, Rule
+from schedule.models.events import Occurrence
 from schedule.periods import Day, Month, Period, Week, Year
 
 
@@ -37,6 +39,42 @@ class TestPeriod(TestCase):
                 "2008-01-19 08:00:00+00:00 to 2008-01-19 09:00:00+00:00",
             ],
         )
+
+    def test_nplus_one_queries_event_period(self):
+        """Reproduces bug 420 occurences without title or desc will generate additional queries
+        to retrieve the event model
+        """
+        rule = Rule.objects.create(frequency="WEEKLY")
+        cal = Calendar.objects.get(name="MyCal")
+
+        event = Event.objects.create(
+            title="TEST",
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2023, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
+        for _ in range(0, 21):
+            # lets set occ without title and desc to use the event.title or event.desc
+            Occurrence.objects.create(
+                event=event,
+                start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
+                end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
+                original_start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
+                original_end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
+            )
+        period = Period(
+            events=[event],
+            start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2023, 1, 21, 7, 0, tzinfo=pytz.utc),
+        )
+        with CaptureQueriesContext(connection) as ctx:
+            for occurrence in period.get_occurrences():
+                pass
+
+        executed_queries = len(ctx.captured_queries)
+        assert executed_queries == 1, len(ctx.captured_queries)
 
     def test_get_occurrences_with_sorting_options(self):
         period = Period(
