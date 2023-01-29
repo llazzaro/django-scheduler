@@ -1,5 +1,5 @@
 0.10.0 - 2022-08-21
-==========
+===================
 
 - Drop support for Python 3.6.
 - Add support for Python 3.10
@@ -7,19 +7,19 @@
 - Allow override of prev_url and next_url links
 
 0.9.6 - 2022-04-18
-==========
+==================
 
 - Fix bug #522. 'backports.zoneinfo.ZoneInfo' object has no attribute 'localize'
 
 
 0.9.5 - 2021-05-29
-==========
+==================
 
 - Use an AutoField until Django 3.2 is the only supported version
 
 
 0.9.4 - 2021-05-19
-==========
+==================
 
 - Dropped support for Python 3.5.
 - Dropped support for Django 1.11, 2.1 and 3.0.
