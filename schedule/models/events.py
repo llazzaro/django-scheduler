@@ -637,7 +637,7 @@ class Occurrence(models.Model):
         if self.pk is not None:
             return reverse(
                 "occurrence",
-                kwargs={"occurrence_id": self.pk, "event_id": self.event_id}
+                kwargs={"occurrence_id": self.pk, "event_id": self.event_id},
             )
         return reverse(
             "occurrence_by_date",
@@ -656,7 +656,7 @@ class Occurrence(models.Model):
         if self.pk is not None:
             return reverse(
                 "cancel_occurrence",
-                kwargs={"occurrence_id": self.pk, "event_id": self.event_id}
+                kwargs={"occurrence_id": self.pk, "event_id": self.event_id},
             )
         return reverse(
             "cancel_occurrence_by_date",
@@ -675,7 +675,7 @@ class Occurrence(models.Model):
         if self.pk is not None:
             return reverse(
                 "edit_occurrence",
-                kwargs={"occurrence_id": self.pk, "event_id": self.event_id}
+                kwargs={"occurrence_id": self.pk, "event_id": self.event_id},
             )
         return reverse(
             "edit_occurrence_by_date",
