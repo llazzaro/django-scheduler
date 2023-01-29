@@ -1,4 +1,5 @@
 0.10.1 - 2023-01-29
+===================
 
 - Periods performance improvement avoid nplus queries
 
