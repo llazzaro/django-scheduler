@@ -598,10 +598,11 @@ class Occurrence(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not self.title and self.event_id:
-            self.title = self.event.title
-        if not self.description and self.event_id:
-            self.description = self.event.description
+        event = kwargs.get("event", None)
+        if not self.title and event:
+            self.title = event.title
+        if not self.description and event:
+            self.description = event.description
 
     def moved(self):
         return self.original_start != self.start or self.original_end != self.end
