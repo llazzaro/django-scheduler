@@ -89,14 +89,13 @@ class Period:
                     and occurrence.end >= self.utc_start
                 ):
                     occurrences.append(occurrence)
-            return occurrences
-
-        prefetch_related_objects(self.events, "occurrence_set")
-        for event in self.events:
-            event_occurrences = event.get_occurrences(
-                self.start, self.end, clear_prefetch=False
-            )
-            occurrences += event_occurrences
+        else:
+            prefetch_related_objects(self.events, "occurrence_set")
+            for event in self.events:
+                event_occurrences = event.get_occurrences(
+                    self.start, self.end, clear_prefetch=False
+                )
+                occurrences += event_occurrences
         return sorted(occurrences, **self.sorting_options)
 
     def cached_get_sorted_occurrences(self):
