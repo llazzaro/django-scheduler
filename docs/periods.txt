@@ -64,7 +64,7 @@ This method is used for getting all the occurrences, but getting them as classif
     this_week = Period(my_events, today, today+datetime.timedelta(days=7))
     this_week.get_occurrences() == [classified_occurrence['occurrence'] for classified_occurrence in this_week.get_occurrence_partials()]
 
-``has_occurrence()``
+``has_occurrences()``
 ~~~~~~~~~~~~~~~~~~~~
 
 This method returns whether there are any occurrences in this period
