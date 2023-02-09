@@ -187,7 +187,7 @@ class Event(models.Model):
         # to override this cache clear since it already fetches all
         # occurrence_sets via prefetch_related in its get_occurrences.
         if clear_prefetch:
-            self.occurrence_set._remove_prefetched_objects()
+            self.refresh_from_db()
 
         persisted_occurrences = self.occurrence_set.all()
         occ_replacer = OccurrenceReplacer(persisted_occurrences)
@@ -626,10 +626,11 @@ class Occurrence(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not self.title and self.event_id:
-            self.title = self.event.title
-        if not self.description and self.event_id:
-            self.description = self.event.description
+        event = kwargs.get("event", None)
+        if not self.title and event:
+            self.title = event.title
+        if not self.description and event:
+            self.description = event.description
 
     def moved(self):
         return self.original_start != self.start or self.original_end != self.end
@@ -665,12 +666,12 @@ class Occurrence(models.Model):
         if self.pk is not None:
             return reverse(
                 "occurrence",
-                kwargs={"occurrence_id": self.pk, "event_id": self.event.id},
+                kwargs={"occurrence_id": self.pk, "event_id": self.event_id},
             )
         return reverse(
             "occurrence_by_date",
             kwargs={
-                "event_id": self.event.id,
+                "event_id": self.event_id,
                 "year": self.start.year,
                 "month": self.start.month,
                 "day": self.start.day,
@@ -684,12 +685,12 @@ class Occurrence(models.Model):
         if self.pk is not None:
             return reverse(
                 "cancel_occurrence",
-                kwargs={"occurrence_id": self.pk, "event_id": self.event.id},
+                kwargs={"occurrence_id": self.pk, "event_id": self.event_id},
             )
         return reverse(
             "cancel_occurrence_by_date",
             kwargs={
-                "event_id": self.event.id,
+                "event_id": self.event_id,
                 "year": self.start.year,
                 "month": self.start.month,
                 "day": self.start.day,
@@ -703,12 +704,12 @@ class Occurrence(models.Model):
         if self.pk is not None:
             return reverse(
                 "edit_occurrence",
-                kwargs={"occurrence_id": self.pk, "event_id": self.event.id},
+                kwargs={"occurrence_id": self.pk, "event_id": self.event_id},
             )
         return reverse(
             "edit_occurrence_by_date",
             kwargs={
-                "event_id": self.event.id,
+                "event_id": self.event_id,
                 "year": self.start.year,
                 "month": self.start.month,
                 "day": self.start.day,

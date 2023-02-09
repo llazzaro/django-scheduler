@@ -399,7 +399,7 @@ def _api_occurrences(start, end, calendar_slug, timezone):
     # event, using the "event_id" or the occurrence with the specified "id".
     # for more info https://github.com/llazzaro/django-scheduler/pull/169
     i = 1
-    if Occurrence.objects.all().count() > 0:
+    if Occurrence.objects.all().exists():
         i = Occurrence.objects.latest("id").id + 1
     event_list = []
     for calendar in calendars:
