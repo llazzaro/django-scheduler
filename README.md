@@ -174,6 +174,17 @@ Value is in seconds.
 Default (two years):
 62208000
 
+### EVENT_END_DEFAULT_DURATION 
+
+An event can be created without an end date.
+In this case the field default_end is set to True and this setting is used to supply an end date some time way into the future.
+
+The value should be a dictionary of keywords for dateutil.relativedelta
+
+Default (99 years):
+```python
+{"years": 99}
+```
 
 Contributing
 ============

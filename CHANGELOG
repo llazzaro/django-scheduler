@@ -2,6 +2,7 @@
 ===================
 
 - Periods performance improvement avoid nplus queries
+- Make event.end optional so that it can later be updated with a known value
 
 0.10.0 - 2022-08-21
 ===================

@@ -1,0 +1,4 @@
+python-dateutil~=2.7.3
+setuptools~=45.2.0
+pytz
+coverage

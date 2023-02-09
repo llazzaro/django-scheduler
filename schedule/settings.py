@@ -64,3 +64,8 @@ USE_FULLCALENDAR = getattr(settings, "USE_FULLCALENDAR", False)
 
 # This name is used when a new event is created through selecting in fullcalendar
 EVENT_NAME_PLACEHOLDER = getattr(settings, "EVENT_NAME_PLACEHOLDER", "Event Name")
+
+# Default kw args to dateutuil.relativedelta to create a temporary end date if none given
+EVENT_END_DEFAULT_DURATION = getattr(
+    settings, "EVENT_END_DEFAULT_DURATION", {"years": 99}
+)

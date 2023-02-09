@@ -57,3 +57,14 @@ example::
 
     get_events(request, calendar):
         return calendar.event_set.all()
+
+EVENT_END_DEFAULT_DURATION
+--------------------------
+
+An event can be created without an end date.
+In this case the field default_end is set to True and this setting is used to supply an end date some time way into the future.
+
+The value should be a dictionary of keywords for dateutil.relativedelta
+
+example:
+    {"years": 99}
