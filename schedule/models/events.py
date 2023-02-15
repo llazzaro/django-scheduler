@@ -116,7 +116,12 @@ class Event(models.Model):
     def get_absolute_url(self):
         return reverse("event", args=[self.id])
 
-    def get_occurrences(self, start, end, clear_prefetch=True):
+    def get_occurrences(
+        self,
+        start: datetime.datetime,
+        end: datetime.datetime,
+        clear_prefetch: bool = True,
+    ):
         """
         >>> rule = Rule(frequency = "MONTHLY", name = "Monthly")
         >>> rule.save()
@@ -205,7 +210,7 @@ class Event(models.Model):
             event=self, start=start, end=end, original_start=start, original_end=end
         )
 
-    def get_occurrence(self, date):
+    def get_occurrence(self, date: datetime.datetime):
         use_naive = timezone.is_naive(date)
         tzinfo = datetime.timezone.utc
         if timezone.is_naive(date):
@@ -228,7 +233,7 @@ class Event(models.Model):
                     next_occurrence = timezone.make_naive(next_occurrence, tzinfo)
                 return self._create_occurrence(next_occurrence)
 
-    def _get_occurrence_list(self, start, end):
+    def _get_occurrence_list(self, start: datetime.datetime, end: datetime.datetime):
         """
         Returns a list of occurrences that fall completely or partially inside
         the timespan defined by start (inclusive) and end (exclusive)
@@ -473,7 +478,9 @@ class EventRelationManager(models.Manager):
     #         eventrelation__event = event
     #     )
 
-    def get_events_for_object(self, content_object, distinction="", inherit=True):
+    def get_events_for_object(
+        self, content_object, distinction: str = "", inherit: bool = True
+    ):
         """
         returns a queryset full of events, that relate to the object through, the
         distinction
@@ -604,12 +611,11 @@ class Occurrence(models.Model):
         if not self.description and event:
             self.description = event.description
 
+    @property
     def moved(self):
         return self.original_start != self.start or self.original_end != self.end
 
-    moved = property(moved)
-
-    def move(self, new_start, new_end):
+    def move(self, new_start: datetime.datetime, new_end: datetime.datetime):
         self.start = new_start
         self.end = new_end
         self.save()

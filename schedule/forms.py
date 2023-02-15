@@ -1,3 +1,5 @@
+from typing import Any, List
+
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
@@ -43,6 +45,6 @@ class OccurrenceForm(SpanForm):
 
 class EventAdminForm(forms.ModelForm):
     class Meta:
-        exclude = []
+        exclude: List[Any] = []
         model = Event
         widgets = {"color_event": ColorInput}
