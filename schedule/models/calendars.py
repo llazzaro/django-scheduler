@@ -103,7 +103,7 @@ class CalendarManager(models.Manager):
         )
 
 
-class Calendar(models.Model):
+class CalendarAbstract(models.Model):
     """
     This is for grouping events so that batch relations can be made to all
     events.  An example would be a project calendar.
@@ -143,6 +143,7 @@ class Calendar(models.Model):
     objects = CalendarManager()
 
     class Meta:
+        abstract = True
         verbose_name = _("calendar")
         verbose_name_plural = _("calendars")
 
@@ -160,7 +161,8 @@ class Calendar(models.Model):
         if Inheritable is set to true this relation will cascade to all events
         related to this calendar.
         """
-        CalendarRelation.objects.create_relation(self, obj, distinction, inheritable)
+        CalendarRelation.objects.create_relation(
+            self, obj, distinction, inheritable)
 
     def get_recent(self, amount=5):
         """
@@ -181,6 +183,10 @@ class Calendar(models.Model):
         return reverse("calendar_home", kwargs={"calendar_slug": self.slug})
 
 
+class Calendar(CalendarAbstract):
+    pass
+
+
 class CalendarRelationManager(models.Manager):
     def create_relation(
         self, calendar, content_object, distinction="", inheritable=True
@@ -194,7 +200,7 @@ class CalendarRelationManager(models.Manager):
         )
 
 
-class CalendarRelation(models.Model):
+class CalendarRelationAbstract(models.Model):
     """
     This is for relating data to a Calendar, and possible all of the events for
     that calendar, there is also a distinction, so that the same type or kind of
@@ -229,9 +235,14 @@ class CalendarRelation(models.Model):
     objects = CalendarRelationManager()
 
     class Meta:
+        abstract = True
         verbose_name = _("calendar relation")
         verbose_name_plural = _("calendar relations")
         index_together = [("content_type", "object_id")]
 
     def __str__(self):
         return "{} - {}".format(self.calendar, self.content_object)
+
+
+class CalendarRelation(CalendarRelationAbstract):
+    pass

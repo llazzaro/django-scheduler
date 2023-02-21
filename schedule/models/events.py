@@ -44,7 +44,7 @@ class EventManager(models.Manager):
         )
 
 
-class Event(models.Model):
+class EventAbstract(models.Model):
     """
     This model stores meta data for a date.  You can relate this data to many
     other models.
@@ -90,6 +90,7 @@ class Event(models.Model):
     objects = EventManager()
 
     class Meta:
+        abstract = True
         verbose_name = _("event")
         verbose_name_plural = _("events")
         index_together = (("start", "end"),)
@@ -176,7 +177,8 @@ class Event(models.Model):
                 final_occurrences.append(occ)
         # then add persisted occurrences which originated outside of this period but now
         # fall within it
-        final_occurrences += occ_replacer.get_additional_occurrences(start, end)
+        final_occurrences += occ_replacer.get_additional_occurrences(
+            start, end)
         return final_occurrences
 
     def get_rrule_object(self, tzinfo):
@@ -225,7 +227,8 @@ class Event(models.Model):
                 return Occurrence.objects.get(event=self, original_start=date)
             except Occurrence.DoesNotExist:
                 if use_naive:
-                    next_occurrence = timezone.make_naive(next_occurrence, tzinfo)
+                    next_occurrence = timezone.make_naive(
+                        next_occurrence, tzinfo)
                 return self._create_occurrence(next_occurrence)
 
     def _get_occurrence_list(self, start, end):
@@ -373,7 +376,8 @@ class Event(models.Model):
             ):
                 sp = start_params[param]
                 if sp == rule_params[param] or (
-                    hasattr(rule_params[param], "__iter__") and sp in rule_params[param]
+                    hasattr(rule_params[param],
+                            "__iter__") and sp in rule_params[param]
                 ):
                     event_params[param] = [sp]
                 else:
@@ -421,6 +425,10 @@ class Event(models.Model):
         elif self.pk:
             return datetime.datetime.max
         return None
+
+
+class Event(EventAbstract):
+    pass
 
 
 class EventRelationManager(models.Manager):
@@ -541,7 +549,7 @@ class EventRelationManager(models.Manager):
         )
 
 
-class EventRelation(models.Model):
+class EventRelationAbstract(models.Model):
     """
     This is for relating data to an Event, there is also a distinction, so that
     data can be related in different ways.  A good example would be, if you have
@@ -560,7 +568,8 @@ class EventRelation(models.Model):
     may not scale well.  If you use this keep that in mind.
     """
 
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, verbose_name=_("event"))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.IntegerField(db_index=True)
     content_object = fields.GenericForeignKey("content_type", "object_id")
@@ -569,6 +578,7 @@ class EventRelation(models.Model):
     objects = EventRelationManager()
 
     class Meta:
+        abstract = True
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
         index_together = [("content_type", "object_id")]
@@ -579,8 +589,13 @@ class EventRelation(models.Model):
         )
 
 
-class Occurrence(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name=_("event"))
+class EventRelation(EventRelationAbstract):
+    pass
+
+
+class OccurrenceAbstract(models.Model):
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, verbose_name=_("event"))
     title = models.CharField(_("title"), max_length=255, blank=True)
     description = models.TextField(_("description"), blank=True)
     start = models.DateTimeField(_("start"), db_index=True)
@@ -592,6 +607,7 @@ class Occurrence(models.Model):
     updated_on = models.DateTimeField(_("updated on"), auto_now=True)
 
     class Meta:
+        abstract = True
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
         index_together = (("start", "end"),)
@@ -702,7 +718,8 @@ class Occurrence(models.Model):
 
     def __hash__(self):
         if not self.pk:
-            raise TypeError("Model instances without primary key value are unhashable")
+            raise TypeError(
+                "Model instances without primary key value are unhashable")
         return hash(self.pk)
 
     def __eq__(self, other):
@@ -711,3 +728,7 @@ class Occurrence(models.Model):
             and self.original_start == other.original_start
             and self.original_end == other.original_end
         )
+
+
+class Occurrence(OccurrenceAbstract):
+    pass
