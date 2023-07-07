@@ -689,7 +689,7 @@ class TestOccurrencePreview(TestCase):
                 "hour": 8,
                 "minute": 30,
                 "second": 0,
-            }
+            },
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

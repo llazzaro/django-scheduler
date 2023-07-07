@@ -166,7 +166,7 @@ class OccurrencePreview(OccurrenceMixin, ModelFormMixin, ProcessFormView):
             int(self.kwargs["hour"]),
             int(self.kwargs["minute"]),
             int(self.kwargs["second"]),
-            tzinfo=pytz.UTC
+            tzinfo=pytz.UTC,
         )
 
     def get_object(self, queryset=None):
@@ -376,7 +376,6 @@ def api_occurrences(request):
 
 
 def _api_occurrences(start, end, calendar_slug, timezone):
-
     if not start or not end:
         raise ValueError("Start and end parameters are required")
     # version 2 of full calendar

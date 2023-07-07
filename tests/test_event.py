@@ -51,7 +51,6 @@ class TestEvent(TestCase):
         self.assertEqual(0, len(occurrences_one))
 
     def test_recurring_event_get_occurrences(self):
-
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="WEEKLY")
 
@@ -76,7 +75,6 @@ class TestEvent(TestCase):
         )
 
     def test_event_get_occurrences_after(self):
-
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="WEEKLY")
 
@@ -140,7 +138,6 @@ class TestEvent(TestCase):
         )
 
     def test_recurring_event_get_occurrences_after(self):
-
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="WEEKLY")
         recurring_event = self.__create_recurring_event(
@@ -188,7 +185,6 @@ class TestEvent(TestCase):
         self.assertEqual(occurrence, occurrence2)
 
     def test_recurring_event_get_occurrence(self):
-
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="WEEKLY")
 
@@ -442,7 +438,6 @@ class TestEvent(TestCase):
         self.assertEqual(occurrences[-1].end, end_recurring)
 
     def test_recurring_event_get_occurrence_across_dst(self):
-
         pacific = pytz.timezone("US/Pacific")
         e_start = pacific.localize(datetime.datetime(2015, 3, 4, 9, 0))
         e_end = e_start
