@@ -663,3 +663,44 @@ class TestUrls(TestCase):
         self.assertTrue(
             '<a href="/feed/calendar/upcoming/1/">Feed</a>' in response.content.decode()
         )
+
+
+class TestOccurrencePreview(TestCase):
+    def setUp(self):
+        self.rule = Rule.objects.create(frequency="DAILY")
+        self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
+        self.event = Event.objects.create(
+            title="Recent Event",
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=self.rule,
+            calendar=self.calendar,
+        )
+
+    def test_generates_preview(self):
+        url = reverse(
+            "occurrence_by_date",
+            kwargs={
+                "event_id": self.event.pk,
+                "year": 2008,
+                "month": 4,
+                "day": 20,
+                "hour": 8,
+                "minute": 30,
+                "second": 0,
+            },
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "schedule/occurrence.html")
+        self.assertEqual(response.context["event"], self.event)
+
+        occurrence = response.context["occurrence"]
+        self.assertEqual(occurrence.event, self.event)
+        self.assertEqual(
+            occurrence.start, datetime.datetime(2008, 4, 20, 8, 0, tzinfo=pytz.utc)
+        )
+        self.assertEqual(
+            occurrence.end, datetime.datetime(2008, 4, 20, 9, 0, tzinfo=pytz.utc)
+        )

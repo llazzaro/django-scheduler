@@ -30,7 +30,6 @@ def reverse(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("schedule", "0003_auto_20160715_0028")]
 
     operations = [migrations.RunPython(forwards, reverse, elidable=True)]
