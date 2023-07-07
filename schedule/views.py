@@ -34,7 +34,7 @@ from django.views.generic.edit import (
 
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import Calendar, Event, Occurrence
-from schedule.periods import weekday_names, Period
+from schedule.periods import Period, weekday_names
 from schedule.settings import (
     CHECK_EVENT_PERM_FUNC,
     CHECK_OCCURRENCE_PERM_FUNC,
