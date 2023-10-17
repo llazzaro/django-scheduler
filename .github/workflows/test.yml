@@ -14,12 +14,13 @@ jobs:
       matrix:
         python-version:
           - 3.8
-          - 3.9
           - "3.10"
+          - "3.12"
         tox-environment:
           - django32
           - django40
           - django41
+          - django42
         include:
           - python-version: 3.7
             tox-environment: django32
