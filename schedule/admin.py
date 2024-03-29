@@ -52,6 +52,7 @@ class EventAdmin(admin.ModelAdmin):
     ordering = ("-start",)
     date_hierarchy = "start"
     search_fields = ("title", "description")
+    raw_id_fields = ("creator",)
     fieldsets = (
         (
             None,
