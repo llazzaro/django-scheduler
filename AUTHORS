@@ -1,22 +1,29 @@
-Primary Authors:
+Django5 Scheduler:
+    Primary Author:
 
-    * Tony Hauber
-    * Bartek Gorny
+        * Jake Morgan
 
-Contributors:
-    * Jon Dufresne
-    * Alex Gaynor
-    * Rock Howard
-    * Alik Kurdyukow
-    * Jannis Leidel
-    * Yann Malet
-    * James Pic
-    * Skylar Saveland
-    * ptoal
-    * Wes Winham
-    * Daniel Jost
-    * Sergey Fursov
-    * Paolo Dina
-    * Thomas Frössman
-    * Paul Poulakis
-    * Leonardo Lazzaro
+
+Original Django Scheduler:
+    Primary Authors:
+
+        * Tony Hauber
+        * Bartek Gorny
+
+    Contributors:
+        * Jon Dufresne
+        * Alex Gaynor
+        * Rock Howard
+        * Alik Kurdyukow
+        * Jannis Leidel
+        * Yann Malet
+        * James Pic
+        * Skylar Saveland
+        * ptoal
+        * Wes Winham
+        * Daniel Jost
+        * Sergey Fursov
+        * Paolo Dina
+        * Thomas Frössman
+        * Paul Poulakis
+        * Leonardo Lazzaro

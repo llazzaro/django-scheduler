@@ -1,4 +1,4 @@
-Django Scheduler
+Django5 Scheduler (Fork of Django Scheduler for Django5 Support)
 ========
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/llazzaro/django-scheduler)
@@ -7,7 +7,7 @@ Django Scheduler
 [![Documentation Status](https://readthedocs.org/projects/django-scheduler/badge/)](https://django-scheduler.readthedocs.io/)
 
 
-A calendar app for Django
+A calendar app for Django5 (drops support for older versions of Django)
 
 Information
 ========
@@ -21,7 +21,7 @@ Installation
 ========
 
 ```bash
-pip install django-scheduler
+pip install django5-scheduler
 ```
 
 Edit your `settings.py`

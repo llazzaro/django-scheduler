@@ -63,7 +63,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-PASSWORD_HASHERS = ["django.contrib.auth.hashers.SHA1PasswordHasher"]
+PASSWORD_HASHERS = ["django.contrib.auth.hashers.PBKDF2PasswordHasher"]
 
 # URL prefix for static files.
 STATIC_URL = "/static/"

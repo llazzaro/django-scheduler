@@ -1,3 +1,15 @@
+1.0.0 - 2025-05-16
+===================
+
+- Drop support for Django versions <Django5.x
+- Update original code to be Django5 compatible
+
+
+===================
+END OF ORIGINAL CHANGELOG
+===================
+
+
 0.10.1 - 2023-01-29
 ===================
 
