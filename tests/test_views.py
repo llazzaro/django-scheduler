@@ -2,6 +2,7 @@ import datetime
 import json
 
 import pytz
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
@@ -185,7 +186,8 @@ class TestUrls(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_event_creation_authenticated_user(self):
-        self.client.login(username="admin", password="admin")
+        user = User.objects.create_user("event_create_admin", password="admin")
+        self.client.force_login(user)
         response = self.client.get(
             reverse("calendar_create_event", kwargs={"calendar_slug": "example"})
         )
@@ -227,7 +229,8 @@ class TestUrls(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_delete_event_authenticated_user(self):
-        self.client.login(username="admin", password="admin")
+        user = User.objects.create_user("event_delete_admin", password="admin")
+        self.client.force_login(user)
         # Load the deletion page
         response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}))
         self.assertEqual(response.status_code, 200)
