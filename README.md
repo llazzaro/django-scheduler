@@ -9,7 +9,7 @@ Django5 Scheduler (Fork of Django Scheduler for Django5 Support)
 
 A calendar app for Django5 (drops support for older versions of Django)
 
-Information
+Information (docs from original source)
 ========
 
 * [Documentation](https://django-scheduler.readthedocs.io/)
@@ -17,7 +17,7 @@ Information
 * [Sample Project](https://github.com/llazzaro/django-scheduler-sample)
 
 
-Installation
+Installation (not currently on PyPI)
 ========
 
 ```bash
