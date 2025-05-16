@@ -232,7 +232,7 @@ class CalendarRelation(models.Model):
         verbose_name = _("calendar relation")
         verbose_name_plural = _("calendar relations")
         indexes = [
-            models.Index(fields=['content_type', 'object_id']),
+            models.Index(fields=["content_type", "object_id"]),
         ]
 
     def __str__(self):

@@ -93,7 +93,7 @@ class Event(models.Model):
         verbose_name = _("event")
         verbose_name_plural = _("events")
         indexes = [
-            models.Index(fields=['start', 'end']),
+            models.Index(fields=["start", "end"]),
         ]
 
     def __str__(self):
@@ -574,7 +574,7 @@ class EventRelation(models.Model):
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
         indexes = [
-            models.Index(fields=['content_type', 'object_id']),
+            models.Index(fields=["content_type", "object_id"]),
         ]
 
     def __str__(self):
@@ -599,7 +599,7 @@ class Occurrence(models.Model):
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
         indexes = [
-            models.Index(fields=['start', 'end']),
+            models.Index(fields=["start", "end"]),
         ]
 
     def __init__(self, *args, **kwargs):
