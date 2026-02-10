@@ -13,21 +13,18 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - 3.8
-          - 3.9
           - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
         tox-environment:
-          - django32
-          - django40
-          - django41
-        include:
-          - python-version: 3.7
-            tox-environment: django32
-        # include:
-        #   - python-version: 3.8
-        #     tox-environment: djangomain
-        #   - python-version: 3.9
-        #     tox-environment: djangomain
+          - django42
+          - django51
+          - django52
+        exclude:
+          # Django 4.2 does not support Python 3.13
+          - python-version: "3.13"
+            tox-environment: django42
 
     env:
       TOXENV: ${{ matrix.tox-environment }}
@@ -37,10 +34,10 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -65,8 +62,8 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
 
       - name: Install coveralls
         run: python -m pip install coveralls
