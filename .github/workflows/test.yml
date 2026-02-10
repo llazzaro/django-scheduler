@@ -49,9 +49,7 @@ jobs:
         run: tox
 
       - name: Upload coverage data to coveralls.io
-        run: |
-          uv pip install --system coveralls
-          coveralls
+        run: uvx coveralls
 
   coveralls:
     name: Indicate completion to coveralls.io
@@ -69,6 +67,4 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Report coverage to coveralls.io
-        run: |
-          uv pip install --system coveralls
-          coveralls --finish
+        run: uvx coveralls --finish

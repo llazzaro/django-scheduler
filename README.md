@@ -185,3 +185,25 @@ To run tests on all supported versions of Django and Python, use `tox`:
 ```
 $ tox
 ```
+
+Publishing to PyPI
+==================
+
+1. Update the version in `pyproject.toml` and add a changelog entry.
+
+2. Commit, tag, and push:
+
+```bash
+git commit -am "Release X.Y.Z"
+git tag vX.Y.Z
+git push && git push --tags
+```
+
+3. Build and publish:
+
+```bash
+uv build
+uv publish --token pypi-YOUR_TOKEN
+```
+
+You can generate an API token at https://pypi.org/manage/account/token/.

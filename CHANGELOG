@@ -5,6 +5,9 @@
 - Adopt uv via tox-uv plugin for faster dependency resolution.
 - Consolidate tool configs (isort, ruff, coverage) into pyproject.toml.
 - Switch CI workflows from pip to uv.
+- Fix compatibility with Django 5.x (replace removed SHA1PasswordHasher
+  in tests, migrate index_together to Meta.indexes).
+- Remove deprecated USE_L10N setting.
 
 0.10.1 - 2023-01-29
 ===================
