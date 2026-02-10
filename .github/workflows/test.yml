@@ -32,23 +32,26 @@ jobs:
       COVERALLS_PARALLEL: true
       COVERALLS_SERVICE_NAME: github
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      UV_PYTHON: ${{ matrix.python-version }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: python -m pip install coveralls tox
+      - name: Install tox
+        run: uv tool install tox --with tox-uv
 
       - name: Run tests
         run: tox
 
       - name: Upload coverage data to coveralls.io
-        run: coveralls
+        run: |
+          uv pip install --system coveralls
+          coveralls
 
   coveralls:
     name: Indicate completion to coveralls.io
@@ -62,11 +65,10 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Set up Python
-        uses: actions/setup-python@v5
-
-      - name: Install coveralls
-        run: python -m pip install coveralls
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
 
       - name: Report coverage to coveralls.io
-        run: coveralls --finish
+        run: |
+          uv pip install --system coveralls
+          coveralls --finish

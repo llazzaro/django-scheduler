@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.tox-environment }}
+    name: lint
     runs-on: ubuntu-latest
 
     env:
@@ -15,11 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
 
-      - name: Install dependencies
-        run: python -m pip install tox
+      - name: Install tox
+        run: uv tool install tox --with tox-uv
 
       - name: Run
         run: tox
