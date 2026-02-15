@@ -383,10 +383,13 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
         raise ValueError("Start and end parameters are required")
     # version 2 of full calendar
     if "-" in start:
+
         def convert(ddatetime):
             if ddatetime:
                 return dateutil.parser.parse(ddatetime)
+
     else:
+
         def convert(ddatetime):
             return datetime.datetime.utcfromtimestamp(float(ddatetime))
 

@@ -82,8 +82,10 @@ class TestTemplateTags(TestCase):
                 datetime.datetime.now().year
             )
         )
-        expected = '<a href="{}"><span class="bi bi-arrow-left-circle"></span></a>'.format(
-            url_params
+        expected = (
+            '<a href="{}"><span class="bi bi-arrow-left-circle"></span></a>'.format(
+                url_params
+            )
         )
         self.assertEqual(query_string.strip(), expected)
 
@@ -94,8 +96,10 @@ class TestTemplateTags(TestCase):
                 datetime.datetime.now().year
             )
         )
-        expected = '<a href="{}"><span class="bi bi-arrow-right-circle"></span></a>'.format(
-            url_params
+        expected = (
+            '<a href="{}"><span class="bi bi-arrow-right-circle"></span></a>'.format(
+                url_params
+            )
         )
         self.assertEqual(query_string.strip(), expected)
 

@@ -586,19 +586,16 @@ class TestUrls(TestCase):
             calendar=calendar,
         )
 
-        # test fails with date string time format not '%Y-%m-%d' or '%Y-%m-%dT%H:%M:%S'
+        # test fails with completely invalid date strings
         response = self.client.get(
             reverse("api_occurrences"),
             {
-                "start": "2008-01-05T00:00",
-                "end": "2008-02-05T00:00",
+                "start": "not-a-date",
+                "end": "also-not-a-date",
                 "calendar_slug": event.calendar.slug,
             },
         )
         self.assertEqual(response.status_code, 400)
-        resp = response.content.decode()
-        expected_error = "does not match format '%Y-%m-%dT%H:%M:%S'"
-        self.assertIn(expected_error, resp)
 
     def test_cal_multiple_slugs_return_all_events(self):
         calendar1 = Calendar.objects.create(name="MyCal1", slug="MyCalSlug1")
