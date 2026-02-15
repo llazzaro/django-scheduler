@@ -382,20 +382,11 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
     if not start or not end:
         raise ValueError("Start and end parameters are required")
     # version 2 of full calendar
-    # TODO: improve this code with date util package
     if "-" in start:
-
         def convert(ddatetime):
             if ddatetime:
-                ddatetime = ddatetime.split(" ")[0]
-                try:
-                    return datetime.datetime.strptime(ddatetime, "%Y-%m-%d")
-                except ValueError:
-                    # try a different date string format first before failing
-                    return datetime.datetime.strptime(ddatetime, "%Y-%m-%dT%H:%M:%S")
-
+                return dateutil.parser.parse(ddatetime)
     else:
-
         def convert(ddatetime):
             return datetime.datetime.utcfromtimestamp(float(ddatetime))
 
@@ -410,8 +401,8 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
     elif settings.USE_TZ:
         # If USE_TZ is True, make start and end dates aware in UTC timezone
         utc = pytz.UTC
-        start = utc.localize(start)
-        end = utc.localize(end)
+        start = utc.localize(start) if start.tzinfo is None else start
+        end = utc.localize(end) if end.tzinfo is None else end
 
     if calendar_slugs:
         # will raise DoesNotExist exception if no match
