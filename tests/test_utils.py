@@ -52,6 +52,49 @@ class TestEventListManager(TestCase):
         occurrences = eml.occurrences_after()
         self.assertEqual(list(occurrences), [])
 
+    def test_occurrences_after_with_same_start_time(self):
+        """
+        Reproduces issue #562: When two events have occurrences at the same datetime,
+        heapq tries to compare generators as a tiebreaker, which fails because
+        generators don't support '<' comparison.
+        """
+        # Create two events that both start at the exact same datetime
+        # Use the calendar from setUp
+        cal = Calendar.objects.get(name="MyCal")
+        same_start = datetime.datetime(2009, 4, 1, 10, 0, tzinfo=self.default_tzinfo)
+
+        event_a = Event.objects.create(
+            title="Event A",
+            start=same_start,
+            end=same_start + datetime.timedelta(hours=1),
+            calendar=cal,
+        )
+
+        event_b = Event.objects.create(
+            title="Event B",
+            start=same_start,
+            end=same_start + datetime.timedelta(hours=1),
+            calendar=cal,
+        )
+
+        # This should trigger the bug: when both events have occurrences at the same
+        # datetime, heapq will try to compare the generator objects as a tiebreaker
+        eml = EventListManager([event_a, event_b])
+        occurrences = eml.occurrences_after(
+            datetime.datetime(2009, 4, 1, 0, 0, tzinfo=self.default_tzinfo)
+        )
+
+        # Try to get the first two occurrences - this should fail with:
+        # TypeError: '<' not supported between instances of 'generator' and 'generator'
+        first_occ = next(occurrences)
+        second_occ = next(occurrences)
+
+        # Both occurrences should exist and have the same start time
+        self.assertEqual(first_occ.start, same_start)
+        self.assertEqual(second_occ.start, same_start)
+        # They should be from different events
+        self.assertNotEqual(first_occ.event.id, second_occ.event.id)
+
 
 class TestOccurrenceReplacer(TestCase):
     def setUp(self):
