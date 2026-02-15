@@ -180,9 +180,8 @@ class TestICalendarFeed(TestCase):
         events = [component for component in cal.walk() if component.name == "VEVENT"]
         self.assertEqual(len(events), 0, "Empty calendar should have no events")
 
-    # TODO: Fix feed to handle DoesNotExist and return 404
-    # def test_icalendar_feed_nonexistent_calendar(self):
-    #     """Test iCalendar feed for non-existent calendar returns 404"""
-    #     url = reverse("calendar_ical", args=["999999"])
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, 404)
+    def test_icalendar_feed_nonexistent_calendar(self):
+        """Test iCalendar feed for non-existent calendar returns 404"""
+        url = reverse("calendar_ical", args=["999999"])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)

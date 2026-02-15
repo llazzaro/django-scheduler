@@ -1,5 +1,5 @@
 import icalendar
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 
 EVENT_ITEMS = (
     ("uid", "uid"),
@@ -14,27 +14,32 @@ EVENT_ITEMS = (
 
 class ICalendarFeed:
     def __call__(self, *args, **kwargs):
+        from schedule.models import Calendar
+
         self.args = args
         self.kwargs = kwargs
 
-        cal = icalendar.Calendar()
-        cal.add("prodid", "-// django-scheduler //")
-        cal.add("version", "2.0")
+        try:
+            cal = icalendar.Calendar()
+            cal.add("prodid", "-// django-scheduler //")
+            cal.add("version", "2.0")
 
-        for item in list(self.items()):
-            event = icalendar.Event()
+            for item in list(self.items()):
+                event = icalendar.Event()
 
-            for vkey, key in EVENT_ITEMS:
-                value = getattr(self, "item_" + key)(item)
-                if value:
-                    event.add(vkey, value)
+                for vkey, key in EVENT_ITEMS:
+                    value = getattr(self, "item_" + key)(item)
+                    if value:
+                        event.add(vkey, value)
 
-            cal.add_component(event)
+                cal.add_component(event)
 
-        response = HttpResponse(cal.to_ical())
-        response["Content-Type"] = "text/calendar"
+            response = HttpResponse(cal.to_ical())
+            response["Content-Type"] = "text/calendar"
 
-        return response
+            return response
+        except Calendar.DoesNotExist:
+            return HttpResponseNotFound("<h1>Calendar not found</h1>")
 
     def items(self):
         return []
