@@ -3,13 +3,13 @@
 
 {% block body %}
 <div class="navigation">
-  <a class="btn btn-primary gradient" href="{% url "day_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 %}">
+  <a class="btn btn-primary" href="{% url "day_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 3 %}">
     {% trans "Day" %}
   </a>
-  <a class="btn btn-primary gradient" href="{% url "month_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 %}">
+  <a class="btn btn-primary" href="{% url "month_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 2 %}">
     {% trans "Month" %}
   </a>
-  <a class="btn btn-primary gradient" href="{% url "year_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 1 %}">
+  <a class="btn btn-primary" href="{% url "year_calendar" occurrence.event.calendar.slug %}{% querystring_for_date occurrence.start 1 %}">
     {% trans "Year" %}
   </a>
 </div>
@@ -17,16 +17,16 @@
 <div class="event_actions" align="center">
   {% if back_url %}
   <a href="{{ back_url }}">
-    <span class="glyphicon glyphicon-circle-arrow-left"></span>
+    <span class="bi bi-arrow-left-circle"></span>
   </a>
   &nbsp;
   {% endif %}
   <a href="{{occurrence.get_edit_url}}">
-   {% trans "Edit" %} <span class="glyphicon glyphicon-pencil"></span>
+   {% trans "Edit" %} <span class="bi bi-pencil"></span>
   </a>
   &nbsp;
   <a href="{{occurrence.get_cancel_url}}">
-   {% trans "Delete" %} <span class="glyphicon glyphicon-remove"></span>
+   {% trans "Delete" %} <span class="bi bi-x-circle"></span>
   </a>
 </div>
 <h2 align="center">{{occurrence.title}}</h2>
