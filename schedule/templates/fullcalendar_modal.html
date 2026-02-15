@@ -1,26 +1,26 @@
 {% load i18n %}
-<div id="eventModal" class="modal fade" role="dialog">
+<div id="eventModal" class="modal fade" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
 
     <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"><span id="EditorDelete"></span> {% trans "Event" %}</h4>
+        <h5 class="modal-title"><span id="EditorDelete"></span> {% trans "Event" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
       </div>
       <div class="modal-body">
        <p>{% blocktrans %}Would you like to <span id="editordelete"></span> all occurrences in this event or just this occurrence?{% endblocktrans %}</p>
       </div>
       <div class="modal-footer">
         <a href='#' id='allevent'>
-         <button type="button" class="btn btn-default">{% trans "All" %}</button>
+         <button type="button" class="btn btn-secondary">{% trans "All" %}</button>
         </a>
 
         <a href='#' id='thisevent'>
-         <button type="button" class="btn btn-default">{% trans "This" %}</button>
+         <button type="button" class="btn btn-secondary">{% trans "This" %}</button>
         </a>
 
-        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
       </div>
     </div>
 
