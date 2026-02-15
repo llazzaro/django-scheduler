@@ -45,7 +45,6 @@ class Period:
         tzinfo=pytz.utc,
         sorting_options=None,
     ):
-
         self.utc_start = self._normalize_timezone_to_utc(start, tzinfo)
 
         self.utc_end = self._normalize_timezone_to_utc(end, tzinfo)
@@ -442,7 +441,6 @@ class Day(Period):
         )
 
     def _get_day_range(self, date):
-
         # localize the date before we typecast to naive dates
         if self.tzinfo is not None and timezone.is_aware(date):
             date = date.astimezone(self.tzinfo)

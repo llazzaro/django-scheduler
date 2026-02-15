@@ -3,7 +3,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("schedule", "0010_events_set_missing_calendar")]
 
     operations = [

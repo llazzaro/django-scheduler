@@ -14,7 +14,6 @@ def forwards(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("schedule", "0009_merge_20180108_2303")]
 
     operations = [
