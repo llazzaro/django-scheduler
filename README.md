@@ -41,53 +41,16 @@ Add to `TEMPLATE_CONTEXT_PROCESSORS`:
 Static assets
 =============
 
-Django Scheduler relies on [jQuery](https://jquery.com/) and
-[Bootstrap](https://getbootstrap.com/) to provide its user
-interface. If you don't need help with adding these to your Django
-project, you can skip the next step where we will show you how to add
-them to your Django project.
+Django Scheduler's bundled templates use [Bootstrap 5](https://getbootstrap.com/)
+and [Bootstrap Icons](https://icons.getbootstrap.com/) loaded via CDN.
+The FullCalendar view also loads [FullCalendar 6](https://fullcalendar.io/) via CDN.
 
-```bash
-npm install -g bower
-pip install django-bower
-```
+No additional installation is needed — the default templates include all required
+CSS and JavaScript from CDN links.
 
-edit your `settings.py`
-
-add to `INSTALLED_APPS`:
-
-```python
-'djangobower',
-```
-
-Add staticfinder to `STATICFILES_FINDERS`:
-
-```
-'djangobower.finders.BowerFinder',
-```
-
-Specify the path to the components root (you need to use an absolute
-path):
-
-```
-BOWER_COMPONENTS_ROOT = '/PROJECT_ROOT/components/'
-```
-
-Add the following Bower dependencies for scheduler:
-
-```
-BOWER_INSTALLED_APPS = (
-    'jquery',
-    'jquery-ui',
-    'bootstrap'
-)
-```
-
-Last step, install bower dependencies with:
-
-```
-./manage.py bower install
-```
+If you prefer to manage frontend assets yourself (e.g., via npm, or self-hosted files),
+you can [override the templates](https://docs.djangoproject.com/en/stable/howto/overriding-templates/)
+in your project.
 
 Remember to execute "python manage.py collectstatic"
 
