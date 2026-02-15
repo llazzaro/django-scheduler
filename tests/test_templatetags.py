@@ -82,10 +82,10 @@ class TestTemplateTags(TestCase):
                 datetime.datetime.now().year
             )
         )
-        expected = '<a href="{}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>'.format(
+        expected = '<a href="{}"><span class="bi bi-arrow-left-circle"></span></a>'.format(
             url_params
         )
-        self.assertEqual(query_string, expected)
+        self.assertEqual(query_string.strip(), expected)
 
     def test_next_url(self):
         query_string = next_url("month_calendar", self.cal, self.day)
@@ -94,10 +94,10 @@ class TestTemplateTags(TestCase):
                 datetime.datetime.now().year
             )
         )
-        expected = '<a href="{}"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>'.format(
+        expected = '<a href="{}"><span class="bi bi-arrow-right-circle"></span></a>'.format(
             url_params
         )
-        self.assertEqual(query_string, expected)
+        self.assertEqual(query_string.strip(), expected)
 
     def test_next_url_upper_limit(self):
         query_string = next_url("month_calendar", self.cal, self.day_out_of_limit)
