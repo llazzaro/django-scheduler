@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from schedule.feeds.ical import ICalendarFeed
 from schedule.models import Calendar, Event, Occurrence, Rule
 
 
@@ -103,7 +102,6 @@ class TestICalendarFeed(TestCase):
 
         # Check dates (icalendar returns datetime objects)
         dtstart = simple_event_ical.get("DTSTART").dt
-        dtend = simple_event_ical.get("DTEND").dt
 
         self.assertEqual(dtstart.year, 2024)
         self.assertEqual(dtstart.month, 1)
@@ -113,7 +111,7 @@ class TestICalendarFeed(TestCase):
     def test_icalendar_feed_with_occurrence(self):
         """Test that modified occurrences are included in feed"""
         # Create a modified occurrence
-        occurrence = Occurrence.objects.create(
+        Occurrence.objects.create(
             event=self.simple_event,
             start=datetime.datetime(2024, 1, 16, 11, 0, tzinfo=pytz.utc),
             end=datetime.datetime(2024, 1, 16, 12, 0, tzinfo=pytz.utc),
