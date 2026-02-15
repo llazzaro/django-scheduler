@@ -2,7 +2,6 @@ import datetime
 import json
 
 import pytz
-from django.contrib.auth.models import User
 from django.http import Http404
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
@@ -786,5 +785,3 @@ class TestOccurrencePreview(TestCase):
         self.assertEqual(
             occurrence.end, datetime.datetime(2008, 4, 20, 9, 0, tzinfo=pytz.utc)
         )
-
-
