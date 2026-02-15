@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("schedule", "0011_event_calendar_not_null")]
 
     operations = [

@@ -2,7 +2,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("schedule", "0004_text_fields_not_null")]
 
     operations = [

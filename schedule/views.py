@@ -34,7 +34,7 @@ from django.views.generic.edit import (
 
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import Calendar, Event, Occurrence
-from schedule.periods import weekday_names
+from schedule.periods import Period, weekday_names
 from schedule.settings import (
     CHECK_EVENT_PERM_FUNC,
     CHECK_OCCURRENCE_PERM_FUNC,
@@ -156,6 +156,35 @@ class OccurrenceView(OccurrenceMixin, DetailView):
 
 class OccurrencePreview(OccurrenceMixin, ModelFormMixin, ProcessFormView):
     template_name = "schedule/occurrence.html"
+
+    @property
+    def date_from_url(self):
+        return datetime.datetime(
+            int(self.kwargs["year"]),
+            int(self.kwargs["month"]),
+            int(self.kwargs["day"]),
+            int(self.kwargs["hour"]),
+            int(self.kwargs["minute"]),
+            int(self.kwargs["second"]),
+            tzinfo=pytz.UTC,
+        )
+
+    def get_object(self, queryset=None):
+        event = get_object_or_404(Event, pk=self.kwargs["event_id"])
+        period = Period(
+            [event],
+            start=self.date_from_url,
+            end=self.date_from_url,
+        )
+
+        try:
+            return period.get_occurrences()[0]
+        except IndexError:
+            raise Http404
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -347,7 +376,6 @@ def api_occurrences(request):
 
 
 def _api_occurrences(start, end, calendar_slug, timezone):
-
     if not start or not end:
         raise ValueError("Start and end parameters are required")
     # version 2 of full calendar
