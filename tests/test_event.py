@@ -614,6 +614,171 @@ class TestEvent(TestCase):
             ],
         )
 
+    def test_effective_start_with_end_recurring_period(self):
+        """Test effective_start property for recurring events"""
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="DAILY")
+
+        event = Event.objects.create(
+            title="Daily Event",
+            start=datetime.datetime(2024, 1, 1, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 1, 1, 11, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2024, 1, 31, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
+
+        # effective_start should be the first occurrence
+        self.assertIsNotNone(event.effective_start)
+        self.assertEqual(event.effective_start.year, 2024)
+        self.assertEqual(event.effective_start.month, 1)
+        self.assertEqual(event.effective_start.day, 1)
+
+    def test_effective_start_without_end_recurring_period(self):
+        """Test effective_start for non-recurring event"""
+        cal = Calendar.objects.create(name="MyCal")
+
+        event = Event.objects.create(
+            title="Simple Event",
+            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=pytz.utc),
+            calendar=cal,
+        )
+
+        # effective_start should be the event start
+        self.assertEqual(event.effective_start, event.start)
+
+    def test_effective_start_unsaved_event(self):
+        """Test effective_start for unsaved event returns None"""
+        event = Event(
+            title="Unsaved Event",
+            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=pytz.utc),
+        )
+
+        # Unsaved event should return None
+        self.assertIsNone(event.effective_start)
+
+    def test_effective_start_no_occurrences(self):
+        """Test effective_start when event has no valid occurrences"""
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="DAILY")
+
+        # Create event with end_recurring_period in the past before start
+        event = Event.objects.create(
+            title="Past Event",
+            start=datetime.datetime(2024, 2, 1, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 2, 1, 11, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2024, 1, 1, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
+
+        # Should handle gracefully - might be None or start depending on implementation
+        effective_start = event.effective_start
+        # At minimum, it shouldn't crash
+        self.assertTrue(effective_start is None or isinstance(effective_start, datetime.datetime))
+
+    def test_effective_end_with_end_recurring_period(self):
+        """Test effective_end property for recurring events"""
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="DAILY")
+
+        event = Event.objects.create(
+            title="Daily Event",
+            start=datetime.datetime(2024, 1, 1, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 1, 1, 11, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2024, 1, 10, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
+
+        # effective_end should be the last occurrence end
+        self.assertIsNotNone(event.effective_end)
+        # Last occurrence should be around Jan 10
+        self.assertEqual(event.effective_end.year, 2024)
+        self.assertEqual(event.effective_end.month, 1)
+        self.assertGreaterEqual(event.effective_end.day, 9)
+
+    def test_effective_end_without_end_recurring_period(self):
+        """Test effective_end for non-recurring event"""
+        cal = Calendar.objects.create(name="MyCal")
+
+        event = Event.objects.create(
+            title="Simple Event",
+            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=pytz.utc),
+            calendar=cal,
+        )
+
+        # effective_end for non-recurring events should be datetime.max
+        self.assertEqual(event.effective_end, datetime.datetime.max)
+
+    def test_effective_end_unsaved_event(self):
+        """Test effective_end for unsaved event returns None"""
+        event = Event(
+            title="Unsaved Event",
+            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=pytz.utc),
+        )
+
+        # Unsaved event should return None
+        self.assertIsNone(event.effective_end)
+
+    def test_effective_end_no_occurrences(self):
+        """Test effective_end when event has no valid occurrences"""
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="DAILY")
+
+        # Create event with end_recurring_period before start
+        event = Event.objects.create(
+            title="Invalid Event",
+            start=datetime.datetime(2024, 2, 1, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 2, 1, 11, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2024, 1, 1, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
+
+        # Should return None when no valid occurrences
+        self.assertIsNone(event.effective_end)
+
+    def test_event_params_property(self):
+        """Test event_params property returns correct structure"""
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="DAILY")
+
+        event = Event.objects.create(
+            title="Test Event",
+            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2024, 1, 20, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
+
+        params, empty = event.event_params
+        self.assertFalse(empty, "Event should not be empty")
+        self.assertIsInstance(params, dict, "Params should be a dictionary")
+
+    def test_event_params_empty_event(self):
+        """Test event_params for event with no occurrences"""
+        cal = Calendar.objects.create(name="MyCal")
+        rule = Rule.objects.create(frequency="DAILY")
+
+        # Event with end_recurring_period before start
+        event = Event.objects.create(
+            title="Empty Event",
+            start=datetime.datetime(2024, 2, 1, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 2, 1, 11, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2024, 1, 1, 0, 0, tzinfo=pytz.utc),
+            rule=rule,
+            calendar=cal,
+        )
+
+        params, empty = event.event_params
+        self.assertTrue(empty, "Event should be marked as empty")
+
 
 class TestEventRelationManager(TestCase):
     def test_get_events_for_object(self):

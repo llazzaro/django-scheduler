@@ -2,6 +2,7 @@ import datetime
 import json
 
 import pytz
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
@@ -784,4 +785,245 @@ class TestOccurrencePreview(TestCase):
         )
         self.assertEqual(
             occurrence.end, datetime.datetime(2008, 4, 20, 9, 0, tzinfo=pytz.utc)
+        )
+
+
+class TestAPIMoveOrResize(TestCase):
+    """Test API endpoint for moving and resizing occurrences"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser", password="testpass"
+        )
+        self.calendar = Calendar.objects.create(name="TestCal", slug="testcal")
+        self.rule = Rule.objects.create(frequency="DAILY")
+
+        self.event = Event.objects.create(
+            title="Test Event",
+            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2024, 1, 20, 0, 0, tzinfo=pytz.utc),
+            rule=self.rule,
+            calendar=self.calendar,
+            creator=self.user,
+        )
+
+        # Create a persisted occurrence
+        self.occurrence = Occurrence.objects.create(
+            event=self.event,
+            start=datetime.datetime(2024, 1, 16, 10, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2024, 1, 16, 11, 0, tzinfo=pytz.utc),
+            original_start=datetime.datetime(2024, 1, 16, 10, 0, tzinfo=pytz.utc),
+            original_end=datetime.datetime(2024, 1, 16, 11, 0, tzinfo=pytz.utc),
+        )
+
+    def test_api_move_occurrence_authenticated(self):
+        """Test moving a persisted occurrence with authenticated user"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": self.occurrence.id,
+                "existed": "true",
+                "delta": "60",  # Move 1 hour forward (60 minutes)
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify the occurrence was moved
+        self.occurrence.refresh_from_db()
+        self.assertEqual(
+            self.occurrence.start,
+            datetime.datetime(2024, 1, 16, 11, 0, tzinfo=pytz.utc),
+        )
+        self.assertEqual(
+            self.occurrence.end,
+            datetime.datetime(2024, 1, 16, 12, 0, tzinfo=pytz.utc),
+        )
+
+    def test_api_resize_occurrence_authenticated(self):
+        """Test resizing a persisted occurrence with authenticated user"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": self.occurrence.id,
+                "existed": "true",
+                "delta": "30",  # Extend by 30 minutes
+                "resize": "true",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify the occurrence was resized (only end should change)
+        self.occurrence.refresh_from_db()
+        self.assertEqual(
+            self.occurrence.start,
+            datetime.datetime(2024, 1, 16, 10, 0, tzinfo=pytz.utc),
+        )
+        self.assertEqual(
+            self.occurrence.end,
+            datetime.datetime(2024, 1, 16, 11, 30, tzinfo=pytz.utc),
+        )
+
+    def test_api_move_event_authenticated(self):
+        """Test moving a non-persisted event occurrence"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": "999999",  # Non-existent occurrence ID
+                "existed": "false",
+                "delta": "60",  # Move 1 hour forward
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify the event itself was moved
+        self.event.refresh_from_db()
+        self.assertEqual(
+            self.event.start,
+            datetime.datetime(2024, 1, 15, 11, 0, tzinfo=pytz.utc),
+        )
+        self.assertEqual(
+            self.event.end,
+            datetime.datetime(2024, 1, 15, 12, 0, tzinfo=pytz.utc),
+        )
+
+    def test_api_resize_event_authenticated(self):
+        """Test resizing a non-persisted event"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": "999999",
+                "existed": "false",
+                "delta": "30",
+                "resize": "true",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify only the event end was extended
+        self.event.refresh_from_db()
+        self.assertEqual(
+            self.event.start,
+            datetime.datetime(2024, 1, 15, 10, 0, tzinfo=pytz.utc),
+        )
+        self.assertEqual(
+            self.event.end,
+            datetime.datetime(2024, 1, 15, 11, 30, tzinfo=pytz.utc),
+        )
+
+    @override_settings(CHECK_OCCURRENCE_PERM_FUNC=lambda occ, user: False)
+    def test_api_move_occurrence_permission_denied(self):
+        """Test that permission check prevents unauthorized moves"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": self.occurrence.id,
+                "existed": "true",
+                "delta": "60",
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "PERMISSION DENIED")
+
+        # Verify the occurrence was NOT moved
+        self.occurrence.refresh_from_db()
+        self.assertEqual(
+            self.occurrence.start,
+            datetime.datetime(2024, 1, 16, 10, 0, tzinfo=pytz.utc),
+        )
+
+    @override_settings(CHECK_EVENT_PERM_FUNC=lambda event, user: False)
+    def test_api_move_event_permission_denied(self):
+        """Test that permission check prevents unauthorized event moves"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": "999999",
+                "existed": "false",
+                "delta": "60",
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "PERMISSION DENIED")
+
+        # Verify the event was NOT moved
+        self.event.refresh_from_db()
+        self.assertEqual(
+            self.event.start,
+            datetime.datetime(2024, 1, 15, 10, 0, tzinfo=pytz.utc),
+        )
+
+    def test_api_move_negative_delta(self):
+        """Test moving occurrence backward in time"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": self.occurrence.id,
+                "existed": "true",
+                "delta": "-30",  # Move 30 minutes earlier
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify the occurrence was moved backward
+        self.occurrence.refresh_from_db()
+        self.assertEqual(
+            self.occurrence.start,
+            datetime.datetime(2024, 1, 16, 9, 30, tzinfo=pytz.utc),
+        )
+        self.assertEqual(
+            self.occurrence.end,
+            datetime.datetime(2024, 1, 16, 10, 30, tzinfo=pytz.utc),
         )
