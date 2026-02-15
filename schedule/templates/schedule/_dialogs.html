@@ -1,9 +1,39 @@
 {% load i18n %}
 
-<div style="display:none;" id="delete_dialog" title="Question">
-  {% trans "Do you want to cancel this occurrence or delete all occurrences of this event?" %}
+<div class="modal fade" id="delete_dialog" tabindex="-1" aria-labelledby="deleteDialogLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteDialogLabel">{% trans "Question" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+      </div>
+      <div class="modal-body">
+        {% trans "Do you want to cancel this occurrence or delete all occurrences of this event?" %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-this">{% trans "This" %}</button>
+        <button type="button" class="btn btn-danger btn-all">{% trans "All" %}</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Do nothing" %}</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div style="display:none;" id="edit_dialog" title="This is a recurring event">
-  {% trans "Do you want to edit this occurrence or all occurrences?" %}
+<div class="modal fade" id="edit_dialog" tabindex="-1" aria-labelledby="editDialogLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editDialogLabel">{% trans "This is a recurring event" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+      </div>
+      <div class="modal-body">
+        {% trans "Do you want to edit this occurrence or all occurrences?" %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-this">{% trans "This" %}</button>
+        <button type="button" class="btn btn-primary btn-all">{% trans "All" %}</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Do nothing" %}</button>
+      </div>
+    </div>
+  </div>
 </div>
