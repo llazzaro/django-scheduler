@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django-scheduler"
-version = "0.10.2"
+version = "0.11.0"
 description = "A calendaring app for Django."
 readme = "README.md"
 license = "BSD-3-Clause"
