@@ -1,3 +1,12 @@
+0.11.0 - 2026-02-15
+===================
+
+- Fix: heapq comparison error when multiple occurrences have the same start time (#562).
+- Fix: iCalendar feed now properly returns 404 for non-existent calendars.
+- Add: comprehensive test coverage for iCalendar feed functionality (10 new tests).
+- Add: test coverage for event property edge cases (10 new tests).
+- Improve: total test suite now includes 149 tests across Python 3.10-3.13 and Django 4.2, 5.1, 5.2.
+
 0.10.2 - 2026-02-10
 ===================
 
