@@ -2,8 +2,6 @@ Django Scheduler
 ========
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/llazzaro/django-scheduler)
-[<img src="https://img.shields.io/travis/llazzaro/django-scheduler.svg">](https://travis-ci.org/llazzaro/django-scheduler)
-[![Code Health](https://landscape.io/github/llazzaro/django-scheduler/master/landscape.svg?style=flat)](https://landscape.io/github/llazzaro/django-scheduler/master)
 [<img src="https://img.shields.io/coveralls/llazzaro/django-scheduler.svg">](https://coveralls.io/r/llazzaro/django-scheduler)
 [<img src="https://img.shields.io/pypi/v/django-scheduler.svg">](https://pypi.python.org/pypi/django-scheduler)
 [![Documentation Status](https://readthedocs.org/projects/django-scheduler/badge/)](https://django-scheduler.readthedocs.io/)
@@ -187,3 +185,25 @@ To run tests on all supported versions of Django and Python, use `tox`:
 ```
 $ tox
 ```
+
+Publishing to PyPI
+==================
+
+1. Update the version in `pyproject.toml` and add a changelog entry.
+
+2. Commit, tag, and push:
+
+```bash
+git commit -am "Release X.Y.Z"
+git tag vX.Y.Z
+git push && git push --tags
+```
+
+3. Build and publish:
+
+```bash
+uv build
+uv publish --token pypi-YOUR_TOKEN
+```
+
+You can generate an API token at https://pypi.org/manage/account/token/.

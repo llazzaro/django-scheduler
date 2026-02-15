@@ -1,5 +1,6 @@
 import datetime
 
+import pytz
 from dateutil import rrule
 from django.conf import settings as django_settings
 from django.contrib.contenttypes import fields
@@ -91,7 +92,7 @@ class Event(models.Model):
     class Meta:
         verbose_name = _("event")
         verbose_name_plural = _("events")
-        index_together = (("start", "end"),)
+        indexes = [models.Index(fields=["start", "end"])]
 
     def __str__(self):
         return gettext("%(title)s: %(start)s - %(end)s") % {
@@ -158,7 +159,7 @@ class Event(models.Model):
         # to override this cache clear since it already fetches all
         # occurrence_sets via prefetch_related in its get_occurrences.
         if clear_prefetch:
-            self.occurrence_set._remove_prefetched_objects()
+            self.refresh_from_db()
 
         persisted_occurrences = self.occurrence_set.all()
         occ_replacer = OccurrenceReplacer(persisted_occurrences)
@@ -186,16 +187,14 @@ class Event(models.Model):
         if timezone.is_naive(self.start):
             dtstart = self.start
         else:
-            dtstart = tzinfo.normalize(self.start).replace(tzinfo=None)
+            dtstart = self.start.astimezone(tzinfo).replace(tzinfo=None)
 
         if self.end_recurring_period is None:
             until = None
         elif timezone.is_naive(self.end_recurring_period):
             until = self.end_recurring_period
         else:
-            until = tzinfo.normalize(
-                self.end_recurring_period.astimezone(tzinfo)
-            ).replace(tzinfo=None)
+            until = self.end_recurring_period.astimezone(tzinfo).replace(tzinfo=None)
 
         return rrule.rrule(frequency, dtstart=dtstart, until=until, **params)
 
@@ -208,17 +207,17 @@ class Event(models.Model):
 
     def get_occurrence(self, date):
         use_naive = timezone.is_naive(date)
-        tzinfo = timezone.utc
+        tzinfo = datetime.timezone.utc
         if timezone.is_naive(date):
-            date = timezone.make_aware(date, timezone.utc)
+            date = timezone.make_aware(date, tzinfo)
         if date.tzinfo:
             tzinfo = date.tzinfo
         rule = self.get_rrule_object(tzinfo)
         if rule:
             next_occurrence = rule.after(
-                tzinfo.normalize(date).replace(tzinfo=None), inc=True
+                date.astimezone(tzinfo).replace(tzinfo=None), inc=True
             )
-            next_occurrence = tzinfo.localize(next_occurrence)
+            next_occurrence = pytz.timezone(str(tzinfo)).localize(next_occurrence)
         else:
             next_occurrence = self.start
         if next_occurrence == date:
@@ -239,7 +238,7 @@ class Event(models.Model):
             use_naive = timezone.is_naive(start)
 
             # Use the timezone from the start date
-            tzinfo = timezone.utc
+            tzinfo = datetime.timezone.utc
             if start.tzinfo:
                 tzinfo = start.tzinfo
 
@@ -251,7 +250,7 @@ class Event(models.Model):
             start_rule = self.get_rrule_object(tzinfo)
             start = start.replace(tzinfo=None)
             if timezone.is_aware(end):
-                end = tzinfo.normalize(end).replace(tzinfo=None)
+                end = end.astimezone(tzinfo).replace(tzinfo=None)
 
             o_starts = []
 
@@ -272,7 +271,7 @@ class Event(models.Model):
 
             # Create the Occurrence objects for the found start dates
             for o_start in o_starts:
-                o_start = tzinfo.localize(o_start)
+                o_start = pytz.timezone(str(tzinfo)).localize(o_start)
                 if use_naive:
                     o_start = timezone.make_naive(o_start, tzinfo)
                 o_end = o_start + duration
@@ -294,7 +293,7 @@ class Event(models.Model):
         ``max_occurrences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
 
-        tzinfo = timezone.utc
+        tzinfo = datetime.timezone.utc
         if after is None:
             after = timezone.now()
         elif not timezone.is_naive(after):
@@ -308,7 +307,7 @@ class Event(models.Model):
         difference = self.end - self.start
         loop_counter = 0
         for o_start in date_iter:
-            o_start = tzinfo.localize(o_start)
+            o_start = pytz.timezone(str(tzinfo)).localize(o_start)
             o_end = o_start + difference
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)
@@ -572,7 +571,7 @@ class EventRelation(models.Model):
     class Meta:
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
-        index_together = [("content_type", "object_id")]
+        indexes = [models.Index(fields=["content_type", "object_id"])]
 
     def __str__(self):
         return "{}({})-{}".format(
@@ -595,14 +594,15 @@ class Occurrence(models.Model):
     class Meta:
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
-        index_together = (("start", "end"),)
+        indexes = [models.Index(fields=["start", "end"])]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not self.title and self.event_id:
-            self.title = self.event.title
-        if not self.description and self.event_id:
-            self.description = self.event.description
+        event = kwargs.get("event", None)
+        if not self.title and event:
+            self.title = event.title
+        if not self.description and event:
+            self.description = event.description
 
     def moved(self):
         return self.original_start != self.start or self.original_end != self.end
@@ -638,12 +638,12 @@ class Occurrence(models.Model):
         if self.pk is not None:
             return reverse(
                 "occurrence",
-                kwargs={"occurrence_id": self.pk, "event_id": self.event.id},
+                kwargs={"occurrence_id": self.pk, "event_id": self.event_id},
             )
         return reverse(
             "occurrence_by_date",
             kwargs={
-                "event_id": self.event.id,
+                "event_id": self.event_id,
                 "year": self.start.year,
                 "month": self.start.month,
                 "day": self.start.day,
@@ -657,12 +657,12 @@ class Occurrence(models.Model):
         if self.pk is not None:
             return reverse(
                 "cancel_occurrence",
-                kwargs={"occurrence_id": self.pk, "event_id": self.event.id},
+                kwargs={"occurrence_id": self.pk, "event_id": self.event_id},
             )
         return reverse(
             "cancel_occurrence_by_date",
             kwargs={
-                "event_id": self.event.id,
+                "event_id": self.event_id,
                 "year": self.start.year,
                 "month": self.start.month,
                 "day": self.start.day,
@@ -676,12 +676,12 @@ class Occurrence(models.Model):
         if self.pk is not None:
             return reverse(
                 "edit_occurrence",
-                kwargs={"occurrence_id": self.pk, "event_id": self.event.id},
+                kwargs={"occurrence_id": self.pk, "event_id": self.event_id},
             )
         return reverse(
             "edit_occurrence_by_date",
             kwargs={
-                "event_id": self.event.id,
+                "event_id": self.event_id,
                 "year": self.start.year,
                 "month": self.start.month,
                 "day": self.start.day,

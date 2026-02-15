@@ -14,7 +14,13 @@ from django.http import (
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.http import is_safe_url
+
+try:
+    from django.utils.http import url_has_allowed_host_and_scheme
+except ImportError:
+    # Django<=2.2
+    from django.utils.http import is_safe_url as url_has_allowed_host_and_scheme
+
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
@@ -28,7 +34,7 @@ from django.views.generic.edit import (
 
 from schedule.forms import EventForm, OccurrenceForm
 from schedule.models import Calendar, Event, Occurrence
-from schedule.periods import weekday_names
+from schedule.periods import Period, weekday_names
 from schedule.settings import (
     CHECK_EVENT_PERM_FUNC,
     CHECK_OCCURRENCE_PERM_FUNC,
@@ -150,6 +156,35 @@ class OccurrenceView(OccurrenceMixin, DetailView):
 
 class OccurrencePreview(OccurrenceMixin, ModelFormMixin, ProcessFormView):
     template_name = "schedule/occurrence.html"
+
+    @property
+    def date_from_url(self):
+        return datetime.datetime(
+            int(self.kwargs["year"]),
+            int(self.kwargs["month"]),
+            int(self.kwargs["day"]),
+            int(self.kwargs["hour"]),
+            int(self.kwargs["minute"]),
+            int(self.kwargs["second"]),
+            tzinfo=pytz.UTC,
+        )
+
+    def get_object(self, queryset=None):
+        event = get_object_or_404(Event, pk=self.kwargs["event_id"])
+        period = Period(
+            [event],
+            start=self.date_from_url,
+            end=self.date_from_url,
+        )
+
+        try:
+            return period.get_occurrences()[0]
+        except IndexError:
+            raise Http404
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -320,7 +355,7 @@ def get_next_url(request, default):
         if request.method in ["GET", "HEAD"]
         else request.POST.get("next")
     )
-    if _next_url and is_safe_url(url=_next_url, host=request.get_host()):
+    if _next_url and url_has_allowed_host_and_scheme(_next_url, request.get_host()):
         next_url = _next_url
     return next_url
 
@@ -342,8 +377,7 @@ def api_occurrences(request):
     return JsonResponse(response_data, safe=False)
 
 
-def _api_occurrences(start, end, calendar_slugs, timezone):
-
+def _api_occurrences(start, end, calendar_slug, timezone):
     if not start or not end:
         raise ValueError("Start and end parameters are required")
     # version 2 of full calendar
@@ -400,7 +434,7 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
     # event, using the "event_id" or the occurrence with the specified "id".
     # for more info https://github.com/llazzaro/django-scheduler/pull/169
     i = 1
-    if Occurrence.objects.all().count() > 0:
+    if Occurrence.objects.all().exists():
         i = Occurrence.objects.latest("id").id + 1
     event_list = []
     for calendar in calendars:
@@ -435,7 +469,9 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
                 # make event start and end dates aware in given timezone
                 event_start = event_start.astimezone(current_tz)
                 event_end = event_end.astimezone(current_tz)
-
+            if occurrence.cancelled:
+                # fixes bug 508
+                continue
             response_data.append(
                 {
                     "id": occurrence_id,

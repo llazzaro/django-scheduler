@@ -1,3 +1,48 @@
+0.10.2 - 2026-02-10
+===================
+
+- Migrate packaging from setup.cfg/setup.py to pyproject.toml.
+- Adopt uv via tox-uv plugin for faster dependency resolution.
+- Consolidate tool configs (isort, ruff, coverage) into pyproject.toml.
+- Switch CI workflows from pip to uv.
+- Fix compatibility with Django 5.x (replace removed SHA1PasswordHasher
+  in tests, migrate index_together to Meta.indexes).
+- Remove deprecated USE_L10N setting.
+
+0.10.1 - 2023-01-29
+===================
+
+- Periods performance improvement avoid nplus queries
+
+0.10.0 - 2022-08-21
+===================
+
+- Drop support for Python 3.6.
+- Add support for Python 3.10
+- Drop support for Django versions before 3.2.
+- Allow override of prev_url and next_url links
+
+0.9.6 - 2022-04-18
+==================
+
+- Fix bug #522. 'backports.zoneinfo.ZoneInfo' object has no attribute 'localize'
+
+
+0.9.5 - 2021-05-29
+==================
+
+- Use an AutoField until Django 3.2 is the only supported version
+
+
+0.9.4 - 2021-05-19
+==================
+
+- Dropped support for Python 3.5.
+- Dropped support for Django 1.11, 2.1 and 3.0.
+- Add testing for Python 3.9.
+- Add testing for Django 3.1 and 3.2.
+- Fix bug #508. Fullcalendar API filters cancelled occurrences.
+
 0.9.3 - 2019-10-31
 ==================
 

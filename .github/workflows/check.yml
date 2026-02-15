@@ -1,0 +1,25 @@
+name: Check
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    name: lint
+    runs-on: ubuntu-latest
+
+    env:
+      TOXENV: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install tox
+        run: uv tool install tox --with tox-uv
+
+      - name: Run
+        run: tox

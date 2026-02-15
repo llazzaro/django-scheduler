@@ -3,11 +3,11 @@ from urllib.parse import urlencode
 
 from django import template
 from django.conf import settings
+from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateformat import format
 from django.utils.html import escape
-from django.utils.safestring import mark_safe
 
 from schedule.models import Calendar
 from schedule.periods import weekday_abbrs, weekday_names
@@ -46,11 +46,11 @@ def day_cell(context, calendar, day, month, size="regular"):
 @register.inclusion_tag("schedule/_daily_table.html", takes_context=True)
 def daily_table(context, day, start=8, end=20, increment=30):
     """
-      Display a nice table with occurrences and action buttons.
-      Arguments:
-      start - hour at which the day starts
-      end - hour at which the day ends
-      increment - size of a time slot (in minutes)
+    Display a nice table with occurrences and action buttons.
+    Arguments:
+    start - hour at which the day starts
+    end - hour at which the day ends
+    increment - size of a time slot (in minutes)
     """
     user = context["request"].user
     addable = CHECK_EVENT_PERM_FUNC(None, user)
@@ -209,14 +209,13 @@ def prev_url(target, calendar, period):
     slug = calendar.slug
     if delta.total_seconds() > SCHEDULER_PREVNEXT_LIMIT_SECONDS:
         return ""
-
-    return mark_safe(
-        '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>'
-        % (
+    context = {
+        "url": "{}{}".format(
             reverse(target, kwargs={"calendar_slug": slug}),
             querystring_for_date(period.prev().start),
         )
-    )
+    }
+    return get_template("schedule/_prev.html").render(context)
 
 
 @register.simple_tag
@@ -228,13 +227,13 @@ def next_url(target, calendar, period):
     if delta.total_seconds() > SCHEDULER_PREVNEXT_LIMIT_SECONDS:
         return ""
 
-    return mark_safe(
-        '<a href="%s%s"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>'
-        % (
+    context = {
+        "url": "{}{}".format(
             reverse(target, kwargs={"calendar_slug": slug}),
             querystring_for_date(period.next().start),
         )
-    )
+    }
+    return get_template("schedule/_next.html").render(context)
 
 
 @register.inclusion_tag("schedule/_prevnext.html")
@@ -258,11 +257,11 @@ def detail(occurrence):
 
 def _cook_slots(period, increment):
     """
-        Prepare slots to be displayed on the left hand side
-        calculate dimensions (in px) for each slot.
-        Arguments:
-        period - time period for the whole series
-        increment - slot size in minutes
+    Prepare slots to be displayed on the left hand side
+    calculate dimensions (in px) for each slot.
+    Arguments:
+    period - time period for the whole series
+    increment - slot size in minutes
     """
     tdiff = datetime.timedelta(minutes=increment)
     num = int((period.end - period.start).total_seconds()) // int(tdiff.total_seconds())

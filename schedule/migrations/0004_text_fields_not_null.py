@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("schedule", "0003_auto_20160715_0028")]
 
     operations = [

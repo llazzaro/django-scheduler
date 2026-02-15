@@ -3,7 +3,7 @@ import json
 
 import pytz
 from django.http import Http404
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -11,7 +11,12 @@ from schedule.models.calendars import Calendar
 from schedule.models.events import Event, Occurrence
 from schedule.models.rules import Rule
 from schedule.settings import USE_FULLCALENDAR
-from schedule.views import check_next_url, coerce_date_dict, get_occurrence
+from schedule.views import (
+    check_next_url,
+    coerce_date_dict,
+    get_next_url,
+    get_occurrence,
+)
 
 
 class TestViews(TestCase):
@@ -129,6 +134,21 @@ class TestViewUtils(TestCase):
             coerce_date_dict({"year": "2008", "month": "4", "hours": "3"}),
             {"year": 2008, "month": 4, "day": 1, "hour": 0, "minute": 0, "second": 0},
         )
+
+
+class TestGetNextUrl(SimpleTestCase):
+    def setUp(self):
+        super().setUp()
+        self.factory = RequestFactory()
+
+    def test_redirects_to_same_server(self):
+        redirect_to = "http://testserver/"
+        request = self.factory.get(f"?next={redirect_to}")
+        self.assertEqual(get_next_url(request, None), redirect_to)
+
+    def test_redirects_to_malicious_server(self):
+        request = self.factory.get("?next=http://evil.com")
+        self.assertIsNone(get_next_url(request, None))
 
 
 class TestUrls(TestCase):
@@ -642,6 +662,39 @@ class TestUrls(TestCase):
                                     'calendar_slug': calendar_slug, }
                                    )
         self.assertContains(response, 'MyCalSlugOther', status_code=400)
+    def test_occurrences_api_filters_cancelled_events(self):
+        # create a calendar and event
+        calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
+        weekly_meeting_event = Event.objects.create(
+            title="Recent Event",
+            start=datetime.datetime(2021, 12, 27, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2021, 12, 27, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2021, 12, 31, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar,
+        )
+        Occurrence.objects.create(
+            event=weekly_meeting_event,
+            start=weekly_meeting_event.start.replace(year=2021, month=12, day=27),
+            end=weekly_meeting_event.end.replace(year=2021, month=12, day=27),
+            cancelled=True,
+            original_start=weekly_meeting_event.start.replace(
+                year=2021, month=12, day=27
+            ),
+            original_end=weekly_meeting_event.end.replace(year=2021, month=12, day=27),
+        )
+
+        # test fails with date string time format not '%Y-%m-%d' or '%Y-%m-%dT%H:%M:%S'
+        response = self.client.get(
+            reverse("api_occurrences"),
+            {
+                "start": "2021-12-27T08:00:00",
+                "end": "2021-12-27T09:00:00",
+                "calendar_slug": weekly_meeting_event.calendar.slug,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        expected_content = []
+        self.assertEqual(json.loads(response.content.decode()), expected_content)
 
     def test_check_next_url_valid_case(self):
         expected = "/calendar/1"
@@ -671,4 +724,45 @@ class TestUrls(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(
             '<a href="/feed/calendar/upcoming/1/">Feed</a>' in response.content.decode()
+        )
+
+
+class TestOccurrencePreview(TestCase):
+    def setUp(self):
+        self.rule = Rule.objects.create(frequency="DAILY")
+        self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
+        self.event = Event.objects.create(
+            title="Recent Event",
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            rule=self.rule,
+            calendar=self.calendar,
+        )
+
+    def test_generates_preview(self):
+        url = reverse(
+            "occurrence_by_date",
+            kwargs={
+                "event_id": self.event.pk,
+                "year": 2008,
+                "month": 4,
+                "day": 20,
+                "hour": 8,
+                "minute": 30,
+                "second": 0,
+            },
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "schedule/occurrence.html")
+        self.assertEqual(response.context["event"], self.event)
+
+        occurrence = response.context["occurrence"]
+        self.assertEqual(occurrence.event, self.event)
+        self.assertEqual(
+            occurrence.start, datetime.datetime(2008, 4, 20, 8, 0, tzinfo=pytz.utc)
+        )
+        self.assertEqual(
+            occurrence.end, datetime.datetime(2008, 4, 20, 9, 0, tzinfo=pytz.utc)
         )
