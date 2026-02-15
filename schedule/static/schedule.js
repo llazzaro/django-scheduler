@@ -1,27 +1,36 @@
-function openCancelDialog(node, cancel_url, delete_url, event){
+function openCancelDialog(node, cancel_url, delete_url, event) {
   event.stopPropagation();
-  var btns = {"This":function(){window.location=cancel_url;}, "All":function(){window.location=delete_url}, "Do nothing":function(){$(this).dialog("destroy");}};
-  dia = $("#delete_dialog").dialog({'buttons':btns, 'modal':true});
-  dia.dialog('open');
+  var modalEl = document.getElementById('delete_dialog');
+  var thisBtn = modalEl.querySelector('.btn-this');
+  var allBtn = modalEl.querySelector('.btn-all');
+  thisBtn.onclick = function() { window.location = cancel_url; };
+  allBtn.onclick = function() { window.location = delete_url; };
+  var modal = new bootstrap.Modal(modalEl);
+  modal.show();
   return false;
 }
 
-function openEditDialog(node, occurrence_url, event_url, event){
+function openEditDialog(node, occurrence_url, event_url, event) {
   event.stopPropagation();
-  var btns = {"This":function(){window.location=occurrence_url;}, "All":function(){window.location=event_url}, "Do nothing":function(){$(this).dialog("destroy");}};
-  dia = $("#edit_dialog").dialog({'buttons':btns, 'modal':true});
-  dia.dialog('open');
+  var modalEl = document.getElementById('edit_dialog');
+  var thisBtn = modalEl.querySelector('.btn-this');
+  var allBtn = modalEl.querySelector('.btn-all');
+  thisBtn.onclick = function() { window.location = occurrence_url; };
+  allBtn.onclick = function() { window.location = event_url; };
+  var modal = new bootstrap.Modal(modalEl);
+  modal.show();
   return false;
 }
 
-function openDetail(node){
-  var btns = { "Close":function(){$(this).dialog("destroy");}};
-  dia = $($(node).attr("href")).dialog({'buttons':btns, 'modal':true, 'title':'Details'});
-  dia.dialog('open');
+function openDetail(node) {
+  var targetId = node.getAttribute('href');
+  var modalEl = document.querySelector(targetId);
+  var modal = new bootstrap.Modal(modalEl);
+  modal.show();
   return false;
 }
 
-function openURL(url, event){
+function openURL(url, event) {
     event.stopPropagation();
-    window.location=url;
+    window.location = url;
 }
