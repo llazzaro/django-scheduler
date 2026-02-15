@@ -1,72 +1,64 @@
 {% load i18n %}
 
-<link rel='stylesheet' type='text/css' href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.min.css' />
-<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js'></script>
-<script type='text/javascript' src='http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js'></script>
-<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.3.1/fullcalendar.js'></script>
+<link rel='stylesheet' type='text/css' href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' />
+<script type='text/javascript' src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
 <script type='text/javascript'>
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
 
-    function getEventViewURL(event){
-        if (event.existed){
-            if("{{ request.get_full_path }}".indexOf("/admin") != 0){
-                var view_url = "{% url 'occurrence' 12345 6789 %}".replace(/12345/, event.event_id).replace(/6789/, event.id);
+    function getEventViewURL(event) {
+        if (event.extendedProps.existed) {
+            if ("{{ request.get_full_path }}".indexOf("/admin") != 0) {
+                return "{% url 'occurrence' 12345 6789 %}".replace(/12345/, event.extendedProps.event_id).replace(/6789/, event.id);
+            } else {
+                return "{% url 'admin:schedule_occurrence_change' 12345 %}".replace(/12345/, event.id);
             }
-            else{
-                var view_url = "{% url 'admin:schedule_occurrence_change' 12345 %}".replace(/12345/, event.id)
-            }
-        }
-        else {
-            if("{{ request.get_full_path }}".indexOf("/admin") != 0){
-                var view_url = "{% url 'event' 12345 %}".replace(/12345/, event.event_id);
-            }
-            else{
-                var view_url = "{% url 'admin:schedule_event_change' 12345 %}".replace(/12345/, event.event_id)
+        } else {
+            if ("{{ request.get_full_path }}".indexOf("/admin") != 0) {
+                return "{% url 'event' 12345 %}".replace(/12345/, event.extendedProps.event_id);
+            } else {
+                return "{% url 'admin:schedule_event_change' 12345 %}".replace(/12345/, event.extendedProps.event_id);
             }
         }
-        return view_url;
     }
 
-    function setModalProperties(type, event){
-        if(type == 'edit'){
+    function setModalProperties(type, event) {
+        var props = event.extendedProps;
+        if (type == 'edit') {
             var tYPE = '{% trans "Edit" %}';
-            var all_url = "{% url 'edit_event' calendar_slug 12345 %}".replace(/12345/, event.event_id);
-            if (event.existed){
-                var this_url = "{% url 'edit_occurrence' 12345 6789 %}".replace(/12345/, event.event_id).replace(/6789/, event.id);
-            }
-            else{
+            var all_url = "{% url 'edit_event' calendar_slug 12345 %}".replace(/12345/, props.event_id);
+            if (props.existed) {
+                var this_url = "{% url 'edit_occurrence' 12345 6789 %}".replace(/12345/, props.event_id).replace(/6789/, event.id);
+            } else {
                 var this_url = "{% url 'edit_occurrence_by_date' 123 234 345 456 567 678 789 %}".replace(
-                        /123/, event.event_id).replace(
-                        /234/, event.year).replace(
-                        /345/, event.month).replace(
-                        /456/, event.day).replace(
-                        /567/, event.hour).replace(
-                        /678/, event.minute).replace(
-                        /789/, event.second);
+                        /123/, props.event_id).replace(
+                        /234/, props.year).replace(
+                        /345/, props.month).replace(
+                        /456/, props.day).replace(
+                        /567/, props.hour).replace(
+                        /678/, props.minute).replace(
+                        /789/, props.second);
             }
-        }
-        else if(type == 'delete'){
+        } else if (type == 'delete') {
             var tYPE = '{% trans "Delete" %}';
-            var all_url = "{% url 'delete_event' 12345 %}".replace(/12345/, event.event_id);
-            if (event.existed){
-                var this_url = "{% url 'cancel_occurrence' 12345 6789 %}".replace(/12345/, event.event_id).replace(/6789/, event.id);
-            }
-            else{
+            var all_url = "{% url 'delete_event' 12345 %}".replace(/12345/, props.event_id);
+            if (props.existed) {
+                var this_url = "{% url 'cancel_occurrence' 12345 6789 %}".replace(/12345/, props.event_id).replace(/6789/, event.id);
+            } else {
                 var this_url = "{% url 'cancel_occurrence_by_date' 123 234 345 456 567 678 789 %}".replace(
-                        /123/, event.event_id).replace(
-                        /234/, event.year).replace(
-                        /345/, event.month).replace(
-                        /456/, event.day).replace(
-                        /567/, event.hour).replace(
-                        /678/, event.minute).replace(
-                        /789/, event.second);
+                        /123/, props.event_id).replace(
+                        /234/, props.year).replace(
+                        /345/, props.month).replace(
+                        /456/, props.day).replace(
+                        /567/, props.hour).replace(
+                        /678/, props.minute).replace(
+                        /789/, props.second);
             }
         }
 
-        $('#allevent').attr('href', all_url);
-        $('#thisevent').attr('href', this_url);
-        $('#editordelete').html(type);
-        $('#EditorDelete').html(tYPE);
+        document.getElementById('allevent').setAttribute('href', all_url);
+        document.getElementById('thisevent').setAttribute('href', this_url);
+        document.getElementById('editordelete').innerHTML = type;
+        document.getElementById('EditorDelete').innerHTML = tYPE;
     }
 
     function getCookie(name) {
@@ -74,8 +66,7 @@ $(document).ready(function() {
         if (document.cookie && document.cookie != '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
+                var cookie = cookies[i].trim();
                 if (cookie.substring(0, name.length + 1) == (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -86,153 +77,153 @@ $(document).ready(function() {
     }
     var csrftoken = getCookie('csrftoken');
 
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-
-    var date = new Date();
-    var d = date.getDate();
-    var m = date.getMonth();
-    var y = date.getFullYear();
-
-    $('#calendar').fullCalendar({
-        header: {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'month,agendaWeek,agendaDay'
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         editable: true,
-        eventLimit: true, // allow 'more' link when too many events
-        selectable: true, //Allows a user to highlight multiple days or timeslots by clicking and dragging.
-        selectHelper: true,
+        dayMaxEvents: true,
+        selectable: true,
+        selectMirror: true,
         events: "{% url 'api_occurrences' %}?calendar_slug={{calendar_slug}}",
-        loading: function(bool) {
-            if (bool) {
-                $('#loading').show();
-            }else{
-                $('#loading').hide();
+        loading: function(isLoading) {
+            var el = document.getElementById('loading');
+            if (el) {
+                el.style.display = isLoading ? '' : 'none';
             }
         },
-        eventRender: function(event, element) {
-            var s = element[0].className;
-            if(s.indexOf("fc-day-grid-event") < 0){
-                title = element.children().find( '.fc-title' );
-                title.html('<a href="' + getEventViewURL(event) +
-                    '">' + title.html() + '</a>')
-                if(event.editable && "{{ request.get_full_path }}".indexOf("/admin") != 0){
-                    time = element.children().find( '.fc-time' );
-                    var edit_button = document.createElement("button");
-                    var edit_icon = document.createElement("span");
-                    edit_button.className = 'btn btn-default btn-sm pull-right edit_event';
-                    edit_button.onclick = function(jsEvent){
-                        jsEvent.preventDefault();
-                        setModalProperties('edit', event);
-                    };
-                    edit_button.setAttribute('data-toggle', 'modal');
-                    edit_button.setAttribute('data-target', '#eventModal');
-                    edit_icon.className = 'glyphicon glyphicon-pencil';
-                    edit_button.appendChild(edit_icon);
+        eventDidMount: function(info) {
+            var event = info.event;
+            var element = info.el;
+            var isTimeGrid = info.view.type.indexOf('timeGrid') === 0;
 
-                    var delete_button = document.createElement("button");
-                    var delete_icon = document.createElement("span");
-                    delete_button.className = 'btn btn-default btn-sm pull-right delete_event';
-                    delete_button.onclick = function(jsEvent){
-                        jsEvent.preventDefault();
-                        setModalProperties('delete', event);
-                    };
-                    delete_button.setAttribute('data-toggle', 'modal');
-                    delete_button.setAttribute('data-target', '#eventModal');
-                    delete_icon.className = 'glyphicon glyphicon-trash'
-                    delete_button.appendChild(delete_icon);
+            if (isTimeGrid) {
+                var titleEl = element.querySelector('.fc-event-title');
+                if (titleEl) {
+                    var link = document.createElement('a');
+                    link.href = getEventViewURL(event);
+                    link.innerHTML = titleEl.innerHTML;
+                    titleEl.innerHTML = '';
+                    titleEl.appendChild(link);
+                }
 
-                    time.prepend( '<br>' );
-                    time.prepend( delete_button );
-                    time.prepend( edit_button );
+                if (event.extendedProps.editable && "{{ request.get_full_path }}".indexOf("/admin") != 0) {
+                    var timeEl = element.querySelector('.fc-event-time');
+                    if (timeEl) {
+                        var edit_button = document.createElement("button");
+                        var edit_icon = document.createElement("span");
+                        edit_button.className = 'btn btn-secondary btn-sm float-end edit_event';
+                        edit_button.onclick = function(jsEvent) {
+                            jsEvent.preventDefault();
+                            jsEvent.stopPropagation();
+                            setModalProperties('edit', event);
+                            var modalEl = document.getElementById('eventModal');
+                            var modal = new bootstrap.Modal(modalEl);
+                            modal.show();
+                        };
+                        edit_icon.className = 'bi bi-pencil';
+                        edit_button.appendChild(edit_icon);
+
+                        var delete_button = document.createElement("button");
+                        var delete_icon = document.createElement("span");
+                        delete_button.className = 'btn btn-secondary btn-sm float-end delete_event';
+                        delete_button.onclick = function(jsEvent) {
+                            jsEvent.preventDefault();
+                            jsEvent.stopPropagation();
+                            setModalProperties('delete', event);
+                            var modalEl = document.getElementById('eventModal');
+                            var modal = new bootstrap.Modal(modalEl);
+                            modal.show();
+                        };
+                        delete_icon.className = 'bi bi-trash';
+                        delete_button.appendChild(delete_icon);
+
+                        timeEl.insertAdjacentHTML('beforeend', '<br>');
+                        timeEl.appendChild(edit_button);
+                        timeEl.appendChild(delete_button);
+                    }
                 }
             }
         },
-        dayClick: function(date, allDay, jsEvent, view) {
-                    if (allDay) {
-                        $('#calendar').fullCalendar('changeView', 'agendaWeek');
-                        $("#calendar").fullCalendar('gotoDate', date);
-                    }
-                },
-        eventDrop: function(event,delta,revertFunc) {
-            $.ajax({
-                    type: 'POST',
-                    url: "{% url 'api_move_or_resize' %}",
-                    dataType: 'json',
-                    data : {
-                        'id': event.id,
-                        'event_id' : event.event_id,
-                        'existed' : event.existed,
-                        'delta' : delta.asMinutes(),
-                    },
-                    success : function(result) {
-                        if (result.success) $('#feedback input').attr('value', '');
-                        $('#calendar').fullCalendar('refetchEvents');
-                        },
-                    error : function(req, status, error) {
-                        console.log(error);
-                    }
-                });
-            return false;
-        },
-        eventResize: function(event,delta,revertFunc) {
-            $.ajax({
-                    type: 'POST',
-                    url: "{% url 'api_move_or_resize' %}",
-                    dataType: 'json',
-                    data : {
-                        'id': event.id,
-                        'event_id' : event.event_id,
-                        'existed' : event.existed,
-                        'delta' : delta.asMinutes(),
-                        'resize' : true,
-                    },
-                    success : function(result) {
-                        if (result.success) $('#feedback input').attr('value', '');
-                        $('#calendar').fullCalendar('refetchEvents');
-                        },
-                    error : function(req, status, error) {
-                        console.log(error);
-                    }
-                });
-            return false;
-        },
-        select: function( start, end, jsEvent, view  ) {
-            if(jsEvent.toElement.className == 'fc-bg'){
-                console.log('{{calendar_slug}}');
-                $.ajax({
-                        type: 'POST',
-                        url: "{% url 'api_select_create' %}",
-                        dataType: 'json',
-                        data : {
-                            'start': start.toISOString(),
-                            'end' : end.toISOString(),
-                            'calendar_slug' : '{{calendar_slug}}',
-                        },
-                        success : function(result) {
-                            console.log(result);
-                            if (result.success) $('#feedback input').attr('value', '');
-                            $('#calendar').fullCalendar('refetchEvents');
-                            },
-                        error : function(req, status, error) {
-                            console.log(error);
-                        }
-                    });
-                $('#calendar').fullCalendar('unselect');
-                return false;
+        dateClick: function(info) {
+            if (info.view.type === 'dayGridMonth') {
+                calendar.changeView('timeGridWeek', info.date);
             }
+        },
+        eventDrop: function(info) {
+            var event = info.event;
+            var delta = Math.round((event.start - info.oldEvent.start) / 60000);
+            fetch("{% url 'api_move_or_resize' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: new URLSearchParams({
+                    'id': event.id,
+                    'event_id': event.extendedProps.event_id,
+                    'existed': event.extendedProps.existed,
+                    'delta': delta
+                })
+            }).then(function(response) {
+                return response.json();
+            }).then(function(result) {
+                calendar.refetchEvents();
+            }).catch(function(error) {
+                console.log(error);
+                info.revert();
+            });
+        },
+        eventResize: function(info) {
+            var event = info.event;
+            var delta = Math.round((event.end - info.oldEvent.end) / 60000);
+            fetch("{% url 'api_move_or_resize' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: new URLSearchParams({
+                    'id': event.id,
+                    'event_id': event.extendedProps.event_id,
+                    'existed': event.extendedProps.existed,
+                    'delta': delta,
+                    'resize': true
+                })
+            }).then(function(response) {
+                return response.json();
+            }).then(function(result) {
+                calendar.refetchEvents();
+            }).catch(function(error) {
+                console.log(error);
+                info.revert();
+            });
+        },
+        select: function(info) {
+            fetch("{% url 'api_select_create' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: new URLSearchParams({
+                    'start': info.startStr,
+                    'end': info.endStr,
+                    'calendar_slug': '{{calendar_slug}}'
+                })
+            }).then(function(response) {
+                return response.json();
+            }).then(function(result) {
+                calendar.refetchEvents();
+            }).catch(function(error) {
+                console.log(error);
+            });
+            calendar.unselect();
         }
     });
+    calendar.render();
 });
 </script>
