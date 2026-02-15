@@ -792,9 +792,7 @@ class TestAPIMoveOrResize(TestCase):
     """Test API endpoint for moving and resizing occurrences"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", password="testpass"
-        )
+        self.user = User.objects.create_user(username="testuser", password="testpass")
         self.calendar = Calendar.objects.create(name="TestCal", slug="testcal")
         self.rule = Rule.objects.create(frequency="DAILY")
 

@@ -677,7 +677,9 @@ class TestEvent(TestCase):
         # Should handle gracefully - might be None or start depending on implementation
         effective_start = event.effective_start
         # At minimum, it shouldn't crash
-        self.assertTrue(effective_start is None or isinstance(effective_start, datetime.datetime))
+        self.assertTrue(
+            effective_start is None or isinstance(effective_start, datetime.datetime)
+        )
 
     def test_effective_end_with_end_recurring_period(self):
         """Test effective_end property for recurring events"""

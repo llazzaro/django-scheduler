@@ -170,9 +170,7 @@ class TestICalendarFeed(TestCase):
 
     def test_icalendar_feed_empty_calendar(self):
         """Test iCalendar feed for empty calendar"""
-        empty_calendar = Calendar.objects.create(
-            name="EmptyCal", slug="emptycal"
-        )
+        empty_calendar = Calendar.objects.create(name="EmptyCal", slug="emptycal")
 
         url = reverse("calendar_ical", args=[empty_calendar.slug])
         response = self.client.get(url)
