@@ -42,18 +42,21 @@ class EventListManager:
         ]
         occurrences = []
 
+        occ_count = 1
         for generator in generators:
             try:
-                heapq.heappush(occurrences, (next(generator), generator))
+                heapq.heappush(occurrences, (next(generator), occ_count, generator))
             except StopIteration:
                 pass
+            occ_count += 1
 
         while occurrences:
-            generator = occurrences[0][1]
+            generator = occurrences[0][2]
+            occ_count = occurrences[0][1]
 
             try:
                 next_occurrence = heapq.heapreplace(
-                    occurrences, (next(generator), generator)
+                    occurrences, (next(generator), occ_count, generator)
                 )[0]
             except StopIteration:
                 next_occurrence = heapq.heappop(occurrences)[0]
