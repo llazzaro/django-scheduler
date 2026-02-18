@@ -140,11 +140,15 @@ class Calendar(models.Model):
 
     name = models.CharField(_("name"), max_length=200)
     slug = models.SlugField(_("slug"), max_length=200, unique=True)
+    color_event = models.CharField(
+        _("Color event"), blank=True, db_index=True, default="", max_length=10
+    )
     objects = CalendarManager()
 
     class Meta:
         verbose_name = _("calendar")
         verbose_name_plural = _("calendars")
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
@@ -231,7 +235,9 @@ class CalendarRelation(models.Model):
     class Meta:
         verbose_name = _("calendar relation")
         verbose_name_plural = _("calendar relations")
-        indexes = [models.Index(fields=["content_type", "object_id"])]
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
 
     def __str__(self):
         return "{} - {}".format(self.calendar, self.content_object)
