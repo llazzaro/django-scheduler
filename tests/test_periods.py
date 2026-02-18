@@ -1,6 +1,6 @@
 import datetime
+from zoneinfo import ZoneInfo
 
-import pytz
 from django.conf import settings
 from django.db import connection
 from django.test import TestCase
@@ -17,16 +17,18 @@ class TestPeriod(TestCase):
         cal = Calendar.objects.create(name="MyCal")
         Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=cal,
         )
         self.period = Period(
             events=Event.objects.all(),
-            start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 21, 7, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 21, 7, 0, tzinfo=datetime.timezone.utc),
         )
 
     def test_get_occurrences(self):
@@ -49,9 +51,11 @@ class TestPeriod(TestCase):
 
         event = Event.objects.create(
             title="TEST",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2023, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2023, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=cal,
         )
@@ -59,15 +63,19 @@ class TestPeriod(TestCase):
             # lets set occ without title and desc to use the event.title or event.desc
             Occurrence.objects.create(
                 event=event,
-                start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
-                end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
-                original_start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
-                original_end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
+                start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc),
+                end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc),
+                original_start=datetime.datetime(
+                    2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc
+                ),
+                original_end=datetime.datetime(
+                    2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc
+                ),
             )
         period = Period(
             events=[event],
-            start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2023, 1, 21, 7, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2023, 1, 21, 7, 0, tzinfo=datetime.timezone.utc),
         )
         with CaptureQueriesContext(connection) as ctx:
             for occurrence in period.get_occurrences():
@@ -80,8 +88,8 @@ class TestPeriod(TestCase):
     def test_get_occurrences_with_sorting_options(self):
         period = Period(
             events=Event.objects.all(),
-            start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 21, 7, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 4, 7, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 21, 7, 0, tzinfo=datetime.timezone.utc),
             sorting_options={"reverse": True},
         )
         occurrence_list = period.occurrences
@@ -108,18 +116,18 @@ class TestPeriod(TestCase):
             [
                 (
                     1,
-                    datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     1,
-                    datetime.datetime(2008, 1, 12, 8, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 12, 9, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 12, 8, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 12, 9, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     1,
-                    datetime.datetime(2008, 1, 19, 8, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 19, 9, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 19, 8, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 19, 9, 0, tzinfo=datetime.timezone.utc),
                 ),
             ],
         )
@@ -127,21 +135,26 @@ class TestPeriod(TestCase):
     def test_has_occurrence(self):
         self.assertTrue(self.period.has_occurrences())
         slot = self.period.get_time_slot(
-            datetime.datetime(2008, 1, 4, 7, 0, tzinfo=pytz.utc),
-            datetime.datetime(2008, 1, 4, 7, 12, tzinfo=pytz.utc),
+            datetime.datetime(2008, 1, 4, 7, 0, tzinfo=datetime.timezone.utc),
+            datetime.datetime(2008, 1, 4, 7, 12, tzinfo=datetime.timezone.utc),
         )
         self.assertFalse(slot.has_occurrences())
 
 
 class TestYear(TestCase):
     def setUp(self):
-        self.year = Year(events=[], date=datetime.datetime(2008, 4, 1, tzinfo=pytz.utc))
+        self.year = Year(
+            events=[], date=datetime.datetime(2008, 4, 1, tzinfo=datetime.timezone.utc)
+        )
 
     def test_get_months(self):
         months = self.year.get_months()
         self.assertEqual(
             [month.start for month in months],
-            [datetime.datetime(2008, i, 1, tzinfo=pytz.utc) for i in range(1, 13)],
+            [
+                datetime.datetime(2008, i, 1, tzinfo=datetime.timezone.utc)
+                for i in range(1, 13)
+            ],
         )
 
 
@@ -151,15 +164,17 @@ class TestMonth(TestCase):
         cal = Calendar.objects.create(name="MyCal")
         Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=cal,
         )
         self.month = Month(
             events=Event.objects.all(),
-            date=datetime.datetime(2008, 2, 7, 9, 0, tzinfo=pytz.utc),
+            date=datetime.datetime(2008, 2, 7, 9, 0, tzinfo=datetime.timezone.utc),
         )
 
     def test_get_weeks(self):
@@ -169,47 +184,47 @@ class TestMonth(TestCase):
         if settings.FIRST_DAY_OF_WEEK == 0:
             expecteds = [
                 (
-                    datetime.datetime(2008, 1, 27, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 27, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
-                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 10, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 10, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
-                    datetime.datetime(2008, 2, 10, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 17, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 10, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 17, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
-                    datetime.datetime(2008, 2, 17, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 24, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 17, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 24, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
-                    datetime.datetime(2008, 2, 24, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 3, 2, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 24, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 3, 2, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
             ]
         else:
             expecteds = [
                 (
-                    datetime.datetime(2008, 1, 28, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 4, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 28, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 4, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
-                    datetime.datetime(2008, 2, 4, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 11, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 4, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 11, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
-                    datetime.datetime(2008, 2, 11, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 18, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 11, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 18, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
-                    datetime.datetime(2008, 2, 18, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 25, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 18, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 25, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
-                    datetime.datetime(2008, 2, 25, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 3, 3, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 25, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 3, 3, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
             ]
 
@@ -226,38 +241,38 @@ class TestMonth(TestCase):
             expecteds = [
                 (
                     0,
-                    datetime.datetime(2008, 1, 27, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 28, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 27, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 28, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 1, 28, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 29, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 28, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 29, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 1, 29, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 30, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 29, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 30, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 1, 30, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 31, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 30, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 31, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 1, 31, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 1, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 31, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 1, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 2, 1, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 2, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 2, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     1,
-                    datetime.datetime(2008, 2, 2, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 2, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
             ]
 
@@ -265,38 +280,38 @@ class TestMonth(TestCase):
             expecteds = [
                 (
                     0,
-                    datetime.datetime(2008, 1, 28, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 29, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 28, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 29, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 1, 29, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 30, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 29, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 30, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 1, 30, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 1, 31, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 30, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 1, 31, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 1, 31, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 1, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 1, 31, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 1, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 2, 1, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 2, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 2, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     1,
-                    datetime.datetime(2008, 2, 2, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 2, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
                 (
                     0,
-                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=pytz.utc),
-                    datetime.datetime(2008, 2, 4, 0, 0, tzinfo=pytz.utc),
+                    datetime.datetime(2008, 2, 3, 0, 0, tzinfo=datetime.timezone.utc),
+                    datetime.datetime(2008, 2, 4, 0, 0, tzinfo=datetime.timezone.utc),
                 ),
             ]
 
@@ -306,23 +321,23 @@ class TestMonth(TestCase):
     def test_month_convenience_functions(self):
         self.assertEqual(
             self.month.prev_month().start,
-            datetime.datetime(2008, 1, 1, 0, 0, tzinfo=pytz.utc),
+            datetime.datetime(2008, 1, 1, 0, 0, tzinfo=datetime.timezone.utc),
         )
         self.assertEqual(
             self.month.next_month().start,
-            datetime.datetime(2008, 3, 1, 0, 0, tzinfo=pytz.utc),
+            datetime.datetime(2008, 3, 1, 0, 0, tzinfo=datetime.timezone.utc),
         )
         self.assertEqual(
             self.month.current_year().start,
-            datetime.datetime(2008, 1, 1, 0, 0, tzinfo=pytz.utc),
+            datetime.datetime(2008, 1, 1, 0, 0, tzinfo=datetime.timezone.utc),
         )
         self.assertEqual(
             self.month.prev_year().start,
-            datetime.datetime(2007, 1, 1, 0, 0, tzinfo=pytz.utc),
+            datetime.datetime(2007, 1, 1, 0, 0, tzinfo=datetime.timezone.utc),
         )
         self.assertEqual(
             self.month.next_year().start,
-            datetime.datetime(2009, 1, 1, 0, 0, tzinfo=pytz.utc),
+            datetime.datetime(2009, 1, 1, 0, 0, tzinfo=datetime.timezone.utc),
         )
 
 
@@ -330,36 +345,38 @@ class TestDay(TestCase):
     def setUp(self):
         self.day = Day(
             events=Event.objects.all(),
-            date=datetime.datetime(2008, 2, 7, 9, 0, tzinfo=pytz.utc),
+            date=datetime.datetime(2008, 2, 7, 9, 0, tzinfo=datetime.timezone.utc),
         )
 
     def test_day_setup(self):
         self.assertEqual(
-            self.day.start, datetime.datetime(2008, 2, 7, 0, 0, tzinfo=pytz.utc)
+            self.day.start,
+            datetime.datetime(2008, 2, 7, 0, 0, tzinfo=datetime.timezone.utc),
         )
         self.assertEqual(
-            self.day.end, datetime.datetime(2008, 2, 8, 0, 0, tzinfo=pytz.utc)
+            self.day.end,
+            datetime.datetime(2008, 2, 8, 0, 0, tzinfo=datetime.timezone.utc),
         )
 
     def test_day_convenience_functions(self):
         self.assertEqual(
             self.day.prev_day().start,
-            datetime.datetime(2008, 2, 6, 0, 0, tzinfo=pytz.utc),
+            datetime.datetime(2008, 2, 6, 0, 0, tzinfo=datetime.timezone.utc),
         )
         self.assertEqual(
             self.day.next_day().start,
-            datetime.datetime(2008, 2, 8, 0, 0, tzinfo=pytz.utc),
+            datetime.datetime(2008, 2, 8, 0, 0, tzinfo=datetime.timezone.utc),
         )
 
     def test_time_slot(self):
-        slot_start = datetime.datetime(2008, 2, 7, 13, 30, tzinfo=pytz.utc)
-        slot_end = datetime.datetime(2008, 2, 7, 15, 0, tzinfo=pytz.utc)
+        slot_start = datetime.datetime(2008, 2, 7, 13, 30, tzinfo=datetime.timezone.utc)
+        slot_end = datetime.datetime(2008, 2, 7, 15, 0, tzinfo=datetime.timezone.utc)
         period = self.day.get_time_slot(slot_start, slot_end)
         self.assertEqual(period.start, slot_start)
         self.assertEqual(period.end, slot_end)
 
     def test_time_slot_with_dst(self):
-        tzinfo = pytz.timezone("America/Vancouver")
+        tzinfo = ZoneInfo("America/Vancouver")
         slot_start = datetime.datetime(2016, 3, 13, 0, 0, tzinfo=tzinfo)
         slot_end = datetime.datetime(2016, 3, 14, 0, 0, tzinfo=tzinfo)
         period = self.day.get_time_slot(slot_start, slot_end)
@@ -376,14 +393,18 @@ class TestDay(TestCase):
         # To simulate this case, we will create a NY tz date, localize that
         # date to UTC, then create a Day object with the UTC date and NY TZ
 
-        NY = pytz.timezone("America/New_York")
+        NY = ZoneInfo("America/New_York")
         user_wall_time = datetime.datetime(2015, 11, 4, 21, 30, tzinfo=NY)
-        timezone_now = user_wall_time.astimezone(pytz.utc)
+        timezone_now = user_wall_time.astimezone(datetime.timezone.utc)
 
         test_day = Day(events=Event.objects.all(), date=timezone_now, tzinfo=NY)
 
-        expected_start = datetime.datetime(2015, 11, 4, 5, 00, tzinfo=pytz.utc)
-        expected_end = datetime.datetime(2015, 11, 5, 5, 00, tzinfo=pytz.utc)
+        expected_start = datetime.datetime(
+            2015, 11, 4, 5, 00, tzinfo=datetime.timezone.utc
+        )
+        expected_end = datetime.datetime(
+            2015, 11, 5, 5, 00, tzinfo=datetime.timezone.utc
+        )
 
         self.assertEqual(test_day.start, expected_start)
         self.assertEqual(test_day.end, expected_end)
@@ -395,9 +416,11 @@ class TestOccurrencePool(TestCase):
         cal = Calendar.objects.create(name="MyCal")
         self.recurring_event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=cal,
         )
@@ -407,8 +430,8 @@ class TestOccurrencePool(TestCase):
         Test that period initiated with occurrence_pool returns the same occurrences as "straigh" period
         in a corner case whereby a period's start date is equal to the occurrence's end date
         """
-        start = datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc)
-        end = datetime.datetime(2008, 1, 5, 10, 0, tzinfo=pytz.utc)
+        start = datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc)
+        end = datetime.datetime(2008, 1, 5, 10, 0, tzinfo=datetime.timezone.utc)
         parent_period = Period(Event.objects.all(), start, end)
         period = Period(
             parent_period.events,
@@ -422,24 +445,25 @@ class TestOccurrencePool(TestCase):
 
 class TestOccurrencesInTimezone(TestCase):
     def setUp(self):
-        self.MVD = pytz.timezone("America/Montevideo")
+        self.MVD = ZoneInfo("America/Montevideo")
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(
             frequency="DAILY", params="byweekday:SA", name="Saturdays"
         )
         Event.objects.create(
             title="Every Saturday Event",
-            start=self.MVD.localize(datetime.datetime(2017, 1, 7, 22, 0)),
-            end=self.MVD.localize(datetime.datetime(2017, 1, 7, 23, 0)),
-            end_recurring_period=self.MVD.localize(datetime.datetime(2017, 2, 1)),
+            start=datetime.datetime(2017, 1, 7, 22, 0).replace(tzinfo=self.MVD),
+            end=datetime.datetime(2017, 1, 7, 23, 0).replace(tzinfo=self.MVD),
+            end_recurring_period=datetime.datetime(2017, 2, 1).replace(tzinfo=self.MVD),
             rule=rule,
             calendar=cal,
+            timezone="America/Montevideo",
         )
 
     @override_settings(TIME_ZONE="America/Montevideo")
     def test_occurrences_with_TZ(self):
-        start = self.MVD.localize(datetime.datetime(2017, 1, 13))
-        end = self.MVD.localize(datetime.datetime(2017, 1, 23))
+        start = datetime.datetime(2017, 1, 13).replace(tzinfo=self.MVD)
+        end = datetime.datetime(2017, 1, 23).replace(tzinfo=self.MVD)
 
         period = Period(Event.objects.all(), start, end, tzinfo=self.MVD)
         self.assertEqual(
@@ -452,13 +476,13 @@ class TestOccurrencesInTimezone(TestCase):
 
     @override_settings(TIME_ZONE="America/Montevideo")
     def test_occurrences_sub_period_with_TZ(self):
-        start = self.MVD.localize(datetime.datetime(2017, 1, 13))
-        end = self.MVD.localize(datetime.datetime(2017, 1, 23))
+        start = datetime.datetime(2017, 1, 13).replace(tzinfo=self.MVD)
+        end = datetime.datetime(2017, 1, 23).replace(tzinfo=self.MVD)
 
         period = Period(Event.objects.all(), start, end, tzinfo=self.MVD)
 
-        sub_start = self.MVD.localize(datetime.datetime(2017, 1, 13))
-        sub_end = self.MVD.localize(datetime.datetime(2017, 1, 15))
+        sub_start = datetime.datetime(2017, 1, 13).replace(tzinfo=self.MVD)
+        sub_end = datetime.datetime(2017, 1, 15).replace(tzinfo=self.MVD)
         sub_period = period.get_time_slot(sub_start, sub_end)
         self.assertEqual(
             ["{} to {}".format(o.start, o.end) for o in sub_period.occurrences],
@@ -468,20 +492,23 @@ class TestOccurrencesInTimezone(TestCase):
 
 class TestWeeklyOccurrences(TestCase):
     def setUp(self):
-        self.MVD = pytz.timezone("America/Montevideo")  # UTC-3
+        self.MVD = ZoneInfo("America/Montevideo")  # UTC-3
         cal = Calendar.objects.create(name="MyCal")
         rule = Rule.objects.create(frequency="DAILY", name="daily")
         Event.objects.create(
             title="Test event",
-            start=self.MVD.localize(datetime.datetime(2017, 1, 13, 15, 0)),
-            end=self.MVD.localize(datetime.datetime(2017, 1, 14, 15, 0)),
-            end_recurring_period=self.MVD.localize(datetime.datetime(2017, 1, 20)),
+            start=datetime.datetime(2017, 1, 13, 15, 0).replace(tzinfo=self.MVD),
+            end=datetime.datetime(2017, 1, 14, 15, 0).replace(tzinfo=self.MVD),
+            end_recurring_period=datetime.datetime(2017, 1, 20).replace(
+                tzinfo=self.MVD
+            ),
             rule=rule,
             calendar=cal,
+            timezone="America/Montevideo",
         )
 
     def test_occurrences_inside_recurrence_period(self):
-        start = self.MVD.localize(datetime.datetime(2017, 1, 13))
+        start = datetime.datetime(2017, 1, 13).replace(tzinfo=self.MVD)
 
         period = Week(Event.objects.all(), start, tzinfo=self.MVD)
 
@@ -494,7 +521,7 @@ class TestWeeklyOccurrences(TestCase):
         )
 
     def test_occurrences_outside_recurrence_period(self):
-        start = self.MVD.localize(datetime.datetime(2017, 1, 23))
+        start = datetime.datetime(2017, 1, 23).replace(tzinfo=self.MVD)
 
         period = Week(Event.objects.all(), start, tzinfo=self.MVD)
 
@@ -505,7 +532,7 @@ class TestWeeklyOccurrences(TestCase):
     def test_occurrences_no_end(self):
         event = Event.objects.filter(title="Test event").get()
         event.end_recurring_period = None
-        start = self.MVD.localize(datetime.datetime(2018, 1, 13))
+        start = datetime.datetime(2018, 1, 13).replace(tzinfo=self.MVD)
 
         period = Week([event], start, tzinfo=self.MVD)
 
@@ -525,12 +552,12 @@ class TestWeeklyOccurrences(TestCase):
 
     def test_occurrences_end_in_diff_tz(self):
         event = Event.objects.filter(title="Test event").get()
-        AMSTERDAM = pytz.timezone("Europe/Amsterdam")
+        AMSTERDAM = ZoneInfo("Europe/Amsterdam")
         # 2017-01-14 00:00 CET = 2017-01-13 21:00 UYT
-        event.end_recurring_period = AMSTERDAM.localize(
-            datetime.datetime(2017, 1, 14, 0, 0)
+        event.end_recurring_period = datetime.datetime(2017, 1, 14, 0, 0).replace(
+            tzinfo=AMSTERDAM
         )
-        start = self.MVD.localize(datetime.datetime(2017, 1, 13))
+        start = datetime.datetime(2017, 1, 13).replace(tzinfo=self.MVD)
 
         period = Week([event], start, tzinfo=self.MVD)
 
@@ -542,26 +569,27 @@ class TestWeeklyOccurrences(TestCase):
 
 class TestAwareDay(TestCase):
     def setUp(self):
-        self.timezone = pytz.timezone("Europe/Amsterdam")
+        self.timezone = ZoneInfo("Europe/Amsterdam")
 
-        start = self.timezone.localize(datetime.datetime(2008, 2, 7, 0, 20))
-        end = self.timezone.localize(datetime.datetime(2008, 2, 7, 0, 21))
+        start = datetime.datetime(2008, 2, 7, 0, 20).replace(tzinfo=self.timezone)
+        end = datetime.datetime(2008, 2, 7, 0, 21).replace(tzinfo=self.timezone)
         self.event = Event.objects.create(
             title="One minute long event on january seventh 2008 at 00:20 in Amsterdam.",
             start=start,
             end=end,
             calendar=Calendar.objects.create(name="MyCal"),
+            timezone="Europe/Amsterdam",
         )
 
         self.day = Day(
             events=Event.objects.all(),
-            date=self.timezone.localize(datetime.datetime(2008, 2, 7, 9, 0)),
+            date=datetime.datetime(2008, 2, 7, 9, 0).replace(tzinfo=self.timezone),
             tzinfo=self.timezone,
         )
 
     def test_day_range(self):
-        start = datetime.datetime(2008, 2, 6, 23, 0, tzinfo=pytz.utc)
-        end = datetime.datetime(2008, 2, 7, 23, 0, tzinfo=pytz.utc)
+        start = datetime.datetime(2008, 2, 6, 23, 0, tzinfo=datetime.timezone.utc)
+        end = datetime.datetime(2008, 2, 7, 23, 0, tzinfo=datetime.timezone.utc)
 
         self.assertEqual(start, self.day.start)
         self.assertEqual(end, self.day.end)
@@ -572,28 +600,28 @@ class TestAwareDay(TestCase):
 
 class TestTzInfoPersistence(TestCase):
     def setUp(self):
-        self.timezone = pytz.timezone("Europe/Amsterdam")
+        self.timezone = ZoneInfo("Europe/Amsterdam")
         self.day = Day(
             events=Event.objects.all(),
-            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            date=datetime.datetime(2013, 12, 17, 9, 0).replace(tzinfo=self.timezone),
             tzinfo=self.timezone,
         )
 
         self.week = Week(
             events=Event.objects.all(),
-            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            date=datetime.datetime(2013, 12, 17, 9, 0).replace(tzinfo=self.timezone),
             tzinfo=self.timezone,
         )
 
         self.month = Month(
             events=Event.objects.all(),
-            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            date=datetime.datetime(2013, 12, 17, 9, 0).replace(tzinfo=self.timezone),
             tzinfo=self.timezone,
         )
 
         self.year = Year(
             events=Event.objects.all(),
-            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            date=datetime.datetime(2013, 12, 17, 9, 0).replace(tzinfo=self.timezone),
             tzinfo=self.timezone,
         )
 
@@ -606,16 +634,16 @@ class TestTzInfoPersistence(TestCase):
 
 class TestAwareWeek(TestCase):
     def setUp(self):
-        self.timezone = pytz.timezone("Europe/Amsterdam")
+        self.timezone = ZoneInfo("Europe/Amsterdam")
         self.week = Week(
             events=Event.objects.all(),
-            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            date=datetime.datetime(2013, 12, 17, 9, 0).replace(tzinfo=self.timezone),
             tzinfo=self.timezone,
         )
 
     def test_week_range(self):
-        start = self.timezone.localize(datetime.datetime(2013, 12, 15, 0, 0))
-        end = self.timezone.localize(datetime.datetime(2013, 12, 22, 0, 0))
+        start = datetime.datetime(2013, 12, 15, 0, 0).replace(tzinfo=self.timezone)
+        end = datetime.datetime(2013, 12, 22, 0, 0).replace(tzinfo=self.timezone)
 
         self.assertEqual(self.week.tzinfo, self.timezone)
         self.assertEqual(start, self.week.start)
@@ -624,16 +652,16 @@ class TestAwareWeek(TestCase):
 
 class TestAwareMonth(TestCase):
     def setUp(self):
-        self.timezone = pytz.timezone("Europe/Amsterdam")
+        self.timezone = ZoneInfo("Europe/Amsterdam")
         self.month = Month(
             events=Event.objects.all(),
-            date=self.timezone.localize(datetime.datetime(2013, 11, 17, 9, 0)),
+            date=datetime.datetime(2013, 11, 17, 9, 0).replace(tzinfo=self.timezone),
             tzinfo=self.timezone,
         )
 
     def test_month_range(self):
-        start = self.timezone.localize(datetime.datetime(2013, 11, 1, 0, 0))
-        end = self.timezone.localize(datetime.datetime(2013, 12, 1, 0, 0))
+        start = datetime.datetime(2013, 11, 1, 0, 0).replace(tzinfo=self.timezone)
+        end = datetime.datetime(2013, 12, 1, 0, 0).replace(tzinfo=self.timezone)
 
         self.assertEqual(self.month.tzinfo, self.timezone)
         self.assertEqual(start, self.month.start)
@@ -642,16 +670,16 @@ class TestAwareMonth(TestCase):
 
 class TestAwareYear(TestCase):
     def setUp(self):
-        self.timezone = pytz.timezone("Europe/Amsterdam")
+        self.timezone = ZoneInfo("Europe/Amsterdam")
         self.year = Year(
             events=Event.objects.all(),
-            date=self.timezone.localize(datetime.datetime(2013, 12, 17, 9, 0)),
+            date=datetime.datetime(2013, 12, 17, 9, 0).replace(tzinfo=self.timezone),
             tzinfo=self.timezone,
         )
 
     def test_year_range(self):
-        start = self.timezone.localize(datetime.datetime(2013, 1, 1, 0, 0))
-        end = self.timezone.localize(datetime.datetime(2014, 1, 1, 0, 0))
+        start = datetime.datetime(2013, 1, 1, 0, 0).replace(tzinfo=self.timezone)
+        end = datetime.datetime(2014, 1, 1, 0, 0).replace(tzinfo=self.timezone)
 
         self.assertEqual(self.year.tzinfo, self.timezone)
         self.assertEqual(start, self.year.start)

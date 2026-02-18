@@ -206,6 +206,7 @@ class TestUrls(TestCase):
                 "start_0": "2008-10-30",
                 "start_1": "09:21:57",
                 "start_2": "AM",
+                "timezone": "UTC",
             },
         )
         self.assertEqual(response.status_code, 302)
