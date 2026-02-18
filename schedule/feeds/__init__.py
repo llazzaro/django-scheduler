@@ -28,21 +28,26 @@ class UpcomingEventsFeed(Feed):
             getattr(settings, "FEED_LIST_LENGTH", 10),
         )
 
-    def item_id(self, item):
-        return str(item.id)
+    def item_guid(self, item):
+        if item.pk is not None:
+            return str(item.pk)
+        return "event{}-{}".format(item.event_id, item.start.isoformat())
 
     def item_title(self, item):
         return item.event.title
 
-    def item_authors(self, item):
+    def item_author_name(self, item):
         if item.event.creator is None:
-            return [{"name": ""}]
-        return [{"name": item.event.creator.username}]
+            return ""
+        return item.event.creator.username
 
-    def item_updated(self, item):
+    def item_pubdate(self, item):
         return item.event.created_on
 
-    def item_content(self, item):
+    def item_updateddate(self, item):
+        return item.event.updated_on
+
+    def item_description(self, item):
         return "{} \n {}".format(item.event.title, item.event.description)
 
 
