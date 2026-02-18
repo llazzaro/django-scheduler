@@ -67,6 +67,14 @@ class Event(models.Model):
         related_name="creator",
     )
     created_on = models.DateTimeField(_("created on"), auto_now_add=True)
+    updater = models.ForeignKey(
+        django_settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("updater"),
+        related_name="updater",
+    )
     updated_on = models.DateTimeField(_("updated on"), auto_now=True)
     rule = models.ForeignKey(
         Rule,
