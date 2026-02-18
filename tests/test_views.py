@@ -1,7 +1,6 @@
 import datetime
 import json
 
-import pytz
 from django.http import Http404
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
@@ -27,9 +26,11 @@ class TestViews(TestCase):
         self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         self.event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=self.rule,
             calendar=self.calendar,
         )
@@ -47,9 +48,11 @@ class TestViewUtils(TestCase):
         self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         self.event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=self.rule,
             calendar=self.calendar,
         )
@@ -63,7 +66,7 @@ class TestViewUtils(TestCase):
             hour=8,
             minute=0,
             second=0,
-            tzinfo=pytz.utc,
+            tzinfo=datetime.timezone.utc,
         )
         self.assertEqual(event, self.event)
         self.assertEqual(occurrence.start, self.event.start)
@@ -79,13 +82,13 @@ class TestViewUtils(TestCase):
                 hour=8,
                 minute=0,
                 second=0,
-                tzinfo=pytz.utc,
+                tzinfo=datetime.timezone.utc,
             )
 
     def test_get_occurrence_persisted(self):
         date = timezone.make_aware(
             datetime.datetime(year=2008, month=1, day=5, hour=8, minute=0, second=0),
-            pytz.utc,
+            datetime.timezone.utc,
         )
         occurrence = self.event.get_occurrence(date)
         occurrence.save()
@@ -173,8 +176,8 @@ class TestUrls(TestCase):
         self.assertEqual(
             (month.start, month.end),
             (
-                datetime.datetime(2000, 11, 1, 0, 0, tzinfo=pytz.utc),
-                datetime.datetime(2000, 12, 1, 0, 0, tzinfo=pytz.utc),
+                datetime.datetime(2000, 11, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                datetime.datetime(2000, 12, 1, 0, 0, tzinfo=datetime.timezone.utc),
             ),
         )
 
@@ -257,9 +260,11 @@ class TestUrls(TestCase):
         rule = Rule.objects.create(frequency="DAILY")
         Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=calendar,
         )
@@ -311,9 +316,11 @@ class TestUrls(TestCase):
         rule = Rule.objects.create(frequency="DAILY")
         event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 1, 8, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 1, 8, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=calendar,
         )
@@ -321,10 +328,14 @@ class TestUrls(TestCase):
             event=event,
             title="My persisted Occ",
             description="Persisted occ test",
-            start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
-            original_start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
-            original_end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc),
+            original_start=datetime.datetime(
+                2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc
+            ),
+            original_end=datetime.datetime(
+                2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc
+            ),
         )
         # test calendar slug
         response = self.client.get(
@@ -477,9 +488,11 @@ class TestUrls(TestCase):
         calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar,
         )
         # test calendar slug
@@ -507,16 +520,20 @@ class TestUrls(TestCase):
         calendar2 = Calendar.objects.create(name="MyCal2", slug="MyCalSlug2")
         event1 = Event.objects.create(
             title="Recent Event 1",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar1,
         )
         event2 = Event.objects.create(
             title="Recent Event 2",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar2,
         )
         # Test both present with no cal arg
@@ -546,9 +563,11 @@ class TestUrls(TestCase):
         calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar,
         )
         # test works with date string time format '%Y-%m-%d'
@@ -581,9 +600,11 @@ class TestUrls(TestCase):
         calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar,
         )
 
@@ -607,24 +628,30 @@ class TestUrls(TestCase):
 
         event1 = Event.objects.create(
             title="Recent Event 1",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar1,
         )
         event2 = Event.objects.create(
             title="Recent Event 2",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar2,
         )
 
         eventOther = Event.objects.create(
             title="Recent Event Other",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendarOther,
         )
 
@@ -656,9 +683,11 @@ class TestUrls(TestCase):
 
         Event.objects.create(
             title="Recent Event 1",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar1,
         )
 
@@ -684,9 +713,11 @@ class TestUrls(TestCase):
         calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         weekly_meeting_event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2021, 12, 27, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2021, 12, 27, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2021, 12, 31, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2021, 12, 27, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2021, 12, 27, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2021, 12, 31, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar,
         )
         Occurrence.objects.create(
@@ -750,9 +781,11 @@ class TestOccurrencePreview(TestCase):
         self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         self.event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=self.rule,
             calendar=self.calendar,
         )
@@ -778,8 +811,10 @@ class TestOccurrencePreview(TestCase):
         occurrence = response.context["occurrence"]
         self.assertEqual(occurrence.event, self.event)
         self.assertEqual(
-            occurrence.start, datetime.datetime(2008, 4, 20, 8, 0, tzinfo=pytz.utc)
+            occurrence.start,
+            datetime.datetime(2008, 4, 20, 8, 0, tzinfo=datetime.timezone.utc),
         )
         self.assertEqual(
-            occurrence.end, datetime.datetime(2008, 4, 20, 9, 0, tzinfo=pytz.utc)
+            occurrence.end,
+            datetime.datetime(2008, 4, 20, 9, 0, tzinfo=datetime.timezone.utc),
         )

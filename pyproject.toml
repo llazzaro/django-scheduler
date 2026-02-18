@@ -34,7 +34,6 @@ classifiers = [
 dependencies = [
     "Django>=4.2",
     "python-dateutil>=2.1",
-    "pytz>=2013.9",
     "icalendar>=3.8.4",
 ]
 
