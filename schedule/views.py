@@ -4,23 +4,13 @@ from zoneinfo import ZoneInfo, available_timezones
 
 import dateutil.parser
 from django.conf import settings
+from django.db import transaction
 from django.db.models import F, Q
-from django.http import (
-    Http404,
-    HttpResponseBadRequest,
-    HttpResponseRedirect,
-    JsonResponse,
-)
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-
-try:
-    from django.utils.http import url_has_allowed_host_and_scheme
-except ImportError:
-    # Django<=2.2
-    from django.utils.http import is_safe_url as url_has_allowed_host_and_scheme
-
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import DetailView
@@ -33,7 +23,7 @@ from django.views.generic.edit import (
 )
 
 from schedule.forms import EventForm, OccurrenceForm
-from schedule.models import Calendar, Event, Occurrence
+from schedule.models import Calendar, Event, Occurrence, Rule, RuleParam
 from schedule.periods import Period, weekday_names
 from schedule.settings import (
     CHECK_EVENT_PERM_FUNC,
@@ -95,7 +85,7 @@ class FullCalendarView(CalendarMixin, DetailView):
     template_name = "fullcalendar.html"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         context["calendar_slug"] = self.kwargs.get("calendar_slug")
         return context
 
@@ -187,8 +177,8 @@ class OccurrencePreview(OccurrenceMixin, ModelFormMixin, ProcessFormView):
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        context = {"event": self.object.event, "occurrence": self.object}
+        context = super().get_context_data(**kwargs)
+        context.update({"event": self.object.event, "occurrence": self.object})
         return context
 
 
@@ -231,19 +221,21 @@ class EditEventView(EventEditMixin, UpdateView):
     template_name = "schedule/create_event.html"
 
     def form_valid(self, form):
-        event = form.save(commit=False)
-        old_event = Event.objects.get(pk=event.pk)
-        dts = datetime.timedelta(
-            minutes=int((event.start - old_event.start).total_seconds() / 60)
-        )
-        dte = datetime.timedelta(
-            minutes=int((event.end - old_event.end).total_seconds() / 60)
-        )
-        event.occurrence_set.all().update(
-            original_start=F("original_start") + dts,
-            original_end=F("original_end") + dte,
-        )
-        event.save()
+        with transaction.atomic():
+            event = form.save(commit=False)
+            old_event = Event.objects.select_for_update().get(pk=event.pk)
+            dts = datetime.timedelta(
+                minutes=int((event.start - old_event.start).total_seconds() / 60)
+            )
+            dte = datetime.timedelta(
+                minutes=int((event.end - old_event.end).total_seconds() / 60)
+            )
+            event.occurrence_set.all().update(
+                original_start=F("original_start") + dts,
+                original_end=F("original_end") + dte,
+            )
+            event.updater = self.request.user
+            event.save()
         return super().form_valid(form)
 
 
@@ -322,12 +314,18 @@ def get_occurrence(
         event = occurrence.event
     elif None not in (year, month, day, hour, minute, second):
         event = get_object_or_404(Event, id=event_id)
-        date = timezone.make_aware(
-            datetime.datetime(
-                int(year), int(month), int(day), int(hour), int(minute), int(second)
-            ),
-            tzinfo,
+        date = datetime.datetime(
+            int(year), int(month), int(day), int(hour), int(minute), int(second)
         )
+        if settings.USE_TZ:
+            date = timezone.make_aware(date, tzinfo)
+        elif tzinfo is not None:
+            # USE_TZ=False: wall-clock values are in the given timezone;
+            # convert to server time (naive) for DB compatibility.
+            server_tz = ZoneInfo(settings.TIME_ZONE)
+            date = (
+                date.replace(tzinfo=tzinfo).astimezone(server_tz).replace(tzinfo=None)
+            )
         occurrence = event.get_occurrence(date)
         if occurrence is None:
             raise Http404
@@ -360,6 +358,19 @@ def get_next_url(request, default):
     return next_url
 
 
+def drfize(f):
+    """Given F, wrap it in a rest framework API, require authentication and requires POST"""
+    from rest_framework.decorators import api_view, permission_classes
+    from rest_framework.permissions import IsAuthenticated
+
+    @api_view(["POST"])
+    @permission_classes([IsAuthenticated])
+    def g(*args, **kwargs):
+        return f(*args, **kwargs)
+
+    return g
+
+
 @check_calendar_permissions
 def api_occurrences(request):
     start = request.GET.get("start")
@@ -372,13 +383,12 @@ def api_occurrences(request):
     try:
         response_data = _api_occurrences(start, end, calendar_slugs, timezone)
     except (ValueError, Calendar.DoesNotExist) as e:
-        return HttpResponseBadRequest(e)
+        return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse(response_data, safe=False)
 
 
 def _api_occurrences(start, end, calendar_slugs, timezone):
-
     if not start or not end:
         raise ValueError("Start and end parameters are required")
     # version 2 of full calendar
@@ -421,6 +431,16 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
         else:
             end = end.replace(tzinfo=utc)
 
+    # When USE_TZ=False, the model layer expects naive server-time datetimes.
+    # Ensure start/end are naive, even if they came in as aware (e.g. float
+    # timestamps or an explicit timezone parameter).
+    if not settings.USE_TZ:
+        _server_tz = ZoneInfo(settings.TIME_ZONE)
+        if start.tzinfo is not None:
+            start = start.astimezone(_server_tz).replace(tzinfo=None)
+        if end.tzinfo is not None:
+            end = end.astimezone(_server_tz).replace(tzinfo=None)
+
     if calendar_slugs:
         # will raise DoesNotExist exception if no match
         calendars = list(Calendar.objects.filter(slug__in=calendar_slugs))
@@ -442,24 +462,32 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
     # Check the "persisted" boolean value that tells it whether to change the
     # event, using the "event_id" or the occurrence with the specified "id".
     # for more info https://github.com/llazzaro/django-scheduler/pull/169
-    i = 1
-    if Occurrence.objects.all().exists():
-        i = Occurrence.objects.latest("id").id + 1
+    # Non-persisted occurrences get negative IDs so they can never collide
+    # with real PKs, even across cached FullCalendar responses.
+    next_temp_id = -1
     event_list = []
     for calendar in calendars:
         # create flat list of events from each calendar
-        event_list += calendar.events.filter(start__lte=end).filter(
-            Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True)
+        event_list += (
+            calendar.events.filter(start__lte=end)
+            .filter(
+                Q(end_recurring_period__gte=start)
+                | Q(end_recurring_period__isnull=True)
+            )
+            .select_related("rule")
+            .prefetch_related("rule__repeats")
         )
     for event in event_list:
         occurrences = event.get_occurrences(start, end)
         for occurrence in occurrences:
-            occurrence_id = i + occurrence.event.id
             existed = False
 
             if occurrence.id:
                 occurrence_id = occurrence.id
                 existed = True
+            else:
+                occurrence_id = next_temp_id
+                next_temp_id -= 1
 
             recur_rule = occurrence.event.rule.name if occurrence.event.rule else None
 
@@ -467,8 +495,12 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
                 recur_period_end = occurrence.event.end_recurring_period
                 if current_tz:
                     # make recur_period_end aware in given timezone
-                    recur_period_end = recur_period_end.astimezone(current_tz)
-                recur_period_end = recur_period_end
+                    if recur_period_end.tzinfo is not None:
+                        recur_period_end = recur_period_end.astimezone(current_tz)
+                    else:
+                        recur_period_end = recur_period_end.replace(
+                            tzinfo=ZoneInfo(settings.TIME_ZONE)
+                        ).astimezone(current_tz)
             else:
                 recur_period_end = None
 
@@ -476,11 +508,38 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
             event_end = occurrence.end
             if current_tz:
                 # make event start and end dates aware in given timezone
-                event_start = event_start.astimezone(current_tz)
-                event_end = event_end.astimezone(current_tz)
+                if event_start.tzinfo is None:
+                    _svr_tz = ZoneInfo(settings.TIME_ZONE)
+                    event_start = event_start.replace(tzinfo=_svr_tz).astimezone(
+                        current_tz
+                    )
+                    event_end = event_end.replace(tzinfo=_svr_tz).astimezone(current_tz)
+                else:
+                    event_start = event_start.astimezone(current_tz)
+                    event_end = event_end.astimezone(current_tz)
             if occurrence.cancelled:
                 # fixes bug 508
                 continue
+            if occurrence.start.tzinfo is not None:
+                local_start = occurrence.start.astimezone(occurrence.event.event_tzinfo)
+                local_end = occurrence.end.astimezone(occurrence.event.event_tzinfo)
+            else:
+                _server_tz = ZoneInfo(settings.TIME_ZONE)
+                local_start = occurrence.start.replace(tzinfo=_server_tz).astimezone(
+                    occurrence.event.event_tzinfo
+                )
+                local_end = occurrence.end.replace(tzinfo=_server_tz).astimezone(
+                    occurrence.event.event_tzinfo
+                )
+            allDay = (
+                local_start.hour == 0
+                and local_start.minute == 0
+                and local_start.second == 0
+                and local_end.hour == 0
+                and local_end.minute == 0
+                and local_end.second == 0
+                and (local_end - local_start).days >= 1
+            )
             response_data.append(
                 {
                     "id": occurrence_id,
@@ -493,84 +552,401 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
                     "description": occurrence.description,
                     "rule": recur_rule,
                     "end_recurring_period": recur_period_end,
-                    "creator": str(occurrence.event.creator),
+                    "creator": (
+                        str(occurrence.event.creator)
+                        if occurrence.event.creator is not None
+                        else None
+                    ),
                     "calendar": occurrence.event.calendar.slug,
                     "cancelled": occurrence.cancelled,
+                    "allDay": allDay,
+                    "groupId": occurrence.event.id,
+                    "recurrence_frequency": (
+                        occurrence.event.rule.frequency
+                        if occurrence.event.rule is not None
+                        else None
+                    ),
+                    "recurrence_repeats": (
+                        compress_repeats(
+                            [
+                                (repeat.param.name, repeat.value)
+                                for repeat in occurrence.event.rule.repeats.all()
+                            ]
+                        )
+                        if occurrence.event.rule is not None
+                        else None
+                    ),
                 }
             )
     return response_data
 
 
+@check_calendar_permissions
+def api_calendars(request):
+    calendars = Calendar.objects.all()
+    return JsonResponse(
+        {
+            "status": "OK",
+            "calendars": [
+                {
+                    "name": calendar.name,
+                    "slug": calendar.slug,
+                    "color_event": calendar.color_event,
+                }
+                for calendar in calendars
+            ],
+        }
+    )
+
+
+@drfize
 @require_POST
 @check_calendar_permissions
 def api_move_or_resize_by_code(request):
-    response_data = {}
-    user = request.user
-    id = request.POST.get("id")
-    existed = bool(request.POST.get("existed") == "true")
-    delta = datetime.timedelta(minutes=int(request.POST.get("delta")))
-    resize = bool(request.POST.get("resize", False))
-    event_id = request.POST.get("event_id")
+    from rest_framework.exceptions import ValidationError as DRFValidationError
 
-    response_data = _api_move_or_resize_by_code(
-        user, id, existed, delta, resize, event_id
-    )
+    user = request.user
+    try:
+        id = request.POST.get("id")
+        existed = request.POST.get("existed") == "true"
+        delta = datetime.timedelta(minutes=int(request.POST.get("delta")))
+        resize = request.POST.get("resize") == "true"
+        event_id = request.POST.get("event_id")
+        calendar_slug = request.POST.get("calendar_slug")
+    except (TypeError, ValueError) as e:
+        raise DRFValidationError(str(e))
+
+    try:
+        response_data = _api_move_or_resize_by_code(
+            user, id, existed, delta, resize, event_id, calendar_slug
+        )
+    except ValueError as e:
+        raise DRFValidationError(str(e))
+    except (Event.DoesNotExist, Occurrence.DoesNotExist):
+        raise Http404
 
     return JsonResponse(response_data)
 
 
-def _api_move_or_resize_by_code(user, id, existed, delta, resize, event_id):
+def _api_move_or_resize_by_code(
+    user, id, existed, delta, resize, event_id, calendar_slug
+):
     response_data = {}
     response_data["status"] = "PERMISSION DENIED"
 
-    if existed:
-        occurrence = Occurrence.objects.get(id=id)
-        occurrence.end += delta
-        if not resize:
-            occurrence.start += delta
-        if CHECK_OCCURRENCE_PERM_FUNC(occurrence, user):
-            occurrence.save()
-            response_data["status"] = "OK"
-    else:
-        event = Event.objects.get(id=event_id)
-        dts = 0
-        dte = delta
-        if not resize:
-            event.start += delta
-            dts = delta
-        event.end = event.end + delta
-        if CHECK_EVENT_PERM_FUNC(event, user):
-            event.save()
-            event.occurrence_set.all().update(
-                original_start=F("original_start") + dts,
-                original_end=F("original_end") + dte,
-            )
-            response_data["status"] = "OK"
+    with transaction.atomic():
+        if existed:
+            occurrence = Occurrence.objects.select_for_update().get(id=id)
+            if calendar_slug and occurrence.event.calendar.slug != calendar_slug:
+                raise ValueError("Event does not belong to the specified calendar")
+            occurrence.end += delta
+            if not resize:
+                occurrence.start += delta
+            if occurrence.end < occurrence.start:
+                raise ValueError("The end time must be later than start time.")
+            if CHECK_OCCURRENCE_PERM_FUNC(occurrence, user):
+                occurrence.save()
+                response_data["status"] = "OK"
+        else:
+            event = Event.objects.select_for_update().get(id=event_id)
+            if calendar_slug and event.calendar.slug != calendar_slug:
+                raise ValueError("Event does not belong to the specified calendar")
+            dts = datetime.timedelta()
+            dte = delta
+            if not resize:
+                event.start += delta
+                dts = delta
+            event.end = event.end + delta
+            if event.end < event.start:
+                raise ValueError("The end time must be later than start time.")
+            if CHECK_EVENT_PERM_FUNC(event, user):
+                event.save()
+                event.occurrence_set.all().update(
+                    original_start=F("original_start") + dts,
+                    original_end=F("original_end") + dte,
+                )
+                response_data["status"] = "OK"
     return response_data
 
 
+def decode_recurrence_params(data):
+    recurrence = {}
+    for key, values in data.items():
+        if key.startswith("recurrence_by"):
+            key = key[len("recurrence_") :]
+            if values == "":
+                continue
+            if key not in recurrence:
+                recurrence[key] = []
+            values = map(int, values.split(","))
+            for value in values:
+                recurrence[key].append(value)
+    return recurrence
+
+
+def compress_repeats(repeats):
+    """Given REPEATS, a list like [("bymonthday", 1), ("bymonthday", 2)] returns {"bymonthday": [1,2]}"""
+    recurrence = {}
+    for name, value in repeats:
+        if name not in recurrence:
+            recurrence[name] = []
+        recurrence[name].append(value)
+    return recurrence
+
+
+@drfize
 @require_POST
 @check_calendar_permissions
 def api_select_create(request):
-    response_data = {}
+    from rest_framework.exceptions import ValidationError as DRFValidationError
+
     start = request.POST.get("start")
     end = request.POST.get("end")
     calendar_slug = request.POST.get("calendar_slug")
+    title = request.POST.get("title")
+    color = request.POST.get("color")
+    description = request.POST.get("description")
+    recurrence_frequency = request.POST.get("recurrence_frequency")
 
-    response_data = _api_select_create(start, end, calendar_slug)
+    event_timezone = request.POST.get("timezone")
+    try:
+        recurrence = decode_recurrence_params(request.POST)
+        response_data = _api_select_create(
+            start,
+            end,
+            calendar_slug,
+            title,
+            color,
+            description,
+            request.user,
+            recurrence_frequency,
+            recurrence,
+            event_timezone,
+        )
+    except (TypeError, ValueError) as e:
+        raise DRFValidationError(str(e))
+    except Calendar.DoesNotExist:
+        raise Http404
 
     return JsonResponse(response_data)
 
 
-def _api_select_create(start, end, calendar_slug):
+def _api_select_create(
+    start,
+    end,
+    calendar_slug,
+    title,
+    color,
+    description,
+    creator,
+    recurrence_frequency,
+    recurrence,
+    event_timezone=None,
+):
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
+    if start >= end:
+        raise ValueError("The end time must be later than start time.")
+
+    if event_timezone and event_timezone in available_timezones():
+        tz_name = event_timezone
+    else:
+        tz_name = settings.TIME_ZONE
 
     calendar = Calendar.objects.get(slug=calendar_slug)
-    Event.objects.create(
-        start=start, end=end, title=EVENT_NAME_PLACEHOLDER, calendar=calendar
+    rule = (
+        Rule.ensure_rule(frequency=recurrence_frequency, by_details=recurrence)
+        if recurrence_frequency
+        else None
     )
-
+    event = Event.objects.create(
+        creator=creator,
+        start=start,
+        end=end,
+        title=title or EVENT_NAME_PLACEHOLDER,
+        calendar=calendar,
+        color_event=color or "",
+        description=description or "",
+        rule=rule,
+        timezone=tz_name,
+    )
     response_data = {}
     response_data["status"] = "OK"
+    response_data["event_id"] = event.id
     return response_data
+
+
+@drfize
+@require_POST
+@check_calendar_permissions
+def api_delete(request):
+    from rest_framework.exceptions import ValidationError as DRFValidationError
+
+    id = request.POST.get("id")
+    existed = request.POST.get("existed") == "true"
+    event_id = request.POST.get("event_id")
+    calendar_slug = request.POST.get("calendar_slug")
+    try:
+        response_data = _api_delete(id, existed, event_id, calendar_slug, request.user)
+    except ValueError as e:
+        raise DRFValidationError(str(e))
+    except (Event.DoesNotExist, Occurrence.DoesNotExist, Calendar.DoesNotExist):
+        raise Http404
+    return JsonResponse(response_data)
+
+
+def _api_delete(id, existed, event_id, calendar_slug, user):
+    response_data = {}
+    response_data["status"] = "PERMISSION DENIED"
+    calendar = Calendar.objects.get(slug=calendar_slug)
+    with transaction.atomic():
+        if existed:
+            occurrence = Occurrence.objects.get(id=id)
+            event = occurrence.event
+            if event.calendar_id != calendar.id:
+                raise ValueError("Event does not belong to the specified calendar")
+            if CHECK_EVENT_PERM_FUNC(event, user):
+                occurrence.delete()
+                event.save()
+                response_data["status"] = "OK"
+        else:
+            event = Event.objects.get(id=event_id)
+            if event.calendar_id != calendar.id:
+                raise ValueError("Event does not belong to the specified calendar")
+            if CHECK_EVENT_PERM_FUNC(event, user):
+                event.delete()
+                response_data["status"] = "OK"
+
+    return response_data
+
+
+@drfize
+@require_POST
+@check_calendar_permissions
+def api_set_props(request):
+    from rest_framework.exceptions import ValidationError as DRFValidationError
+
+    id = request.POST.get("id")
+    existed = request.POST.get("existed") == "true"
+    event_id = request.POST.get("event_id")
+    calendar_slug = request.POST.get("calendar_slug")
+    try:
+        response_data = _api_set_props(
+            id,
+            existed,
+            event_id,
+            calendar_slug,
+            dict(
+                [
+                    (key[len("prop_") :], value)
+                    for key, value in request.POST.items()
+                    if key.startswith("prop_")
+                ]
+            ),
+            request.user,
+        )
+    except ValueError as e:
+        raise DRFValidationError(str(e))
+    except (Event.DoesNotExist, Occurrence.DoesNotExist, Calendar.DoesNotExist):
+        raise Http404
+    return JsonResponse(response_data)
+
+
+def _api_set_props(id, existed, event_id, calendar_slug, properties, updater):
+    response_data = {}
+    response_data["status"] = "PERMISSION DENIED"
+    calendar = Calendar.objects.get(slug=calendar_slug)
+
+    with transaction.atomic():
+        if existed:
+            occurrence = Occurrence.objects.get(id=id)
+            event = occurrence.event
+            if event.calendar_id != calendar.id:
+                raise ValueError("Event does not belong to the specified calendar")
+            if not CHECK_EVENT_PERM_FUNC(event, updater):
+                return response_data
+
+            if "title" in properties:
+                occurrence.title = properties["title"]
+            if "description" in properties:
+                occurrence.description = properties["description"] or ""
+                event.description = properties["description"] or ""
+            if "color" in properties:
+                event.color_event = properties["color"] or ""
+            if "title" in properties or "description" in properties:
+                occurrence.save()
+            if "color" in properties or "description" in properties:
+                event.updater = updater
+                event.save()
+        else:
+            event = Event.objects.get(id=event_id)
+            if event.calendar_id != calendar.id:
+                raise ValueError("Event does not belong to the specified calendar")
+            if not CHECK_EVENT_PERM_FUNC(event, updater):
+                return response_data
+            if "title" in properties:
+                event.title = properties["title"]
+            if "color" in properties:
+                event.color_event = properties["color"] or ""
+            if "description" in properties:
+                event.description = properties["description"] or ""
+            if any(k in properties for k in ("title", "color", "description")):
+                event.updater = updater
+                event.save()
+            for occurrence in event.occurrence_set.all():
+                if "title" in properties:
+                    occurrence.title = properties["title"]
+                if "description" in properties:
+                    occurrence.description = properties["description"]
+                if "title" in properties or "description" in properties:
+                    occurrence.save()
+
+        if any(key for key in properties.keys() if key.startswith("recurrence_")):
+            recurrence_frequency = properties.get("recurrence_frequency")
+            if not recurrence_frequency:
+                raise ValueError(
+                    "recurrence_frequency is required when setting recurrence properties"
+                )
+            recurrence_end_recurring_period = (
+                properties.get("recurrence_end_recurring_period") or None
+            )
+            recurrence = decode_recurrence_params(properties)
+            rule = Rule.ensure_rule(
+                frequency=recurrence_frequency, by_details=recurrence
+            )
+            if event.rule is None or event.rule.id != rule.id:
+                response_data["recurrence_status"] = "RECREATED"
+                event.rule = rule
+                if recurrence_end_recurring_period:
+                    event.end_recurring_period = dateutil.parser.parse(
+                        recurrence_end_recurring_period
+                    )
+                event.save()
+    response_data["status"] = "OK"
+    return response_data
+
+
+@check_calendar_permissions
+def api_ruleparams(request):
+    ruleparams = RuleParam.objects.all()
+    return JsonResponse(
+        {
+            "status": "OK",
+            "ruleparams": [
+                {
+                    "id": ruleparam.id,
+                    "name": ruleparam.name,
+                    "display_string": ruleparam.display_string,
+                    "variants": [
+                        {
+                            "id": ruleparamvariant.id,
+                            "value_display_string": ruleparamvariant.value_display_string,
+                            "value": ruleparamvariant.value,
+                        }
+                        for ruleparamvariant in ruleparam.variant_set.all()
+                    ],
+                }
+                for ruleparam in ruleparams.prefetch_related("variant_set")
+            ],
+        }
+    )
