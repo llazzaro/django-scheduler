@@ -78,3 +78,5 @@ class RuleAdmin(admin.ModelAdmin):
     list_display = ("name",)
     list_filter = ("frequency",)
     search_fields = ("name", "description")
+    fields = ("name", "description", "frequency", "repeats", "params")
+    filter_horizontal = ["repeats"]

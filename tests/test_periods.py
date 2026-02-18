@@ -44,7 +44,7 @@ class TestPeriod(TestCase):
         """Reproduces bug 420 occurences without title or desc will generate additional queries
         to retrieve the event model
         """
-        rule = Rule.objects.create(frequency="WEEKLY")
+        rule = Rule.objects.create(frequency="WEEKLY", name="weekly2")
         cal = Calendar.objects.get(name="MyCal")
 
         event = Event.objects.create(
@@ -74,7 +74,8 @@ class TestPeriod(TestCase):
                 pass
 
         executed_queries = len(ctx.captured_queries)
-        assert executed_queries == 1, len(ctx.captured_queries)
+        # 1 for occurrence_set + 1 for rule__repeats (both prefetched, so O(1) not O(N))
+        assert executed_queries == 2, executed_queries
 
     def test_get_occurrences_with_sorting_options(self):
         period = Period(
