@@ -1,12 +1,93 @@
 import datetime
+from xml.etree import ElementTree
 
 import icalendar
-import pytz
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.contrib.sites.models import Site
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from schedule.models import Calendar, Event, Occurrence, Rule
+
+
+@override_settings(SITE_ID=1)
+class TestUpcomingEventsFeed(TestCase):
+    def setUp(self):
+        Site.objects.update_or_create(
+            id=1, defaults={"domain": "example.com", "name": "example.com"}
+        )
+        self.user = User.objects.create_user("alice", "alice@example.com", "password")
+        self.calendar = Calendar.objects.create(name="MyCal", slug="mycal")
+        self.rule = Rule.objects.create(
+            frequency="DAILY", name="daily", description="Daily"
+        )
+        self.event = Event.objects.create(
+            title="Recurring Event",
+            description="A test event",
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2100, 1, 1, 0, 0, tzinfo=datetime.timezone.utc
+            ),
+            rule=self.rule,
+            calendar=self.calendar,
+            creator=self.user,
+        )
+
+    def _get_feed(self):
+        return self.client.get(f"/feed/calendar/upcoming/{self.calendar.pk}/")
+
+    def test_feed_returns_200(self):
+        response = self._get_feed()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("xml", response["Content-Type"])
+
+    def test_feed_contains_item_title(self):
+        response = self._get_feed()
+        content = response.content.decode()
+        self.assertIn("Recurring Event", content)
+
+    def test_feed_contains_item_description(self):
+        response = self._get_feed()
+        content = response.content.decode()
+        self.assertIn("A test event", content)
+
+    def test_feed_contains_author(self):
+        response = self._get_feed()
+        content = response.content.decode()
+        self.assertIn("alice", content)
+
+    def test_feed_no_creator(self):
+        self.event.creator = None
+        self.event.save()
+        response = self._get_feed()
+        self.assertEqual(response.status_code, 200)
+
+    def test_feed_item_has_guid(self):
+        response = self._get_feed()
+        root = ElementTree.fromstring(response.content)
+        guids = root.findall(".//guid")
+        self.assertTrue(len(guids) > 0)
+        for guid in guids:
+            self.assertNotEqual(guid.text, "None")
+
+    def test_feed_item_has_pubdate(self):
+        response = self._get_feed()
+        root = ElementTree.fromstring(response.content)
+        pubdates = root.findall(".//item/pubDate")
+        self.assertTrue(len(pubdates) > 0)
+        self.assertTrue(pubdates[0].text)  # not empty
+
+    def test_feed_404_for_nonexistent_calendar(self):
+        response = self.client.get("/feed/calendar/upcoming/99999/")
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(FEED_LIST_LENGTH=2)
+    def test_feed_respects_list_length(self):
+        response = self._get_feed()
+        root = ElementTree.fromstring(response.content)
+        items = root.findall(".//item")
+        self.assertLessEqual(len(items), 2)
 
 
 class TestICalendarFeed(TestCase):
@@ -19,8 +100,8 @@ class TestICalendarFeed(TestCase):
         # Create a simple event
         self.simple_event = Event.objects.create(
             title="Simple Event",
-            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=datetime.timezone.utc),
             description="A simple test event",
             calendar=self.calendar,
         )
@@ -29,9 +110,11 @@ class TestICalendarFeed(TestCase):
         self.rule = Rule.objects.create(frequency="WEEKLY")
         self.recurring_event = Event.objects.create(
             title="Weekly Meeting",
-            start=datetime.datetime(2024, 1, 1, 14, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2024, 1, 1, 15, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2024, 3, 1, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2024, 1, 1, 14, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2024, 1, 1, 15, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2024, 3, 1, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             description="Recurring weekly meeting",
             rule=self.rule,
             calendar=self.calendar,
@@ -113,8 +196,8 @@ class TestICalendarFeed(TestCase):
         # Create a modified occurrence
         Occurrence.objects.create(
             event=self.simple_event,
-            start=datetime.datetime(2024, 1, 16, 11, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2024, 1, 16, 12, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2024, 1, 16, 11, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2024, 1, 16, 12, 0, tzinfo=datetime.timezone.utc),
             original_start=self.simple_event.start,
             original_end=self.simple_event.end,
             title="Modified Simple Event",
