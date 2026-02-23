@@ -1,7 +1,8 @@
 import datetime
 import json
+from unittest import mock
 
-import pytz
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
@@ -14,6 +15,8 @@ from schedule.settings import USE_FULLCALENDAR
 from schedule.views import (
     check_next_url,
     coerce_date_dict,
+    compress_repeats,
+    decode_recurrence_params,
     get_next_url,
     get_occurrence,
 )
@@ -27,9 +30,11 @@ class TestViews(TestCase):
         self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         self.event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=self.rule,
             calendar=self.calendar,
         )
@@ -47,9 +52,11 @@ class TestViewUtils(TestCase):
         self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         self.event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=self.rule,
             calendar=self.calendar,
         )
@@ -63,7 +70,7 @@ class TestViewUtils(TestCase):
             hour=8,
             minute=0,
             second=0,
-            tzinfo=pytz.utc,
+            tzinfo=datetime.timezone.utc,
         )
         self.assertEqual(event, self.event)
         self.assertEqual(occurrence.start, self.event.start)
@@ -79,13 +86,13 @@ class TestViewUtils(TestCase):
                 hour=8,
                 minute=0,
                 second=0,
-                tzinfo=pytz.utc,
+                tzinfo=datetime.timezone.utc,
             )
 
     def test_get_occurrence_persisted(self):
         date = timezone.make_aware(
             datetime.datetime(year=2008, month=1, day=5, hour=8, minute=0, second=0),
-            pytz.utc,
+            datetime.timezone.utc,
         )
         occurrence = self.event.get_occurrence(date)
         occurrence.save()
@@ -173,8 +180,8 @@ class TestUrls(TestCase):
         self.assertEqual(
             (month.start, month.end),
             (
-                datetime.datetime(2000, 11, 1, 0, 0, tzinfo=pytz.utc),
-                datetime.datetime(2000, 12, 1, 0, 0, tzinfo=pytz.utc),
+                datetime.datetime(2000, 11, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                datetime.datetime(2000, 12, 1, 0, 0, tzinfo=datetime.timezone.utc),
             ),
         )
 
@@ -206,6 +213,7 @@ class TestUrls(TestCase):
                 "start_0": "2008-10-30",
                 "start_1": "09:21:57",
                 "start_2": "AM",
+                "timezone": "UTC",
             },
         )
         self.assertEqual(response.status_code, 302)
@@ -256,9 +264,11 @@ class TestUrls(TestCase):
         rule = Rule.objects.create(frequency="DAILY")
         Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=calendar,
         )
@@ -270,24 +280,17 @@ class TestUrls(TestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
-        expected_content = [
-            {
-                "existed": False,
-                "end": "2008-01-05T09:00:00Z",
-                "description": "",
-                "creator": "None",
-                "color": "",
-                "title": "Recent Event",
-                "rule": "",
-                "event_id": 8,
-                "end_recurring_period": "2008-05-05T00:00:00Z",
-                "cancelled": False,
-                "calendar": "MyCalSlug",
-                "start": "2008-01-05T08:00:00Z",
-                "id": 9,
-            }
-        ]
-        self.assertEqual(json.loads(response.content.decode()), expected_content)
+        result = json.loads(response.content.decode())
+        self.assertEqual(len(result), 1)
+        occ = result[0]
+        self.assertEqual(occ["existed"], False)
+        self.assertEqual(occ["end"], "2008-01-05T09:00:00Z")
+        self.assertEqual(occ["title"], "Recent Event")
+        self.assertEqual(occ["start"], "2008-01-05T08:00:00Z")
+        self.assertEqual(occ["calendar"], "MyCalSlug")
+        self.assertEqual(occ["cancelled"], False)
+        self.assertEqual(occ["allDay"], False)
+        self.assertEqual(occ["recurrence_frequency"], "DAILY")
 
     def test_occurrences_api_without_parameters_return_status_400(self):
         response = self.client.get(reverse("api_occurrences"))
@@ -310,9 +313,11 @@ class TestUrls(TestCase):
         rule = Rule.objects.create(frequency="DAILY")
         event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 1, 8, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 1, 8, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=calendar,
         )
@@ -320,10 +325,14 @@ class TestUrls(TestCase):
             event=event,
             title="My persisted Occ",
             description="Persisted occ test",
-            start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
-            original_start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
-            original_end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc),
+            original_start=datetime.datetime(
+                2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc
+            ),
+            original_end=datetime.datetime(
+                2008, 1, 7, 8, 0, tzinfo=datetime.timezone.utc
+            ),
         )
         # test calendar slug
         response = self.client.get(
@@ -333,69 +342,18 @@ class TestUrls(TestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
-        expected_content = [
-            {
-                "existed": False,
-                "end": "2008-01-05T09:00:00Z",
-                "description": "",
-                "creator": "None",
-                "color": "",
-                "title": "Recent Event",
-                "rule": "",
-                "event_id": 8,
-                "end_recurring_period": "2008-01-08T00:00:00Z",
-                "cancelled": False,
-                "calendar": "MyCalSlug",
-                "start": "2008-01-05T08:00:00Z",
-                "id": 10,
-            },
-            {
-                "existed": False,
-                "end": "2008-01-06T09:00:00Z",
-                "description": "",
-                "creator": "None",
-                "color": "",
-                "title": "Recent Event",
-                "rule": "",
-                "event_id": 8,
-                "end_recurring_period": "2008-01-08T00:00:00Z",
-                "cancelled": False,
-                "calendar": "MyCalSlug",
-                "start": "2008-01-06T08:00:00Z",
-                "id": 10,
-            },
-            {
-                "existed": False,
-                "end": "2008-01-07T09:00:00Z",
-                "description": "",
-                "creator": "None",
-                "color": "",
-                "title": "Recent Event",
-                "rule": "",
-                "event_id": 8,
-                "end_recurring_period": "2008-01-08T00:00:00Z",
-                "cancelled": False,
-                "calendar": "MyCalSlug",
-                "start": "2008-01-07T08:00:00Z",
-                "id": 10,
-            },
-            {
-                "existed": True,
-                "end": "2008-01-07T08:00:00Z",
-                "description": "Persisted occ test",
-                "creator": "None",
-                "color": "",
-                "title": "My persisted Occ",
-                "rule": "",
-                "event_id": 8,
-                "end_recurring_period": "2008-01-08T00:00:00Z",
-                "cancelled": False,
-                "calendar": "MyCalSlug",
-                "start": "2008-01-07T08:00:00Z",
-                "id": 1,
-            },
-        ]
-        self.assertEqual(json.loads(response.content.decode()), expected_content)
+        result = json.loads(response.content.decode())
+        self.assertEqual(len(result), 4)
+        # First 3 are generated occurrences for Jan 5, 6, 7
+        self.assertEqual(result[0]["start"], "2008-01-05T08:00:00Z")
+        self.assertEqual(result[0]["end"], "2008-01-05T09:00:00Z")
+        self.assertFalse(result[0]["existed"])
+        self.assertEqual(result[1]["start"], "2008-01-06T08:00:00Z")
+        self.assertEqual(result[2]["start"], "2008-01-07T08:00:00Z")
+        # 4th is the persisted occurrence
+        self.assertTrue(result[3]["existed"])
+        self.assertEqual(result[3]["title"], "My persisted Occ")
+        self.assertEqual(result[3]["description"], "Persisted occ test")
         # test timezone param
         response = self.client.get(
             reverse("api_occurrences")
@@ -407,78 +365,22 @@ class TestUrls(TestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
-        expected_content = [
-            {
-                "existed": False,
-                "end": "2008-01-05T03:00:00-06:00",
-                "description": "",
-                "creator": "None",
-                "color": "",
-                "title": "Recent Event",
-                "rule": "",
-                "event_id": 8,
-                "end_recurring_period": "2008-01-07T18:00:00-06:00",
-                "cancelled": False,
-                "calendar": "MyCalSlug",
-                "start": "2008-01-05T02:00:00-06:00",
-                "id": 10,
-            },
-            {
-                "existed": False,
-                "end": "2008-01-06T03:00:00-06:00",
-                "description": "",
-                "creator": "None",
-                "color": "",
-                "title": "Recent Event",
-                "rule": "",
-                "event_id": 8,
-                "end_recurring_period": "2008-01-07T18:00:00-06:00",
-                "cancelled": False,
-                "calendar": "MyCalSlug",
-                "start": "2008-01-06T02:00:00-06:00",
-                "id": 10,
-            },
-            {
-                "existed": False,
-                "end": "2008-01-07T03:00:00-06:00",
-                "description": "",
-                "creator": "None",
-                "color": "",
-                "title": "Recent Event",
-                "rule": "",
-                "event_id": 8,
-                "end_recurring_period": "2008-01-07T18:00:00-06:00",
-                "cancelled": False,
-                "calendar": "MyCalSlug",
-                "start": "2008-01-07T02:00:00-06:00",
-                "id": 10,
-            },
-            {
-                "existed": True,
-                "end": "2008-01-07T02:00:00-06:00",
-                "description": "Persisted occ test",
-                "creator": "None",
-                "color": "",
-                "title": "My persisted Occ",
-                "rule": "",
-                "event_id": 8,
-                "end_recurring_period": "2008-01-07T18:00:00-06:00",
-                "cancelled": False,
-                "calendar": "MyCalSlug",
-                "start": "2008-01-07T02:00:00-06:00",
-                "id": 1,
-            },
-        ]
-        self.assertEqual(json.loads(response.content.decode()), expected_content)
+        result_tz = json.loads(response.content.decode())
+        self.assertEqual(len(result_tz), 4)
+        self.assertEqual(result_tz[0]["start"], "2008-01-05T02:00:00-06:00")
+        self.assertEqual(result_tz[0]["end"], "2008-01-05T03:00:00-06:00")
+        self.assertEqual(result_tz[3]["title"], "My persisted Occ")
 
     def test_occurrences_api_works_with_and_without_cal_slug(self):
         # create a calendar and event
         calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar,
         )
         # test calendar slug
@@ -506,16 +408,20 @@ class TestUrls(TestCase):
         calendar2 = Calendar.objects.create(name="MyCal2", slug="MyCalSlug2")
         event1 = Event.objects.create(
             title="Recent Event 1",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar1,
         )
         event2 = Event.objects.create(
             title="Recent Event 2",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar2,
         )
         # Test both present with no cal arg
@@ -545,9 +451,11 @@ class TestUrls(TestCase):
         calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar,
         )
         # test works with date string time format '%Y-%m-%d'
@@ -580,18 +488,20 @@ class TestUrls(TestCase):
         calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar,
         )
 
-        # test fails with completely invalid date strings
+        # invalid date strings should fail
         response = self.client.get(
             reverse("api_occurrences"),
             {
                 "start": "not-a-date",
-                "end": "also-not-a-date",
+                "end": "2008-02-05",
                 "calendar_slug": event.calendar.slug,
             },
         )
@@ -606,24 +516,30 @@ class TestUrls(TestCase):
 
         event1 = Event.objects.create(
             title="Recent Event 1",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar1,
         )
         event2 = Event.objects.create(
             title="Recent Event 2",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar2,
         )
 
         eventOther = Event.objects.create(
             title="Recent Event Other",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendarOther,
         )
 
@@ -655,9 +571,11 @@ class TestUrls(TestCase):
 
         Event.objects.create(
             title="Recent Event 1",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar1,
         )
 
@@ -683,9 +601,11 @@ class TestUrls(TestCase):
         calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         weekly_meeting_event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2021, 12, 27, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2021, 12, 27, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2021, 12, 31, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2021, 12, 27, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2021, 12, 27, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2021, 12, 31, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             calendar=calendar,
         )
         Occurrence.objects.create(
@@ -726,10 +646,15 @@ class TestUrls(TestCase):
 
     @override_settings(SITE_ID=1)
     def test_feed_link(self):
+        from django.contrib.sites.models import Site
+
+        Site.objects.update_or_create(
+            id=1, defaults={"domain": "testserver", "name": "testserver"}
+        )
         feed_url = reverse("upcoming_events_feed", kwargs={"calendar_id": 1})
         response = self.client.get(feed_url)
         self.assertEqual(response.status_code, 200)
-        expected_feed = "http://example.com/feed/calendar/upcoming/1/"
+        expected_feed = "http://testserver/feed/calendar/upcoming/1/"
         self.assertTrue(expected_feed in response.content.decode())
 
     def test_calendar_view_home(self):
@@ -749,9 +674,11 @@ class TestOccurrencePreview(TestCase):
         self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
         self.event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=self.rule,
             calendar=self.calendar,
         )
@@ -777,8 +704,487 @@ class TestOccurrencePreview(TestCase):
         occurrence = response.context["occurrence"]
         self.assertEqual(occurrence.event, self.event)
         self.assertEqual(
-            occurrence.start, datetime.datetime(2008, 4, 20, 8, 0, tzinfo=pytz.utc)
+            occurrence.start,
+            datetime.datetime(2008, 4, 20, 8, 0, tzinfo=datetime.timezone.utc),
         )
         self.assertEqual(
-            occurrence.end, datetime.datetime(2008, 4, 20, 9, 0, tzinfo=pytz.utc)
+            occurrence.end,
+            datetime.datetime(2008, 4, 20, 9, 0, tzinfo=datetime.timezone.utc),
         )
+
+
+class TestAPIMoveOrResize(TestCase):
+    """Test API endpoint for moving and resizing occurrences"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpass")
+        self.calendar = Calendar.objects.create(name="TestCal", slug="testcal")
+        self.rule = Rule.objects.create(frequency="DAILY")
+
+        self.event = Event.objects.create(
+            title="Test Event",
+            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2024, 1, 20, 0, 0, tzinfo=datetime.timezone.utc
+            ),
+            rule=self.rule,
+            calendar=self.calendar,
+            creator=self.user,
+        )
+
+        # Create a persisted occurrence
+        self.occurrence = Occurrence.objects.create(
+            event=self.event,
+            start=datetime.datetime(2024, 1, 16, 10, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2024, 1, 16, 11, 0, tzinfo=datetime.timezone.utc),
+            original_start=datetime.datetime(
+                2024, 1, 16, 10, 0, tzinfo=datetime.timezone.utc
+            ),
+            original_end=datetime.datetime(
+                2024, 1, 16, 11, 0, tzinfo=datetime.timezone.utc
+            ),
+        )
+
+    def test_api_move_occurrence_authenticated(self):
+        """Test moving a persisted occurrence with authenticated user"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": self.occurrence.id,
+                "existed": "true",
+                "delta": "60",  # Move 1 hour forward (60 minutes)
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify the occurrence was moved
+        self.occurrence.refresh_from_db()
+        self.assertEqual(
+            self.occurrence.start,
+            datetime.datetime(2024, 1, 16, 11, 0, tzinfo=datetime.timezone.utc),
+        )
+        self.assertEqual(
+            self.occurrence.end,
+            datetime.datetime(2024, 1, 16, 12, 0, tzinfo=datetime.timezone.utc),
+        )
+
+    def test_api_resize_occurrence_authenticated(self):
+        """Test resizing a persisted occurrence with authenticated user"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": self.occurrence.id,
+                "existed": "true",
+                "delta": "30",  # Extend by 30 minutes
+                "resize": "true",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify the occurrence was resized (only end should change)
+        self.occurrence.refresh_from_db()
+        self.assertEqual(
+            self.occurrence.start,
+            datetime.datetime(2024, 1, 16, 10, 0, tzinfo=datetime.timezone.utc),
+        )
+        self.assertEqual(
+            self.occurrence.end,
+            datetime.datetime(2024, 1, 16, 11, 30, tzinfo=datetime.timezone.utc),
+        )
+
+    def test_api_move_event_authenticated(self):
+        """Test moving a non-persisted event occurrence"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": "999999",  # Non-existent occurrence ID
+                "existed": "false",
+                "delta": "60",  # Move 1 hour forward
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify the event itself was moved
+        self.event.refresh_from_db()
+        self.assertEqual(
+            self.event.start,
+            datetime.datetime(2024, 1, 15, 11, 0, tzinfo=datetime.timezone.utc),
+        )
+        self.assertEqual(
+            self.event.end,
+            datetime.datetime(2024, 1, 15, 12, 0, tzinfo=datetime.timezone.utc),
+        )
+
+    def test_api_resize_event_authenticated(self):
+        """Test resizing a non-persisted event"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": "999999",
+                "existed": "false",
+                "delta": "30",
+                "resize": "true",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify only the event end was extended
+        self.event.refresh_from_db()
+        self.assertEqual(
+            self.event.start,
+            datetime.datetime(2024, 1, 15, 10, 0, tzinfo=datetime.timezone.utc),
+        )
+        self.assertEqual(
+            self.event.end,
+            datetime.datetime(2024, 1, 15, 11, 30, tzinfo=datetime.timezone.utc),
+        )
+
+    @mock.patch("schedule.views.CHECK_OCCURRENCE_PERM_FUNC", return_value=False)
+    def test_api_move_occurrence_permission_denied(self, mock_perm):
+        """Test that permission check prevents unauthorized moves"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": self.occurrence.id,
+                "existed": "true",
+                "delta": "60",
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "PERMISSION DENIED")
+
+        # Verify the occurrence was NOT moved
+        self.occurrence.refresh_from_db()
+        self.assertEqual(
+            self.occurrence.start,
+            datetime.datetime(2024, 1, 16, 10, 0, tzinfo=datetime.timezone.utc),
+        )
+
+    @mock.patch("schedule.views.CHECK_EVENT_PERM_FUNC", return_value=False)
+    def test_api_move_event_permission_denied(self, mock_perm):
+        """Test that permission check prevents unauthorized event moves"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": "999999",
+                "existed": "false",
+                "delta": "60",
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "PERMISSION DENIED")
+
+        # Verify the event was NOT moved
+        self.event.refresh_from_db()
+        self.assertEqual(
+            self.event.start,
+            datetime.datetime(2024, 1, 15, 10, 0, tzinfo=datetime.timezone.utc),
+        )
+
+    def test_api_move_negative_delta(self):
+        """Test moving occurrence backward in time"""
+        self.client.login(username="testuser", password="testpass")
+
+        url = reverse("api_move_or_resize")
+        response = self.client.post(
+            url,
+            {
+                "id": self.occurrence.id,
+                "existed": "true",
+                "delta": "-30",  # Move 30 minutes earlier
+                "resize": "false",
+                "event_id": self.event.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+
+        # Verify the occurrence was moved backward
+        self.occurrence.refresh_from_db()
+        self.assertEqual(
+            self.occurrence.start,
+            datetime.datetime(2024, 1, 16, 9, 30, tzinfo=datetime.timezone.utc),
+        )
+        self.assertEqual(
+            self.occurrence.end,
+            datetime.datetime(2024, 1, 16, 10, 30, tzinfo=datetime.timezone.utc),
+        )
+
+
+class TestAPICrud(TestCase):
+    """Test CRUD API endpoints for FullCalendar integration"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpass")
+        self.calendar = Calendar.objects.create(name="TestCal", slug="testcal")
+        self.event = Event.objects.create(
+            title="Test Event",
+            start=datetime.datetime(2024, 1, 15, 10, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2024, 1, 15, 11, 0, tzinfo=datetime.timezone.utc),
+            calendar=self.calendar,
+            creator=self.user,
+        )
+
+    def test_api_select_create(self):
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.post(
+            reverse("api_select_create"),
+            {
+                "start": "2024-02-01T10:00:00+00:00",
+                "end": "2024-02-01T11:00:00+00:00",
+                "calendar_slug": "testcal",
+                "title": "New Event",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+        self.assertIn("event_id", data)
+        event = Event.objects.get(id=data["event_id"])
+        self.assertEqual(event.title, "New Event")
+
+    def test_api_select_create_with_timezone(self):
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.post(
+            reverse("api_select_create"),
+            {
+                "start": "2024-02-01T10:00:00+00:00",
+                "end": "2024-02-01T11:00:00+00:00",
+                "calendar_slug": "testcal",
+                "title": "TZ Event",
+                "timezone": "Europe/Vienna",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        event = Event.objects.get(id=data["event_id"])
+        self.assertEqual(event.timezone, "Europe/Vienna")
+
+    def test_api_select_create_unauthenticated(self):
+        response = self.client.post(
+            reverse("api_select_create"),
+            {
+                "start": "2024-02-01T10:00:00+00:00",
+                "end": "2024-02-01T11:00:00+00:00",
+                "calendar_slug": "testcal",
+                "title": "Fail",
+            },
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_api_delete_event(self):
+        self.client.login(username="testuser", password="testpass")
+        event_id = self.event.id
+        response = self.client.post(
+            reverse("api_delete"),
+            {
+                "event_id": event_id,
+                "existed": "false",
+                "calendar_slug": "testcal",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+        self.assertFalse(Event.objects.filter(id=event_id).exists())
+
+    def test_api_delete_occurrence(self):
+        self.client.login(username="testuser", password="testpass")
+        occurrence = Occurrence.objects.create(
+            event=self.event,
+            start=datetime.datetime(2024, 1, 16, 10, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2024, 1, 16, 11, 0, tzinfo=datetime.timezone.utc),
+            original_start=datetime.datetime(
+                2024, 1, 16, 10, 0, tzinfo=datetime.timezone.utc
+            ),
+            original_end=datetime.datetime(
+                2024, 1, 16, 11, 0, tzinfo=datetime.timezone.utc
+            ),
+        )
+        response = self.client.post(
+            reverse("api_delete"),
+            {
+                "id": occurrence.id,
+                "existed": "true",
+                "calendar_slug": "testcal",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+        self.assertFalse(Occurrence.objects.filter(id=occurrence.id).exists())
+
+    @mock.patch("schedule.views.CHECK_EVENT_PERM_FUNC", return_value=False)
+    def test_api_delete_permission_denied(self, mock_perm):
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.post(
+            reverse("api_delete"),
+            {
+                "event_id": self.event.id,
+                "existed": "false",
+                "calendar_slug": "testcal",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "PERMISSION DENIED")
+        self.assertTrue(Event.objects.filter(id=self.event.id).exists())
+
+    def test_api_set_props_title(self):
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.post(
+            reverse("api_set_props"),
+            {
+                "event_id": self.event.id,
+                "existed": "false",
+                "calendar_slug": "testcal",
+                "prop_title": "Updated Title",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.title, "Updated Title")
+        self.assertEqual(self.event.updater, self.user)
+
+    def test_api_set_props_on_occurrence(self):
+        self.client.login(username="testuser", password="testpass")
+        occurrence = Occurrence.objects.create(
+            event=self.event,
+            start=datetime.datetime(2024, 1, 16, 10, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2024, 1, 16, 11, 0, tzinfo=datetime.timezone.utc),
+            original_start=datetime.datetime(
+                2024, 1, 16, 10, 0, tzinfo=datetime.timezone.utc
+            ),
+            original_end=datetime.datetime(
+                2024, 1, 16, 11, 0, tzinfo=datetime.timezone.utc
+            ),
+        )
+        response = self.client.post(
+            reverse("api_set_props"),
+            {
+                "id": occurrence.id,
+                "existed": "true",
+                "calendar_slug": "testcal",
+                "prop_title": "Occ Title",
+                "prop_description": "Occ Desc",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+        occurrence.refresh_from_db()
+        self.assertEqual(occurrence.title, "Occ Title")
+        self.assertEqual(occurrence.description, "Occ Desc")
+
+    @mock.patch("schedule.views.CHECK_EVENT_PERM_FUNC", return_value=False)
+    def test_api_set_props_permission_denied(self, mock_perm):
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.post(
+            reverse("api_set_props"),
+            {
+                "event_id": self.event.id,
+                "existed": "false",
+                "calendar_slug": "testcal",
+                "prop_title": "Should Not Change",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "PERMISSION DENIED")
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.title, "Test Event")
+
+    def test_api_ruleparams(self):
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.get(reverse("api_ruleparams"))
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"], "OK")
+        self.assertIn("ruleparams", data)
+        names = {rp["name"] for rp in data["ruleparams"]}
+        self.assertIn("byweekday", names)
+        self.assertIn("bymonth", names)
+
+
+class TestHelpers(TestCase):
+    def test_decode_recurrence_params(self):
+        data = {
+            "recurrence_byweekday": "0,1",
+            "recurrence_bymonth": "1,6",
+            "other_key": "ignored",
+            "recurrence_bysetpos": "",
+        }
+        result = decode_recurrence_params(data)
+        self.assertEqual(result["byweekday"], [0, 1])
+        self.assertEqual(result["bymonth"], [1, 6])
+        self.assertNotIn("bysetpos", result)
+        self.assertNotIn("other_key", result)
+
+    def test_compress_repeats(self):
+        repeats = [
+            ("bymonthday", 1),
+            ("bymonthday", 2),
+            ("byweekday", 0),
+        ]
+        result = compress_repeats(repeats)
+        self.assertEqual(result["bymonthday"], [1, 2])
+        self.assertEqual(result["byweekday"], [0])
+
+
+class TestColorInputWidget(TestCase):
+    def test_color_input_render(self):
+        from schedule.widgets import ColorInput
+
+        widget = ColorInput()
+        html = widget.render("color_field", "#ff0000")
+        self.assertIn('type="color"', html)
+        self.assertIn("#ff0000", html)

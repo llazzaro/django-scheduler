@@ -8,183 +8,635 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-06 10:15-0400\n"
+"POT-Creation-Date: 2023-03-22 13:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: forms.py:18
-msgid "AM"
+#: schedule/apps.py:7
+msgid "Schedules"
 msgstr ""
 
-#: forms.py:18
-msgid "PM"
-msgstr ""
-
-#: forms.py:57
-msgid "The end time must be later than start time."
-msgstr ""
-
-#: forms.py:58 models.py:300
-msgid "This date is ignored for one time only events."
-msgstr ""
-
-#: models.py:15
-msgid "Yearly"
-msgstr ""
-
-#: models.py:16
-msgid "Monthly"
-msgstr ""
-
-#: models.py:17
-msgid "Weekly"
-msgstr ""
-
-#: models.py:18
-msgid "Daily"
-msgstr ""
-
-#: models.py:19
-msgid "Hourly"
-msgstr ""
-
-#: models.py:20
-msgid "Minutely"
-msgstr ""
-
-#: models.py:21
-msgid "Secondly"
-msgstr ""
-
-#: models.py:52 models.py:491
-msgid "name"
-msgstr ""
-
-#: models.py:53 models.py:296
-msgid "description"
-msgstr ""
-
-#: models.py:54
-msgid "frequency"
-msgstr ""
-
-#: models.py:55
-msgid "params"
-msgstr ""
-
-#: models.py:58 models.py:299
-msgid "rule"
-msgstr ""
-
-#: models.py:59
-msgid "rules"
-msgstr ""
-
-#: models.py:293
+#: schedule/forms.py:9 schedule/models/events.py:53
+#: schedule/models/events.py:586
 msgid "start"
 msgstr ""
 
-#: models.py:294
+#: schedule/forms.py:11 schedule/models/events.py:55
+#: schedule/models/events.py:587
 msgid "end"
 msgstr ""
 
-#: models.py:294
-msgid "The end time must be later than the start time."
+#: schedule/forms.py:11 schedule/forms.py:18
+msgid "The end time must be later than start time."
 msgstr ""
 
-#: models.py:295
-msgid "title"
+#: schedule/forms.py:28
+msgid "End recurring period"
 msgstr ""
 
-#: models.py:297
-msgid "creator"
+#: schedule/forms.py:29 schedule/models/events.py:84
+msgid "This date is ignored for one time only events."
 msgstr ""
 
-#: models.py:298
-msgid "created on"
+#: schedule/models/calendars.py:141 schedule/models/rules.py:33
+#: schedule/models/rules.py:86
+msgid "name"
 msgstr ""
 
-#: models.py:299
-msgid "Select '----' for a one time only event."
-msgstr ""
-
-#: models.py:300
-msgid "end recurring period"
-msgstr ""
-
-#: models.py:305 models.py:754
-msgid "event"
-msgstr ""
-
-#: models.py:306 models.py:493
-msgid "events"
-msgstr ""
-
-#: models.py:309 periods.py:163 periods.py:216 periods.py:232
-msgid "DATE_FORMAT"
-msgstr ""
-
-#: models.py:310
-#, python-format
-msgid "%(title)s: %(start)s-%(end)s"
-msgstr ""
-
-#: models.py:492
+#: schedule/models/calendars.py:142
 msgid "slug"
 msgstr ""
 
-#: models.py:498 models.py:499 models.py:589
+#: schedule/models/calendars.py:146 schedule/models/calendars.py:221
+#: schedule/models/events.py:87
 msgid "calendar"
 msgstr ""
 
-#: models.py:593 models.py:758
+#: schedule/models/calendars.py:147
+msgid "calendars"
+msgstr ""
+
+#: schedule/models/calendars.py:226 schedule/models/events.py:567
 msgid "distinction"
 msgstr ""
 
-#: models.py:594
+#: schedule/models/calendars.py:227
 msgid "inheritable"
 msgstr ""
 
-#: models.py:599
+#: schedule/models/calendars.py:232
 msgid "calendar relation"
 msgstr ""
 
-#: models.py:600
+#: schedule/models/calendars.py:233
 msgid "calendar relations"
 msgstr ""
 
-#: models.py:763
+#: schedule/models/events.py:57
+msgid "The end time must be later than the start time."
+msgstr ""
+
+#: schedule/models/events.py:59 schedule/models/events.py:584
+msgid "title"
+msgstr ""
+
+#: schedule/models/events.py:60 schedule/models/events.py:585
+#: schedule/models/rules.py:87
+msgid "description"
+msgstr ""
+
+#: schedule/models/events.py:66
+msgid "creator"
+msgstr ""
+
+#: schedule/models/events.py:69 schedule/models/events.py:591
+msgid "created on"
+msgstr ""
+
+#: schedule/models/events.py:70 schedule/models/events.py:592
+msgid "updated on"
+msgstr ""
+
+#: schedule/models/events.py:76 schedule/models/rules.py:95
+msgid "rule"
+msgstr ""
+
+#: schedule/models/events.py:77
+msgid "Select '----' for a one time only event."
+msgstr ""
+
+#: schedule/models/events.py:80
+msgid "end recurring period"
+msgstr ""
+
+#: schedule/models/events.py:89
+msgid "Color event"
+msgstr ""
+
+#: schedule/models/events.py:93 schedule/models/events.py:563
+#: schedule/models/events.py:583
+msgid "event"
+msgstr ""
+
+#: schedule/models/events.py:94
+msgid "events"
+msgstr ""
+
+#: schedule/models/events.py:98
+#, python-format
+msgid "%(title)s: %(start)s - %(end)s"
+msgstr ""
+
+#: schedule/models/events.py:572
 msgid "event relation"
 msgstr ""
 
-#: models.py:764
+#: schedule/models/events.py:573
 msgid "event relations"
 msgstr ""
 
-#: occurrence.py:14
+#: schedule/models/events.py:588
+msgid "cancelled"
+msgstr ""
+
+#: schedule/models/events.py:589
+msgid "original start"
+msgstr ""
+
+#: schedule/models/events.py:590
+msgid "original end"
+msgstr ""
+
+#: schedule/models/events.py:595
+msgid "occurrence"
+msgstr ""
+
+#: schedule/models/events.py:596
+msgid "occurrences"
+msgstr ""
+
+#: schedule/models/events.py:695
 #, python-format
 msgid "%(start)s to %(end)s"
 msgstr ""
 
-#: periods.py:10
-msgid "FIRST_DAY_OF_WEEK"
+#: schedule/models/rules.py:21
+msgid "Yearly"
 msgstr ""
 
-#: periods.py:164
-#, python-format
-msgid "Month: %(start)s-%(end)s"
+#: schedule/models/rules.py:22
+msgid "Monthly"
 msgstr ""
 
-#: periods.py:217
+#: schedule/models/rules.py:23 schedule/templates/schedule/calendar.html:20
+#: schedule/templates/schedule/calendar_list.html:13
+msgid "Weekly"
+msgstr ""
+
+#: schedule/models/rules.py:24 schedule/templates/schedule/calendar.html:21
+#: schedule/templates/schedule/calendar_list.html:14
+msgid "Daily"
+msgstr ""
+
+#: schedule/models/rules.py:25
+msgid "Hourly"
+msgstr ""
+
+#: schedule/models/rules.py:26
+msgid "Minutely"
+msgstr ""
+
+#: schedule/models/rules.py:27
+msgid "Secondly"
+msgstr ""
+
+#: schedule/models/rules.py:34
+msgid "display string"
+msgstr ""
+
+#: schedule/models/rules.py:44
+msgid "Possible value"
+msgstr ""
+
+#: schedule/models/rules.py:45
+msgid "value"
+msgstr ""
+
+#: schedule/models/rules.py:46
+msgid "value display string"
+msgstr ""
+
+#: schedule/models/rules.py:88
+msgid "frequency"
+msgstr ""
+
+#: schedule/models/rules.py:90
+msgid "params"
+msgstr ""
+
+#: schedule/models/rules.py:96
+msgid "rules"
+msgstr ""
+
+#: schedule/periods.py:416
 #, python-format
 msgid "Week: %(start)s-%(end)s"
 msgstr ""
 
-#: periods.py:233
+#: schedule/periods.py:470
 #, python-format
 msgid "Day: %(start)s-%(end)s"
 msgstr ""
+
+#: schedule/templates/base.html:19
+msgid "This is a demo of a django-schedule calendar"
+msgstr ""
+
+#: schedule/templates/base.html:26
+msgid "clear"
+msgstr ""
+
+#: schedule/templates/fullcalendar.html:13
+msgid "Add New Session"
+msgstr ""
+
+#: schedule/templates/fullcalendar_modal.html:9
+msgid "Event"
+msgstr ""
+
+#: schedule/templates/fullcalendar_modal.html:12
+msgid ""
+"Would you like to <span id=\"editordelete\"></span> all occurrences in this "
+"event or just this occurrence?"
+msgstr ""
+
+#: schedule/templates/fullcalendar_modal.html:16
+msgid "All"
+msgstr ""
+
+#: schedule/templates/fullcalendar_modal.html:20
+msgid "This"
+msgstr ""
+
+#: schedule/templates/fullcalendar_modal.html:23
+#: schedule/templates/schedule/_detail.html:41
+msgid "Close"
+msgstr ""
+
+#: schedule/templates/fullcalendar_script.html:32
+#: schedule/templates/schedule/event.html:25
+#: schedule/templates/schedule/occurrence.html:25
+msgid "Edit"
+msgstr ""
+
+#: schedule/templates/fullcalendar_script.html:49
+#: schedule/templates/schedule/cancel_occurrence.html:5
+#: schedule/templates/schedule/delete_event.html:5
+#: schedule/templates/schedule/event.html:29
+#: schedule/templates/schedule/occurrence.html:29
+msgid "Delete"
+msgstr ""
+
+#: schedule/templates/profiles/schedule.html:4
+msgid "Schedule"
+msgstr ""
+
+#: schedule/templates/profiles/schedule.html:12
+msgid "Start"
+msgstr ""
+
+#: schedule/templates/profiles/schedule.html:13
+msgid "End"
+msgstr ""
+
+#: schedule/templates/profiles/schedule.html:14
+msgid "Title"
+msgstr ""
+
+#: schedule/templates/profiles/schedule.html:26
+#: schedule/templates/profiles/schedule.html:27
+msgid "Event details"
+msgstr ""
+
+#: schedule/templates/profiles/schedule.html:30
+#: schedule/templates/profiles/schedule.html:31
+msgid "Edit event"
+msgstr ""
+
+#: schedule/templates/profiles/schedule.html:33
+#: schedule/templates/profiles/schedule.html:34
+msgid "Delete event"
+msgstr ""
+
+#: schedule/templates/profiles/schedule.html:45
+#, python-format
+msgid "You haven't added any <a href=\"%(add_event_url)s\">event</a> yet."
+msgstr ""
+
+#: schedule/templates/profiles/schedule.html:49
+msgid "Add event"
+msgstr ""
+
+#: schedule/templates/schedule/_detail.html:14
+#: schedule/templates/schedule/event.html:35
+#: schedule/templates/schedule/occurrence.html:35
+msgid "Starts"
+msgstr ""
+
+#: schedule/templates/schedule/_detail.html:15
+#: schedule/templates/schedule/_detail.html:19
+#: schedule/templates/schedule/_detail.html:29
+#: schedule/templates/schedule/cancel_occurrence.html:10
+#: schedule/templates/schedule/event.html:36
+#: schedule/templates/schedule/event.html:40
+#: schedule/templates/schedule/event.html:45
+#: schedule/templates/schedule/occurrence.html:36
+#: schedule/templates/schedule/occurrence.html:40
+#: schedule/templates/schedule/occurrence.html:45
+msgid "DATETIME_FORMAT"
+msgstr ""
+
+#: schedule/templates/schedule/_detail.html:15
+#: schedule/templates/schedule/event.html:36
+#: schedule/templates/schedule/occurrence.html:36
+#, python-format
+msgid "%(start_date)s"
+msgstr ""
+
+#: schedule/templates/schedule/_detail.html:18
+#: schedule/templates/schedule/event.html:39
+#: schedule/templates/schedule/occurrence.html:39
+msgid "Ends"
+msgstr ""
+
+#: schedule/templates/schedule/_detail.html:19
+#: schedule/templates/schedule/_detail.html:29
+#: schedule/templates/schedule/event.html:40
+#: schedule/templates/schedule/occurrence.html:40
+#, python-format
+msgid "%(end_date)s"
+msgstr ""
+
+#: schedule/templates/schedule/_detail.html:24
+#: schedule/templates/schedule/event.html:43
+#: schedule/templates/schedule/occurrence.html:43
+msgid "Reoccurs"
+msgstr ""
+
+#: schedule/templates/schedule/_detail.html:28
+msgid "Until"
+msgstr ""
+
+#: schedule/templates/schedule/_detail.html:36
+#: schedule/templates/schedule/event.html:51
+#: schedule/templates/schedule/occurrence.html:51
+msgid "Description"
+msgstr ""
+
+#: schedule/templates/schedule/_dialogs.html:4
+msgid ""
+"Do you want to cancel this occurrence or delete all occurrences of this "
+"event?"
+msgstr ""
+
+#: schedule/templates/schedule/_dialogs.html:8
+msgid "Do you want to edit this occurrence or all occurrences?"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:7
+msgid "Calendar metadata"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:9
+msgid "Name:"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:10
+msgid "Slug:"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:11
+msgid "Event count:"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:14
+msgid "See as:"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:16
+#: schedule/templates/schedule/calendar_list.html:9
+msgid "Small Month"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:17
+#: schedule/templates/schedule/calendar_list.html:10
+msgid "1 Month"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:18
+#: schedule/templates/schedule/calendar_list.html:11
+msgid "3 Months"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:19
+#: schedule/templates/schedule/calendar_list.html:12
+msgid "This Year"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:22
+#: schedule/templates/schedule/calendar_list.html:15
+msgid "Feed"
+msgstr ""
+
+#: schedule/templates/schedule/calendar.html:26
+msgid "Now see docstring for schedule.views.calendar"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_day.html:9
+msgid "Week"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_day.html:12
+#: schedule/templates/schedule/calendar_week.html:10
+#: schedule/templates/schedule/event.html:10
+#: schedule/templates/schedule/occurrence.html:10
+msgid "Month"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_day.html:15
+#: schedule/templates/schedule/calendar_week.html:13
+#: schedule/templates/schedule/event.html:13
+#: schedule/templates/schedule/occurrence.html:13
+msgid "Year"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_day.html:23
+msgid "Today"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_list.html:3
+#: schedule/templates/schedule/calendar_list.html:5
+msgid "Available Calendars"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_month.html:11
+#: schedule/templates/schedule/calendar_tri_month.html:9
+msgid "This month"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_month.html:20
+msgid "Three Month Calendar"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_month.html:23
+#: schedule/templates/schedule/calendar_tri_month.html:27
+msgid "Full Year Calendar"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_tri_month.html:24
+msgid "Monthly Calendar"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_week.html:22
+msgid "This week"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_year.html:21
+msgid "Current Month Calendar"
+msgstr ""
+
+#: schedule/templates/schedule/calendar_year.html:24
+msgid "Current Year Calendar"
+msgstr ""
+
+#: schedule/templates/schedule/cancel_occurrence.html:6
+msgid "Are you sure that you really want to cancel this occurrence?"
+msgstr ""
+
+#: schedule/templates/schedule/cancel_occurrence.html:10
+#, python-format
+msgid ""
+"\n"
+"  <strong>From</strong> %(start_date)s\n"
+"  <strong>to</strong> %(end_date)s<br>\n"
+"  "
+msgstr ""
+
+#: schedule/templates/schedule/create_event.html:5
+msgid "Create or change event. All fields are required."
+msgstr ""
+
+#: schedule/templates/schedule/create_event.html:13
+#: schedule/templates/schedule/edit_occurrence.html:13
+msgid "Save"
+msgstr ""
+
+#: schedule/templates/schedule/delete_event.html:6
+msgid "Are you sure that you really want to delete it?"
+msgstr ""
+
+#: schedule/templates/schedule/edit_occurrence.html:5
+msgid "Create or change occurrence. All fields are required."
+msgstr ""
+
+#: schedule/templates/schedule/event.html:7
+#: schedule/templates/schedule/occurrence.html:7
+msgid "Day"
+msgstr ""
+
+#: schedule/templates/schedule/event.html:45
+#: schedule/templates/schedule/occurrence.html:45
+msgid "until"
+msgstr ""
+
+#: schedule/templates/schedule/event.html:45
+#: schedule/templates/schedule/occurrence.html:45
+#, python-format
+msgid "%(end_recurring_date)s"
+msgstr ""
+
+#: schedule/templates/schedule/event.html:47
+#: schedule/templates/schedule/occurrence.html:47
+msgid "Never. This is a 'one time only' event."
+msgstr ""
+
+# database migration
+msgid "every weekday of"
+msgstr ""
+
+# database migration
+msgid "every monthday of"
+msgstr ""
+
+# database migration
+msgid "every month of"
+msgstr ""
+
+# database migration
+msgid "every yearday of"
+msgstr ""
+
+# database migration
+msgid "every week of"
+msgstr ""
+
+# database migration
+msgid "MO"
+msgstr "Monday"
+
+# database migration
+msgid "TU"
+msgstr "Tueday"
+
+# database migration
+msgid "WE"
+msgstr "Wednesday"
+
+# database migration
+msgid "TH"
+msgstr "Thursday"
+
+# database migration
+msgid "FR"
+msgstr "Friday"
+
+# database migration
+msgid "SA"
+msgstr "Saturday"
+
+# database migration
+msgid "SU"
+msgstr "Sunday"
+
+# database migration
+msgid "JAN"
+msgstr "January"
+
+# database migration
+msgid "FEB"
+msgstr "February"
+
+# database migration
+msgid "MAR"
+msgstr "March"
+
+# database migration
+msgid "APR"
+msgstr "April"
+
+# database migration
+msgid "MAY"
+msgstr "May"
+
+# database migration
+msgid "JUN"
+msgstr "June"
+
+# database migration
+msgid "JUL"
+msgstr "July"
+
+# database migration
+msgid "AUG"
+msgstr "August"
+
+# database migration
+msgid "SEP"
+msgstr "September"
+
+# database migration
+msgid "OCT"
+msgstr "October"
+
+# database migration
+msgid "NOV"
+msgstr "November"
+
+# database migration
+msgid "DEC"
+msgstr "December"

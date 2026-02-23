@@ -1,6 +1,5 @@
 import datetime
 
-import pytz
 from django.test import TestCase
 from django.utils.html import escape
 
@@ -20,19 +19,29 @@ class TestTemplateTags(TestCase):
         self.day = Day(
             events=Event.objects.all(),
             date=datetime.datetime(
-                datetime.datetime.now().year, 2, 7, 0, 0, tzinfo=pytz.utc
+                datetime.datetime.now().year, 2, 7, 0, 0, tzinfo=datetime.timezone.utc
             ),
         )
         self.day_out_of_limit = Day(
             events=Event.objects.all(),
             date=datetime.datetime(
-                datetime.datetime.now().year + 3, 2, 7, 0, 0, tzinfo=pytz.utc
+                datetime.datetime.now().year + 3,
+                2,
+                7,
+                0,
+                0,
+                tzinfo=datetime.timezone.utc,
             ),
         )
         self.day_out_of_limit_lower = Day(
             events=Event.objects.all(),
             date=datetime.datetime(
-                datetime.datetime.now().year - 3, 2, 7, 0, 0, tzinfo=pytz.utc
+                datetime.datetime.now().year - 3,
+                2,
+                7,
+                0,
+                0,
+                tzinfo=datetime.timezone.utc,
             ),
         )
 
@@ -42,13 +51,13 @@ class TestTemplateTags(TestCase):
         Event.objects.create(
             title="Recent Event",
             start=datetime.datetime(
-                datetime.datetime.now().year, 1, 5, 8, 0, tzinfo=pytz.utc
+                datetime.datetime.now().year, 1, 5, 8, 0, tzinfo=datetime.timezone.utc
             ),
             end=datetime.datetime(
-                datetime.datetime.now().year, 1, 5, 9, 0, tzinfo=pytz.utc
+                datetime.datetime.now().year, 1, 5, 9, 0, tzinfo=datetime.timezone.utc
             ),
             end_recurring_period=datetime.datetime(
-                datetime.datetime.now().year, 5, 5, 0, 0, tzinfo=pytz.utc
+                datetime.datetime.now().year, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
             ),
             rule=rule,
             calendar=self.cal,
@@ -56,10 +65,10 @@ class TestTemplateTags(TestCase):
         self.period = Period(
             events=Event.objects.all(),
             start=datetime.datetime(
-                datetime.datetime.now().year, 1, 4, 7, 0, tzinfo=pytz.utc
+                datetime.datetime.now().year, 1, 4, 7, 0, tzinfo=datetime.timezone.utc
             ),
             end=datetime.datetime(
-                datetime.datetime.now().year, 1, 21, 7, 0, tzinfo=pytz.utc
+                datetime.datetime.now().year, 1, 21, 7, 0, tzinfo=datetime.timezone.utc
             ),
         )
 
@@ -115,10 +124,10 @@ class TestTemplateTags(TestCase):
         context = {}
         slot = self.period.get_time_slot(
             datetime.datetime(
-                datetime.datetime.now().year, 1, 4, 7, 0, tzinfo=pytz.utc
+                datetime.datetime.now().year, 1, 4, 7, 0, tzinfo=datetime.timezone.utc
             ),
             datetime.datetime(
-                datetime.datetime.now().year, 1, 4, 7, 12, tzinfo=pytz.utc
+                datetime.datetime.now().year, 1, 4, 7, 12, tzinfo=datetime.timezone.utc
             ),
         )
         query_string = create_event_url(context, self.cal, slot.start)
@@ -129,10 +138,10 @@ class TestTemplateTags(TestCase):
 
     def test_all_day_event_cook_slots(self):
         start = datetime.datetime(
-            datetime.datetime.now().year, 1, 5, 0, 0, tzinfo=pytz.utc
+            datetime.datetime.now().year, 1, 5, 0, 0, tzinfo=datetime.timezone.utc
         )
         end = datetime.datetime(
-            datetime.datetime.now().year, 1, 6, 0, 0, tzinfo=pytz.utc
+            datetime.datetime.now().year, 1, 6, 0, 0, tzinfo=datetime.timezone.utc
         )
         event = Event.objects.create(
             title="All Day Event", start=start, end=end, calendar=self.cal
