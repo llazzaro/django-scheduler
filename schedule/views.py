@@ -1,8 +1,8 @@
 import datetime
 from urllib.parse import quote
+from zoneinfo import ZoneInfo, available_timezones
 
 import dateutil.parser
-import pytz
 from django.conf import settings
 from django.db.models import F, Q
 from django.http import (
@@ -166,7 +166,7 @@ class OccurrencePreview(OccurrenceMixin, ModelFormMixin, ProcessFormView):
             int(self.kwargs["hour"]),
             int(self.kwargs["minute"]),
             int(self.kwargs["second"]),
-            tzinfo=pytz.UTC,
+            tzinfo=datetime.timezone.utc,
         )
 
     def get_object(self, queryset=None):
@@ -391,21 +391,35 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
     else:
 
         def convert(ddatetime):
-            return datetime.datetime.utcfromtimestamp(float(ddatetime))
+            return datetime.datetime.fromtimestamp(
+                float(ddatetime), tz=datetime.timezone.utc
+            )
 
     start = convert(start)
     end = convert(end)
     current_tz = False
-    if timezone and timezone in pytz.common_timezones:
+    if timezone and timezone in available_timezones():
         # make start and end dates aware in given timezone
-        current_tz = pytz.timezone(timezone)
-        start = current_tz.localize(start)
-        end = current_tz.localize(end)
+        current_tz = ZoneInfo(timezone)
+        if start.tzinfo is not None:
+            start = start.astimezone(current_tz)
+        else:
+            start = start.replace(tzinfo=current_tz)
+        if end.tzinfo is not None:
+            end = end.astimezone(current_tz)
+        else:
+            end = end.replace(tzinfo=current_tz)
     elif settings.USE_TZ:
         # If USE_TZ is True, make start and end dates aware in UTC timezone
-        utc = pytz.UTC
-        start = utc.localize(start) if start.tzinfo is None else start
-        end = utc.localize(end) if end.tzinfo is None else end
+        utc = datetime.timezone.utc
+        if start.tzinfo is not None:
+            start = start.astimezone(utc)
+        else:
+            start = start.replace(tzinfo=utc)
+        if end.tzinfo is not None:
+            end = end.astimezone(utc)
+        else:
+            end = end.replace(tzinfo=utc)
 
     if calendar_slugs:
         # will raise DoesNotExist exception if no match

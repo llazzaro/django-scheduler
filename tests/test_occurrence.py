@@ -1,6 +1,5 @@
 import datetime
 
-import pytz
 from django.test import TestCase
 
 from schedule.models import Calendar, Event, Rule
@@ -14,24 +13,24 @@ class TestOccurrence(TestCase):
         cal = Calendar.objects.create(name="MyCal")
         self.recurring_data = {
             "title": "Recent Event",
-            "start": datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            "end": datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            "start": datetime.datetime(2008, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            "end": datetime.datetime(2008, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
             "end_recurring_period": datetime.datetime(
-                2008, 5, 5, 0, 0, tzinfo=pytz.utc
+                2008, 5, 5, 0, 0, tzinfo=datetime.timezone.utc
             ),
             "rule": rule,
             "calendar": cal,
         }
         self.recurring_event = Event.objects.create(**self.recurring_data)
-        self.start = datetime.datetime(2008, 1, 12, 0, 0, tzinfo=pytz.utc)
-        self.end = datetime.datetime(2008, 1, 27, 0, 0, tzinfo=pytz.utc)
+        self.start = datetime.datetime(2008, 1, 12, 0, 0, tzinfo=datetime.timezone.utc)
+        self.end = datetime.datetime(2008, 1, 27, 0, 0, tzinfo=datetime.timezone.utc)
 
     def test_persisted_occurrences(self):
         occurrences = self.recurring_event.get_occurrences(
             start=self.start, end=self.end
         )
-        with self.assertRaises(TypeError):
-            hash(occurrences[0])
+        # Unsaved occurrences are hashable (by event_id, original_start, original_end)
+        hash(occurrences[0])
         persisted_occurrence = occurrences[0]
         persisted_occurrence.save()
         occurrences = self.recurring_event.get_occurrences(
@@ -46,7 +45,16 @@ class TestOccurrence(TestCase):
         )
         persisted_occurrence = occurrences[0]
         persisted_occurrence.save()
-        self.assertEqual(hash(persisted_occurrence), persisted_occurrence.pk)
+        self.assertEqual(
+            hash(persisted_occurrence),
+            hash(
+                (
+                    persisted_occurrence.event_id,
+                    persisted_occurrence.original_start,
+                    persisted_occurrence.original_end,
+                )
+            ),
+        )
 
     def test_moved_occurrences(self):
         occurrences = self.recurring_event.get_occurrences(
@@ -93,14 +101,20 @@ class TestOccurrence(TestCase):
 
     def test_occurrence_eq_method(self):
         event2 = Event.objects.create(**self.recurring_data)
-        self.assertEqual(
+        # Same event, same time: equal
+        occs = self.recurring_event.get_occurrences(start=self.start, end=self.end)
+        self.assertEqual(occs[0], occs[0])
+        # Different events, same time: not equal
+        self.assertNotEqual(
             self.recurring_event.get_occurrences(start=self.start, end=self.end)[0],
             event2.get_occurrences(start=self.start, end=self.end)[0],
         )
+        # Different time: not equal
         self.assertNotEqual(
             self.recurring_event.get_occurrences(start=self.start, end=self.end)[0],
-            event2.get_occurrences(start=self.start, end=self.end)[1],
+            self.recurring_event.get_occurrences(start=self.start, end=self.end)[1],
         )
+        # Different type: not equal
         self.assertNotEqual(
             self.recurring_event.get_occurrences(start=self.start, end=self.end)[0],
             event2,
@@ -113,13 +127,15 @@ class TestOccurrence(TestCase):
         Occurrence()
 
     def test_get_occurrences_non_intersection_returns_empty_occ(self):
-        rule = Rule.objects.create(frequency="DAILY")
+        rule = Rule.objects.create(frequency="DAILY", name="daily")
         cal = Calendar.objects.create(name="MyCal", slug="mycal")
         recurring_event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2016, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2016, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2016, 8, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2016, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2016, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2016, 8, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=cal,
         )
@@ -127,19 +143,21 @@ class TestOccurrence(TestCase):
         self.assertEqual(occurrences, [])
 
     def test_get_occurrences_is_sorted(self):
-        rule = Rule.objects.create(frequency="DAILY")
+        rule = Rule.objects.create(frequency="DAILY", name="daily")
         cal = Calendar.objects.create(name="MyCal", slug="mycal")
         recurring_event = Event.objects.create(
             title="Recent Event",
-            start=datetime.datetime(2016, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2016, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2016, 8, 5, 0, 0, tzinfo=pytz.utc),
+            start=datetime.datetime(2016, 1, 5, 8, 0, tzinfo=datetime.timezone.utc),
+            end=datetime.datetime(2016, 1, 5, 9, 0, tzinfo=datetime.timezone.utc),
+            end_recurring_period=datetime.datetime(
+                2016, 8, 5, 0, 0, tzinfo=datetime.timezone.utc
+            ),
             rule=rule,
             calendar=cal,
         )
 
-        start = datetime.datetime(2016, 1, 12, 0, 0, tzinfo=pytz.utc)
-        end = datetime.datetime(2016, 1, 27, 0, 0, tzinfo=pytz.utc)
+        start = datetime.datetime(2016, 1, 12, 0, 0, tzinfo=datetime.timezone.utc)
+        end = datetime.datetime(2016, 1, 27, 0, 0, tzinfo=datetime.timezone.utc)
         occurrences = recurring_event.get_occurrences(start=start, end=end)
 
         sorted_occurrences = sorted(occurrences, key=lambda occ: occ.start)

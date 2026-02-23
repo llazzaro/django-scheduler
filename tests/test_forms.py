@@ -14,6 +14,7 @@ class TestScheduleForms(TestCase):
             "end_0": (now + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
             "end_1": "00:00",
             "title": "some title",
+            "timezone": "UTC",
         }
         form = EventForm(data=data)
         validated = form.is_valid()
@@ -23,9 +24,8 @@ class TestScheduleForms(TestCase):
         form = EventForm(data=data)
         validated = form.is_valid()
         self.assertFalse(validated)
-        self.assertEqual(len(form.non_field_errors()), 1)
-        self.assertEqual(
-            form.non_field_errors()[0], "The end time must be later than start time."
+        self.assertIn(
+            "The end time must be later than start time.", form.non_field_errors()
         )
 
         del data["end_0"]

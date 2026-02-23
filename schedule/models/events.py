@@ -1,12 +1,13 @@
 import datetime
+from zoneinfo import ZoneInfo
 
-import pytz
+import django
 from dateutil import rrule
 from django.conf import settings as django_settings
 from django.contrib.contenttypes import fields
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Q
 from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
@@ -44,12 +45,23 @@ class EventManager(models.Manager):
         )
 
 
+def _localize(dt, tzinfo):
+    """Attach tzinfo to a naive datetime that is already in the correct local time."""
+    if dt.tzinfo is not None:
+        raise ValueError("_localize expects a naive datetime, got {!r}".format(dt))
+    return dt.replace(tzinfo=tzinfo)
+
+
 class Event(models.Model):
     """
     This model stores meta data for a date.  You can relate this data to many
     other models.
     """
 
+    # This is the timezone the event was created in. It's necessary to know that in order to have recurrent events work how humans expect them to work.
+    # The timezone name should be an IANA timezone name (e.g. "Europe/Vienna").
+    # Whatever value TIMEZONE has, START is still stored as UTC.
+    timezone = models.CharField(_("time zone"), default="UTC", max_length=40)
     start = models.DateTimeField(_("start"), db_index=True)
     end = models.DateTimeField(
         _("end"),
@@ -67,6 +79,14 @@ class Event(models.Model):
         related_name="creator",
     )
     created_on = models.DateTimeField(_("created on"), auto_now_add=True)
+    updater = models.ForeignKey(
+        django_settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("updater"),
+        related_name="updater",
+    )
     updated_on = models.DateTimeField(_("updated on"), auto_now=True)
     rule = models.ForeignKey(
         Rule,
@@ -92,7 +112,19 @@ class Event(models.Model):
     class Meta:
         verbose_name = _("event")
         verbose_name_plural = _("events")
-        indexes = [models.Index(fields=["start", "end"])]
+        indexes = [
+            models.Index(fields=["start", "end"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                **{
+                    "condition" if django.VERSION >= (5, 0) else "check": Q(
+                        end__gte=F("start")
+                    )
+                },
+                name="check_start_end_date_ordering",
+            ),
+        ]
 
     def __str__(self):
         return gettext("%(title)s: %(start)s - %(end)s") % {
@@ -116,11 +148,48 @@ class Event(models.Model):
     def get_absolute_url(self):
         return reverse("event", args=[self.id])
 
+    @property
+    def event_tzinfo(self):
+        return ZoneInfo(self.timezone)
+
+    def get_rrule_object(self):
+        """Humans expect recurrent occurences to always start at the same LOCAL time, so we need to know what that local time is."""
+        if self.rule is None:
+            return
+        tzinfo = self.event_tzinfo
+        params = self._event_params()
+        frequency = self.rule.rrule_frequency()
+        server_tz = ZoneInfo(django_settings.TIME_ZONE)
+        # Make dtstart naive AND in event-local time.
+        # Naive datetimes (USE_TZ=False) are in settings.TIME_ZONE;
+        # we must explicitly stamp that before converting to event-local.
+        if timezone.is_naive(self.start):
+            dtstart = (
+                self.start.replace(tzinfo=server_tz)
+                .astimezone(tzinfo)
+                .replace(tzinfo=None)
+            )
+        else:
+            dtstart = self.start.astimezone(tzinfo).replace(tzinfo=None)
+
+        if self.end_recurring_period is None:
+            until = None
+        elif timezone.is_naive(self.end_recurring_period):
+            until = (
+                self.end_recurring_period.replace(tzinfo=server_tz)
+                .astimezone(tzinfo)
+                .replace(tzinfo=None)
+            )
+        else:
+            until = self.end_recurring_period.astimezone(tzinfo).replace(tzinfo=None)
+
+        return rrule.rrule(frequency, dtstart=dtstart, until=until, **params)
+
     def get_occurrences(self, start, end, clear_prefetch=True):
         """
         >>> rule = Rule(frequency = "MONTHLY", name = "Monthly")
         >>> rule.save()
-        >>> event = Event(rule=rule, start=datetime.datetime(2008,1,1,tzinfo=pytz.utc), end=datetime.datetime(2008,1,2))
+        >>> event = Event(rule=rule, start=datetime.datetime(2008,1,1,tzinfo=datetime.timezone.utc), end=datetime.datetime(2008,1,2))
         >>> event.rule
         <Rule: Monthly>
         >>> occurrences = event.get_occurrences(datetime.datetime(2008,1,24), datetime.datetime(2008,3,2))
@@ -179,25 +248,6 @@ class Event(models.Model):
         final_occurrences += occ_replacer.get_additional_occurrences(start, end)
         return final_occurrences
 
-    def get_rrule_object(self, tzinfo):
-        if self.rule is None:
-            return
-        params = self._event_params()
-        frequency = self.rule.rrule_frequency()
-        if timezone.is_naive(self.start):
-            dtstart = self.start
-        else:
-            dtstart = self.start.astimezone(tzinfo).replace(tzinfo=None)
-
-        if self.end_recurring_period is None:
-            until = None
-        elif timezone.is_naive(self.end_recurring_period):
-            until = self.end_recurring_period
-        else:
-            until = self.end_recurring_period.astimezone(tzinfo).replace(tzinfo=None)
-
-        return rrule.rrule(frequency, dtstart=dtstart, until=until, **params)
-
     def _create_occurrence(self, start, end=None):
         if end is None:
             end = start + (self.end - self.start)
@@ -206,51 +256,86 @@ class Event(models.Model):
         )
 
     def get_occurrence(self, date):
+        """
+        Return the occurrence of this event at ``date``, or None.
+
+        Naive ``date`` (USE_TZ=False) is assumed to be in settings.TIME_ZONE
+        and converted to event-local aware for rrule comparison.  The returned
+        occurrence carries datetimes in the original format (naive server time
+        or aware).
+        """
         use_naive = timezone.is_naive(date)
-        tzinfo = datetime.timezone.utc
-        if timezone.is_naive(date):
-            date = timezone.make_aware(date, tzinfo)
-        if date.tzinfo:
-            tzinfo = date.tzinfo
-        rule = self.get_rrule_object(tzinfo)
+        tzinfo = self.event_tzinfo
+        if use_naive:
+            server_tz = ZoneInfo(django_settings.TIME_ZONE)
+            date_aware = date.replace(tzinfo=server_tz)
+        else:
+            date_aware = date
+        rule = self.get_rrule_object()
         if rule:
             next_occurrence = rule.after(
-                date.astimezone(tzinfo).replace(tzinfo=None), inc=True
+                date_aware.astimezone(tzinfo).replace(tzinfo=None), inc=True
             )
-            next_occurrence = pytz.timezone(str(tzinfo)).localize(next_occurrence)
+            if next_occurrence is None:
+                return None
+            next_occurrence = _localize(next_occurrence, tzinfo)
         else:
             next_occurrence = self.start
-        if next_occurrence == date:
+            if use_naive:
+                next_occurrence = next_occurrence.replace(tzinfo=server_tz)
+        if next_occurrence == date_aware:
             try:
                 return Occurrence.objects.get(event=self, original_start=date)
             except Occurrence.DoesNotExist:
                 if use_naive:
-                    next_occurrence = timezone.make_naive(next_occurrence, tzinfo)
+                    next_occurrence = timezone.make_naive(next_occurrence, server_tz)
                 return self._create_occurrence(next_occurrence)
 
     def _get_occurrence_list(self, start, end):
         """
         Returns a list of occurrences that fall completely or partially inside
-        the timespan defined by start (inclusive) and end (exclusive)
+        the timespan defined by start (inclusive) and end (exclusive).
+
+        The rrule generates naive datetimes in the event's own timezone
+        (event_tzinfo), so start/end must be converted to event-local time
+        before querying it. Aware inputs are converted via astimezone;
+        naive inputs (USE_TZ=False) are assumed to be in Django's
+        TIME_ZONE and converted from there.
+
+        Returned occurrences carry aware datetimes (USE_TZ=True) or naive
+        datetimes in Django's TIME_ZONE (USE_TZ=False).
         """
         if self.rule is not None:
             duration = self.end - self.start
             use_naive = timezone.is_naive(start)
 
-            # Use the timezone from the start date
-            tzinfo = datetime.timezone.utc
-            if start.tzinfo:
-                tzinfo = start.tzinfo
+            tzinfo = self.event_tzinfo
+            if use_naive:
+                server_tz = ZoneInfo(django_settings.TIME_ZONE)
 
             # Limit timespan to recurring period
             occurrences = []
             if self.end_recurring_period and self.end_recurring_period < end:
                 end = self.end_recurring_period
 
-            start_rule = self.get_rrule_object(tzinfo)
-            start = start.replace(tzinfo=None)
+            start_rule = self.get_rrule_object()
+            # Convert start/end to event-local naive datetimes for rrule comparison
+            if timezone.is_aware(start):
+                start = start.astimezone(tzinfo).replace(tzinfo=None)
+            else:
+                start = (
+                    start.replace(tzinfo=server_tz)
+                    .astimezone(tzinfo)
+                    .replace(tzinfo=None)
+                )
             if timezone.is_aware(end):
                 end = end.astimezone(tzinfo).replace(tzinfo=None)
+            else:
+                end = (
+                    end.replace(tzinfo=server_tz)
+                    .astimezone(tzinfo)
+                    .replace(tzinfo=None)
+                )
 
             o_starts = []
 
@@ -271,9 +356,9 @@ class Event(models.Model):
 
             # Create the Occurrence objects for the found start dates
             for o_start in o_starts:
-                o_start = pytz.timezone(str(tzinfo)).localize(o_start)
+                o_start = _localize(o_start, tzinfo)
                 if use_naive:
-                    o_start = timezone.make_naive(o_start, tzinfo)
+                    o_start = timezone.make_naive(o_start, server_tz)
                 o_end = o_start + duration
                 occurrence = self._create_occurrence(o_start, o_end)
                 if occurrence not in occurrences:
@@ -288,26 +373,36 @@ class Event(models.Model):
 
     def _occurrences_after_generator(self, after=None):
         """
-        returns a generator that produces unpresisted occurrences after the
-        datetime ``after``. (Optionally) This generator will return up to
-        ``max_occurrences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
+        Yields unpersisted occurrences whose end is after ``after``
+        (defaults to now), up to ``self.end_recurring_period``.
+
+        The rrule generates naive datetimes in event-local time;
+        output occurrences are converted back to Django's TIME_ZONE
+        (USE_TZ=False) or left aware (USE_TZ=True) so that the
+        ``o_end > after`` comparison uses a consistent timezone.
+
+        Yielded occurrences carry aware datetimes (USE_TZ=True) or
+        naive datetimes in Django's TIME_ZONE (USE_TZ=False).
         """
 
-        tzinfo = datetime.timezone.utc
+        tzinfo = self.event_tzinfo
         if after is None:
             after = timezone.now()
-        elif not timezone.is_naive(after):
-            tzinfo = after.tzinfo
-        rule = self.get_rrule_object(tzinfo)
+        use_naive = timezone.is_naive(after)
+        rule = self.get_rrule_object()
         if rule is None:
             if self.end > after:
                 yield self._create_occurrence(self.start, self.end)
             return
         date_iter = iter(rule)
         difference = self.end - self.start
+        if use_naive:
+            server_tz = ZoneInfo(django_settings.TIME_ZONE)
         loop_counter = 0
         for o_start in date_iter:
-            o_start = pytz.timezone(str(tzinfo)).localize(o_start)
+            o_start = _localize(o_start, tzinfo)
+            if use_naive:
+                o_start = timezone.make_naive(o_start, server_tz)
             o_end = o_start + difference
             if o_end > after:
                 yield self._create_occurrence(o_start, o_end)
@@ -338,7 +433,11 @@ class Event(models.Model):
 
     @property
     def event_start_params(self):
-        start = self.start
+        if timezone.is_naive(self.start):
+            server_tz = ZoneInfo(django_settings.TIME_ZONE)
+            start = self.start.replace(tzinfo=server_tz).astimezone(self.event_tzinfo)
+        else:
+            start = self.start.astimezone(self.event_tzinfo)
         params = {
             "byyearday": start.timetuple().tm_yday,
             "bymonth": start.month,
@@ -356,6 +455,9 @@ class Event(models.Model):
         return self.rule.get_params()
 
     def _event_params(self):
+        """
+        Use self.event_rule_params (this is what the rule says) and self.event_start_params (this is what can be derived from "start")
+        """
         freq_order = freq_dict_order[self.rule.frequency]
         rule_params = self.event_rule_params
         start_params = self.event_start_params
@@ -364,20 +466,22 @@ class Event(models.Model):
         if len(rule_params) == 0:
             return event_params
 
-        for param in rule_params:
+        for param in rule_params:  # byyearday, bymonthday, ...
             # start date influences rule params
             if (
-                param in param_dict_order
-                and param_dict_order[param] > freq_order
-                and param in start_params
+                param in param_dict_order  # byweekno etc
+                and param_dict_order[param]
+                > freq_order  # that this parameter makes sense to use with this frequency
+                and param in start_params  # and we have one derived from "start"
             ):
-                sp = start_params[param]
+                sp = start_params[param]  # the one derived from "start"
                 if sp == rule_params[param] or (
-                    hasattr(rule_params[param], "__iter__") and sp in rule_params[param]
-                ):
-                    event_params[param] = [sp]
+                    hasattr(rule_params[param], "__iter__")
+                    and [sp] == rule_params[param]
+                ):  # the start is part of the useful ones
+                    event_params[param] = [sp]  # Accept ONE of our start param values
                 else:
-                    event_params[param] = rule_params[param]
+                    event_params[param] = rule_params[param]  # accept the rule's ones
             else:
                 event_params[param] = rule_params[param]
 
@@ -419,7 +523,10 @@ class Event(models.Model):
                     pass
                 return occ.end
         elif self.pk:
-            return datetime.datetime.max
+            if django_settings.USE_TZ:
+                return datetime.datetime.max.replace(tzinfo=datetime.timezone.utc)
+            else:
+                return datetime.datetime.max
         return None
 
 
@@ -571,7 +678,9 @@ class EventRelation(models.Model):
     class Meta:
         verbose_name = _("event relation")
         verbose_name_plural = _("event relations")
-        indexes = [models.Index(fields=["content_type", "object_id"])]
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
 
     def __str__(self):
         return "{}({})-{}".format(
@@ -594,7 +703,9 @@ class Occurrence(models.Model):
     class Meta:
         verbose_name = _("occurrence")
         verbose_name_plural = _("occurrences")
-        indexes = [models.Index(fields=["start", "end"])]
+        indexes = [
+            models.Index(fields=["start", "end"]),
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -701,13 +812,12 @@ class Occurrence(models.Model):
         return self.end < other.end
 
     def __hash__(self):
-        if not self.pk:
-            raise TypeError("Model instances without primary key value are unhashable")
-        return hash(self.pk)
+        return hash((self.event_id, self.original_start, self.original_end))
 
     def __eq__(self, other):
         return (
             isinstance(other, Occurrence)
+            and self.event_id == other.event_id
             and self.original_start == other.original_start
             and self.original_end == other.original_end
         )

@@ -1,14 +1,7 @@
 from django.contrib import admin
 
-from schedule.forms import EventAdminForm
-from schedule.models import (
-    Calendar,
-    CalendarRelation,
-    Event,
-    EventRelation,
-    Occurrence,
-    Rule,
-)
+from .forms import CalendarForm, EventAdminForm
+from .models import Calendar, CalendarRelation, Event, EventRelation, Occurrence, Rule
 
 
 @admin.register(Calendar)
@@ -16,7 +9,8 @@ class CalendarAdmin(admin.ModelAdmin):
     list_display = ("name", "slug")
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ["name"]
-    fieldsets = ((None, {"fields": [("name", "slug")]}),)
+    fieldsets = ((None, {"fields": [("name", "slug"), "color_event"]}),)
+    form = CalendarForm
 
 
 @admin.register(CalendarRelation)
@@ -72,9 +66,16 @@ class EventAdmin(admin.ModelAdmin):
 
 admin.site.register(Occurrence, admin.ModelAdmin)
 
+# https://stackoverflow.com/questions/8007095/dynamic-fields-in-django-admin
+# https://pypi.org/project/django-dynamic-admin-forms/ !! doesn't work in django 4
+# XX https://django-constance.readthedocs.io/en/latest/
+
 
 @admin.register(Rule)
 class RuleAdmin(admin.ModelAdmin):
     list_display = ("name",)
     list_filter = ("frequency",)
     search_fields = ("name", "description")
+    fields = ("name", "description", "frequency", "repeats", "params")
+    # form = RuleForm
+    filter_horizontal = ["repeats"]

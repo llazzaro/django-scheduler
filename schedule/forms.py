@@ -1,8 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from schedule.models import Event, Occurrence
-from schedule.widgets import ColorInput
+from .models import Calendar, Event, Occurrence
+from .widgets import ColorInput
 
 
 class SpanForm(forms.ModelForm):
@@ -39,6 +39,13 @@ class OccurrenceForm(SpanForm):
     class Meta:
         model = Occurrence
         exclude = ("original_start", "original_end", "event", "cancelled")
+
+
+class CalendarForm(forms.ModelForm):
+    class Meta:
+        exclude = []
+        model = Calendar
+        widgets = {"color_event": ColorInput}
 
 
 class EventAdminForm(forms.ModelForm):

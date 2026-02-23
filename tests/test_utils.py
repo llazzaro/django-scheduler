@@ -9,8 +9,8 @@ from schedule.utils import EventListManager, OccurrenceReplacer
 
 class TestEventListManager(TestCase):
     def setUp(self):
-        weekly = Rule.objects.create(frequency="WEEKLY")
-        daily = Rule.objects.create(frequency="DAILY")
+        weekly = Rule.objects.create(frequency="WEEKLY", name="weekly")
+        daily = Rule.objects.create(frequency="DAILY", name="daily")
         cal = Calendar.objects.create(name="MyCal")
         self.default_tzinfo = timezone.get_default_timezone()
 
@@ -98,8 +98,8 @@ class TestEventListManager(TestCase):
 
 class TestOccurrenceReplacer(TestCase):
     def setUp(self):
-        weekly = Rule.objects.create(frequency="WEEKLY")
-        daily = Rule.objects.create(frequency="DAILY")
+        weekly = Rule.objects.create(frequency="WEEKLY", name="weekly")
+        daily = Rule.objects.create(frequency="DAILY", name="daily")
         cal = Calendar.objects.create(name="MyCal")
         self.default_tzinfo = timezone.get_default_timezone()
         self.start = timezone.now() - datetime.timedelta(days=10)

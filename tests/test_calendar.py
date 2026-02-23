@@ -101,11 +101,11 @@ class TestCalendar(TestCase):
         self.assertEqual(calendar, calendar_from_rule)
 
     def test_get_calendars_for_object_without_calendars(self):
-        rule = Rule.objects.create()
+        rule = Rule.objects.create(name="rule1", frequency="WEEKLY")
         Calendar.objects.get_or_create_calendar_for_object(
             rule, name="My Cal", distinction="owner"
         )
-        rule = Rule.objects.create()
+        rule = Rule.objects.create(name="rule2", frequency="DAILY")
         calendars = list(
             Calendar.objects.get_calendars_for_object(rule, distinction="owner")
         )
