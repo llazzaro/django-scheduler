@@ -2,6 +2,7 @@ import datetime
 
 import pytz
 from dateutil import rrule
+from dateutil.relativedelta import relativedelta
 from django.conf import settings as django_settings
 from django.contrib.contenttypes import fields
 from django.contrib.contenttypes.models import ContentType
@@ -14,6 +15,7 @@ from django.utils.translation import gettext, gettext_lazy as _
 
 from schedule.models.calendars import Calendar
 from schedule.models.rules import Rule
+from schedule.settings import EVENT_END_DEFAULT_DURATION
 from schedule.utils import OccurrenceReplacer
 
 freq_dict_order = {
@@ -50,12 +52,38 @@ class Event(models.Model):
     other models.
     """
 
+    @staticmethod
+    def end_of_time():
+        return datetime.datetime.today() + relativedelta(**EVENT_END_DEFAULT_DURATION)
+
+    def clean(self):
+        """Ensure the end date is not given and optional end_recurring_period (if given) match"""
+        super().clean()
+        if self.end is None:
+            if self.end_recurring_period is not None:
+                self.end = self.end_recurring_period
+            else:
+                self.end = self.end_of_time()
+                self.default_end = True
+
+        if (
+            self.end_recurring_period is not None
+            and self.end != self.end_recurring_period
+        ):
+            end = min(self.end, self.end_recurring_period)
+            self.end = end
+            self.end_recurring_period = end
+            self.default_end = False
+
     start = models.DateTimeField(_("start"), db_index=True)
     end = models.DateTimeField(
         _("end"),
         db_index=True,
+        null=True,
+        blank=True,
         help_text=_("The end time must be later than the start time."),
     )
+    default_end = models.BooleanField(default=False)
     title = models.CharField(_("title"), max_length=255)
     description = models.TextField(_("description"), blank=True)
     creator = models.ForeignKey(
