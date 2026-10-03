@@ -397,10 +397,18 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
     end = convert(end)
     current_tz = False
     if timezone and timezone in pytz.common_timezones:
-        # make start and end dates aware in given timezone
+        # Localize naive dates; preserve the instant of dates with an offset.
         current_tz = pytz.timezone(timezone)
-        start = current_tz.localize(start)
-        end = current_tz.localize(end)
+        start = (
+            current_tz.localize(start)
+            if start.tzinfo is None
+            else start.astimezone(current_tz)
+        )
+        end = (
+            current_tz.localize(end)
+            if end.tzinfo is None
+            else end.astimezone(current_tz)
+        )
     elif settings.USE_TZ:
         # If USE_TZ is True, make start and end dates aware in UTC timezone
         utc = pytz.UTC

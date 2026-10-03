@@ -40,6 +40,32 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_occurrences_api_dates_with_named_timezone(self):
+        date_ranges = [
+            ("2008-01-05T01:30:00", "2008-01-05T03:30:00"),
+            ("2008-01-05T07:30:00Z", "2008-01-05T09:30:00Z"),
+            ("2008-01-05T09:30:00+02:00", "2008-01-05T11:30:00+02:00"),
+            ("2008-01-05T07:30:00Z", "2008-01-05T03:30:00"),
+            ("2008-01-05T01:30:00", "2008-01-05T11:30:00+02:00"),
+        ]
+        for start, end in date_ranges:
+            with self.subTest(start=start, end=end):
+                response = self.client.get(
+                    reverse("api_occurrences"),
+                    {
+                        "start": start,
+                        "end": end,
+                        "calendar_slug": self.calendar.slug,
+                        "timezone": "America/Chicago",
+                    },
+                )
+                self.assertEqual(response.status_code, 200)
+                occurrences = response.json()
+                self.assertEqual(len(occurrences), 1)
+                self.assertEqual(occurrences[0]["event_id"], self.event.pk)
+                self.assertEqual(occurrences[0]["start"], "2008-01-05T02:00:00-06:00")
+                self.assertEqual(occurrences[0]["end"], "2008-01-05T03:00:00-06:00")
+
     def test_occurrences_api_assigns_unique_ids(self):
         other_calendar = Calendar.objects.create(name="Other", slug="other")
         other_event = Event.objects.create(
