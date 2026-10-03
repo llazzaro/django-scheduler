@@ -440,12 +440,14 @@ def _api_occurrences(start, end, calendar_slugs, timezone):
     for event in event_list:
         occurrences = event.get_occurrences(start, end)
         for occurrence in occurrences:
-            occurrence_id = i + occurrence.event.id
             existed = False
 
             if occurrence.id:
                 occurrence_id = occurrence.id
                 existed = True
+            else:
+                occurrence_id = i
+                i += 1
 
             recur_rule = occurrence.event.rule.name if occurrence.event.rule else None
 
