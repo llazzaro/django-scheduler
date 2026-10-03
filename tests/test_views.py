@@ -40,6 +40,50 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_occurrences_api_assigns_unique_ids(self):
+        other_calendar = Calendar.objects.create(name="Other", slug="other")
+        other_event = Event.objects.create(
+            title="Other Event",
+            start=self.event.start,
+            end=self.event.end,
+            end_recurring_period=self.event.end_recurring_period,
+            rule=self.rule,
+            calendar=other_calendar,
+        )
+        persisted = self.event.get_occurrence(self.event.start)
+        for save_occurrence in (False, True):
+            with self.subTest(persisted=save_occurrence):
+                if save_occurrence:
+                    persisted.save()
+                response = self.client.get(
+                    reverse("api_occurrences"),
+                    {
+                        "start": "2008-01-05",
+                        "end": "2008-01-08",
+                        "calendar_slug": f"{self.calendar.slug},{other_calendar.slug}",
+                    },
+                )
+                self.assertEqual(response.status_code, 200)
+                occurrences = response.json()
+                self.assertEqual(len(occurrences), 6)
+                ids = [occurrence["id"] for occurrence in occurrences]
+                self.assertEqual(len(ids), len(set(ids)))
+                self.assertEqual(
+                    {occurrence["event_id"] for occurrence in occurrences},
+                    {self.event.pk, other_event.pk},
+                )
+                if save_occurrence:
+                    saved = [item for item in occurrences if item["existed"]]
+                    self.assertEqual(len(saved), 1)
+                    self.assertEqual(saved[0]["id"], persisted.pk)
+                    self.assertTrue(
+                        all(
+                            item["id"] > persisted.pk
+                            for item in occurrences
+                            if not item["existed"]
+                        )
+                    )
+
 
 class TestViewUtils(TestCase):
     def setUp(self):
@@ -284,7 +328,7 @@ class TestUrls(TestCase):
                 "cancelled": False,
                 "calendar": "MyCalSlug",
                 "start": "2008-01-05T08:00:00Z",
-                "id": 9,
+                "id": 1,
             }
         ]
         self.assertEqual(json.loads(response.content.decode()), expected_content)
@@ -347,7 +391,7 @@ class TestUrls(TestCase):
                 "cancelled": False,
                 "calendar": "MyCalSlug",
                 "start": "2008-01-05T08:00:00Z",
-                "id": 10,
+                "id": 2,
             },
             {
                 "existed": False,
@@ -362,7 +406,7 @@ class TestUrls(TestCase):
                 "cancelled": False,
                 "calendar": "MyCalSlug",
                 "start": "2008-01-06T08:00:00Z",
-                "id": 10,
+                "id": 3,
             },
             {
                 "existed": False,
@@ -377,7 +421,7 @@ class TestUrls(TestCase):
                 "cancelled": False,
                 "calendar": "MyCalSlug",
                 "start": "2008-01-07T08:00:00Z",
-                "id": 10,
+                "id": 4,
             },
             {
                 "existed": True,
@@ -421,7 +465,7 @@ class TestUrls(TestCase):
                 "cancelled": False,
                 "calendar": "MyCalSlug",
                 "start": "2008-01-05T02:00:00-06:00",
-                "id": 10,
+                "id": 2,
             },
             {
                 "existed": False,
@@ -436,7 +480,7 @@ class TestUrls(TestCase):
                 "cancelled": False,
                 "calendar": "MyCalSlug",
                 "start": "2008-01-06T02:00:00-06:00",
-                "id": 10,
+                "id": 3,
             },
             {
                 "existed": False,
@@ -451,7 +495,7 @@ class TestUrls(TestCase):
                 "cancelled": False,
                 "calendar": "MyCalSlug",
                 "start": "2008-01-07T02:00:00-06:00",
-                "id": 10,
+                "id": 4,
             },
             {
                 "existed": True,
