@@ -20,9 +20,7 @@ from schedule.views import (
 )
 
 
-class TestViews(TestCase):
-    fixtures = ["schedule.json"]
-
+class DailyEventTestCase(TestCase):
     def setUp(self):
         self.rule = Rule.objects.create(frequency="DAILY")
         self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
@@ -34,6 +32,10 @@ class TestViews(TestCase):
             rule=self.rule,
             calendar=self.calendar,
         )
+
+
+class TestViews(DailyEventTestCase):
+    fixtures = ["schedule.json"]
 
     @override_settings(USE_TZ=False)
     def test_timezone_off(self):
@@ -67,64 +69,57 @@ class TestViews(TestCase):
                 self.assertEqual(occurrences[0]["start"], "2008-01-05T02:00:00-06:00")
                 self.assertEqual(occurrences[0]["end"], "2008-01-05T03:00:00-06:00")
 
-    def test_occurrences_api_assigns_unique_ids(self):
-        other_calendar = Calendar.objects.create(name="Other", slug="other")
-        other_event = Event.objects.create(
+    def _create_other_event(self):
+        calendar = Calendar.objects.create(name="Other", slug="other")
+        return Event.objects.create(
             title="Other Event",
             start=self.event.start,
             end=self.event.end,
             end_recurring_period=self.event.end_recurring_period,
             rule=self.rule,
-            calendar=other_calendar,
+            calendar=calendar,
         )
+
+    def _assert_unique_occurrence_ids(self, other_event):
+        response = self.client.get(
+            reverse("api_occurrences"),
+            {
+                "start": "2008-01-05",
+                "end": "2008-01-08",
+                "calendar_slug": f"{self.calendar.slug},{other_event.calendar.slug}",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        occurrences = response.json()
+        self.assertEqual(len(occurrences), 6)
+        ids = [occurrence["id"] for occurrence in occurrences]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertEqual(
+            {occurrence["event_id"] for occurrence in occurrences},
+            {self.event.pk, other_event.pk},
+        )
+        return occurrences
+
+    def test_occurrences_api_assigns_unique_ids(self):
+        other_event = self._create_other_event()
+        self._assert_unique_occurrence_ids(other_event)
+
+    def test_occurrences_api_assigns_unique_ids_with_persisted_occurrence(self):
+        other_event = self._create_other_event()
         persisted = self.event.get_occurrence(self.event.start)
-        for save_occurrence in (False, True):
-            with self.subTest(persisted=save_occurrence):
-                if save_occurrence:
-                    persisted.save()
-                response = self.client.get(
-                    reverse("api_occurrences"),
-                    {
-                        "start": "2008-01-05",
-                        "end": "2008-01-08",
-                        "calendar_slug": f"{self.calendar.slug},{other_calendar.slug}",
-                    },
-                )
-                self.assertEqual(response.status_code, 200)
-                occurrences = response.json()
-                self.assertEqual(len(occurrences), 6)
-                ids = [occurrence["id"] for occurrence in occurrences]
-                self.assertEqual(len(ids), len(set(ids)))
-                self.assertEqual(
-                    {occurrence["event_id"] for occurrence in occurrences},
-                    {self.event.pk, other_event.pk},
-                )
-                if save_occurrence:
-                    saved = [item for item in occurrences if item["existed"]]
-                    self.assertEqual(len(saved), 1)
-                    self.assertEqual(saved[0]["id"], persisted.pk)
-                    self.assertTrue(
-                        all(
-                            item["id"] > persisted.pk
-                            for item in occurrences
-                            if not item["existed"]
-                        )
-                    )
-
-
-class TestViewUtils(TestCase):
-    def setUp(self):
-        self.rule = Rule.objects.create(frequency="DAILY")
-        self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
-        self.event = Event.objects.create(
-            title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            rule=self.rule,
-            calendar=self.calendar,
+        persisted.save()
+        occurrences = self._assert_unique_occurrence_ids(other_event)
+        saved = [item for item in occurrences if item["existed"]]
+        self.assertEqual(len(saved), 1)
+        self.assertEqual(saved[0]["id"], persisted.pk)
+        self.assertTrue(
+            all(
+                item["id"] > persisted.pk for item in occurrences if not item["existed"]
+            )
         )
 
+
+class TestViewUtils(DailyEventTestCase):
     def test_get_occurrence(self):
         event, occurrence = get_occurrence(
             self.event.pk,
@@ -222,10 +217,12 @@ class TestGetNextUrl(SimpleTestCase):
         self.assertIsNone(get_next_url(request, None))
 
 
-class TestUrls(TestCase):
+class UrlFixtureTestCase(TestCase):
     fixtures = ["schedule.json"]
     highest_event_id = 7
 
+
+class TestCalendarUrls(UrlFixtureTestCase):
     def test_calendar_view(self):
         response = self.client.get(
             reverse("year_calendar", kwargs={"calendar_slug": "example"}), {}
@@ -321,6 +318,142 @@ class TestUrls(TestCase):
         response = self.client.get(reverse("delete_event", kwargs={"event_id": 1}))
         self.assertEqual(response.status_code, 404)
 
+    def test_check_next_url_valid_case(self):
+        expected = "/calendar/1"
+        res = check_next_url("/calendar/1")
+        self.assertEqual(expected, res)
+
+    def test_check_next_url_invalid_case(self):
+        expected = None
+        res = check_next_url("http://localhost/calendar/1")
+        self.assertEqual(expected, res)
+        res = check_next_url(None)
+        self.assertEqual(expected, res)
+
+    @override_settings(SITE_ID=1)
+    def test_feed_link(self):
+        feed_url = reverse("upcoming_events_feed", kwargs={"calendar_id": 1})
+        response = self.client.get(feed_url)
+        self.assertEqual(response.status_code, 200)
+        expected_feed = "http://example.com/feed/calendar/upcoming/1/"
+        self.assertTrue(expected_feed in response.content.decode())
+
+    def test_calendar_view_home(self):
+        calendar_view_url = reverse(
+            "calendar_home", kwargs={"calendar_slug": "example"}
+        )
+        response = self.client.get(calendar_view_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            '<a href="/feed/calendar/upcoming/1/">Feed</a>' in response.content.decode()
+        )
+
+
+class TestOccurrenceApiParameters(UrlFixtureTestCase):
+    def test_occurrences_api_without_parameters_return_status_400(self):
+        response = self.client.get(reverse("api_occurrences"))
+        self.assertEqual(response.status_code, 400)
+
+    def test_occurrences_api_without_calendar_slug_return_status_404(self):
+        response = self.client.get(
+            reverse("api_occurrences"),
+            {
+                "start": datetime.datetime(2008, 1, 5),
+                "end": datetime.datetime(2008, 1, 6),
+                "calendar_slug": "NoMatch",
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_occurrences_api_works_with_and_without_cal_slug(self):
+        # create a calendar and event
+        calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
+        event = Event.objects.create(
+            title="Recent Event",
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar,
+        )
+        # test calendar slug
+        response = self.client.get(
+            reverse("api_occurrences"),
+            {
+                "start": "2008-01-05",
+                "end": "2008-02-05",
+                "calendar_slug": event.calendar.slug,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        resp_list = json.loads(response.content.decode())
+        self.assertIn(event.title, [d["title"] for d in resp_list])
+        # test works with no calendar slug
+        response = self.client.get(
+            reverse("api_occurrences"), {"start": "2008-01-05", "end": "2008-02-05"}
+        )
+        self.assertEqual(response.status_code, 200)
+        resp_list = json.loads(response.content.decode())
+        self.assertIn(event.title, [d["title"] for d in resp_list])
+
+    def test_occurrences_api_works_with_different_date_string_formats(self):
+        # create a calendar and event
+        calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
+        event = Event.objects.create(
+            title="Recent Event",
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar,
+        )
+        # test works with date string time format '%Y-%m-%d'
+        response = self.client.get(
+            reverse("api_occurrences"),
+            {
+                "start": "2008-01-05",
+                "end": "2008-02-05",
+                "calendar_slug": event.calendar.slug,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        resp_list = json.loads(response.content.decode())
+        self.assertIn(event.title, [d["title"] for d in resp_list])
+        # test works with date string time format '%Y-%m-%dT%H:%M:%S'
+        response = self.client.get(
+            reverse("api_occurrences"),
+            {
+                "start": "2008-01-05T00:00:00",
+                "end": "2008-02-05T00:00:00",
+                "calendar_slug": event.calendar.slug,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        resp_list = json.loads(response.content.decode())
+        self.assertIn(event.title, [d["title"] for d in resp_list])
+
+    def test_occurrences_api_fails_with_incorrect_date_string_formats(self):
+        # create a calendar and event
+        calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
+        event = Event.objects.create(
+            title="Recent Event",
+            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
+            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
+            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
+            calendar=calendar,
+        )
+
+        # test fails with completely invalid date strings
+        response = self.client.get(
+            reverse("api_occurrences"),
+            {
+                "start": "not-a-date",
+                "end": "also-not-a-date",
+                "calendar_slug": event.calendar.slug,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+
+class TestOccurrenceApiFiltering(UrlFixtureTestCase):
     def test_occurrences_api_returns_the_expected_occurrences(self):
         # create a calendar and event
         calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
@@ -359,21 +492,6 @@ class TestUrls(TestCase):
             }
         ]
         self.assertEqual(json.loads(response.content.decode()), expected_content)
-
-    def test_occurrences_api_without_parameters_return_status_400(self):
-        response = self.client.get(reverse("api_occurrences"))
-        self.assertEqual(response.status_code, 400)
-
-    def test_occurrences_api_without_calendar_slug_return_status_404(self):
-        response = self.client.get(
-            reverse("api_occurrences"),
-            {
-                "start": datetime.datetime(2008, 1, 5),
-                "end": datetime.datetime(2008, 1, 6),
-                "calendar_slug": "NoMatch",
-            },
-        )
-        self.assertEqual(response.status_code, 400)
 
     def test_occurrences_api_checks_valid_occurrence_ids(self):
         # create a calendar and event
@@ -542,36 +660,6 @@ class TestUrls(TestCase):
         ]
         self.assertEqual(json.loads(response.content.decode()), expected_content)
 
-    def test_occurrences_api_works_with_and_without_cal_slug(self):
-        # create a calendar and event
-        calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
-        event = Event.objects.create(
-            title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            calendar=calendar,
-        )
-        # test calendar slug
-        response = self.client.get(
-            reverse("api_occurrences"),
-            {
-                "start": "2008-01-05",
-                "end": "2008-02-05",
-                "calendar_slug": event.calendar.slug,
-            },
-        )
-        self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode())
-        self.assertIn(event.title, [d["title"] for d in resp_list])
-        # test works with no calendar slug
-        response = self.client.get(
-            reverse("api_occurrences"), {"start": "2008-01-05", "end": "2008-02-05"}
-        )
-        self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode())
-        self.assertIn(event.title, [d["title"] for d in resp_list])
-
     def test_cal_slug_filters_returned_events(self):
         calendar1 = Calendar.objects.create(name="MyCal1", slug="MyCalSlug1")
         calendar2 = Calendar.objects.create(name="MyCal2", slug="MyCalSlug2")
@@ -610,63 +698,6 @@ class TestUrls(TestCase):
         resp_list = json.loads(response.content.decode())
         self.assertIn(event1.title, [d["title"] for d in resp_list])
         self.assertNotIn(event2.title, [d["title"] for d in resp_list])
-
-    def test_occurrences_api_works_with_different_date_string_formats(self):
-        # create a calendar and event
-        calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
-        event = Event.objects.create(
-            title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            calendar=calendar,
-        )
-        # test works with date string time format '%Y-%m-%d'
-        response = self.client.get(
-            reverse("api_occurrences"),
-            {
-                "start": "2008-01-05",
-                "end": "2008-02-05",
-                "calendar_slug": event.calendar.slug,
-            },
-        )
-        self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode())
-        self.assertIn(event.title, [d["title"] for d in resp_list])
-        # test works with date string time format '%Y-%m-%dT%H:%M:%S'
-        response = self.client.get(
-            reverse("api_occurrences"),
-            {
-                "start": "2008-01-05T00:00:00",
-                "end": "2008-02-05T00:00:00",
-                "calendar_slug": event.calendar.slug,
-            },
-        )
-        self.assertEqual(response.status_code, 200)
-        resp_list = json.loads(response.content.decode())
-        self.assertIn(event.title, [d["title"] for d in resp_list])
-
-    def test_occurrences_api_fails_with_incorrect_date_string_formats(self):
-        # create a calendar and event
-        calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
-        event = Event.objects.create(
-            title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            calendar=calendar,
-        )
-
-        # test fails with completely invalid date strings
-        response = self.client.get(
-            reverse("api_occurrences"),
-            {
-                "start": "not-a-date",
-                "end": "also-not-a-date",
-                "calendar_slug": event.calendar.slug,
-            },
-        )
-        self.assertEqual(response.status_code, 400)
 
     def test_cal_multiple_slugs_return_all_events(self):
         calendar1 = Calendar.objects.create(name="MyCal1", slug="MyCalSlug1")
@@ -783,50 +814,8 @@ class TestUrls(TestCase):
         expected_content = []
         self.assertEqual(json.loads(response.content.decode()), expected_content)
 
-    def test_check_next_url_valid_case(self):
-        expected = "/calendar/1"
-        res = check_next_url("/calendar/1")
-        self.assertEqual(expected, res)
 
-    def test_check_next_url_invalid_case(self):
-        expected = None
-        res = check_next_url("http://localhost/calendar/1")
-        self.assertEqual(expected, res)
-        res = check_next_url(None)
-        self.assertEqual(expected, res)
-
-    @override_settings(SITE_ID=1)
-    def test_feed_link(self):
-        feed_url = reverse("upcoming_events_feed", kwargs={"calendar_id": 1})
-        response = self.client.get(feed_url)
-        self.assertEqual(response.status_code, 200)
-        expected_feed = "http://example.com/feed/calendar/upcoming/1/"
-        self.assertTrue(expected_feed in response.content.decode())
-
-    def test_calendar_view_home(self):
-        calendar_view_url = reverse(
-            "calendar_home", kwargs={"calendar_slug": "example"}
-        )
-        response = self.client.get(calendar_view_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(
-            '<a href="/feed/calendar/upcoming/1/">Feed</a>' in response.content.decode()
-        )
-
-
-class TestOccurrencePreview(TestCase):
-    def setUp(self):
-        self.rule = Rule.objects.create(frequency="DAILY")
-        self.calendar = Calendar.objects.create(name="MyCal", slug="MyCalSlug")
-        self.event = Event.objects.create(
-            title="Recent Event",
-            start=datetime.datetime(2008, 1, 5, 8, 0, tzinfo=pytz.utc),
-            end=datetime.datetime(2008, 1, 5, 9, 0, tzinfo=pytz.utc),
-            end_recurring_period=datetime.datetime(2008, 5, 5, 0, 0, tzinfo=pytz.utc),
-            rule=self.rule,
-            calendar=self.calendar,
-        )
-
+class TestOccurrencePreview(DailyEventTestCase):
     def test_generates_preview(self):
         url = reverse(
             "occurrence_by_date",
