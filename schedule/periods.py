@@ -120,12 +120,8 @@ class Period:
             return
         if occurrence.start > self.end or occurrence.end < self.start:
             return None
-        started = False
-        ended = False
-        if self.utc_start <= occurrence.start < self.utc_end:
-            started = True
-        if self.utc_start <= occurrence.end < self.utc_end:
-            ended = True
+        started = self.utc_start <= occurrence.start < self.utc_end
+        ended = self.utc_start <= occurrence.end < self.utc_end
         if started and ended:
             return {"occurrence": occurrence, "class": 1}
         elif started:
