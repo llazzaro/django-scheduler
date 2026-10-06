@@ -1,9 +1,10 @@
 import datetime
+from unittest.mock import patch
 
 import pytz
 from django.conf import settings
 from django.db import connection
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 from django.test.utils import CaptureQueriesContext, override_settings
 
 from schedule.models import Calendar, Event, Rule
@@ -669,3 +670,62 @@ class TestStrftimeRefactor(TestCase):
             m.name()
         except ValueError as value_error:
             self.fail(value_error)
+
+
+class TestPeriodClassification(SimpleTestCase):
+    def setUp(self):
+        self.start = datetime.datetime(2008, 1, 5, 8, tzinfo=pytz.UTC)
+        self.period = Period([], self.start, self.start + datetime.timedelta(hours=2))
+
+    def test_overlap_and_boundary_classes(self):
+        # Offsets in hours from the period's start; retain inclusive filtering
+        # and exclusive end-point classification, including touching events.
+        cases = [
+            (-2, -1, None),
+            (3, 4, None),
+            (0.5, 1.5, 1),
+            (0.5, 3, 0),
+            (-1, 1, 3),
+            (-1, 3, 2),
+            (0, 1, 1),
+            (1, 2, 0),
+            (0, 2, 0),
+            (-1, 0, 3),
+            (2, 3, 2),
+            (0, 0, 1),
+            (2, 2, 2),
+        ]
+        for start, end, expected in cases:
+            with self.subTest(start=start, end=end):
+                occurrence = Occurrence(
+                    start=self.start + datetime.timedelta(hours=start),
+                    end=self.start + datetime.timedelta(hours=end),
+                )
+                result = self.period.classify_occurrence(occurrence)
+                if expected is None:
+                    self.assertIsNone(result)
+                else:
+                    self.assertEqual(
+                        result, {"occurrence": occurrence, "class": expected}
+                    )
+
+    def test_cancelled_occurrence_visibility(self):
+        occurrence = Occurrence(start=self.start, end=self.start, cancelled=True)
+        with patch("schedule.periods.SHOW_CANCELLED_OCCURRENCES", False):
+            self.assertIsNone(self.period.classify_occurrence(occurrence))
+        with patch("schedule.periods.SHOW_CANCELLED_OCCURRENCES", True):
+            self.assertEqual(
+                self.period.classify_occurrence(occurrence),
+                {"occurrence": occurrence, "class": 1},
+            )
+
+    def test_occurrence_in_another_timezone(self):
+        tzinfo = pytz.timezone("America/Chicago")
+        occurrence = Occurrence(
+            start=self.start.astimezone(tzinfo),
+            end=(self.start + datetime.timedelta(hours=1)).astimezone(tzinfo),
+        )
+        self.assertEqual(
+            self.period.classify_occurrence(occurrence),
+            {"occurrence": occurrence, "class": 1},
+        )
