@@ -1,6 +1,7 @@
 import heapq
 from functools import wraps
 
+from django.apps import apps
 from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.utils import timezone
@@ -30,7 +31,7 @@ class EventListManager:
         the most recent occurrence after the date ``after`` from any of the
         events in ``self.events``
         """
-        from schedule.models import Occurrence
+        Occurrence = apps.get_model("schedule", "Occurrence")
 
         if after is None:
             after = timezone.now()
@@ -122,7 +123,7 @@ def get_kwarg_or_param(request, kwargs, key):
 
 
 def get_occurrence(request, **kwargs):
-    from schedule.models import Occurrence
+    Occurrence = apps.get_model("schedule", "Occurrence")
 
     occurrence_id = get_kwarg_or_param(request, kwargs, "occurrence_id")
     return (
@@ -131,7 +132,7 @@ def get_occurrence(request, **kwargs):
 
 
 def get_event(occurrence, request, **kwargs):
-    from schedule.models import Event
+    Event = apps.get_model("schedule", "Event")
 
     if occurrence:
         event = occurrence.event
@@ -142,7 +143,7 @@ def get_event(occurrence, request, **kwargs):
 
 
 def get_calendar(event, request, **kwargs):
-    from schedule.models import Calendar
+    Calendar = apps.get_model("schedule", "Calendar")
 
     calendar = None
     if event:
