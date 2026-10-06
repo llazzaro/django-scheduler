@@ -3,13 +3,13 @@ import datetime
 
 import pytz
 from django.conf import settings
-from django.db.models.query import prefetch_related_objects
 from django.template.defaultfilters import date as date_filter
 from django.utils import timezone
 from django.utils.dates import WEEKDAYS, WEEKDAYS_ABBR
 from django.utils.translation import gettext
 
 from schedule.models import Occurrence
+from schedule.period_occurrences import PeriodOccurrences
 from schedule.settings import SHOW_CANCELLED_OCCURRENCES
 
 weekday_names = []
@@ -80,71 +80,29 @@ class Period:
         return tzinfo if settings.USE_TZ else None
 
     def _get_sorted_occurrences(self):
-        occurrences = []
-        if hasattr(self, "occurrence_pool") and self.occurrence_pool is not None:
-            for occurrence in self.occurrence_pool:
-                if (
-                    occurrence.start <= self.utc_end
-                    and occurrence.end >= self.utc_start
-                ):
-                    occurrences.append(occurrence)
-        else:
-            prefetch_related_objects(self.events, "occurrence_set")
-            for event in self.events:
-                event_occurrences = event.get_occurrences(
-                    self.start, self.end, clear_prefetch=False
-                )
-                occurrences += event_occurrences
-        return sorted(occurrences, **self.sorting_options)
+        return PeriodOccurrences(self, Occurrence).get_sorted()
 
     def cached_get_sorted_occurrences(self):
-        if hasattr(self, "_occurrences"):
-            return self._occurrences
-        occs = self._get_sorted_occurrences()
-        self._occurrences = occs
-        return occs
+        return PeriodOccurrences(self, Occurrence).get_cached()
 
     occurrences = property(cached_get_sorted_occurrences)
 
     def get_persisted_occurrences(self):
-        if hasattr(self, "_persisted_occurrences"):
-            return self._persisted_occurrences
-        else:
-            self._persisted_occurrences = Occurrence.objects.filter(
-                event__in=self.events
-            )
-            return self._persisted_occurrences
+        return PeriodOccurrences(self, Occurrence).get_persisted()
 
     def classify_occurrence(self, occurrence):
-        if occurrence.cancelled and not SHOW_CANCELLED_OCCURRENCES:
-            return
-        if occurrence.start > self.end or occurrence.end < self.start:
-            return None
-        started = self.utc_start <= occurrence.start < self.utc_end
-        ended = self.utc_start <= occurrence.end < self.utc_end
-        if started and ended:
-            return {"occurrence": occurrence, "class": 1}
-        elif started:
-            return {"occurrence": occurrence, "class": 0}
-        elif ended:
-            return {"occurrence": occurrence, "class": 3}
-        # it existed during this period but it didn't begin or end within it
-        # so it must have just continued
-        return {"occurrence": occurrence, "class": 2}
+        return PeriodOccurrences(self, Occurrence).classify(
+            occurrence, SHOW_CANCELLED_OCCURRENCES
+        )
 
     def get_occurrence_partials(self):
-        occurrence_dicts = []
-        for occurrence in self.occurrences:
-            occurrence = self.classify_occurrence(occurrence)
-            if occurrence:
-                occurrence_dicts.append(occurrence)
-        return occurrence_dicts
+        return PeriodOccurrences(self, Occurrence).get_partials()
 
     def get_occurrences(self):
         return self.occurrences
 
     def has_occurrences(self):
-        return any(self.classify_occurrence(o) for o in self.occurrences)
+        return PeriodOccurrences(self, Occurrence).has_occurrences()
 
     def get_time_slot(self, start, end):
         if start >= self.start and end <= self.end:
