@@ -58,6 +58,26 @@ class TestCalendar(TestCase):
         occurrences = list(calendar.occurrences_after(timezone.now()))
         self.assertEqual(occurrences, [])
 
+    def test_occurrences_after_returns_persisted_replacement(self):
+        calendar = Calendar.objects.create(name="MyCal")
+        start = timezone.now() + datetime.timedelta(days=1)
+        event = Event.objects.create(
+            title="Meeting",
+            start=start,
+            end=start + datetime.timedelta(hours=1),
+            calendar=calendar,
+        )
+        persisted = event.get_occurrence(start)
+        persisted.move(
+            start + datetime.timedelta(hours=2), start + datetime.timedelta(hours=3)
+        )
+        occurrences = list(
+            calendar.occurrences_after(start - datetime.timedelta(hours=1))
+        )
+        self.assertEqual(len(occurrences), 1)
+        self.assertEqual(occurrences[0].pk, persisted.pk)
+        self.assertEqual(occurrences[0].start, persisted.start)
+
     def test_get_calendar_for_object(self):
         calendar = Calendar.objects.create(name="My Cal")
         rule = Rule.objects.create()
