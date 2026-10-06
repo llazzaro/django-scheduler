@@ -1,6 +1,5 @@
 import datetime
 
-import pytz
 from django.conf import settings as django_settings
 from django.contrib.contenttypes import fields
 from django.contrib.contenttypes.models import ContentType
@@ -8,10 +7,10 @@ from django.db import models
 from django.db.models import Q
 from django.template.defaultfilters import date
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext, gettext_lazy as _
 
 from schedule.models.calendars import Calendar
+from schedule.models.event_occurrences import EventOccurrences, _recurring_starts
 from schedule.models.recurrence import (  # noqa: F401
     _event_params as recurrence_event_params,
     freq_dict_order,
@@ -19,15 +18,6 @@ from schedule.models.recurrence import (  # noqa: F401
     param_dict_order,
 )
 from schedule.models.rules import Rule
-from schedule.utils import OccurrenceReplacer
-
-
-def _localize_occurrence_start(start, tzinfo, use_naive):
-    """Interpret a recurrence's wall time in the query timezone."""
-    start = pytz.timezone(str(tzinfo)).localize(start)
-    if use_naive:
-        return timezone.make_naive(start, tzinfo)
-    return start
 
 
 class EventManager(models.Manager):
@@ -127,131 +117,27 @@ class Event(models.Model):
         >>> ["%s to %s" %(o.start, o.end) for o in occurrences]
         []
         """
-
-        # Explanation of clear_prefetch:
-        #
-        # Periods, and their subclasses like Week, call
-        # prefetch_related('occurrence_set') on all events in their
-        # purview. This reduces the database queries they make from
-        # len()+1 to 2. However, having a cached occurrence_set on the
-        # Event model instance can sometimes cause Events to have a
-        # different view of the state of occurrences than the Period
-        # managing them.
-        #
-        # E.g., if you create an unsaved occurrence, move it to a
-        # different time [which saves the event], keep a reference to
-        # the moved occurrence, & refetch all occurrences from the
-        # Period without clearing the prefetch cache, you'll end up
-        # with two Occurrences for the same event but different moved
-        # states. It's a complicated scenario, but can happen. (See
-        # tests/test_occurrence.py#test_moved_occurrences, which caught
-        # this bug in the first place.)
-        #
-        # To prevent this, we clear the select_related cache by default
-        # before we call an event's get_occurrences, but allow Period
-        # to override this cache clear since it already fetches all
-        # occurrence_sets via prefetch_related in its get_occurrences.
-        if clear_prefetch:
-            self.refresh_from_db()
-
-        persisted_occurrences = self.occurrence_set.all()
-        occ_replacer = OccurrenceReplacer(persisted_occurrences)
-        occurrences = self._get_occurrence_list(start, end)
-        final_occurrences = []
-        for occ in occurrences:
-            # replace occurrences with their persisted counterparts
-            if occ_replacer.has_occurrence(occ):
-                p_occ = occ_replacer.get_occurrence(occ)
-                # ...but only if they are within this period
-                if p_occ.start < end and p_occ.end >= start:
-                    final_occurrences.append(p_occ)
-            else:
-                final_occurrences.append(occ)
-        # then add persisted occurrences which originated outside of this period but now
-        # fall within it
-        final_occurrences += occ_replacer.get_additional_occurrences(start, end)
-        return final_occurrences
+        return EventOccurrences(self, Occurrence).get_occurrences(
+            start, end, clear_prefetch
+        )
 
     def get_rrule_object(self, tzinfo):
         return recurrence_rrule(self, tzinfo)
 
     def _create_occurrence(self, start, end=None):
-        if end is None:
-            end = start + (self.end - self.start)
-        return Occurrence(
-            event=self, start=start, end=end, original_start=start, original_end=end
-        )
+        return EventOccurrences(self, Occurrence).create_occurrence(start, end)
 
     def get_occurrence(self, date):
-        use_naive = timezone.is_naive(date)
-        tzinfo = datetime.timezone.utc
-        if timezone.is_naive(date):
-            date = timezone.make_aware(date, tzinfo)
-        if date.tzinfo:
-            tzinfo = date.tzinfo
-        rule = self.get_rrule_object(tzinfo)
-        if rule:
-            next_occurrence = rule.after(
-                date.astimezone(tzinfo).replace(tzinfo=None), inc=True
-            )
-            next_occurrence = pytz.timezone(str(tzinfo)).localize(next_occurrence)
-        else:
-            next_occurrence = self.start
-        if next_occurrence == date:
-            try:
-                return Occurrence.objects.get(event=self, original_start=date)
-            except Occurrence.DoesNotExist:
-                if use_naive:
-                    next_occurrence = timezone.make_naive(next_occurrence, tzinfo)
-                return self._create_occurrence(next_occurrence)
+        return EventOccurrences(self, Occurrence).get_occurrence(date)
 
     def _get_occurrence_list(self, start, end):
         """
         Returns a list of occurrences that fall completely or partially inside
         the timespan defined by start (inclusive) and end (exclusive)
         """
-        if self.rule is None:
-            if self.start < end and self.end > start:
-                return [self._create_occurrence(self.start)]
-            return []
+        return EventOccurrences(self, Occurrence).get_occurrence_list(start, end)
 
-        duration = self.end - self.start
-        use_naive = timezone.is_naive(start)
-        tzinfo = start.tzinfo or datetime.timezone.utc
-        # Limit timespan to recurring period.
-        if self.end_recurring_period and self.end_recurring_period < end:
-            end = self.end_recurring_period
-        start_rule = self.get_rrule_object(tzinfo)
-        start = start.replace(tzinfo=None)
-        if timezone.is_aware(end):
-            end = end.astimezone(tzinfo).replace(tzinfo=None)
-
-        occurrences = []
-        for occurrence_start in self._recurring_starts(
-            start_rule, start, end, duration
-        ):
-            occurrence_start = _localize_occurrence_start(
-                occurrence_start, tzinfo, use_naive
-            )
-            occurrence = self._create_occurrence(
-                occurrence_start, occurrence_start + duration
-            )
-            if occurrence not in occurrences:
-                occurrences.append(occurrence)
-        return occurrences
-
-    @staticmethod
-    def _recurring_starts(start_rule, start, end, duration):
-        """Include an overlapping prior start and exclude the window's end."""
-        starts = []
-        closest_start = start_rule.before(start, inc=False)
-        if closest_start is not None and closest_start + duration > start:
-            starts.append(closest_start)
-        in_window = start_rule.between(start, end, inc=True)
-        if in_window and in_window[-1] == end:
-            in_window.pop()
-        starts.extend(in_window)
-        return starts
+    _recurring_starts = staticmethod(_recurring_starts)
 
     def _occurrences_after_generator(self, after=None):
         """
@@ -259,27 +145,7 @@ class Event(models.Model):
         datetime ``after``. (Optionally) This generator will return up to
         ``max_occurrences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
-
-        tzinfo = datetime.timezone.utc
-        if after is None:
-            after = timezone.now()
-        elif not timezone.is_naive(after):
-            tzinfo = after.tzinfo
-        rule = self.get_rrule_object(tzinfo)
-        if rule is None:
-            if self.end > after:
-                yield self._create_occurrence(self.start, self.end)
-            return
-        date_iter = iter(rule)
-        difference = self.end - self.start
-        loop_counter = 0
-        for o_start in date_iter:
-            o_start = pytz.timezone(str(tzinfo)).localize(o_start)
-            o_end = o_start + difference
-            if o_end > after:
-                yield self._create_occurrence(o_start, o_end)
-
-            loop_counter += 1
+        yield from EventOccurrences(self, Occurrence).occurrences_after_generator(after)
 
     def occurrences_after(self, after=None, max_occurrences=None):
         """
@@ -287,21 +153,9 @@ class Event(models.Model):
         ``after``.  Includes all of the persisted Occurrences. (Optionally) This generator will return up to
         ``max_occurrences`` occurrences or has reached ``self.end_recurring_period``, whichever is smallest.
         """
-        if after is None:
-            after = timezone.now()
-        occ_replacer = OccurrenceReplacer(self.occurrence_set.all())
-        generator = self._occurrences_after_generator(after)
-        trickies = list(
-            self.occurrence_set.filter(
-                original_start__lte=after, start__gte=after
-            ).order_by("start")
+        yield from EventOccurrences(self, Occurrence).occurrences_after(
+            after, max_occurrences
         )
-        for index, nxt in enumerate(generator):
-            if max_occurrences and index > max_occurrences - 1:
-                break
-            if len(trickies) > 0 and (nxt is None or nxt.start > trickies[0].start):
-                yield trickies.pop(0)
-            yield occ_replacer.get_occurrence(nxt)
 
     @property
     def event_start_params(self):
