@@ -233,58 +233,48 @@ class Event(models.Model):
         Returns a list of occurrences that fall completely or partially inside
         the timespan defined by start (inclusive) and end (exclusive)
         """
-        if self.rule is not None:
-            duration = self.end - self.start
-            use_naive = timezone.is_naive(start)
-
-            # Use the timezone from the start date
-            tzinfo = datetime.timezone.utc
-            if start.tzinfo:
-                tzinfo = start.tzinfo
-
-            # Limit timespan to recurring period
-            occurrences = []
-            if self.end_recurring_period and self.end_recurring_period < end:
-                end = self.end_recurring_period
-
-            start_rule = self.get_rrule_object(tzinfo)
-            start = start.replace(tzinfo=None)
-            if timezone.is_aware(end):
-                end = end.astimezone(tzinfo).replace(tzinfo=None)
-
-            o_starts = []
-
-            # Occurrences that start before the timespan but ends inside or after timespan
-            closest_start = start_rule.before(start, inc=False)
-            if closest_start is not None and closest_start + duration > start:
-                o_starts.append(closest_start)
-
-            # Occurrences starts that happen inside timespan (end-inclusive)
-            occs = start_rule.between(start, end, inc=True)
-            # The occurrence that start on the end of the timespan is potentially
-            # included above, lets remove if thats the case.
-            if len(occs) > 0:
-                if occs[-1] == end:
-                    occs.pop()
-            # Add the occurrences found inside timespan
-            o_starts.extend(occs)
-
-            # Create the Occurrence objects for the found start dates
-            for o_start in o_starts:
-                o_start = pytz.timezone(str(tzinfo)).localize(o_start)
-                if use_naive:
-                    o_start = timezone.make_naive(o_start, tzinfo)
-                o_end = o_start + duration
-                occurrence = self._create_occurrence(o_start, o_end)
-                if occurrence not in occurrences:
-                    occurrences.append(occurrence)
-            return occurrences
-        else:
-            # check if event is in the period
+        if self.rule is None:
             if self.start < end and self.end > start:
                 return [self._create_occurrence(self.start)]
-            else:
-                return []
+            return []
+
+        duration = self.end - self.start
+        use_naive = timezone.is_naive(start)
+        tzinfo = start.tzinfo or datetime.timezone.utc
+        # Limit timespan to recurring period.
+        if self.end_recurring_period and self.end_recurring_period < end:
+            end = self.end_recurring_period
+        start_rule = self.get_rrule_object(tzinfo)
+        start = start.replace(tzinfo=None)
+        if timezone.is_aware(end):
+            end = end.astimezone(tzinfo).replace(tzinfo=None)
+
+        occurrences = []
+        for occurrence_start in self._recurring_starts(
+            start_rule, start, end, duration
+        ):
+            occurrence_start = pytz.timezone(str(tzinfo)).localize(occurrence_start)
+            if use_naive:
+                occurrence_start = timezone.make_naive(occurrence_start, tzinfo)
+            occurrence = self._create_occurrence(
+                occurrence_start, occurrence_start + duration
+            )
+            if occurrence not in occurrences:
+                occurrences.append(occurrence)
+        return occurrences
+
+    @staticmethod
+    def _recurring_starts(start_rule, start, end, duration):
+        """Include an overlapping prior start and exclude the window's end."""
+        starts = []
+        closest_start = start_rule.before(start, inc=False)
+        if closest_start is not None and closest_start + duration > start:
+            starts.append(closest_start)
+        in_window = start_rule.between(start, end, inc=True)
+        if in_window and in_window[-1] == end:
+            in_window.pop()
+        starts.extend(in_window)
+        return starts
 
     def _occurrences_after_generator(self, after=None):
         """
