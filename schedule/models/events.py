@@ -37,6 +37,14 @@ param_dict_order = {
 }
 
 
+def _localize_occurrence_start(start, tzinfo, use_naive):
+    """Interpret a recurrence's wall time in the query timezone."""
+    start = pytz.timezone(str(tzinfo)).localize(start)
+    if use_naive:
+        return timezone.make_naive(start, tzinfo)
+    return start
+
+
 class EventManager(models.Manager):
     def get_for_object(self, content_object, distinction="", inherit=True):
         return EventRelation.objects.get_events_for_object(
@@ -253,9 +261,9 @@ class Event(models.Model):
         for occurrence_start in self._recurring_starts(
             start_rule, start, end, duration
         ):
-            occurrence_start = pytz.timezone(str(tzinfo)).localize(occurrence_start)
-            if use_naive:
-                occurrence_start = timezone.make_naive(occurrence_start, tzinfo)
+            occurrence_start = _localize_occurrence_start(
+                occurrence_start, tzinfo, use_naive
+            )
             occurrence = self._create_occurrence(
                 occurrence_start, occurrence_start + duration
             )
