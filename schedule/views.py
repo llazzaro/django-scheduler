@@ -377,122 +377,94 @@ def api_occurrences(request):
     return JsonResponse(response_data, safe=False)
 
 
-def _api_occurrences(start, end, calendar_slugs, timezone):
-
+def _occurrence_api_dates(start, end, timezone):
+    """Parse FullCalendar dates and apply the requested timezone."""
     if not start or not end:
         raise ValueError("Start and end parameters are required")
-    # version 2 of full calendar
     if "-" in start:
-
-        def convert(ddatetime):
-            if ddatetime:
-                return dateutil.parser.parse(ddatetime)
-
+        start, end = dateutil.parser.parse(start), dateutil.parser.parse(end)
     else:
-
-        def convert(ddatetime):
-            return datetime.datetime.utcfromtimestamp(float(ddatetime))
-
-    start = convert(start)
-    end = convert(end)
-    current_tz = False
-    if timezone and timezone in pytz.common_timezones:
-        # Localize naive dates; preserve the instant of dates with an offset.
-        current_tz = pytz.timezone(timezone)
-        start = (
-            current_tz.localize(start)
-            if start.tzinfo is None
-            else start.astimezone(current_tz)
+        start, end = (
+            datetime.datetime.utcfromtimestamp(float(value)) for value in (start, end)
         )
-        end = (
-            current_tz.localize(end)
-            if end.tzinfo is None
-            else end.astimezone(current_tz)
-        )
-    elif settings.USE_TZ:
-        # If USE_TZ is True, make start and end dates aware in UTC timezone
-        utc = pytz.UTC
-        start = utc.localize(start) if start.tzinfo is None else start
-        end = utc.localize(end) if end.tzinfo is None else end
+    current_tz = pytz.timezone(timezone) if timezone in pytz.common_timezones else None
+    date_tz = current_tz or (pytz.UTC if settings.USE_TZ else None)
+    if current_tz:
+        start = _occurrence_api_timezone(start, current_tz)
+        end = _occurrence_api_timezone(end, current_tz)
+    elif date_tz:
+        start = date_tz.localize(start) if start.tzinfo is None else start
+        end = date_tz.localize(end) if end.tzinfo is None else end
+    return start, end, current_tz
 
-    if calendar_slugs:
-        # will raise DoesNotExist exception if no match
-        calendars = list(Calendar.objects.filter(slug__in=calendar_slugs))
-        missing_calendars = set(calendar_slugs) - set([s.slug for s in calendars])
-        if missing_calendars:
-            missing_msg = ", ".join("'{0}'".format(s) for s in missing_calendars)
-            msg = "Calendars {0} do not exist.".format(missing_msg)
-            raise Calendar.DoesNotExist(msg)
-    # if no calendar slug is given, get all the calendars
-    else:
-        calendars = Calendar.objects.all()
-    response_data = []
-    # Algorithm to get an id for the occurrences in fullcalendar (NOT THE SAME
-    # AS IN THE DB) which are always unique.
-    # Fullcalendar thinks that all their "events" with the same "event.id" in
-    # their system are the same object, because it's not really built around
-    # the idea of events (generators)
-    # and occurrences (their events).
-    # Check the "persisted" boolean value that tells it whether to change the
-    # event, using the "event_id" or the occurrence with the specified "id".
-    # for more info https://github.com/llazzaro/django-scheduler/pull/169
-    i = 1
+
+def _occurrence_api_timezone(value, tz):
+    if value.tzinfo is None:
+        return tz.localize(value)
+    return value.astimezone(tz)
+
+
+def _occurrence_api_calendars(calendar_slugs):
+    if not calendar_slugs:
+        return Calendar.objects.all()
+    calendars = list(Calendar.objects.filter(slug__in=calendar_slugs))
+    missing_calendars = set(calendar_slugs) - {calendar.slug for calendar in calendars}
+    if missing_calendars:
+        missing_msg = ", ".join("'{0}'".format(slug) for slug in missing_calendars)
+        raise Calendar.DoesNotExist("Calendars {0} do not exist.".format(missing_msg))
+    return calendars
+
+
+def _occurrence_api_data(occurrence, occurrence_id, current_tz):
+    event = occurrence.event
+    event_start, event_end = occurrence.start, occurrence.end
+    recur_period_end = event.end_recurring_period
+    if current_tz:
+        event_start = event_start.astimezone(current_tz)
+        event_end = event_end.astimezone(current_tz)
+        if recur_period_end:
+            recur_period_end = recur_period_end.astimezone(current_tz)
+    return {
+        "id": occurrence_id,
+        "title": occurrence.title,
+        "start": event_start,
+        "end": event_end,
+        "existed": bool(occurrence.id),
+        "event_id": event.id,
+        "color": event.color_event,
+        "description": occurrence.description,
+        "rule": event.rule.name if event.rule else None,
+        "end_recurring_period": recur_period_end,
+        "creator": str(event.creator),
+        "calendar": event.calendar.slug,
+        "cancelled": occurrence.cancelled,
+    }
+
+
+def _api_occurrences(start, end, calendar_slugs, timezone):
+    start, end, current_tz = _occurrence_api_dates(start, end, timezone)
+    calendars = _occurrence_api_calendars(calendar_slugs)
+    # FullCalendar IDs must be unique across persisted and generated occurrences.
+    # The "existed" flag distinguishes database IDs from generated response IDs.
+    next_id = 1
     if Occurrence.objects.all().exists():
-        i = Occurrence.objects.latest("id").id + 1
+        next_id = Occurrence.objects.latest("id").id + 1
     event_list = []
     for calendar in calendars:
-        # create flat list of events from each calendar
         event_list += calendar.events.filter(start__lte=end).filter(
             Q(end_recurring_period__gte=start) | Q(end_recurring_period__isnull=True)
         )
+    response_data = []
     for event in event_list:
-        occurrences = event.get_occurrences(start, end)
-        for occurrence in occurrences:
-            existed = False
-
-            if occurrence.id:
-                occurrence_id = occurrence.id
-                existed = True
-            else:
-                occurrence_id = i
-                i += 1
-
-            recur_rule = occurrence.event.rule.name if occurrence.event.rule else None
-
-            if occurrence.event.end_recurring_period:
-                recur_period_end = occurrence.event.end_recurring_period
-                if current_tz:
-                    # make recur_period_end aware in given timezone
-                    recur_period_end = recur_period_end.astimezone(current_tz)
-                recur_period_end = recur_period_end
-            else:
-                recur_period_end = None
-
-            event_start = occurrence.start
-            event_end = occurrence.end
-            if current_tz:
-                # make event start and end dates aware in given timezone
-                event_start = event_start.astimezone(current_tz)
-                event_end = event_end.astimezone(current_tz)
+        for occurrence in event.get_occurrences(start, end):
+            occurrence_id = occurrence.id
+            if not occurrence_id:
+                occurrence_id = next_id
+                next_id += 1
             if occurrence.cancelled:
-                # fixes bug 508
                 continue
             response_data.append(
-                {
-                    "id": occurrence_id,
-                    "title": occurrence.title,
-                    "start": event_start,
-                    "end": event_end,
-                    "existed": existed,
-                    "event_id": occurrence.event.id,
-                    "color": occurrence.event.color_event,
-                    "description": occurrence.description,
-                    "rule": recur_rule,
-                    "end_recurring_period": recur_period_end,
-                    "creator": str(occurrence.event.creator),
-                    "calendar": occurrence.event.calendar.slug,
-                    "cancelled": occurrence.cancelled,
-                }
+                _occurrence_api_data(occurrence, occurrence_id, current_tz)
             )
     return response_data
 

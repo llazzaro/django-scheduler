@@ -12,6 +12,7 @@ from schedule.models.events import Event, Occurrence
 from schedule.models.rules import Rule
 from schedule.settings import USE_FULLCALENDAR
 from schedule.views import (
+    _occurrence_api_dates,
     check_next_url,
     coerce_date_dict,
     get_next_url,
@@ -852,3 +853,30 @@ class TestOccurrencePreview(TestCase):
         self.assertEqual(
             occurrence.end, datetime.datetime(2008, 4, 20, 9, 0, tzinfo=pytz.utc)
         )
+
+
+class TestOccurrenceApiDates(SimpleTestCase):
+    def test_unix_timestamps_are_aware_with_use_tz(self):
+        start, end, tz = _occurrence_api_dates("1199520000", "1199606400", None)
+        self.assertEqual(start, datetime.datetime(2008, 1, 5, 8, tzinfo=pytz.UTC))
+        self.assertEqual(end - start, datetime.timedelta(days=1))
+        self.assertIsNone(tz)
+
+    def test_default_timezone_preserves_explicit_offsets(self):
+        start, end, tz = _occurrence_api_dates(
+            "2008-01-05T08:00:00+02:00", "2008-01-05T09:00:00+02:00", None
+        )
+        self.assertEqual(start.utcoffset(), datetime.timedelta(hours=2))
+        self.assertEqual(end.utcoffset(), datetime.timedelta(hours=2))
+        self.assertIsNone(tz)
+
+    @override_settings(USE_TZ=False)
+    def test_naive_dates_stay_naive_without_valid_timezone(self):
+        for tz_name in (None, "invalid"):
+            with self.subTest(timezone=tz_name):
+                start, end, tz = _occurrence_api_dates(
+                    "2008-01-05", "2008-01-06", tz_name
+                )
+                self.assertIsNone(start.tzinfo)
+                self.assertIsNone(end.tzinfo)
+                self.assertIsNone(tz)
