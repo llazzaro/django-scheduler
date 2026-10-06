@@ -24,6 +24,49 @@ class TestEvent(TestCase):
             calendar=cal,
         )
 
+    def test_recurring_window_boundaries(self):
+        rule = Rule.objects.create(frequency="DAILY")
+        for tzinfo in (None, pytz.UTC):
+            with self.subTest(tzinfo=tzinfo):
+                start = datetime.datetime(2008, 1, 5, 8, tzinfo=tzinfo)
+                event = Event(
+                    start=start,
+                    end=start + datetime.timedelta(hours=2),
+                    rule=rule,
+                    end_recurring_period=start + datetime.timedelta(days=3),
+                )
+                # Include the occurrence overlapping the beginning and exclude
+                # the occurrence starting exactly at the end of the window.
+                occurrences = event._get_occurrence_list(
+                    start + datetime.timedelta(hours=1),
+                    start + datetime.timedelta(days=2),
+                )
+                self.assertEqual(
+                    [occ.start for occ in occurrences],
+                    [start, start + datetime.timedelta(days=1)],
+                )
+                self.assertEqual(
+                    [occ.end for occ in occurrences],
+                    [
+                        start + datetime.timedelta(hours=2),
+                        start + datetime.timedelta(days=1, hours=2),
+                    ],
+                )
+                # An occurrence ending exactly at the beginning is excluded.
+                occurrences = event._get_occurrence_list(
+                    start + datetime.timedelta(hours=2),
+                    start + datetime.timedelta(days=1),
+                )
+                self.assertEqual(occurrences, [])
+                # The recurring period also provides an exclusive upper bound.
+                occurrences = event._get_occurrence_list(
+                    start, start + datetime.timedelta(days=5)
+                )
+                self.assertEqual(
+                    [occ.start for occ in occurrences],
+                    [start + datetime.timedelta(days=day) for day in range(3)],
+                )
+
     def test_edge_case_events(self):
         cal = Calendar.objects.create(name="MyCal")
         event_one = Event.objects.create(
