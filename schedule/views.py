@@ -381,12 +381,7 @@ def _occurrence_api_dates(start, end, timezone):
     """Parse FullCalendar dates and apply the requested timezone."""
     if not start or not end:
         raise ValueError("Start and end parameters are required")
-    if "-" in start:
-        start, end = dateutil.parser.parse(start), dateutil.parser.parse(end)
-    else:
-        start, end = (
-            datetime.datetime.utcfromtimestamp(float(value)) for value in (start, end)
-        )
+    start, end = _parse_occurrence_api_dates(start, end)
     current_tz = pytz.timezone(timezone) if timezone in pytz.common_timezones else None
     date_tz = current_tz or (pytz.UTC if settings.USE_TZ else None)
     if current_tz:
@@ -396,6 +391,15 @@ def _occurrence_api_dates(start, end, timezone):
         start = date_tz.localize(start) if start.tzinfo is None else start
         end = date_tz.localize(end) if end.tzinfo is None else end
     return start, end, current_tz
+
+
+def _parse_occurrence_api_dates(start, end):
+    """Keep FullCalendar's date-string and Unix timestamp parsing separate."""
+    if "-" in start:
+        return dateutil.parser.parse(start), dateutil.parser.parse(end)
+    return tuple(
+        datetime.datetime.utcfromtimestamp(float(value)) for value in (start, end)
+    )
 
 
 def _occurrence_api_timezone(value, tz):
