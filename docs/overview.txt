@@ -23,7 +23,8 @@ What is a Rule?
 ---------------
 
 A rule defines how an event will recur.  As of right now, there are no rules
-included with the app, so you will have to create your own. Doing this is somewhat straight forward.
+included with the app, so you will have to create your own. See
+:doc:`rules` for Django admin instructions, parameter syntax, and examples.
 
 Accessing Occurrences with an Event
 -----------------------------------
