@@ -1,0 +1,123 @@
+==========================
+Recurrence Rule Parameters
+==========================
+
+A ``Rule`` defines how an event repeats. Its ``frequency`` is the base recurrence
+period, such as ``WEEKLY`` or ``MONTHLY``. Its ``params`` field supplies additional
+instructions, such as which weekday to use or how many occurrences to generate.
+Select the rule on an event to apply it. The event supplies the starting date,
+time, and occurrence duration.
+
+Creating a rule in Django admin
+-------------------------------
+
+1. Open **Rules** in Django admin and add a rule.
+2. Enter a name and description, and select a frequency.
+3. Enter the extra parameters in **Params**, using the syntax described below.
+4. Save the rule, then select it in the event's **Rule** field.
+
+For three occurrences on Wednesdays, enter::
+
+    Frequency: WEEKLY
+    Params:    byweekday:2;count:3
+
+``byweekday:2`` selects Wednesday. ``count:3`` limits the entire recurrence to
+three occurrences, rather than three occurrences per week. An event starting
+Wednesday, October 7, 2026 at 09:00 therefore repeats on October 7, 14, and 21 at
+09:00. If the event lasts an hour, each occurrence lasts an hour.
+
+Parameter syntax
+----------------
+
+Use ``name:value`` for each parameter. Separate parameters with semicolons
+(``;``), and separate multiple values for one parameter with commas (``,``)::
+
+    byweekday:2;count:3
+    byweekday:0,2,4
+
+Use parameter names such as ``byweekday`` and ``count``. Frequency is a separate
+field; do not paste an iCalendar string such as ``FREQ=WEEKLY;BYDAY=WE`` into
+``params``. Leaving ``params`` blank repeats at the selected frequency using the
+event's starting date and time.
+
+Weekdays can be written as numbers or two-letter names:
+
+.. list-table:: Weekday values
+   :header-rows: 1
+   :widths: 40 30 30
+
+   * - Day
+     - Number
+     - Name
+   * - Monday
+     - ``0``
+     - ``MO``
+   * - Tuesday
+     - ``1``
+     - ``TU``
+   * - Wednesday
+     - ``2``
+     - ``WE``
+   * - Thursday
+     - ``3``
+     - ``TH``
+   * - Friday
+     - ``4``
+     - ``FR``
+   * - Saturday
+     - ``5``
+     - ``SA``
+   * - Sunday
+     - ``6``
+     - ``SU``
+
+For example, ``byweekday:WE;count:3`` is equivalent to
+``byweekday:2;count:3``.
+
+Examples
+--------
+
+.. list-table:: Common recurrence rules
+   :header-rows: 1
+   :widths: 20 40 40
+
+   * - Frequency
+     - Params
+     - Meaning
+   * - ``WEEKLY``
+     - ``byweekday:2``
+     - Every Wednesday.
+   * - ``WEEKLY``
+     - ``byweekday:2;count:3``
+     - Three Wednesday occurrences in total.
+   * - ``WEEKLY``
+     - ``interval:2;byweekday:2``
+     - Wednesday every other week.
+   * - ``MONTHLY``
+     - ``bymonthday:15``
+     - The 15th of each month.
+   * - ``MONTHLY``
+     - ``byweekday:FR;bysetpos:-1``
+     - The last Friday of each month.
+
+The event's start also influences parameter selection. In the current
+implementation, a weekly ``byweekday`` list containing the event's starting
+weekday is narrowed to that weekday. For example, ``byweekday:0,2,4`` on an event
+starting on Wednesday currently generates Wednesdays only. The parser accepts
+the list, but the resulting event rule is not necessarily the same list. Check
+``event.get_rrule_object(tzinfo)`` when using multiple values.
+
+Limiting recurrence
+-------------------
+
+Use ``count`` to limit the number of occurrences, or set the event's
+``end_recurring_period`` to limit recurrence by date. The latter is passed to
+dateutil as ``until``. Avoid combining both limits: dateutil deprecates using
+``count`` and ``until`` together.
+
+For the full meanings of parameters such as ``interval``, ``bymonth``,
+``bymonthday``, ``byweekday``, and ``bysetpos``, see the
+`dateutil recurrence documentation <https://dateutil.readthedocs.io/en/stable/rrule.html>`_.
+Django Scheduler's parser accepts integer values, comma-separated integer lists,
+and the weekday names above; dateutil examples using Python expressions such as
+``FR(-1)`` cannot be pasted directly into ``params``.
